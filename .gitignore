@@ -1,0 +1,15 @@
+# idea
+bin
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+run
+logs

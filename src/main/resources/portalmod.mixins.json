@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "io.github.serialsniper.portalmod.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "portalmod.refmap.json",
+  "mixins": [
+    "EntityMixin",
+    "LivingEntityMixin"
+  ],
+  "client": [
+    "BlockMixin",
+    "LevelRendererMixin"
+  ],
+  "minVersion": "0.8"
+}
