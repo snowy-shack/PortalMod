@@ -1,0 +1,14 @@
+{
+	"radio.loop": {
+		"category": "music",
+		"sounds": [
+			"portalmod:radio/loop"
+		]
+	},
+	"radio.dinosaur1": {
+		"category": "music",
+		"sounds": [
+			"portalmod:radio/dinosaur1"
+		]
+	}
+}

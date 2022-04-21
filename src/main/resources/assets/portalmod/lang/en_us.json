@@ -1,0 +1,22 @@
+{
+	"item.portalmod.portalgun": "§9Aperture Science§r Handheld Portal Device",
+	"item.portalmod.wrench": "Wrench",
+
+	"block.portalmod.portalable_block": "Portalable Block",
+	"block.portalmod.radio": "Radio",
+	"block.portalmod.antline": "Antline",
+	"block.portalmod.faithplate": "§9Aperture Science§r Aerial Faith Plate",
+	"block.portalmod.panel_portalable": "Portalable Panel",
+	"block.portalmod.panel_portalable_small": "Portalable Block",
+	"block.portalmod.panel_portalable_checker": "Checkered Portalable Block",
+	"block.portalmod.panel_unportalable_small": "Unportalable Block",
+	"block.portalmod.panel_unportalable_mini": "Mini Unportalable Blocks",
+
+	"itemGroup.portalmod": "Portal Mod Tab",
+
+	"entity.portalmod.companion_cube": "Companion Cube",
+
+	"death.attack.companion_cube": "%1$s got the head hit by their faithful %2$s",
+
+	"screen.portalmod.faithplate": "Faith Plate Configuration"
+}
