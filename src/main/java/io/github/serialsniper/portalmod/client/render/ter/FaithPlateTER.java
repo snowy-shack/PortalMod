@@ -2,6 +2,7 @@ package io.github.serialsniper.portalmod.client.render.ter;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import io.github.serialsniper.portalmod.client.render.model.FaithPlateTargetBakedModel;
 import io.github.serialsniper.portalmod.common.blockentities.FaithPlateTileEntity;
 import io.github.serialsniper.portalmod.core.init.ItemInit;
 import io.github.serialsniper.portalmod.core.util.FaithPlateParabola;
@@ -11,22 +12,23 @@ import net.minecraft.block.EndRodBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.Item;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
+import org.lwjgl.opengl.GL11;
+
+import java.util.Random;
 
 public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     public static BlockPos selected;
@@ -37,11 +39,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
 
     @Override
     public void render(FaithPlateTileEntity tileEntity, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int combinedLight, int combinedOverlay) {
-        // todo add class block pos helper
-
-        if(tileEntity.getBlockPos().getX() != selected.getX()
-            || tileEntity.getBlockPos().getY() != selected.getY()
-            || tileEntity.getBlockPos().getZ() != selected.getZ())
+        if(selected == null || !tileEntity.getBlockPos().equals(selected))
             return;
 
         Item mainHandItem = Minecraft.getInstance().player.getItemInHand(Hand.MAIN_HAND).getItem();
@@ -91,40 +89,72 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         double a = parabola.getA();
         double b = parabola.getB();
 
+        if(Double.isNaN(a)) {
+            a = -1;
+            b = 1;
+        }
+
 //        double a = -0.0102913684953;
 //        double b = 0.600860619028;
 
         IVertexBuilder vertexBuilder = renderBuffer.getBuffer(RenderType.lines());
+//        IVertexBuilder vertexBuilder2 = renderBuffer.getBuffer(RenderType.solid());
 
         matrixStack.pushPose();
         matrixStack.translate(0.5f, 1, 0.5f);
         Matrix4f matrix4f = matrixStack.last().pose();
 
-        for(float i = 0;; i += .1f) {
+//        float distance = (float)Math.sqrt(offset.x * offset.x + offset.z * offset.z);
+//
+//        float increment = MathHelper.clamp(10f / (float)Math.sqrt(offset.x * offset.x + offset.z * offset.z), .01f, .9f);
+        final float increment = .1f;
+
+        for(float i = 0;; i += increment) {
             float x = (float)(i * parabola.getComponentX());
             float z = (float)(i * parabola.getComponentZ());
             float y = (float)(a * i * i + b * i);
 
             BlockPos pos = tileEntity.getBlockPos().offset(0.5f + x, 1 + y, 0.5f + z);
-            BlockState state = tileEntity.getLevel().getBlockState(pos);
-            BlockState thisState = tileEntity.getBlockState();
+//            BlockState state = tileEntity.getLevel().getBlockState(pos);
+//            BlockState thisState = tileEntity.getBlockState();
 
-            if(!state.isAir() && state != thisState) {
+            if(pos.equals(new BlockPos(hitPos))) {
                 matrixStack.popPose();
-                BlockPos offset2 = pos.subtract(thisPos).relative(hitDirection);
+                BlockPos offset2 = pos.subtract(thisPos);
                 matrixStack.translate(offset2.getX(), offset2.getY(), offset2.getZ());
-                Minecraft.getInstance().getBlockRenderer().renderBlock(
-                        Blocks.END_ROD.defaultBlockState().setValue(EndRodBlock.FACING, hitDirection),
-                        matrixStack, renderBuffer, combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
-                matrixStack.pushPose();
-                break;
+
+//                Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(Minecraft.getInstance().level, new FaithPlateTargetBakedModel(), Blocks.AIR.defaultBlockState(), offset2, matrixStack, vertexBuilder, false, new Random(), 0, );
+                renderBuffer.getBuffer(RenderType.cutout()).putBulkData(matrixStack.last(), new FaithPlateTargetBakedModel().getQuads(null, hitDirection, null, null).get(0), 1, 1, 1, combinedLight, combinedOverlay);
+
+//                Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStack.last(), renderBuffer.getBuffer(RenderTypeLookup.getRenderType(p_228791_1_, false)), p_228791_1_, ibakedmodel, f, f1, f2, p_228791_4_, p_228791_5_, modelData);
+
+//                Minecraft.getInstance().getBlockRenderer().renderBlock(
+//                        Blocks.END_ROD.defaultBlockState().setValue(EndRodBlock.FACING, hitDirection),
+//                        matrixStack, renderBuffer, combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
+                return;
             }
+
+//            if(!state.isAir() && state != thisState) {
+//                matrixStack.popPose();
+//                BlockPos offset2 = pos.subtract(thisPos).relative(hitDirection);
+//                matrixStack.translate(offset2.getX(), offset2.getY(), offset2.getZ());
+//                Minecraft.getInstance().getBlockRenderer().renderBlock(
+//                        Blocks.END_ROD.defaultBlockState().setValue(EndRodBlock.FACING, hitDirection),
+//                        matrixStack, renderBuffer, combinedLight, combinedOverlay, EmptyModelData.INSTANCE);
+//                return;
+//            }
 
             if(tileEntity.getBlockPos().getY() + y < -100)
                 break;
 
-//            if((int)x % 2 != 0)
+            final float currentDistance = (float)Math.sqrt(x * x + z * z);
+//            final int rate = 3;
+//            final float scaledRate = distance / (float)rate;
+//            if((int)currentDistance % Math.ceil(scaledRate) > scaledRate / 2f)
 //                continue;
+
+            if((int)currentDistance % 2 != 0)
+                continue;
 
             vertexBuilder.vertex(matrix4f, x, y, z).color(1, 1, 1, 1f).endVertex();
 

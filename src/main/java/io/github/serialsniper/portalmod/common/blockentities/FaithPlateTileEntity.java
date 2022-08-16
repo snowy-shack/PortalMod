@@ -3,7 +3,6 @@ package io.github.serialsniper.portalmod.common.blockentities;
 import io.github.serialsniper.portalmod.core.init.TileEntityTypeInit;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
@@ -15,7 +14,8 @@ import net.minecraft.util.math.BlockPos;
 public class FaithPlateTileEntity extends TileEntity {
     private boolean enabled = false;
     private BlockPos targetPos;
-    private Direction side;
+    private Direction targetSide;
+    private float height;
 
     public FaithPlateTileEntity(TileEntityType<?> type) {
         super(type);
@@ -27,12 +27,13 @@ public class FaithPlateTileEntity extends TileEntity {
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
-        if(targetPos != null && side != null) {
+        if(targetPos != null && targetSide != null) {
             CompoundNBT target = new CompoundNBT();
             target.putInt("x", targetPos.getX());
             target.putInt("y", targetPos.getY());
             target.putInt("z", targetPos.getZ());
-            target.putByte("side", (byte)side.get3DDataValue());
+            target.putByte("side", (byte) targetSide.get3DDataValue());
+            target.putFloat("height", height);
             nbt.put("target", target);
         } else {
             enabled = false;
@@ -51,21 +52,40 @@ public class FaithPlateTileEntity extends TileEntity {
     public void load(CompoundNBT nbt) {
         if(nbt.contains("enabled"))
             enabled = nbt.getBoolean("enabled");
+        else
+            enabled = false;
 
-        if(nbt.contains("target")) {
+        if(enabled && nbt.contains("target")) {
             CompoundNBT target = nbt.getCompound("target");
-            if(target.contains("x") && target.contains("y") && target.contains("z") && target.contains("side")) {
+            if(target.contains("x") && target.contains("y") && target.contains("z") && target.contains("side") && target.contains("height")) {
                 int x = target.getInt("x");
                 int y = target.getInt("y");
                 int z = target.getInt("z");
                 targetPos = new BlockPos(x, y, z);
-                side = Direction.from3DDataValue(target.getByte("side"));
+                targetSide = Direction.from3DDataValue(target.getByte("side"));
+                height = target.getFloat("height");
             } else {
                 enabled = false;
             }
         } else {
             enabled = false;
         }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public BlockPos getTargetPos() {
+        return targetPos;
+    }
+
+    public Direction getTargetSide() {
+        return targetSide;
+    }
+
+    public float getHeight() {
+        return height;
     }
 
     // chunk update

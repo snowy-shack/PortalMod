@@ -1,6 +1,0 @@
-{
-    "parent": "portalmod:antline/antline_template",
-    "textures": {
-        "antline": "portalmod:antline/active_edge"
-    }
-}

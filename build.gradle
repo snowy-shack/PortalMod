@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin' // mixin
 
-//apply plugin: 'eclipse'
+apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 version = '1.0'
@@ -81,6 +81,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.16.5-36.1.0'
+    annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
 }
 
 mixin {
@@ -88,7 +89,7 @@ mixin {
 
     config "portalmod.mixins.json"
 
-    disableAnnotationProcessorCheck()
+//    disableAnnotationProcessorCheck()
 }
 
 jar {

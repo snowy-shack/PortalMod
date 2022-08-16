@@ -38,14 +38,11 @@ public abstract class LivingEntityMixin extends EntityMixin {
 //            );
 //        }
 //    }
-
-//    @ModifyVariable()
-
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;setDeltaMovement(DDD)V"), slice = @Slice(
             from = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;handleRelativeFrictionAndCalculateMovement(Lnet/minecraft/util/math/vector/Vector3d;F)Lnet/minecraft/util/math/vector/Vector3d;")
     ), method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V")
-    private void travel2(LivingEntity instance, double x, double y, double z) {
-        if(launched)
+    private void portalmod_travel(LivingEntity instance, double x, double y, double z) {
+        if(portalmod_launched)
             instance.setDeltaMovement(instance.getDeltaMovement().x, instance.getDeltaMovement().y - 0.08, instance.getDeltaMovement().z);
         else
             instance.setDeltaMovement(x, y, z);

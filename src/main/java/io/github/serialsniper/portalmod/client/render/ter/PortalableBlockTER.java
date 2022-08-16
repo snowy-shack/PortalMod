@@ -34,8 +34,8 @@ import static org.lwjgl.opengl.GL20.*;
 
 @OnlyIn(Dist.CLIENT)
 public class PortalableBlockTER extends TileEntityRenderer<PortalableBlockTileEntity> {
-	public static final ResourceLocation STENCIL_BLUE = new ResourceLocation(PortalMod.MODID, "textures/blocks/portal_stencil_blue.png");
-	public static final ResourceLocation STENCIL_ORANGE = new ResourceLocation(PortalMod.MODID, "textures/blocks/portal_stencil_orange.png");
+	public static final ResourceLocation STENCIL_BLUE = new ResourceLocation(PortalMod.MODID, "textures/portals/highlight/highlight_blue.png");
+	public static final ResourceLocation STENCIL_ORANGE = new ResourceLocation(PortalMod.MODID, "textures/portals/highlight/highlight_orange.png");
 	public static VertexBuffer screenBuffer;
 	private static int recursion = 0;
 	public static Vector3f clearColor = new Vector3f();
@@ -124,7 +124,8 @@ public class PortalableBlockTER extends TileEntityRenderer<PortalableBlockTileEn
 				RenderSystem.stencilMask(0x00);
 				RenderSystem.stencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
-					RenderSystem.enableAlphaTest();
+//					RenderSystem.enableAlphaTest();
+					RenderSystem.enableBlend();
 
 						RenderSystem.activeTexture(GL_TEXTURE0);
 						Minecraft.getInstance().textureManager.bind(
@@ -136,7 +137,8 @@ public class PortalableBlockTER extends TileEntityRenderer<PortalableBlockTileEn
 
 						RenderSystem.bindTexture(0);
 
-					RenderSystem.disableAlphaTest();
+//					RenderSystem.disableAlphaTest();
+					RenderSystem.disableBlend();
 
 			RenderSystem.enableDepthTest();
 			RenderSystem.enableCull();
@@ -285,7 +287,7 @@ public class PortalableBlockTER extends TileEntityRenderer<PortalableBlockTileEn
 				RenderSystem.stencilMask(0x00);
 				RenderSystem.stencilFunc(GL11.GL_EQUAL, 1, 0xFF);
 				PortalGameRenderer.renderLevel(partialTicks, Util.getNanos(), new MatrixStack(), pos,
-						PortalGun.getPortalPosition(Minecraft.getInstance().player.getMainHandItem(), state.getValue(PortalableBlock.END).other()));
+						PortalGun.getPortalPosition(Minecraft.getInstance().player.getMainHandItem(), state.getValue(PortalableBlock.END).other(), true));
 
 				glDisable(GL_CLIP_PLANE0);
 
@@ -380,7 +382,7 @@ public class PortalableBlockTER extends TileEntityRenderer<PortalableBlockTileEn
 
 		ClientEvents.addPortal(matrixStack.last().pose(), tileEntity.getBlockState().getValue(PortalableBlock.FACING),
 				tileEntity.getBlockState().getValue(PortalableBlock.END), tileEntity.getBlockPos(),
-				PortalGun.getPortalPosition(Minecraft.getInstance().player.getMainHandItem(), tileEntity.getBlockState().getValue(PortalableBlock.END).other()), tileEntity, matrixStack, tileEntity.getBlockState());
+				PortalGun.getPortalPosition(Minecraft.getInstance().player.getMainHandItem(), tileEntity.getBlockState().getValue(PortalableBlock.END).other(), true), tileEntity, matrixStack, tileEntity.getBlockState());
 
 //		renderPortal(tileEntity.getBlockState(), matrixStack.last().pose(), tileEntity.getBlockPos(), partialTicks);
 	}

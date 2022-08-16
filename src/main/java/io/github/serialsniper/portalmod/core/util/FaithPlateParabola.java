@@ -1,19 +1,27 @@
 package io.github.serialsniper.portalmod.core.util;
 
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 
 public class FaithPlateParabola {
-    private final double a, b, angle, velocity, rotation;
+    private final Vector3d target;
+    private final Vector3d rotatedTarget;
+    private final double height;
 
     public FaithPlateParabola(Vector3d target, double height) {
-        Vector3d rotatedTarget = new Vector3d(Math.sqrt(target.x * target.x + target.z * target.z), target.y, 0);
+        this.target = target;
+        this.rotatedTarget = new Vector3d(Math.sqrt(this.target.x * this.target.x + this.target.z * this.target.z), this.target.y, 0);
+        this.height = Math.max(height, getMinHeight(getRotatedTarget()));
+    }
 
-        height = Math.max(height, getMinHeight(rotatedTarget));
-        this.b = (4d * height - rotatedTarget.y) / rotatedTarget.x;
-        this.a = (rotatedTarget.y - b * rotatedTarget.x) / (rotatedTarget.x * rotatedTarget.x);
-        this.angle = Math.atan(b);
-        this.velocity = Math.sqrt(-(0.08 / (2d * a))) / Math.cos(angle);
-        this.rotation = Math.atan2(target.z, target.x);
+    public FaithPlateParabola(BlockPos target, Direction face, double height) {
+        Vector3i hitNormal = face.getNormal();
+        Vector3d hitNormalDouble = new Vector3d(hitNormal.getX() * .5, hitNormal.getY() * .5, hitNormal.getZ() * .5);
+        this.target = new Vector3d(target.getX(), target.getY(), target.getZ()).add(.5, .5, .5).add(hitNormalDouble);
+        this.rotatedTarget = new Vector3d(Math.sqrt(this.target.x * this.target.x + this.target.z * this.target.z), this.target.y, 0);
+        this.height = Math.max(height, getMinHeight(getRotatedTarget()));
     }
 
     public double getMinHeight(Vector3d target) {
@@ -30,31 +38,35 @@ public class FaithPlateParabola {
         return a * xb * xb + b * xb;
     }
 
+    public Vector3d getRotatedTarget() {
+        return new Vector3d(Math.sqrt(target.x * target.x + target.z * target.z), target.y, 0);
+    }
+
     public double getA() {
-        return a;
+        return (rotatedTarget.y - getB() * rotatedTarget.x) / (rotatedTarget.x * rotatedTarget.x);
     }
 
     public double getB() {
-        return b;
+        return (4d * height - rotatedTarget.y) / rotatedTarget.x;
     }
 
     public double getAngle() {
-        return angle;
+        return Math.atan(getB());
     }
 
     public double getVelocity() {
-        return velocity;
+        return Math.sqrt(-(0.08 / (2d * getA()))) / Math.cos(getAngle());
     }
 
     public double getRotation() {
-        return rotation;
+        return Math.atan2(target.z, target.x);
     }
 
     public double getComponentX() {
-        return Math.cos(rotation);
+        return Math.cos(getRotation());
     }
 
     public double getComponentZ() {
-        return Math.sin(rotation);
+        return Math.sin(getRotation());
     }
 }

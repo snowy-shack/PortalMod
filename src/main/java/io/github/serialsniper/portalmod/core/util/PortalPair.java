@@ -2,29 +2,44 @@ package io.github.serialsniper.portalmod.core.util;
 
 import javax.annotation.*;
 
-import net.minecraft.util.math.*;
+import io.github.serialsniper.portalmod.common.entities.PortalEntity;
+import io.github.serialsniper.portalmod.core.enums.PortalEnd;
 
-public class PortalPair<Blue, Orange> {
-	private BlockPos blue, orange;
+public class PortalPair {
+	private PortalEntity blue, orange;
 	
-	public PortalPair(@Nullable BlockPos blue, @Nullable BlockPos orange) {
-		this.blue = blue;
-		this.orange = orange;
+	public boolean has(PortalEnd end) {
+		return this.get(end) != null;
 	}
 	
-	public BlockPos getBlue() {
-		return blue;
+	@Nullable
+	public PortalEntity get(PortalEnd end) {
+		if(end == PortalEnd.BLUE)
+			return blue;
+		if(end == PortalEnd.ORANGE)
+			return orange;
+		return null;
 	}
 	
-	public BlockPos getOrange() {
-		return orange;
+	public boolean isEmpty() {
+		return blue == null && orange == null;
 	}
 	
-	public void setBlue(BlockPos blue) {
-		this.blue = blue;
+	public boolean isFull() {
+		return blue != null && orange != null;
 	}
 	
-	public void setOrange(BlockPos orange) {
-		this.orange = orange;
+	public void set(PortalEnd end, PortalEntity entity) {
+		if(end == PortalEnd.BLUE)
+			this.blue = entity;
+		if(end == PortalEnd.ORANGE)
+			this.orange = entity;
+	}
+	
+	public void remove(PortalEntity portal) {
+		if(this.blue == portal)
+			this.blue = null;
+		if(this.orange == portal)
+			this.orange = null;
 	}
 }

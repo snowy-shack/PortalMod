@@ -3,18 +3,21 @@ package io.github.serialsniper.portalmod.core.enums;
 import net.minecraft.util.*;
 
 public enum PortalEnd implements IStringSerializable {
-	BLUE,
-	ORANGE,
-	NONE;
-	
+	NONE("none"),
+	BLUE("blue"),
+	ORANGE("orange");
+
+	private final String name;
+
+	PortalEnd(String name) {
+		this.name = name;
+	}
 	public String toString() {
 		return this.getSerializedName();
 	}
-	
 	public String getSerializedName() {
-		return this == BLUE ? "blue" : (this == ORANGE ? "orange" : "none");
+		return name;
 	}
-	
 	public PortalEnd other() {
 		if(this == BLUE)
 			return ORANGE;

@@ -1,11 +1,14 @@
 package io.github.serialsniper.portalmod.client.render;
 
 import io.github.serialsniper.portalmod.common.blocks.PortalableBlock;
-import net.minecraft.client.*;
-import net.minecraft.client.renderer.*;
+import io.github.serialsniper.portalmod.common.entities.PortalEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,14 +19,30 @@ public class PortalActiveRenderInfo extends ActiveRenderInfo {
     private boolean initialized;
     private IBlockReader level;
     private ActiveRenderInfo reference;
+    
+    public void setup(ClientWorld level, PortalEntity sourcePortal, PortalEntity targetPortal, float partialTicks) {
+        this.level = level;
+        this.initialized = true;
+        
+        ActiveRenderInfo reference = Minecraft.getInstance().gameRenderer.getMainCamera();
+        
+        Vector3f sourceNormal = sourcePortal.getDirection().step();
+        sourceNormal.mul(.5f);
+        Vector3d sourcePos = sourcePortal.getPivotPoint().add(new Vector3d(sourceNormal));
+
+        Vector3f targetNormal = targetPortal.getDirection().step();
+        targetNormal.mul(.5f);
+        Vector3d targetPos = targetPortal.getPivotPoint().add(new Vector3d(targetNormal));
+        
+        
+    }
 
     public void setup(IBlockReader level, Vector3d transform, int xVector, int zVector, BlockPos pos, BlockPos otherPos, float yRot, float xRot, float partialTicks) {
         this.initialized = true;
         this.level = level;
         this.reference = Minecraft.getInstance().gameRenderer.getMainCamera();
-
         this.setRotation(reference.getYRot() + yRot, reference.getXRot() + xRot);
-
+        
         double playerX = reference.getPosition().x();
         double playerZ = reference.getPosition().z();
 

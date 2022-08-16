@@ -1,18 +1,14 @@
 #version 110
 
-attribute vec4 Position;
+attribute vec4 position;
 
-uniform mat4 ModelMat;
-uniform mat4 ProjMat;
-
+uniform mat4 modelViewProjection;
 uniform int phase;
 
 varying vec2 texCoord;
 
 void main() {
-    vec4 outPos = ProjMat * ModelMat * Position;
-
+    vec4 outPos = modelViewProjection * position;
     gl_Position = outPos;
-    texCoord = gl_MultiTexCoord0.xy;
-    texCoord.y = 1.0 - texCoord.y;
+    texCoord = 1. - gl_MultiTexCoord0.xy;
 }

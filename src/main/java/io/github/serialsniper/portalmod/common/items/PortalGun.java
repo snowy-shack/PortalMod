@@ -1,51 +1,108 @@
 package io.github.serialsniper.portalmod.common.items;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
-import com.mojang.datafixers.util.*;
+import com.mojang.datafixers.util.Pair;
 
 import io.github.serialsniper.portalmod.common.blocks.PortalableBlock;
+import io.github.serialsniper.portalmod.common.entities.AbstractCube;
+import io.github.serialsniper.portalmod.common.entities.PortalEntity;
 import io.github.serialsniper.portalmod.core.enums.PortalEnd;
-import net.minecraft.block.*;
-import net.minecraft.client.*;
-import net.minecraft.client.util.*;
-import net.minecraft.client.world.*;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.nbt.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.*;
-import net.minecraft.util.text.*;
-import net.minecraft.world.*;
+import io.github.serialsniper.portalmod.core.enums.PortalGunInteraction;
+import io.github.serialsniper.portalmod.core.init.PacketInit;
+import io.github.serialsniper.portalmod.core.packet.PortalGunInteractionPacket;
+import io.github.serialsniper.portalmod.core.util.PortalPairManager;
+import io.github.serialsniper.portalmod.core.util.RayCaster;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.AxisDirection;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 
 public class PortalGun extends Item {
-//	public BlockPos orange, blue;
-	public PortalEnd lastUsed = PortalEnd.NONE;
-	public static HashMap<PortalGun, Pair<PortalableBlock, PortalableBlock>> hierarcy;
-	
-	public PortalGun(Properties properties) {
-		super(properties);
-//		properties.setISTER(() -> (Callable<ItemStackTileEntityRenderer>) new PortalGunISTER());
-//		Portal2.LOGGER.debug("ISTER ADDED");
-	}
+    //	public BlockPos orange, blue;
+    public PortalEnd lastUsed = PortalEnd.NONE;
+    public static HashMap<PortalGun, Pair<PortalableBlock, PortalableBlock>> hierarcy;
+    
+    public PortalGun(Properties properties) {
+        super(properties);
+    }
+    
+    public static void handleLeftClick() {
+        if(Minecraft.getInstance().player.hasPassenger(AbstractCube.class)) {
+            PortalGun.dropCube(Minecraft.getInstance().player, true);
+            PacketInit.INSTANCE.sendToServer(new PortalGunInteractionPacket.Server.Builder(PortalGunInteraction.THROW_CUBE).build());
+        } else PacketInit.INSTANCE.sendToServer(new PortalGunInteractionPacket.Server.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.BLUE).build());
+    }
+    
+    public static void handleRightClick() {
+        PacketInit.INSTANCE.sendToServer(new PortalGunInteractionPacket.Server.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.ORANGE).build());
+    }
+    
+    public static void dropCube(PlayerEntity player, boolean toBeThrown) {
+        List<Entity> cubes = player.getPassengers();
+        for(int i = cubes.size() - 1; i >= 0; --i) {
+            if(cubes.get(i) instanceof AbstractCube) {
+                cubes.get(i).stopRiding();
+                if(toBeThrown) {
+                    float strength = .2f;
+                    cubes.get(i).setDeltaMovement(player.getViewVector(0).multiply(strength, strength, strength));
+                }
+            }
+        }
+    }
+    
+    public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
+        BlockRayTraceResult ray = RayCaster.castBlock(player, level, 100);
 
-	@Override
-	public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
-		if(handIn != Hand.MAIN_HAND)
-			return ActionResult.fail(playerIn.getItemInHand(handIn));
+        if(ray.getType() == RayTraceResult.Type.MISS)
+            return;
 
-		playerIn.getCooldowns().addCooldown(this, 10);
-		placePortal(PortalEnd.ORANGE, worldIn, playerIn);
-		return ActionResult.success(playerIn.getItemInHand(handIn));
-	}
+        Direction face = ray.getDirection();
+        BlockPos pos = ray.getBlockPos().relative(face);
+        PortalEntity portal = new PortalEntity(level);
+        
+        if(!face.getAxis().isHorizontal()) {
+        	Direction upVector = player.getDirection();
+        	if(face.getAxisDirection() == AxisDirection.NEGATIVE)
+        		upVector = upVector.getOpposite();
+    		portal.setUpVector(upVector);
+        }
+        
+        portal.setPos(pos.getX(), pos.getY(), pos.getZ());
+        portal.setDirection(face);
+        portal.setEnd(end);
+        portal.setGunUUID(getUUID(gun));
+        if(!portal.adjustShot(ray))
+        	return;
+        
+        level.addFreshEntity(portal);
+        player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());
+    }
+    
+    public void placePortalOld(PortalEnd end, World level, PlayerEntity player) {
+        if(level.isClientSide())
+            return;
 
-	public void placePortal(PortalEnd end, World world, PlayerEntity player) {
-		if(world.isClientSide())
-			return;
-
-		// todo only on portal miss
+        // todo only on portal miss
 
 //		System.out.println((world.getTimeOfDay(0) * 180 + 270) % 360);
 //
@@ -59,6 +116,15 @@ public class PortalGun extends Item {
 //				System.out.println("lunacy");
 //		}
 
+        // todo complete lunacy
+
+        double timeOfDay = (level.getTimeOfDay(0) + .25f);
+        double angle = (timeOfDay - (int)timeOfDay) * 2f * Math.PI;
+        Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
+        double dot = player.getLookAngle().dot(moonVector);
+        System.out.println(dot);
+        if(dot <= -0.997)
+            System.out.println("lunacy");
 
 
 
@@ -66,148 +132,188 @@ public class PortalGun extends Item {
 
 
 
-		
-		Double rayLength = 100d;
-		Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
-		Vector3d rayPath = playerRotation.scale(rayLength);
-		
-		Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
-		Vector3d to = from.add(rayPath);
-		
-		RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.ANY, null);
-		BlockRayTraceResult rayHit = world.clip(rayCtx);
-		
-		if(rayHit.getType() == RayTraceResult.Type.MISS) {
+
+
+        int rayLength = 100;
+        Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
+        Vector3d rayPath = playerRotation.scale(rayLength);
+
+        Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
+        Vector3d to = from.add(rayPath);
+
+        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.ANY, null);
+        BlockRayTraceResult rayHit = level.clip(rayCtx);
+
+        if(rayHit.getType() == RayTraceResult.Type.MISS) {
 //			Minecraft.getInstance().player.displayClientMessage(new StringTextComponent("MISS"), false);
-			return;
-		}
-		
-		BlockPos hitLocation = rayHit.getBlockPos();
-		Direction side = rayHit.getDirection();
+            return;
+        }
+
+        BlockPos hitLocation = rayHit.getBlockPos();
+        Direction side = rayHit.getDirection();
 //		Direction horizontalDirection = player.getDirection();
-		
-		if(!(world.getBlockState(hitLocation).getBlock() instanceof PortalableBlock))
-			return;
-		
-		BlockState above = world.getBlockState(hitLocation.above());
-		BlockState below = world.getBlockState(hitLocation.below());
-		
-		BlockPos baseBlockLocation;
-		
-		if(above.getBlock() instanceof PortalableBlock)
-			baseBlockLocation = hitLocation;
-		else if(below.getBlock() instanceof PortalableBlock)
-			baseBlockLocation = hitLocation.below();
-		else return;
-		
-		ItemStack stack = player.getMainHandItem();
-		
+
+        if(!(level.getBlockState(hitLocation).getBlock() instanceof PortalableBlock))
+            return;
+
+        BlockState above = level.getBlockState(hitLocation.above());
+        BlockState below = level.getBlockState(hitLocation.below());
+
+        BlockPos baseBlockLocation;
+
+        if(above.getBlock() instanceof PortalableBlock)
+            baseBlockLocation = hitLocation;
+        else if(below.getBlock() instanceof PortalableBlock)
+            baseBlockLocation = hitLocation.below();
+        else return;
+
+        ItemStack stack = player.getMainHandItem();
+
 //		Minecraft.getInstance().player.displayClientMessage(new StringTextComponent("Location" + hitLocation.toString()), false);
 //		Minecraft.getInstance().player.displayClientMessage(new StringTextComponent("Side" + side.toString()), false);
 //		Minecraft.getInstance().player.displayClientMessage(new StringTextComponent("Direction" + horizontalDirection.toString()), false);
-		
-		if(hasPortal(stack, end))
-			((PortalableBlock)world.getBlockState(baseBlockLocation).getBlock()).fizzlePortal(world, getPortalPosition(stack, end));
-		BlockPos pos = ((PortalableBlock)world.getBlockState(baseBlockLocation).getBlock()).createPortal(stack, end, side, world, baseBlockLocation, getUUID(stack), rayHit);
-		
-		if(pos != null)
-			setPortalNBT(stack, end, pos);
-		
-		lastUsed = end;
-	}
-	
-	public static int getModelOverride(ItemStack stack, ClientWorld world, LivingEntity entity) {
-		if(!(entity instanceof PlayerEntity) || !(entity.getMainHandItem().getItem() instanceof PortalGun))
-			return 0;
-		
-		PortalEnd lastUsed = ((PortalGun)entity.getMainHandItem().getItem()).lastUsed;
-		return lastUsed == PortalEnd.NONE ? 0 : (lastUsed == PortalEnd.BLUE ? 1 : 2);
-	}
-	
-	@Override
-	public void appendHoverText(ItemStack stack, World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-		super.appendHoverText(stack, world, tooltip, flag);
-		
-		if(hasPortal(stack, PortalEnd.BLUE)) {
-			BlockPos pos = getPortalPosition(stack, PortalEnd.BLUE);
-			tooltip.add(new StringTextComponent(TextFormatting.BLUE + "Blue: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
-		}
-		if(hasPortal(stack, PortalEnd.ORANGE)) {
-			BlockPos pos = getPortalPosition(stack, PortalEnd.ORANGE);
-			tooltip.add(new StringTextComponent(TextFormatting.GOLD + "Orange: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
-		}
-	}
-	
-	public static UUID getUUID(ItemStack stack) {
-		CompoundNBT nbt = new CompoundNBT();
-		
-		if(stack.hasTag()) {
-			nbt = stack.getTag();
 
-			if(nbt.contains("uuid"))
-				return nbt.getUUID("uuid");
-		}
-		
-		UUID uuid = UUID.randomUUID();
-		
-		nbt.putUUID("uuid", uuid);
-		stack.setTag(nbt);
-		
+        if(hasPortal(stack, end, level))
+            ((PortalableBlock)level.getBlockState(baseBlockLocation).getBlock()).fizzlePortal(level, getPortalPosition(stack, end, level));
+        BlockPos pos = ((PortalableBlock)level.getBlockState(baseBlockLocation).getBlock()).createPortal(stack, end, side, level, baseBlockLocation, getUUID(stack), rayHit);
+
+        if(pos != null)
+//            setPortal(stack, end, pos);
+
+        lastUsed = end;
+    }
+    
+    public static int getColorOverride(ItemStack itemStack, ClientWorld level, LivingEntity entity) {
+        if(!itemStack.hasTag())
+            return 0;
+
+        CompoundNBT nbt = itemStack.getTag();
+        if(!nbt.contains("color"))
+            return 0;
+
+        byte color = nbt.getByte("color");
+        return color == 1 || color == 2 ? 1 : 0;
+    }
+
+    public static int getGrabOverride(ItemStack itemStack, ClientWorld level, LivingEntity entity) {
+        return 0;
+    }
+
+    public static int getAccentOverride(ItemStack itemStack, ClientWorld level, LivingEntity entity) {
+        return 0;
+    }
+    
+    @Override
+    public void appendHoverText(ItemStack stack, World level, List<ITextComponent> tooltip, ITooltipFlag flag) {
+        super.appendHoverText(stack, level, tooltip, flag);
+
+        if(hasPortal(stack, PortalEnd.BLUE, true)) {
+            BlockPos pos = getPortalPosition(stack, PortalEnd.BLUE, true);
+            tooltip.add(new StringTextComponent(TextFormatting.BLUE + "1st portal: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
+        }
+
+        if(hasPortal(stack, PortalEnd.ORANGE, true)) {
+            BlockPos pos = getPortalPosition(stack, PortalEnd.ORANGE, true);
+            tooltip.add(new StringTextComponent(TextFormatting.GOLD + "2nd portal: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
+        }
+    }
+    
+    @Override
+    public void inventoryTick(ItemStack itemStack, World level, Entity entity, int i, boolean b) {
+    	super.inventoryTick(itemStack, level, entity, i, b);
+    	getUUID(itemStack);
+    }
+    
+    public static UUID getUUID(ItemStack itemStack) {
+    	CompoundNBT nbt = itemStack.getOrCreateTag();
+    	UUID uuid;
+    	
+    	if(nbt.contains("gunUUID")) {
+    		uuid = nbt.getUUID("gunUUID");
+    	} else {
+    		uuid = UUID.randomUUID();
+    		nbt.putUUID("gunUUID", uuid);
+    	}
+
 		return uuid;
-	}
-	
-	public static void deletePortal(ItemStack stack, PortalEnd end) {
-		if(!stack.hasTag())
-			return;
-		
-		CompoundNBT nbt = stack.getTag();
-		
-		String end_str = end.getSerializedName();
-		
-		nbt.putBoolean(end_str, false);
-		nbt.remove(end_str + "_x");
-		nbt.remove(end_str + "_y");
-		nbt.remove(end_str + "_z");
-		
-		stack.setTag(nbt);
-	}
-	
-	public static void setPortalNBT(ItemStack stack, PortalEnd end, BlockPos baseBlockLocation) {
-		CompoundNBT nbt = new CompoundNBT();
-		
-		if(stack.hasTag())
-			nbt = stack.getTag();
-
-		String end_str = end.getSerializedName();
-		
-		nbt.putBoolean(end_str, true);
-		nbt.putInt(end_str + "_x", baseBlockLocation.getX());
-		nbt.putInt(end_str + "_y", baseBlockLocation.getY());
-		nbt.putInt(end_str + "_z", baseBlockLocation.getZ());
-
-		stack.setTag(nbt);
-	}
-	
-	public static boolean hasPortal(ItemStack stack, PortalEnd end) {
-		if(!stack.hasTag())
-			return false;
-		
-		CompoundNBT nbt = stack.getTag();
-		String end_str = end.getSerializedName();
-		
-		return nbt.getBoolean(end_str);
-	}
-	
-	public static BlockPos getPortalPosition(ItemStack stack, PortalEnd end) {
-		if(!stack.hasTag())
-			return null;
-		
-		CompoundNBT nbt = stack.getTag();
-		String end_str = end.getSerializedName();
-		
-		int x = nbt.getInt(end_str + "_x");
-		int y = nbt.getInt(end_str + "_y");
-		int z = nbt.getInt(end_str + "_z");
-		return new BlockPos(x, y, z);
-	}
+    }
+    
+//    public static void removePortal(ItemStack stack, PortalEnd end) {
+//        if(!stack.hasTag())
+//            return;
+//
+//        CompoundNBT nbt = stack.getTag();
+//        String key = end.getSerializedName();
+//
+//        if(!nbt.contains(key))
+//            return;
+//
+//        nbt.remove(key);
+//        stack.setTag(nbt);
+//    }
+    
+//    public static void setPortal(ItemStack stack, PortalEntity portal, PortalEnd end) {
+//        CompoundNBT nbt = new CompoundNBT();
+//
+//        if(stack.hasTag())
+//            nbt = stack.getTag();
+//
+//        String key = end.getSerializedName();
+//        BlockPos blockpos = portal.getPos();
+//        nbt.putIntArray(key, new int[] {
+//                blockpos.getX(),
+//                blockpos.getY(),
+//                blockpos.getZ()
+//        });
+//        nbt.putByte("color", (byte)end.ordinal());
+//
+//        stack.setTag(nbt);
+//    }
+    
+    public static boolean hasPortal(ItemStack stack, PortalEnd end, World level) {
+//        if(!stack.hasTag())
+//            return false;
+//
+//        CompoundNBT nbt = stack.getTag();
+//        String key = end.getSerializedName();
+//        return nbt.getIntArray(key).length == 3;
+    	
+    	return hasPortal(stack, end, level.isClientSide);
+    }
+    
+    public static BlockPos getPortalPosition(ItemStack stack, PortalEnd end, World level) {
+//        if(!stack.hasTag())
+//            return null;
+//
+//        CompoundNBT nbt = stack.getTag();
+//        String key = end.getSerializedName();
+//
+//        if(!nbt.contains(key))
+//            return null;
+//
+//        int[] pos = nbt.getIntArray(key);
+//        return new BlockPos(pos[0], pos[1], pos[2]);
+        
+    	return getPortalPosition(stack, end, level.isClientSide);
+    }
+    
+    public static boolean hasPortal(ItemStack stack, PortalEnd end, boolean isClientSide) {
+//        if(!stack.hasTag())
+//            return false;
+//
+//        CompoundNBT nbt = stack.getTag();
+//        String key = end.getSerializedName();
+//        return nbt.getIntArray(key).length == 3;
+    	
+    	UUID gunUUID = getUUID(stack);
+    	return PortalPairManager.select(isClientSide).has(gunUUID, end);
+    }
+    
+    public static BlockPos getPortalPosition(ItemStack stack, PortalEnd end, boolean isClientSide) {
+        UUID gunUUID = getUUID(stack);
+        
+        if(!PortalPairManager.select(isClientSide).has(gunUUID, end))
+        	return null;
+        return PortalPairManager.select(isClientSide).get(gunUUID, end).getPos();
+    }
 }

@@ -7,10 +7,9 @@ import io.github.serialsniper.portalmod.core.init.PacketInit;
 import io.github.serialsniper.portalmod.core.init.SoundInit;
 import io.github.serialsniper.portalmod.core.init.TileEntityTypeInit;
 import io.github.serialsniper.portalmod.core.packet.RadioUpdateClientPacket;
-import net.minecraft.block.*;
-import net.minecraft.client.*;
-import net.minecraft.nbt.*;
-import net.minecraft.tileentity.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
 

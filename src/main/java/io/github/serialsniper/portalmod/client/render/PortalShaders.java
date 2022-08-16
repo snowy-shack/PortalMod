@@ -7,23 +7,22 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.io.*;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL20.*;
 
 public class PortalShaders {
+    // todo add to reload listener
     private static final ResourceLocation VERTEX = new ResourceLocation(PortalMod.MODID, "shaders/vertex.vsh");
     private static final ResourceLocation FRAGMENT = new ResourceLocation(PortalMod.MODID, "shaders/fragment.fsh");
     private static final List<PortalShaders> REGISTRY = new ArrayList<>();
-
     private final ResourceLocation vertexLocation, fragmentLocation;
     private int id = -1;
-
     public PortalShaders() throws IOException {
         this(VERTEX, FRAGMENT);
     }
-
     public PortalShaders(ResourceLocation vertexLocation, ResourceLocation fragmentLocation) throws IOException {
         this.vertexLocation = vertexLocation;
         this.fragmentLocation = fragmentLocation;
@@ -32,57 +31,58 @@ public class PortalShaders {
         REGISTRY.add(this);
     }
 
+    public PortalShaders(String vertexLocation, String fragmentLocation) throws IOException {
+        this(new ResourceLocation(PortalMod.MODID, "shaders/" + vertexLocation + ".vsh"),
+                new ResourceLocation(PortalMod.MODID, "shaders/" + fragmentLocation + ".fsh"));
+    }
+
+    public PortalShaders(String sameNameLocation) throws IOException {
+        this(sameNameLocation, sameNameLocation);
+    }
     public static void reloadAll() throws IOException {
         for(PortalShaders shader : REGISTRY)
             shader.reload();
     }
-
     public void reload() throws IOException {
         if(id != -1)
             glDeleteProgram(id);
         createProgram(vertexLocation, fragmentLocation);
     }
 
-    private int getLocation(String name) {
-        return glGetUniformLocation(id, name);
+    // todo create location cache
+    private static int getLocation(String name) {
+        return glGetUniformLocation(currentShader, name);
     }
-
-    public void setUniform1i(String name, int x) {
+    public static void uniform1i(String name, int x) {
         glUniform1i(getLocation(name), x);
     }
-
-    public void setUniform2i(String name, int x, int y) {
+    public static void uniform2i(String name, int x, int y) {
         glUniform2i(getLocation(name), x, y);
     }
-
-    public void setUniform3i(String name, int x, int y, int z) {
+    public static void uniform3i(String name, int x, int y, int z) {
         glUniform3i(getLocation(name), x, y, z);
     }
-
-    public void setUniform4i(String name, int x, int y, int z, int w) {
+    public static void uniform4i(String name, int x, int y, int z, int w) {
         glUniform4i(getLocation(name), x, y, z, w);
     }
-
-    public void setUniform1f(String name, float x) {
+    public static void uniform1f(String name, float x) {
         glUniform1f(getLocation(name), x);
     }
-
-    public void setUniform2f(String name, float x, float y) {
+    public static void uniform2f(String name, float x, float y) {
         glUniform2f(getLocation(name), x, y);
     }
-
-    public void setUniform3f(String name, float x, float y, float z) {
+    public static void uniform3f(String name, float x, float y, float z) {
         glUniform3f(getLocation(name), x, y, z);
     }
-
-    public void setUniform4f(String name, float x, float y, float z, float w) {
+    public static void uniform4f(String name, float x, float y, float z, float w) {
         glUniform4f(getLocation(name), x, y, z, w);
     }
-
-    public void setUniformMatrix(String name, float[] matrix) {
+    public static void uniformMatrix(String name, float[] matrix) {
         glUniformMatrix4fv(getLocation(name), false, matrix);
     }
-
+    public static void uniformMatrix(String name, FloatBuffer matrix) {
+        glUniformMatrix4fv(getLocation(name), false, matrix);
+    }
     private void createProgram(ResourceLocation vertexLocation, ResourceLocation fragmentLocation) throws IOException {
         this.id = glCreateProgram();
 
@@ -98,9 +98,8 @@ public class PortalShaders {
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 
-        PortalMod.LOGGER.info("SHADER WITH ID [" + id + "] REGISTERED");
+        PortalMod.LOGGER.info("Registered PortalMod shader with id: " + id);
     }
-
     private int compileShader(int type, ResourceLocation path) throws IOException {
         String shader = readSource(path);
 
@@ -125,7 +124,6 @@ public class PortalShaders {
 
         return id;
     }
-
     private String readSource(ResourceLocation path) throws IOException {
         BufferedReader reader;
         StringBuilder sourceBuilder = new StringBuilder();
@@ -140,18 +138,15 @@ public class PortalShaders {
 
         return sourceBuilder.toString();
     }
-
-    private int oldShader;
-
+    private static int currentShader, oldShader;
     public void bind() {
+        currentShader = id;
         oldShader = GL11.glGetInteger(GL20.GL_CURRENT_PROGRAM);
         glUseProgram(id);
     }
-
     public void unbind() {
         glUseProgram(oldShader);
     }
-
     public int getId() {
         return id;
     }

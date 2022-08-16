@@ -22,9 +22,13 @@ void main() {
     } else if(phase == 2) {
         gl_FragDepth = gl_FragCoord.z;
     } else if(phase == 3) {
-        gl_FragDepth = gl_FragCoord.z - .001;
+        gl_FragDepth = gl_FragCoord.z - .0001;
     } else if(phase == 4) {
         gl_FragDepth = 0.0;
+        gl_FragColor = texture2D(texture, texCoord);
+//        gl_FragColor.a *= .8;
+    } else if(phase == 5) {
+        gl_FragDepth = gl_FragCoord.z;
         gl_FragColor = texture2D(texture, texCoord);
     }
 }

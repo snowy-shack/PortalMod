@@ -1,15 +1,12 @@
 package io.github.serialsniper.portalmod.mixins;
 
-import io.github.serialsniper.portalmod.common.entities.CompanionCube;
+import io.github.serialsniper.portalmod.common.entities.AbstractCube;
 import io.github.serialsniper.portalmod.core.init.BlockInit;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -20,14 +17,12 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import javax.annotation.Nullable;
 import java.util.stream.Stream;
 
 @Mixin(Entity.class)
@@ -40,11 +35,8 @@ public abstract class EntityMixin {
 //    @Shadow public abstract boolean hurt(DamageSource p_70097_1_, float p_70097_2_);
 
     @Inject(at = @At(value = "HEAD"), method = "collide(Lnet/minecraft/util/math/vector/Vector3d;)Lnet/minecraft/util/math/vector/Vector3d;", cancellable = true)
-    private void onCollide(Vector3d vector, CallbackInfoReturnable<Vector3d> info) {
+    private void portalmod_onCollide(Vector3d vector, CallbackInfoReturnable<Vector3d> info) {
         info.cancel();
-
-//        if((Entity)(Object)this instanceof PlayerEntity)
-//            System.out.println(launched);
 
         Entity thiz = (Entity)(Object)this;
 
@@ -58,7 +50,7 @@ public abstract class EntityMixin {
         if(axisalignedbb.expandTowards(vector).getSize() >= 1.0E-7D) {
             AxisAlignedBB aabb = axisalignedbb.expandTowards(vector).inflate(1.0E-7D);
             stream2 = thiz.level.getEntities(thiz, aabb, entity -> {
-                if(entity instanceof CompanionCube && thiz instanceof PlayerEntity) {
+                if(entity instanceof AbstractCube && thiz instanceof PlayerEntity) {
                     AxisAlignedBB cubeAABB = entity.getBoundingBox();
                     double x0 = Math.abs(cubeAABB.maxX - aabb.minX);
                     double x1 = Math.abs(cubeAABB.minX - aabb.maxX);
@@ -103,43 +95,31 @@ public abstract class EntityMixin {
         // return
         info.setReturnValue(vector3d);
     }
-
-    protected boolean launched = false;
-    protected Vector3d launchedPos;
-    protected int launchedTick;
-
+    
+    protected boolean portalmod_launched = false;
+    protected Vector3d portalmod_launchedPos;
+    protected int portalmod_launchedTick;
+    
     @Shadow protected abstract BlockPos getOnPos();
-
     @Shadow public abstract void setNoGravity(boolean p_189654_1_);
-
     @Shadow public abstract Vector3d getPosition(float p_242282_1_);
-
     @Shadow public int tickCount;
-
+    
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;updateEntityAfterFallOn(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/entity/Entity;)V"), method = "move(Lnet/minecraft/entity/MoverType;Lnet/minecraft/util/math/vector/Vector3d;)V")
-    private void move(MoverType moverType, Vector3d vector, CallbackInfo info) {
-//        if(((Entity)(Object)this).level.isClientSide())
-//            return;
-
+    private void portalmod_move(MoverType moverType, Vector3d vector, CallbackInfo info) {
         if((Entity)(Object)this instanceof ItemEntity)
             return;
 
         BlockPos blockpos = this.getOnPos();
         BlockState blockstate = this.level.getBlockState(blockpos);
 
-//        if((Entity)(Object)this instanceof PlayerEntity) {
-//            System.out.println(blockpos);
-//            System.out.println(blockstate.getBlock());
-//            System.out.println(BlockInit.FAITHPLATE.get());
-//        }
-
-        launched = blockstate.getBlock() == BlockInit.FAITHPLATE.get();
-        if(launched) {
-            launchedPos = getPosition(0);
-            launchedTick = this.tickCount;
+        portalmod_launched = blockstate.getBlock() == BlockInit.FAITHPLATE.get();
+        if(portalmod_launched) {
+            portalmod_launchedPos = getPosition(0);
+            portalmod_launchedTick = this.tickCount;
         } else {
-            launchedPos = Vector3d.ZERO;
-            launchedTick = 0;
+            portalmod_launchedPos = Vector3d.ZERO;
+            portalmod_launchedTick = 0;
         }
     }
 

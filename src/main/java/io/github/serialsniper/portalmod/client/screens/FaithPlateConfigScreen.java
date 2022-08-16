@@ -7,25 +7,24 @@ import io.github.serialsniper.portalmod.PortalMod;
 import io.github.serialsniper.portalmod.client.render.PortalShaders;
 import io.github.serialsniper.portalmod.client.render.ter.FaithPlateTER;
 import io.github.serialsniper.portalmod.common.blockentities.FaithPlateTileEntity;
-import io.github.serialsniper.portalmod.core.util.TextureSelection;
+import io.github.serialsniper.portalmod.core.util.FaithPlateParabola;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -70,7 +69,7 @@ public class FaithPlateConfigScreen extends Screen {
         final int h = panel.getHeight();
 
         shader.bind();
-        shader.setUniformMatrix("modelViewProjection", new float[] {
+        shader.uniformMatrix("modelViewProjection", new float[] {
                 pitch * 2f / (float)w, 0, 0, 0,
                 0, pitch * 2f / (float)h, 0, 0,
                 0, 0, 1, 0,
@@ -79,17 +78,45 @@ public class FaithPlateConfigScreen extends Screen {
         shader.unbind();
 
         gridShader.bind();
-        gridShader.setUniformMatrix("modelViewProjection", new float[] {
+        gridShader.uniformMatrix("modelViewProjection", new float[] {
                 1, 0, 0, 0,
                 0, 1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1
         });
-        gridShader.setUniform2i("res", panel.getWidth(), panel.getHeight());
-        gridShader.setUniform1i("pitch", pitch);
-        gridShader.setUniform1f("a", -0.35645728128f);
-        gridShader.setUniform1f("b", 1.81899324728f);
-        gridShader.setUniform2i("offset", -90, -45);
+        gridShader.uniform2i("res", panel.getWidth(), panel.getHeight());
+        gridShader.uniform1i("pitch", pitch);
+
+        FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
+
+        float a, b;
+
+        if(be.getTargetPos() != null) {
+            Direction hitDirection = be.getTargetSide();
+            Vector3i hitNormal = hitDirection.getNormal();
+            Vector3d hitNormalDouble = new Vector3d(hitNormal.getX() * .5, hitNormal.getY() * .5, hitNormal.getZ() * .5);
+
+            Vector3i hitPos = be.getTargetPos();
+            System.out.println(hitPos);
+            Vector3d hitPosDouble = new Vector3d(hitPos.getX(), hitPos.getY(), hitPos.getZ()).add(0, -.5, 0).add(hitNormalDouble);
+
+//            Vector3i thisPos = selected;
+//            Vector3d thisPosDouble = new Vector3d(thisPos.getX(), thisPos.getY(), thisPos.getZ()).add(.5, 1, .5);
+
+//            Vector3d offset = hitPosDouble.subtract(thisPosDouble);
+//            Vector3d offset = hitPosDouble;
+
+            FaithPlateParabola parabola = new FaithPlateParabola(hitPosDouble, Double.NEGATIVE_INFINITY);
+            a = (float)parabola.getA();
+            b = (float)parabola.getB();
+        } else {
+            a = 0;
+            b = 0;
+        }
+
+        gridShader.uniform1f("a", a);
+        gridShader.uniform1f("b", b);
+        gridShader.uniform2i("offset", -90, -45);
         gridShader.unbind();
     }
 
@@ -139,7 +166,7 @@ public class FaithPlateConfigScreen extends Screen {
             RenderSystem.enableBlend();
 
             gridShader.bind();
-            gridShader.setUniform2i("offset", (int)offset.x, (int)offset.y);
+            gridShader.uniform2i("offset", (int)offset.x, (int)offset.y);
             glBegin(GL_QUADS);
                 glVertex2f(-1, -1);
                 glVertex2f( 1, -1);

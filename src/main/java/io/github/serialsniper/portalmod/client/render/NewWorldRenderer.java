@@ -1,32 +1,51 @@
 package io.github.serialsniper.portalmod.client.render;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
-import com.mojang.blaze3d.matrix.*;
-import com.mojang.blaze3d.systems.*;
-import com.mojang.blaze3d.vertex.*;
-import it.unimi.dsi.fastutil.longs.*;
-import net.minecraft.block.*;
-import net.minecraft.client.*;
-import net.minecraft.client.entity.player.*;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.culling.*;
-import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.*;
-import net.minecraft.client.renderer.tileentity.*;
-import net.minecraft.client.settings.*;
-import net.minecraft.entity.*;
-import net.minecraft.profiler.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.*;
+import java.util.List;
+import java.util.SortedSet;
 
-import java.util.*;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexBuilderUtils;
+
+import io.github.serialsniper.portalmod.client.render.entity.PortalEntityRenderer;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.AbstractOption;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.Atlases;
+import net.minecraft.client.renderer.DestroyBlockProgress;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.OutlineLayerBuffer;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderState;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.culling.ClippingHelper;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.settings.CloudOption;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
 
 public class NewWorldRenderer {
+    @SuppressWarnings("deprecation")
     public static void renderLevel(MatrixStack p_228426_1_, float p_228426_2_, long p_228426_3_, boolean p_228426_5_, ActiveRenderInfo p_228426_6_, GameRenderer p_228426_7_, LightTexture p_228426_8_, Matrix4f p_228426_9_) {
 //        TileEntityRendererDispatcher.instance.prepare(Minecraft.getInstance().levelRenderer.level, Minecraft.getInstance().getTextureManager(), Minecraft.getInstance().font, p_228426_6_, Minecraft.getInstance().hitResult);
 //        Minecraft.getInstance().levelRenderer.entityRenderDispatcher.prepare(Minecraft.getInstance().levelRenderer.level, p_228426_6_, Minecraft.getInstance().crosshairPickEntity);
@@ -93,6 +112,7 @@ public class NewWorldRenderer {
         Minecraft.getInstance().levelRenderer.renderChunkLayer(RenderType.cutoutMipped(), p_228426_1_, d0, d1, d2);
         Minecraft.getInstance().getModelManager().getAtlas(AtlasTexture.LOCATION_BLOCKS).restoreLastBlurMipmap();
         Minecraft.getInstance().levelRenderer.renderChunkLayer(RenderType.cutout(), p_228426_1_, d0, d1, d2);
+        PortalEntityRenderer.renderPortals(p_228426_6_, p_228426_2_);
         if (Minecraft.getInstance().levelRenderer.level.effects().constantAmbientLight()) {
             RenderHelper.setupNetherLevel(p_228426_1_.last().pose());
         } else {

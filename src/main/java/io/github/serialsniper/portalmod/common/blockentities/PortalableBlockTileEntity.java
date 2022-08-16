@@ -2,8 +2,6 @@ package io.github.serialsniper.portalmod.common.blockentities;
 
 import java.util.*;
 
-import io.github.serialsniper.portalmod.client.util.PortalHelper;
-import io.github.serialsniper.portalmod.common.blocks.PortalableBlock;
 import io.github.serialsniper.portalmod.core.init.TileEntityTypeInit;
 import net.minecraft.block.*;
 import net.minecraft.nbt.*;
@@ -23,18 +21,10 @@ public class PortalableBlockTileEntity extends TileEntity implements ITickableTi
 	@Override
 	public void load(BlockState state, CompoundNBT nbt) {
 		super.load(state, nbt);
-		
-		if(nbt.contains("uuid")) {
-			uuid = nbt.getUUID("uuid");
-			PortalHelper.add(uuid, state.getValue(PortalableBlock.END), worldPosition);
-		}
 	}
 	
 	@Override
 	public CompoundNBT save(CompoundNBT nbt) {
-		if(uuid != null)
-			nbt.putUUID("uuid", uuid);
-		
 		return super.save(nbt);
 	}
 

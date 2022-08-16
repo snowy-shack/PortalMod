@@ -4,12 +4,25 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "portalmod.refmap.json",
   "mixins": [
+    "AbstractBlockMixin",
     "EntityMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "ChunkManagerMixin"
   ],
   "client": [
-    "BlockMixin",
-    "LevelRendererMixin"
+    "ItemRendererMixin",
+    "KeyboardListenerMixin",
+    "LevelRendererMixin",
+    "MainMenuScreenAccessor",
+    "OptionsScreenMixin",
+    "PlayerRendererMixin",
+    "SplashesAccessor",
+    "LivingRendererMixin",
+    "MinecraftMixin",
+    "MinecraftAccessor",
+    "ActiveRenderInfoAccessor",
+    "FogRendererAccessor",
+    "AbstractMinecartEntityAccessor"
   ],
   "minVersion": "0.8"
 }

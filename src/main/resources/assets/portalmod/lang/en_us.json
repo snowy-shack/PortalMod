@@ -1,22 +1,121 @@
 {
-	"item.portalmod.portalgun": "§9Aperture Science§r Handheld Portal Device",
-	"item.portalmod.wrench": "Wrench",
+  "itemGroup.portalmod": "Portal Mod Tab",
 
-	"block.portalmod.portalable_block": "Portalable Block",
-	"block.portalmod.radio": "Radio",
-	"block.portalmod.antline": "Antline",
-	"block.portalmod.faithplate": "§9Aperture Science§r Aerial Faith Plate",
-	"block.portalmod.panel_portalable": "Portalable Panel",
-	"block.portalmod.panel_portalable_small": "Portalable Block",
-	"block.portalmod.panel_portalable_checker": "Checkered Portalable Block",
-	"block.portalmod.panel_unportalable_small": "Unportalable Block",
-	"block.portalmod.panel_unportalable_mini": "Mini Unportalable Blocks",
+  "item.portalmod.portalgun": "Portal Gun",
+  "item.portalmod.wrench": "Wrench",
+  "item.portalmod.longfall_boots": "Long-Fall Boots",
+  "item.portalmod.companion_cube": "Companion Cube",
+  "item.portalmod.storage_cube": "Storage Cube",
+  "item.portalmod.moon_rock": "Moon Rock",
+  "item.portalmod.container": "Gel Container",
+  "item.portalmod.repulsion_gel": "Repulsion Gel",
+  "item.portalmod.propulsion_gel": "Propulsion Gel",
+  "item.portalmod.adhesion_gel": "Adhesion Gel",
+  "item.portalmod.conversion_gel": "Conversion Gel",
+  "item.portalmod.turret": "Sentry Turret",
+  "item.portalmod.bullets": "Bullets",
 
-	"itemGroup.portalmod": "Portal Mod Tab",
+  "block.portalmod.cake_lie": "Black Forest Cake",
+  "block.portalmod.radio": "Radio",
+  "block.portalmod.antline": "Antline",
+  "block.portalmod.faithplate": "Aerial Faith Plate",
+  "block.portalmod.portalable_block": "Portalable Block",
+  "block.portalmod.portalable_panel": "Portalable Panel",
+  "block.portalmod.unportalable_block": "Unportalable Block",
+  "block.portalmod.unportalable_panel": "Unportalable Panel",
+  "block.portalmod.floor_button": "Super Button",
 
-	"entity.portalmod.companion_cube": "Companion Cube",
+  "entity.portalmod.companion_cube": "Companion Cube",
+  "entity.portalmod.storage_cube": "Storage Cube",
+  "entity.portalmod.reflection_cube": "Reflection Cube",
+  "entity.portalmod.portal": "Portal",
 
-	"death.attack.companion_cube": "%1$s got the head hit by their faithful %2$s",
+  "death.attack.companion_cube": "%2$s threatened to stab %1$s",
 
-	"screen.portalmod.faithplate": "Faith Plate Configuration"
+  "screen.portalmod.faithplate": "Faith Plate Configuration",
+
+  "effect.portalmod.moonrock_poison": "Moon Poisoning",
+
+  "options.portalmod.button": "PortalMod Config...",
+  "options.portalmod.title": "PortalMod Options",
+  "options.portalmod.crosshair": "Portal 1 Crosshair",
+  "options.portalmod.adhesion_gel": "Green Adhesion Gel",
+  "options.portalmod.custom_gun": "Custom Portal Gun",
+  "options.portalmod.menu": "Portal Themed Menu",
+  "options.portalmod.recursion": "Portal Render Depth",
+
+  "debug.portalmod.reload_shaders.message": "PortalMod shaders reloaded",
+  "debug.portalmod.reload_shaders.error": "Error - Could not reload PortalMod shaders",
+  "debug.portalmod.reload_shaders.help": "F3 + Z = Reload PortalMod shaders",
+
+  "key.portalmod.portalgun_interact": "Portal Gun Interaction",
+
+
+  "advancements.portal.root.title": "Portal",
+  "advancements.portal.root.description": "Let's get back to testing, like old times.",
+
+  "advancements.portal.portal_travel.title": "Quantum Tunneling",
+  "advancements.portal.portal_travel.description": "Walk through a Portal for the first time.",
+
+  "advancements.portal.shoot_far.title": "Sharpshooter",
+  "advancements.portal.shoot_far.description": "Place a portal from a 100 blocks distance.",
+
+  "advancements.portal.turret_funnel.title": "I'm Flying!",
+  "advancements.portal.turret_funnel.description": "Put a Turret in a Funnel.",
+
+  "advancements.portal.covered_blue_gel.title": "Ah! My Bones!",
+  "advancements.portal.covered_blue_gel.description": "Get covered in Repulsion Gel",
+
+  "advancements.portal.covered_white_gel.title": "Pure Poison",
+  "advancements.portal.covered_white_gel.description": "Get poisoned by Moon Rocks",
+
+  "advancements.portal.portalgun_underwater.title": "Electrical Hazard",
+  "advancements.portal.portalgun_underwater.description": "Submerge the Portal Device in liquid.",
+
+  "advancements.portal.craft_element.title": "For Science",
+  "advancements.portal.craft_element.description": "Craft a testing element.",
+
+  "advancements.portal.solve_test.title": "Contribution to Science",
+  "advancements.portal.solve_test.description": "Solve a test.",
+
+  "advancements.portal.craft_turret.description": "Craft a Turret",
+
+  "advancements.portal.survive_using_boots.title": "Good Work, Boots!",
+  "advancements.portal.survive_using_boots.description": "Survive a fall using Long-Fall Boots.",
+
+  "advancements.portal.turret_band.title": "21 Bullets",
+  "advancements.portal.turret_band.description": "Start a band with a Turret.",
+
+  "advancements.portal.craft_companion.title": "Faithful Companion",
+  "advancements.portal.craft_companion.description": "Craft a Companion Cube",
+
+  "advancements.portal.destroy_companion.title": "You Monster",
+  "advancements.portal.destroy_companion.description": "Destroy your Faithful Companion",
+
+  "advancements.portal.transmission.title": "One More Transmission",
+  "advancements.portal.transmission.description": "What's that noise?",
+
+  "advancements.portal.shoot_moon.title": "Spaaaaace",
+  "advancements.portal.shoot_moon.description": "Attempt to shoot a portal on the moon.",
+
+  "advancements.portal.fizzle_cubes.title": "Vaporized",
+  "advancements.portal.fizzle_cubes.description": "Disintegrate 50 Weighted Storage Cubes.",
+
+  "advancements.portal.kill_turret.title": "I Don't Hate You",
+  "advancements.portal.kill_turret.description": "Take the life of a Turret.",
+
+  "advancements.portal.survive_turret_attack.title": "I'm Not Defective!",
+  "advancements.portal.survive_turret_attack.description": "Survive the attack of a Turret for 5 seconds.",
+
+  "advancements.portal.funnel_fly.title": "Fly Me To The Moon",
+  "advancements.portal.funnel_fly.description": "Attempt to perform the Crouch Fly Glitch.",
+
+  "advancements.portal.eat_cake.title": "Gullible",
+  "advancements.portal.eat_cake.description": "Fall for the cake.",
+
+  "advancements.portal.turret_song.title": "",
+  "advancements.portal.turret_song.description": "",
+
+  "advancements.portal.head_touches_bridge.title": "Hair on Fire",
+  "advancements.portal.head_touches_bridge.description": "Rub your cheek against a Light Bridge."
 }
