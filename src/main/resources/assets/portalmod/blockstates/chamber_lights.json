@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "axis=x,half=upper": {"model": "portalmod:block/chamber_lights_top", "y": 90},
+    "axis=z,half=upper": {"model": "portalmod:block/chamber_lights_top"},
+    "axis=x,half=lower": {"model": "portalmod:block/chamber_lights_bottom", "y": 90},
+    "axis=z,half=lower": {"model": "portalmod:block/chamber_lights_bottom"}
+  }
+}

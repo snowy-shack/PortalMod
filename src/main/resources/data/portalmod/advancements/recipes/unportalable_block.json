@@ -1,0 +1,19 @@
+{
+  "parent": "portalmod:recipes/root",
+  "criteria": {
+    "has_planks": {
+      "conditions": {
+        "items": [
+          "minecraft:basalt"
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "portalmod:portalable_block",
+      "portalmod:unportalable_block"
+    ]
+  }
+}

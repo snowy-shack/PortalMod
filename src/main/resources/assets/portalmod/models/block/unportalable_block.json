@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "portalmod:block/unportalable_block",
+    "top": "portalmod:block/unportalable_block_top",
+    "bottom": "portalmod:block/unportalable_block_bottom"
+  }
+}

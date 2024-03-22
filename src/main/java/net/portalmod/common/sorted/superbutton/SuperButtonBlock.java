@@ -1,0 +1,336 @@
+package net.portalmod.common.sorted.superbutton;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Predicate;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.material.PushReaction;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.DirectionProperty;
+import net.minecraft.state.EnumProperty;
+import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
+import net.minecraft.util.Direction.AxisDirection;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants.BlockFlags;
+import net.portalmod.core.init.BlockInit;
+import net.portalmod.core.math.BiHashMap;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
+import net.portalmod.core.math.VoxelShapeGroup;
+
+public class SuperButtonBlock extends Block {
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
+    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    
+    private static final BiHashMap<Direction, QuadBlockCorner, VoxelShapeGroup> SHAPES = new BiHashMap<>();
+    
+    public SuperButtonBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(stateDefinition.any()
+                .setValue(FACING, Direction.UP)
+                .setValue(CORNER, QuadBlockCorner.UP_LEFT)
+                .setValue(ACTIVE, false));
+        this.initAABBs();
+    }
+    
+    @Override
+    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+        builder.add(FACING, CORNER, ACTIVE);
+    }
+    
+    @Override
+    public void tick(BlockState state, ServerWorld level, BlockPos pos, Random random) {
+        checkPressed(state, level, pos);
+    }
+    
+    private void initAABBs() {
+        VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
+                .add(0, 0, 0, 12, 3, 12)
+                .add(0, 0, 12, 2.5f, 2, 16)
+                .add(12, 0, 0, 16, 2, 2.5f)
+                .addPart("normal",  0, 3, 0, 8.5f, 5, 8.5f)
+                .addPart("pressed", 0, 3, 0, 8.5f, 4, 8.5f)
+                .addPart("trigger", 0, 4, 0, 8.5f, 6, 8.5f)
+                .build();
+        
+        for(Direction facing : Direction.values()) {
+            for(QuadBlockCorner corner : QuadBlockCorner.values()) {
+                Mat4 matrix = Mat4.identity();
+                matrix.translate(new Vec3(.5));
+                
+                if(facing.getAxisDirection() == AxisDirection.NEGATIVE) {
+                    matrix.scale(new Vec3(facing.getNormal()).mul(2).add(1));
+                    matrix.rotateDeg(new Vec3(facing.getNormal()).to3f(), corner.getRot() - 90);
+                } else {
+                    matrix.rotateDeg(new Vec3(facing.getNormal()).to3f(), corner.getRot());
+                }
+                
+                if(facing.getAxis() == Axis.X)
+                    matrix.rotateDeg(Vector3f.ZP, -90)
+                            .rotateDeg(Vector3f.YP, 90);
+                
+                if(facing.getAxis() == Axis.Z)
+                    matrix.rotateDeg(Vector3f.XP, 90);
+
+                matrix.rotateDeg(Vector3f.YP, 90);
+                matrix.translate(new Vec3(-.5));
+                
+                SHAPES.put(facing, corner, shape.clone().transform(matrix));
+            }
+        }
+    }
+    
+    @Nullable
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
+        Vec3 playerView = new Vec3(context.getPlayer().getViewVector(1));
+        Direction direction = context.getClickedFace();
+        Axis axis = direction.getAxis();
+        QuadBlockCorner corner;
+        
+        Tuple<Direction, Direction> directions = placementDirectionsFromFacing(axis);
+        Direction a = directions.getA();
+        Direction b = directions.getB();
+        
+        if(direction.getAxisDirection() == AxisDirection.NEGATIVE) {
+            if(direction.getAxis() == Axis.X)
+                playerView.z *= -1;
+            else
+                playerView.x *= -1;
+        }
+        
+        double x = a.getAxisDirection().getStep() * -playerView.to3d().get(a.getAxis());
+        double y = b.getAxisDirection().getStep() * -playerView.to3d().get(b.getAxis());
+        corner = QuadBlockCorner.fromCoords(x, y);
+//        System.out.println(x);
+//        System.out.println(y);
+        
+        if(this.isPlaceable(context, corner))
+            return this.defaultBlockState()
+                .setValue(FACING, direction)
+                .setValue(CORNER, corner);
+
+        boolean xNeg = false;
+        boolean yNeg = false;
+
+        if(x < y)
+            xNeg = true;
+        else
+            yNeg = true;
+
+        corner = QuadBlockCorner.fromCoords(x * (xNeg ? -1 : 1), y * (yNeg ? -1 : 1));
+
+        if(this.isPlaceable(context, corner))
+            return this.defaultBlockState()
+                    .setValue(FACING, direction)
+                    .setValue(CORNER, corner);
+
+        corner = QuadBlockCorner.fromCoords(x * (xNeg ? 1 : -1), y * (yNeg ? 1 : -1));
+
+        if(this.isPlaceable(context, corner))
+            return this.defaultBlockState()
+                    .setValue(FACING, direction)
+                    .setValue(CORNER, corner);
+
+        corner = QuadBlockCorner.fromCoords(-x, -y);
+
+        if(this.isPlaceable(context, corner))
+            return this.defaultBlockState()
+                    .setValue(FACING, direction)
+                    .setValue(CORNER, corner);
+        
+        return null;
+    }
+    
+    @Override
+    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext selectionContext) {
+        VoxelShape shape = this.getShape(state);
+        return shape != null ? shape : VoxelShapes.empty();
+    }
+    
+    private VoxelShapeGroup getShapeGroup(BlockState state) {
+        return SHAPES.get(state.getValue(FACING), state.getValue(CORNER));
+    }
+    
+    private VoxelShape getShape(BlockState state) {
+        return this.getShapeGroup(state).getVariant(state.getValue(ACTIVE) ? "pressed" : "normal");
+    }
+
+    private boolean canSurvive(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing) {
+        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
+            if(!canSupportCenter(level, targetPos.relative(facing.getOpposite()), facing))
+                return false;
+        return true;
+    }
+    
+    @Override
+    public boolean canSurvive(BlockState state, IWorldReader level, BlockPos pos) {
+        return canSurvive(level, pos, state.getValue(CORNER), state.getValue(FACING));
+    }
+    
+    private Tuple<Direction, Direction> placementDirectionsFromFacing(Axis axis) {
+        if(axis == Axis.X)
+            return new Tuple<>(Direction.NORTH, Direction.UP);
+        if(axis == Axis.Z)
+            return new Tuple<>(Direction.EAST, Direction.UP);
+        return new Tuple<>(Direction.EAST, Direction.NORTH);
+    }
+
+    @Override
+    public void setPlacedBy(World level, BlockPos pos, BlockState state, LivingEntity entity, ItemStack itemStack) {
+        if(level.isClientSide)
+            return;
+        
+        QuadBlockCorner base = state.getValue(CORNER);
+        Direction facing = state.getValue(FACING);
+        
+        for(QuadBlockCorner corner : QuadBlockCorner.values()) {
+            if(corner == base)
+                continue;
+            level.setBlock(getOtherBlock(pos, base, corner, facing), state.setValue(CORNER, corner), BlockFlags.DEFAULT);
+        }
+    }
+    
+    @Override
+    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
+        if(level.isClientSide)
+            return;
+        
+        if(!this.isMultiblockComplete(level, pos, state))
+            level.destroyBlock(pos, false, null, 0);
+        else if(!state.canSurvive(level, pos))
+            level.destroyBlock(pos, true, null, 0);
+    }
+    
+    @Override
+    public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
+        if(level.isClientSide)
+            return;
+
+        if(!level.getBlockTicks().hasScheduledTick(pos, this))
+            this.checkPressed(state, level, pos);
+    }
+    
+    private void checkPressed(BlockState state, World level, BlockPos pos) {
+        List<BlockPos> blocks = this.getAllBlocks(pos, state.getValue(CORNER), state.getValue(FACING));
+
+        boolean pressed = false;
+        for(BlockPos block : blocks) {
+            if(isBeingPressed(state, level, block)) {
+                pressed = true;
+                break;
+            }
+        }
+        
+        if(pressed)
+            level.getBlockTicks().scheduleTick(pos, this, 1);
+        
+        if(state.getValue(ACTIVE) != pressed) {
+            for(BlockPos block : blocks) {
+                BlockState oldState = level.getBlockState(block);
+                level.setBlock(block, oldState.setValue(ACTIVE, pressed), BlockFlags.DEFAULT);
+            }
+        }
+    }
+
+    public AxisAlignedBB getTrigger(BlockState state, BlockPos pos) {
+        return this.getShapeGroup(state).getPart("trigger").bounds().move(pos);
+    }
+    
+    private boolean isBeingPressed(BlockState state, World level, BlockPos pos) {
+        AxisAlignedBB trigger = getTrigger(state, pos);
+        
+        List<? extends Entity> entities;
+        entities = level.getEntities(null, trigger);
+        
+//        for(Entity entity : entities)
+////            if(!entity.isIgnoringBlockTriggers())
+//            if(entity instanceof Cube)
+//                ((Cube)entity).setActive();
+
+        return entities.size() > 0;
+    }
+    
+    private boolean isPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+        World level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+
+        return checkEachBlock(level, pos, corner, context.getClickedFace(), s -> !s.canBeReplaced(context))
+                && canSurvive(level, pos, corner, context.getClickedFace());
+    }
+    
+    private boolean isMultiblockComplete(World level, BlockPos pos, BlockState state) {
+        return checkEachBlock(level, pos, state.getValue(CORNER), state.getValue(FACING),
+                s -> s.getBlock() != BlockInit.SUPER_BUTTON.get());
+    }
+
+    private boolean checkEachBlock(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing, Predicate<BlockState> p) {
+        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
+            if(p.test(level.getBlockState(targetPos)))
+                return false;
+        return true;
+    }
+    
+    private List<BlockPos> getAllBlocks(BlockPos pos, QuadBlockCorner base, Direction facing) {
+        List<BlockPos> poses = new ArrayList<>();
+        for(QuadBlockCorner corner : QuadBlockCorner.values())
+            poses.add(getOtherBlock(pos, base, corner, facing));
+        return poses;
+    }
+    
+    private BlockPos getOtherBlock(BlockPos pos, QuadBlockCorner base, QuadBlockCorner corner, Direction facing) {
+        Tuple<Direction, Direction> directions = placementDirectionsFromFacing(facing.getAxis());
+        Direction a = directions.getA();
+        Direction b = directions.getB();
+        int x = corner.getX() - base.getX();
+        int y = corner.getY() - base.getY();
+        
+        if(facing.getAxisDirection() == AxisDirection.NEGATIVE)
+            x *= -1;
+        
+        BlockPos newPos = new BlockPos(pos);
+        if(x != 0) newPos = newPos.relative(x < 0 ? a.getOpposite() : a);
+        if(y != 0) newPos = newPos.relative(y < 0 ? b.getOpposite() : b);
+        
+        return newPos;
+    }
+    
+    @Override
+    public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
+       return PushReaction.DESTROY;
+    }
+    
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+    
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+}

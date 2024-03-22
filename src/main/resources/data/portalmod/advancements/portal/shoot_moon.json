@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/shoot_portal_far",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "portalmod:shoot_moon"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.shoot_moon.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:end_stone"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.shoot_moon.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

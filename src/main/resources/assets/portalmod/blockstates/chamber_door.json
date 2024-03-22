@@ -1,0 +1,580 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_bottom",
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "lower",
+            "facing": "west",
+            "side": "left"
+          },
+          {
+            "half": "lower",
+            "facing": "east",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_top",
+        "y": 270
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "upper",
+            "facing": "west",
+            "side": "left"
+          },
+          {
+            "half": "upper",
+            "facing": "east",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_bottom",
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "lower",
+            "facing": "south",
+            "side": "left"
+          },
+          {
+            "half": "lower",
+            "facing": "north",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_top",
+        "y": 180
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "upper",
+            "facing": "south",
+            "side": "left"
+          },
+          {
+            "half": "upper",
+            "facing": "north",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_bottom",
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "lower",
+            "facing": "east",
+            "side": "left"
+          },
+          {
+            "half": "lower",
+            "facing": "west",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_top",
+        "y": 90
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "upper",
+            "facing": "east",
+            "side": "left"
+          },
+          {
+            "half": "upper",
+            "facing": "west",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_bottom",
+        "y": 0
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "lower",
+            "facing": "north",
+            "side": "left"
+          },
+          {
+            "half": "lower",
+            "facing": "south",
+            "side": "right"
+          }
+        ]
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_frame_top",
+        "y": 0
+      },
+      "when": {
+        "OR": [
+          {
+            "half": "upper",
+            "facing": "north",
+            "side": "left"
+          },
+          {
+            "half": "upper",
+            "facing": "south",
+            "side": "right"
+          }
+        ]
+      }
+    },
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom",
+        "y": 0
+      },
+      "when": {
+            "half": "lower",
+            "facing": "north",
+            "open": "false",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top",
+        "y": 0
+      },
+      "when": {
+            "half": "upper",
+            "facing": "north",
+            "open": "false",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom",
+        "y": 180
+      },
+      "when": {
+            "half": "lower",
+            "facing": "south",
+            "open": "false",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top",
+        "y": 180
+      },
+      "when": {
+            "half": "upper",
+            "facing": "south",
+            "open": "false",
+            "side": "left"
+      }
+    },
+
+
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom",
+        "y": 90
+      },
+      "when": {
+            "half": "lower",
+            "facing": "east",
+            "open": "false",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top",
+        "y": 90
+      },
+      "when": {
+            "half": "upper",
+            "facing": "east",
+            "open": "false",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom",
+        "y": 270
+      },
+      "when": {
+            "half": "lower",
+            "facing": "west",
+            "open": "false",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top",
+        "y": 270
+      },
+      "when": {
+            "half": "upper",
+            "facing": "west",
+            "open": "false",
+            "side": "left"
+      }
+    },
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_open",
+        "y": 0
+      },
+      "when": {
+            "half": "lower",
+            "facing": "north",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_open",
+        "y": 0
+      },
+      "when": {
+            "half": "upper",
+            "facing": "north",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_open",
+        "y": 180
+      },
+      "when": {
+            "half": "lower",
+            "facing": "south",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_open",
+        "y": 180
+      },
+      "when": {
+            "half": "upper",
+            "facing": "south",
+            "open": "true",
+            "side": "left"
+      }
+    },
+
+
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_open",
+        "y": 90
+      },
+      "when": {
+            "half": "lower",
+            "facing": "east",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_open",
+        "y": 90
+      },
+      "when": {
+            "half": "upper",
+            "facing": "east",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_open",
+        "y": 270
+      },
+      "when": {
+            "half": "lower",
+            "facing": "west",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_open",
+        "y": 270
+      },
+      "when": {
+            "half": "upper",
+            "facing": "west",
+            "open": "true",
+            "side": "left"
+      }
+    },
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign",
+        "y": 180
+      },
+      "when": {
+            "half": "lower",
+            "facing": "north",
+            "open": "false",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign",
+        "y": 180
+      },
+      "when": {
+            "half": "upper",
+            "facing": "north",
+            "open": "false",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign",
+        "y": 0
+      },
+      "when": {
+            "half": "lower",
+            "facing": "south",
+            "open": "false",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign",
+        "y": 0
+      },
+      "when": {
+            "half": "upper",
+            "facing": "south",
+            "open": "false",
+            "side": "right"
+      }
+    },
+
+
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign",
+        "y": 270
+      },
+      "when": {
+            "half": "lower",
+            "facing": "east",
+            "open": "false",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign",
+        "y": 270
+      },
+      "when": {
+            "half": "upper",
+            "facing": "east",
+            "open": "false",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign",
+        "y": 90
+      },
+      "when": {
+            "half": "lower",
+            "facing": "west",
+            "open": "false",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign",
+        "y": 90
+      },
+      "when": {
+            "half": "upper",
+            "facing": "west",
+            "open": "false",
+            "side": "right"
+      }
+    },
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign_open",
+        "y": 180
+      },
+      "when": {
+            "half": "lower",
+            "facing": "north",
+            "open": "true",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign_open",
+        "y": 180
+      },
+      "when": {
+            "half": "upper",
+            "facing": "north",
+            "open": "true",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign_open",
+        "y": 0
+      },
+      "when": {
+            "half": "lower",
+            "facing": "south",
+            "open": "true",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign_open",
+        "y": 0
+      },
+      "when": {
+            "half": "upper",
+            "facing": "south",
+            "open": "true",
+            "side": "right"
+      }
+    },
+
+
+
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign_open",
+        "y": 270
+      },
+      "when": {
+            "half": "lower",
+            "facing": "east",
+            "open": "true",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign_open",
+        "y": 270
+      },
+      "when": {
+            "half": "upper",
+            "facing": "east",
+            "open": "true",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_bottom_sign_open",
+        "y": 90
+      },
+      "when": {
+            "half": "lower",
+            "facing": "west",
+            "open": "true",
+            "side": "right"
+      }
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/chamber_door_top_sign_open",
+        "y": 90
+      },
+      "when": {
+            "half": "upper",
+            "facing": "west",
+            "open": "true",
+            "side": "right"
+      }
+    }
+  ]
+}

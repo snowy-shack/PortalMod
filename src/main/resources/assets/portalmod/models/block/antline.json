@@ -1,4 +1,7 @@
 {
   "parent": "block/block",
-  "loader": "portalmod:antline"
+  "loader": "portalmod:antline",
+  "textures": {
+    "particle": "portalmod:block/antline_indicator_off"
+  }
 }

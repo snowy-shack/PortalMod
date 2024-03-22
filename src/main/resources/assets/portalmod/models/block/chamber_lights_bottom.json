@@ -1,0 +1,40 @@
+{
+    "textures": {
+        "side":     "portalmod:block/unportalable_panel_bottom",
+        "end":      "portalmod:block/unportalable_block_bottom",
+        "glass":    "portalmod:block/chamber_lights_glass_bottom",
+        "inside":   "portalmod:block/chamber_lights_inside",
+        "lights":   "portalmod:block/chamber_lights",
+        "particle": "portalmod:block/chamber_lights"
+    },
+    "elements": [
+        {
+            "from": [ 0,  0,  2],
+            "to":   [16, 16, 14],
+            "faces": {
+                "north": { "uv": [ 0,  0, 16, 16], "texture": "#lights", "cullface": "north" },
+                "south": { "uv": [ 0,  0, 16, 16], "texture": "#lights", "cullface": "south" }
+            }
+        },
+        {
+            "from": [ 0,  0,  0],
+            "to":   [16, 16, 16],
+            "faces": {
+                "north": { "uv": [ 0,  0, 16, 16], "texture": "#glass", "cullface": "north" },
+                "east":  { "uv": [ 0,  0, 16, 16], "texture": "#side",  "cullface": "east"  },
+                "south": { "uv": [ 0,  0, 16, 16], "texture": "#glass", "cullface": "south" },
+                "west":  { "uv": [ 0,  0, 16, 16], "texture": "#side",  "cullface": "west"  },
+                "down":  { "uv": [ 0,  0, 16, 16], "texture": "#end",   "cullface": "down"  }
+            }
+        },
+        {
+            "from": [16, 16, 16],
+            "to":   [ 0,  0,  0],
+            "faces": {
+                "east": { "uv": [ 0,  0, 16, 16], "texture": "#inside" },
+                "west": { "uv": [ 0,  0, 16, 16], "texture": "#inside" },
+                "up":   { "uv": [ 0, 16, 16,  0], "texture": "#inside", "rotation": 90 }
+            }
+        }
+    ]
+}

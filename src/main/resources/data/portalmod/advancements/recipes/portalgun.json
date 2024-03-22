@@ -1,0 +1,22 @@
+{
+  "parent": "portalmod:recipes/portalable_block",
+  "criteria": {
+    "has_portalable_blocks": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "portalmod:portalable_block"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "portalmod:portalgun"
+    ]
+  }
+}

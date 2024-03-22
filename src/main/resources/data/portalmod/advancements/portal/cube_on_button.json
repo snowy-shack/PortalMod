@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/grab_entity",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "portalmod:cube_on_button"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.cube_on_button.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:super_button"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.cube_on_button.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

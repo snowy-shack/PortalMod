@@ -1,0 +1,7 @@
+{
+  "replace": true,
+  "values": [
+    "portalmod:portalable_block",
+    "minecraft:end_stone"
+  ]
+}

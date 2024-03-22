@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/turret_defense",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.survive_turret.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:netherite_chestplate"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.survive_turret.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

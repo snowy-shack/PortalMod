@@ -1,0 +1,60 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "down":"true"
+      }, 
+      "apply": {
+        "model":"portalmod:block/conversion_gel"
+      }
+    },
+    {
+      "when": {
+        "up":"true"
+      },   
+      "apply": {
+        "model":"portalmod:block/conversion_gel", 
+        "x": 180
+      }
+    },
+    {
+      "when": {
+        "south":"true"
+      },
+      "apply": {
+        "model":"portalmod:block/conversion_gel", 
+        "x":  90
+      }
+    },
+    {
+      "when": {
+        "west":"true"
+      }, 
+      "apply": {
+        "model":"portalmod:block/conversion_gel", 
+        "x":  90, 
+        "y":  90
+      }
+    },
+    {
+      "when": {
+        "north":"true"
+      },
+      "apply": {
+        "model":"portalmod:block/conversion_gel", 
+        "x":  90, 
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "east":"true"
+      }, 
+      "apply": {
+        "model":"portalmod:block/conversion_gel", 
+        "x":  90, 
+        "y": 270
+      }
+    }
+  ]
+}

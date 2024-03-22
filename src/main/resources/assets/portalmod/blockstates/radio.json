@@ -1,23 +1,23 @@
 {
   "variants": {
-    "facing=north,state=off": {"model": "portalmod:misc/radio_off"},
-    "facing=south,state=off": {"model": "portalmod:misc/radio_off","y": 180},
-    "facing=west,state=off": {"model": "portalmod:misc/radio_off","y": 270},
-    "facing=east,state=off": {"model": "portalmod:misc/radio_off","y": 90},
+    "facing=north,state=off": {"model": "portalmod:block/radio_off"},
+    "facing=south,state=off": {"model": "portalmod:block/radio_off","y": 180},
+    "facing=west,state=off": {"model": "portalmod:block/radio_off","y": 270},
+    "facing=east,state=off": {"model": "portalmod:block/radio_off","y": 90},
     
-    "facing=north,state=on": {"model": "portalmod:misc/radio_on"},
-    "facing=south,state=on": {"model": "portalmod:misc/radio_on","y": 180},
-    "facing=west,state=on": {"model": "portalmod:misc/radio_on","y": 270},
-    "facing=east,state=on": {"model": "portalmod:misc/radio_on","y": 90},
+    "facing=north,state=on": {"model": "portalmod:block/radio_on"},
+    "facing=south,state=on": {"model": "portalmod:block/radio_on","y": 180},
+    "facing=west,state=on": {"model": "portalmod:block/radio_on","y": 270},
+    "facing=east,state=on": {"model": "portalmod:block/radio_on","y": 90},
 
-    "facing=north,state=inactive": {"model": "portalmod:misc/radio_inactive"},
-    "facing=south,state=inactive": {"model": "portalmod:misc/radio_inactive","y": 180},
-    "facing=west,state=inactive": {"model": "portalmod:misc/radio_inactive","y": 270},
-    "facing=east,state=inactive": {"model": "portalmod:misc/radio_inactive","y": 90},
+    "facing=north,state=inactive": {"model": "portalmod:block/radio_inactive"},
+    "facing=south,state=inactive": {"model": "portalmod:block/radio_inactive","y": 180},
+    "facing=west,state=inactive": {"model": "portalmod:block/radio_inactive","y": 270},
+    "facing=east,state=inactive": {"model": "portalmod:block/radio_inactive","y": 90},
 
-    "facing=north,state=active": {"model": "portalmod:misc/radio_active"},
-    "facing=south,state=active": {"model": "portalmod:misc/radio_active","y": 180},
-    "facing=west,state=active": {"model": "portalmod:misc/radio_active","y": 270},
-    "facing=east,state=active": {"model": "portalmod:misc/radio_active","y": 90}
+    "facing=north,state=active": {"model": "portalmod:block/radio_active"},
+    "facing=south,state=active": {"model": "portalmod:block/radio_active","y": 180},
+    "facing=west,state=active": {"model": "portalmod:block/radio_active","y": 270},
+    "facing=east,state=active": {"model": "portalmod:block/radio_active","y": 90}
   }
 }

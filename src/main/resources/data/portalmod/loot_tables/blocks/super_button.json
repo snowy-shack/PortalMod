@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "portalmod:super_button",
+              "condition": "minecraft:block_state_property"
+            }
+          ],
+          "name": "portalmod:super_button"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ]
+}

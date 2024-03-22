@@ -1,0 +1,7 @@
+{
+    "parent": "portalmod:block/radio",
+    "textures": {
+        "texture": "portalmod:block/radio_on",
+        "particle": "portalmod:block/radio_on"
+    }
+}

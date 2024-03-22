@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/root",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.turret_defense.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:turret"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.turret_defense.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

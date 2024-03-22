@@ -1,0 +1,6 @@
+{
+  "parent": "portalmod:block/gel",
+  "textures": {
+    "gel": "portalmod:block/repulsion_gel"
+  }
+}

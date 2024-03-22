@@ -1,0 +1,18 @@
+{
+  "parent": "portalmod:recipes/root",
+  "criteria": {
+    "has_planks": {
+      "conditions": {
+        "items": [
+          "minecraft:end_stone"
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "portalmod:portalable_block"
+    ]
+  }
+}

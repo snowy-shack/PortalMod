@@ -1,0 +1,87 @@
+package net.portalmod.common.items;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.monster.ZombieEntity;
+import net.minecraft.entity.passive.BeeEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.World;
+import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
+import net.portalmod.common.sorted.faithplate.FaithPlateTER;
+import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
+import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.util.ModUtil;
+
+public class WrenchItem extends Item {
+    public WrenchItem(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
+        BlockPos pos = new BlockPos(6, 55, 20);
+        Direction face = Direction.UP;
+        BlockPos selected = new BlockPos(-5, 55, 20);
+
+        FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(selected);
+
+        CompoundNBT nbt = new CompoundNBT();
+        CompoundNBT target = new CompoundNBT();
+        target.putInt("x", pos.getX() - selected.getX());
+        target.putInt("y", pos.getY() - selected.getY());
+        target.putInt("z", pos.getZ() - selected.getZ());
+        target.putByte("side", (byte)face.get3DDataValue());
+        target.putFloat("height", be.getHeight());
+//            System.out.println(be.getHeight());
+        nbt.put("target", target);
+
+        nbt.putBoolean("enabled", true);
+        be.load(nbt);
+
+        new Vector3d(0, 0, 0).zRot(0);
+
+        PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
+        FaithPlateTER.selected = null;
+//        if(true)
+        return ActionResult.success(player.getItemInHand(hand));
+
+
+
+
+
+//        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, level, 64);
+//        Direction face = rayHit.getDirection();
+//        BlockPos pos = rayHit.getBlockPos();
+//
+//        if(level.isClientSide && FaithPlateTER.selected != null) {
+//            FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(FaithPlateTER.selected);
+//
+//            CompoundNBT nbt = new CompoundNBT();
+//            CompoundNBT target = new CompoundNBT();
+//            target.putInt("x", pos.getX() - FaithPlateTER.selected.getX());
+//            target.putInt("y", pos.getY() - FaithPlateTER.selected.getY());
+//            target.putInt("z", pos.getZ() - FaithPlateTER.selected.getZ());
+//            target.putByte("side", (byte)face.get3DDataValue());
+//            target.putFloat("height", be.getHeight());
+////            System.out.println(be.getHeight());
+//            nbt.put("target", target);
+//
+//            nbt.putBoolean("enabled", true);
+//            be.load(nbt);
+//
+//            PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(FaithPlateTER.selected, nbt));
+//            FaithPlateTER.selected = null;
+//            return ActionResult.success(player.getItemInHand(hand));
+//        }
+//
+//        return super.use(level, player, hand);
+    }
+}

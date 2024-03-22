@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "corner=down_left,active=false": {
+      "model": "portalmod:block/super_button_normal_2"
+    },
+    "corner=up_left,active=false": {
+      "model": "portalmod:block/super_button_normal_1"
+    },
+    "corner=up_right,active=false": {
+      "model": "portalmod:block/super_button_normal_2"
+    },
+    "corner=down_right,active=false": {
+      "model": "portalmod:block/super_button_normal_1"
+    },
+    "corner=down_left,active=true": {
+      "model": "portalmod:block/super_button_normal_2_pressed"
+    },
+    "corner=up_left,active=true": {
+      "model": "portalmod:block/super_button_normal_1_pressed"
+    },
+    "corner=up_right,active=true": {
+      "model": "portalmod:block/super_button_normal_2_pressed"
+    },
+    "corner=down_right,active=true": {
+      "model": "portalmod:block/super_button_normal_1_pressed"
+    }
+  }
+}

@@ -1,24 +1,6 @@
 {
-  "parent": "minecraft:item/handheld",
+  "parent": "portalmod:item/tool",
   "textures": {
     "layer0": "portalmod:item/wrench"
-  },
-  "display": {
-    "thirdperson_righthand": {
-      "rotation": [90, -90, 55],
-      "translation": [0, 3, 0.5],
-      "scale": [0.7, 0.7, 0.7]
-    },
-    "thirdperson_lefthand": {
-      "rotation": [90, 90, -55],
-      "translation": [0, 3, 0.5],
-      "scale": [0.7, 0.7, 0.7]
-    },
-    "firstperson_righthand": {
-      "rotation": [45, -90, 25]
-    },
-    "firstperson_lefthand": {
-      "rotation": [45, 90, -25]
-    }
   }
 }

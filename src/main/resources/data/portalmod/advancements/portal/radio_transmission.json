@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/mine_end_stone",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.radio_transmission.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "portalmod:radio"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.radio_transmission.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

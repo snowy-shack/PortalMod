@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/place_portals",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "portalmod:shoot_portal_far"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.shoot_portal_far.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:pink_stained_glass"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.shoot_portal_far.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

@@ -1,0 +1,613 @@
+package net.portalmod.common.sorted.faithplate;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.client.shader.Framebuffer;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.util.Util;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3f;
+import net.portalmod.core.interfaces.PMActiveRenderInfo;
+import net.portalmod.mixins.accessors.MinecraftAccessor;
+import org.lwjgl.glfw.GLFW;
+
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import net.minecraft.client.MainWindow;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.button.CheckboxButton;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
+import net.portalmod.PortalMod;
+import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.ShaderInit;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+
+public class FaithPlateConfigScreen extends Screen {
+    private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/faithplate.png");
+    private static final String WHOLE_FLOAT_REGEX = "[\\d.,+\\-]*";
+    private static final Pattern FLOAT_REGEX = Pattern.compile("^0*([+\\-])?(?:0*(\\d+\\.?\\d*).*)?$");
+    private static final Pattern DIGIT_REGEX = Pattern.compile("^([+\\-])?((?:\\d\\.|\\d){1,5})?.*$");
+    private static final long VRESIZE_CURSOR = GLFW.glfwCreateStandardCursor(GLFW.GLFW_VRESIZE_CURSOR);
+    private static final int imageWidth = 230;
+    private static final int imageHeight = 239;
+    private int pitch = 18;
+    
+    private RenderWidget panel;
+    private ExtendedButton selector;
+    private NumberInputField heightField;
+    private CheckboxButton enable;
+    
+    private BlockPos selected;
+    private FaithPlateParabola parabola;
+    
+    public FaithPlateConfigScreen(BlockPos selected) {
+        super(new TranslationTextComponent("screen." + PortalMod.MODID + ".faithplate"));
+        this.selected = selected;
+    }
+    
+    private int getX() {
+        return (width - imageWidth - 100) / 2;
+    }
+    
+    private int getY() {
+        return (height - imageHeight + 55) / 2;
+    }
+    
+    @Override
+    protected void init() {
+        FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
+        
+        panel = addWidget(new RenderWidget(this, getX() + 10, getY() + 22, 210, 121, new StringTextComponent("Render Panel")));
+        selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, 216, 20, new TranslationTextComponent("container.faithplate.select"), button -> {
+            FaithPlateTER.selected = selected;
+            this.onClose();
+        }));
+        enable = addButton(new CheckboxButton(getX() + 230, getY() + 25, 20, 20, new StringTextComponent("Enable"), be.isEnabled()));
+        heightField = addWidget(new NumberInputField(this, font, getX() + 230 + 35, getY() + 50, 55, 20, new StringTextComponent("Height")));
+        
+        float middle = 0;
+        float target = 0;
+        
+        if(be.getTargetPos() != null && be.getTargetFace() != null) {
+            Vec3 normal = new Vec3(be.getTargetFace().getNormal()).mul(.5);
+            Vec3 pos = new Vec3(be.getTargetPos()).add(0, -.5, 0).add(normal);
+            
+            parabola = new FaithPlateParabola(pos);
+            parabola.setHeight(be.getHeight());
+            
+            middle = (float)parabola.getMiddlePoint();
+            target = (float)parabola.getProjectedTarget().x;
+        } else {
+            panel.setEnabled(false);
+            heightField.setEditable(false);
+        }
+        
+        this.updateField();
+        
+//        ShaderInit.FAITHPLATE_GUI.get().bind()
+//        .setMatrix("modelViewProjection", Mat4.createScale(pitch * 2f / (float)panel.getWidth(), pitch * 2f / (float)panel.getHeight(), 1).toBuffer())
+//        .unbind();
+        
+        ShaderInit.FAITHPLATE_GRID.get().bind()
+        .setMatrix("modelViewProjection", Mat4.identity().toBuffer())
+        .setInt("res", panel.getWidth(), panel.getHeight())
+        .setInt("pitch", pitch)
+        .setFloat("middle", middle)
+        .setFloat("target", target)
+        .setInt("offset", -90, -45)
+        .unbind();
+    }
+
+    @Override
+    public void onClose() {
+        FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
+        BlockPos pos = be.getTargetPos();
+        Direction face = be.getTargetFace();
+        CompoundNBT nbt = new CompoundNBT();
+        
+        if(pos != null && face != null) {
+            CompoundNBT target = new CompoundNBT();
+            target.putInt("x", pos.getX());
+            target.putInt("y", pos.getY());
+            target.putInt("z", pos.getZ());
+            target.putByte("side", (byte)face.get3DDataValue());
+            target.putFloat("height", (float)parabola.getHeight());
+            nbt.put("target", target);
+        }
+
+        nbt.putBoolean("enabled", enable.selected());
+        be.load(nbt);
+        PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(be.getBlockPos(), nbt));
+        Minecraft.getInstance().setScreen(null);
+        this.setCursor(0);
+    }
+    
+    private void updateField() {
+        if(!panel.enabled)
+            return;
+        
+        String text = "";
+        Matcher matcher = DIGIT_REGEX.matcher(parabola.getHeight() + "");
+        if(parabola.getHeight() == (int)parabola.getHeight())
+            matcher = DIGIT_REGEX.matcher((int)parabola.getHeight() + "");
+        
+        if(matcher.matches()) {
+            text += matcher.group(1) != null ? matcher.group(1) : "";
+            text += matcher.group(2) != null ? matcher.group(2) : "";
+        } else {
+            text = "0";
+        }
+        heightField.setValue(text);
+    }
+    
+    private void updateParabola() {
+        if(!panel.enabled)
+            return;
+        
+        double height;
+        
+        try {
+            height = Double.parseDouble(heightField.getValue());
+        } catch(NumberFormatException e) {
+            height = 0;
+        }
+        
+        parabola.setHeight(height);
+    }
+    
+    private void setCursor(long cursor) {
+        GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), cursor);
+    }
+    
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int action) {
+        this.setCursor(0);
+        return super.mouseReleased(mouseX, mouseY, action);
+    }
+    
+    @Override
+    public void renderBackground(MatrixStack matrixStack, int i) {
+        super.renderBackground(matrixStack, i);
+        
+        RenderSystem.color4f(1, 1, 1, 1);
+        this.minecraft.getTextureManager().bind(TEXTURE);
+        blit(matrixStack, getX(), getY(), 0, 0, 330, 219, 512, 512);
+    }
+    
+    @Override
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(matrixStack);
+        panel.render(matrixStack, mouseX, mouseY, partialTicks);
+        selector.render(matrixStack, mouseX, mouseY, partialTicks);
+        enable.render(matrixStack, mouseX, mouseY, partialTicks);
+        heightField.render(matrixStack, mouseX, mouseY, partialTicks);
+        
+        FontRenderer fontRenderer = Minecraft.getInstance().font;
+        
+        fontRenderer.draw(matrixStack, new TranslationTextComponent("container.faithplate"), getX() + 8, getY() + 7, 4210752);
+//        drawString(matrixStack, fontRenderer, "Aerial Faith Plate", getX(), getY(), 4210752);
+        drawString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.height"), getX() + 230, getY() + 50 + 5, 16777215 | 0xFF << 24);
+        drawString(matrixStack, fontRenderer, enable.getMessage(), enable.x + 24, enable.y + (20 - 8) / 2, 16777215 | 0xFF << 24);
+        drawCenteredString(matrixStack, fontRenderer, "Here will go", (width + 220) / 2, getY() + (panel.y + panel.getHeight()) / 2 + 10, 0xFFFF5555);
+        drawCenteredString(matrixStack, fontRenderer, "render toggles", (width + 220) / 2, getY() + (panel.y + panel.getHeight()) / 2 + 20, 0xFFFF5555);
+        
+        if(!panel.enabled)
+            drawCenteredString(matrixStack, fontRenderer, "No target selected", (width - 100) / 2, (getY() + panel.y + panel.getHeight()) / 2, 0xFFFF5555);
+    }
+    
+    private static class RenderWidget extends Widget {
+        private final FaithPlateConfigScreen parent;
+        private boolean handleClicked = false;
+        private boolean enabled = true;
+        private Vector2f offset = new Vector2f(0, 0);
+        private static Framebuffer frameBuffer;
+        private static VertexBuffer vbo;
+        
+        public RenderWidget(FaithPlateConfigScreen parent, int x, int y, int width, int height, ITextComponent text) {
+            super(x, y, width, height, text);
+            this.parent = parent;
+
+            MainWindow window = Minecraft.getInstance().getWindow();
+            int wWidth = window.getWidth();
+            int wHeight = window.getHeight();
+            double guiScale = window.getGuiScale();
+
+            if(frameBuffer != null)
+                frameBuffer.destroyBuffers();
+
+            frameBuffer = new Framebuffer(
+                    (int)(getWidth() * guiScale),
+                    (int)(getHeight() * guiScale),
+                    true, Minecraft.ON_OSX);
+
+            if(vbo != null)
+                vbo.close();
+
+            vbo = new VertexBuffer(DefaultVertexFormats.POSITION_TEX);
+            float fbx = (float)((parent.width - getWidth() - 100) / 2 * guiScale);
+            float fby = (float)((parent.height - (y + getHeight())) * guiScale);
+            float fbw = (float)fbx + frameBuffer.width;
+            float fbh = (float)fby + frameBuffer.height;
+            float f2 = (float)frameBuffer.viewWidth / (float)frameBuffer.width;
+            float f3 = (float)frameBuffer.viewHeight / (float)frameBuffer.height;
+//            float u = wWidth / (float)frameBuffer.width;
+//            float v = wHeight / (float)frameBuffer.height;
+            BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+            bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            bufferbuilder.vertex(fbx, fby, 0).uv(0.0F, 1).endVertex();
+            bufferbuilder.vertex(fbw, fby, 0).uv(1, 1).endVertex();
+            bufferbuilder.vertex(fbw, fbh, 0).uv(1, 0.0F).endVertex();
+            bufferbuilder.vertex(fbx, fbh, 0).uv(0.0F, 0.0F).endVertex();
+            bufferbuilder.end();
+            vbo.upload(bufferbuilder);
+        }
+        
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        @Override
+        public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+            if(!this.enabled)
+                return;
+
+            double a = 0;
+            double b = 0;
+            if(parent.parabola != null) {
+                a = parent.parabola.getA();
+                b = parent.parabola.getB();
+            }
+
+            MainWindow window = Minecraft.getInstance().getWindow();
+            int wWidth = window.getWidth();
+            int wHeight = window.getHeight();
+            double guiScale = window.getGuiScale();
+
+            int fbX = (int)((parent.width - getWidth() - 100) / 2 * guiScale);
+            int fbY = (int)((parent.height - (y + getHeight())) * guiScale);
+            int fbW = (int)(getWidth() * guiScale);
+            int fbH = (int)(getHeight() * guiScale);
+
+//            glViewport(
+//                    0, 0,
+//                (int)(getWidth() * guiScale),
+//                (int)(getHeight() * guiScale)
+//            );
+//
+//            {
+//                RenderSystem.enableBlend();
+//                ShaderInit.FAITHPLATE_GRID.get().bind()
+//                .setInt("offset", (int)offset.x - 90, (int)offset.y - 45)
+//                .setFloat("a", (float)a)
+//                .setFloat("b", (float)b)
+//                .setFloat("height", (float)parent.parabola.getHeight());
+//                glBegin(GL_QUADS);
+//                    glVertex2f(-1, -1);
+//                    glVertex2f( 1, -1);
+//                    glVertex2f( 1,  1);
+//                    glVertex2f(-1,  1);
+//                glEnd();
+//                ShaderInit.FAITHPLATE_GRID.get().unbind();
+//                RenderSystem.disableBlend();
+//            }
+
+            Minecraft mc = Minecraft.getInstance();
+            GameRenderer gr = mc.gameRenderer;
+            IProfiler profiler = mc.getProfiler();
+            long nanos = Util.getNanos();
+
+            profiler.push("[" + PortalMod.MODID + "] faithplate screen preview");
+            profiler.push("render");
+
+            Framebuffer previousFB = Minecraft.getInstance().getMainRenderTarget();
+            ((MinecraftAccessor)Minecraft.getInstance()).pmSetMainRenderTarget(frameBuffer);
+            frameBuffer.bindWrite(true);
+
+            RenderSystem.matrixMode(5888);
+            RenderSystem.pushMatrix();
+            RenderSystem.loadIdentity();
+            RenderSystem.matrixMode(5889);
+            RenderSystem.pushMatrix();
+            RenderSystem.loadIdentity();
+
+
+
+
+
+
+
+
+
+            ActiveRenderInfo camera = gr.getMainCamera();
+            MatrixStack projectionMatrixStack = new MatrixStack();
+            projectionMatrixStack.last().pose().multiply(Matrix4f.perspective(30, (float)mc.getWindow().getWidth() / (float)mc.getWindow().getHeight(), 0.05F, gr.getRenderDistance() * 4.0F));
+//            projectionMatrixStack.last().pose().multiply(Matrix4f.orthographic(fbW / 50f, fbH / 50f, 0.05F, gr.getRenderDistance() * 4.0F));
+
+            Matrix4f projectionMatrix = projectionMatrixStack.last().pose();
+            gr.resetProjectionMatrix(projectionMatrix);
+//            camera.setup(mc.level, (Entity)(mc.getCameraEntity() == null ? mc.player : mc.getCameraEntity()), !mc.options.getCameraType().isFirstPerson(), mc.options.getCameraType().isMirrored(), p_228378_1_);
+
+            BlockPos pos = parent.selected;
+            BlockState state = mc.level.getBlockState(pos);
+            boolean onFloor = state.getValue(FaithPlateBlock.FACE) == FaithPlateBlock.Face.FLOOR;
+
+            // todo make it point to/at target
+            float yRot = 180 + state.getValue(FaithPlateBlock.FACING).toYRot() + offset.x % 360;
+            float xRot = MathHelper.clamp((onFloor ? 30 : 0) - offset.y, -90, 90);
+            float zoom = (50 - parent.pitch) / 45f;
+            zoom = (float)Math.pow(zoom, 3) * 50;
+
+            ((PMActiveRenderInfo)camera).pmSetupForOrtho(mc.level,
+                    new Vec3(pos).add(.5).add(FaithPlateBlock.getNormal(state).getNormal()), yRot, xRot, zoom);
+
+//            EntityViewRenderEvent.CameraSetup cameraSetup = ForgeHooksClient.onCameraSetup(this, camera, p_228378_1_);
+//            camera.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
+//            modelViewMatrixStack.mulPose(Vector3f.ZP.rotationDegrees(cameraSetup.getRoll()));
+            MatrixStack modelViewMatrixStack = new MatrixStack();
+            modelViewMatrixStack.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
+            modelViewMatrixStack.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
+            mc.levelRenderer.renderLevel(modelViewMatrixStack, partialTicks, nanos, false, camera, gr, gr.lightTexture, projectionMatrix);
+//            mc.getProfiler().popPush("forge_render_last");
+//            ForgeHooksClient.dispatchRenderLast(mc.levelRenderer, modelViewMatrixStack, partialTicks, projectionMatrix, nanos);
+
+
+
+
+
+
+
+
+
+
+
+
+//            Minecraft.getInstance().gameRenderer.renderLevel(partialTicks, nanos, new MatrixStack());
+            RenderSystem.matrixMode(5888);
+            RenderSystem.popMatrix();
+            RenderSystem.matrixMode(5889);
+            RenderSystem.popMatrix();
+
+            profiler.popPush("blit");
+
+            ((MinecraftAccessor)Minecraft.getInstance()).pmSetMainRenderTarget(previousFB);
+            previousFB.bindWrite(true);
+
+//            GlStateManager._viewport(fbX, fbY, frameBuffer.width, frameBuffer.height);
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+
+            RenderSystem.activeTexture(GL_TEXTURE0);
+
+            ShaderInit.BLIT.get().bind();
+            ShaderInit.BLIT.get().setInt("texture", 0);
+            ShaderInit.BLIT.get().setMatrix("projection", Matrix4f.orthographic(previousFB.width, previousFB.height, -1, 1));
+//            ShaderInit.BLIT.get().setMatrix("projection", new Matrix4f(new float[] {
+//                    2f / frameBuffer.width, 0, 0, -1,
+//                    0, 2f / frameBuffer.height, 0, -1,
+//                    0, 0, 1, 0,
+//                    0, 0, 0, 1
+//            }));
+
+            GlStateManager._color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            frameBuffer.bindRead();
+            vbo.bind();
+            DefaultVertexFormats.POSITION_TEX.setupBufferState(0L);
+            RenderSystem.drawArrays(7, 0, 4);
+            VertexBuffer.unbind();
+            frameBuffer.unbindRead();
+
+            ShaderInit.BLIT.get().unbind();
+
+            profiler.popPush("render state restore");
+
+            RenderHelper.setupFor3DItems();
+            glViewport(0, 0, wWidth, wHeight);
+
+            profiler.pop();
+            profiler.pop();
+        }
+        
+        @Override
+        protected boolean clicked(double mouseX, double mouseY) {
+            if(this.enabled)
+                return super.clicked(mouseX, mouseY);
+            return false;
+        }
+        
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            if(!this.enabled)
+                return;
+            
+            int offsetX = (int)offset.x + width / 2;
+            int offsetY = -(int)offset.y + height / 2;
+            int x = (int)(mouseX - this.x - offsetX - parent.pitch * parent.parabola.getMiddlePoint());
+            int y = (int)(mouseY - this.y - offsetY + parent.pitch * parent.parabola.getHeight());
+            
+            handleClicked = Math.sqrt(x * x + y * y) < (float)parent.pitch / 4.;
+            
+            if(handleClicked)
+                parent.setCursor(VRESIZE_CURSOR);
+        }
+        
+        @Override
+        public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+            if(!this.enabled)
+                return false;
+            
+            parent.pitch += amount;
+            parent.pitch = MathHelper.clamp(parent.pitch, 5, 50);
+            ShaderInit.FAITHPLATE_GRID.get().bind().setInt("pitch", parent.pitch).unbind();
+            return true;
+        }
+
+        // todo use right click
+        @Override
+        protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
+            if(!this.enabled)
+                return;
+            
+            if(handleClicked) {
+                if(Screen.hasAltDown() || Screen.hasControlDown() || Screen.hasShiftDown()) {
+                    parent.parabola.setHeight(-Math.round((mouseY - this.y - this.height / 2 + offset.y) / parent.pitch));
+                } else {
+                    parent.parabola.setHeight(-(mouseY - this.y - this.height / 2 + offset.y) / parent.pitch);
+                }
+            } else {
+                offset = new Vector2f(offset.x + (float)deltaX, offset.y - (float)deltaY);
+            }
+            
+            parent.updateField();
+        }
+    }
+    
+    private static class NumberInputField extends TextFieldWidget {
+        private final FaithPlateConfigScreen parent;
+        
+        public NumberInputField(FaithPlateConfigScreen parent, FontRenderer font, int x, int y, int width, int height, ITextComponent text) {
+            super(font, x, y, width, height, text);
+            this.parent = parent;
+        }
+        
+        @Override
+        public void deleteChars(int len) {
+            if(!parent.panel.enabled)
+                return;
+            
+            super.deleteChars(len);
+            if(this.getValue().isEmpty())
+                this.setValue("0");
+            parent.updateParabola();
+        }
+        
+        @Override
+        public void insertText(String text) {
+            if(!parent.panel.enabled
+                    || !text.matches(WHOLE_FLOAT_REGEX)
+                    || this.getValue().replace(".", "").replace("+", "").replace("-", "").length() >= 5)
+                return;
+            
+            final String recovery = this.getValue();
+            text = text.replaceAll(",", ".");
+            
+            if(text.contains(".") && this.getValue().contains("."))
+                text = text.replaceAll(".", "");
+            super.insertText(text);
+            
+            Matcher matcher;
+            
+            matcher = FLOAT_REGEX.matcher(this.getValue());
+            if(matcher.matches()) {
+                text = "";
+                text += matcher.group(1) != null ? matcher.group(1) : "";
+                text += matcher.group(2) != null ? matcher.group(2) : "";
+            } else {
+                text = recovery;
+            }
+            
+            matcher = DIGIT_REGEX.matcher(text);
+            if(matcher.matches()) {
+                text = "";
+                text += matcher.group(1) != null ? matcher.group(1) : "";
+                text += matcher.group(2) != null ? matcher.group(2) : "";
+            } else {
+                text = recovery;
+            }
+            
+            if(text.isEmpty())
+                text = "0";
+            
+            this.setValue(text);
+            parent.updateParabola();
+        }
+        
+        @Override
+        public boolean isFocused() {
+            if(!parent.panel.enabled)
+                return false;
+            return super.isFocused();
+        }
+    }
+    
+//    private static class DropdownMenu extends Widget {
+//        private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/dropdownmenu.png");
+//        private static final int WIDTH = 64, HEIGHT = 20;
+//        private List<ITextComponent> entries;
+//        private int selected;
+//        private boolean open;
+//
+//        public DropdownMenu(int x, int y, ITextComponent text, List<ITextComponent> entries) {
+//            this(x, y, text, entries, 0);
+//        }
+//
+//        public DropdownMenu(int x, int y, ITextComponent text, List<ITextComponent> entries, int selected) {
+//            super(x, y, WIDTH, HEIGHT, text);
+//            this.open = false;
+//            this.entries = entries;
+//            this.selected = selected;
+//        }
+//
+//        @Override
+//        public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+//            boolean hovering = mouseX >= x && mouseX <= x + 64 && mouseY >= y && mouseY <= y + 20;
+//
+//            Minecraft minecraft = Minecraft.getInstance();
+//            minecraft.getTextureManager().bind(TEXTURE);
+//            RenderSystem.enableDepthTest();
+//            FontRenderer fontrenderer = minecraft.font;
+//            RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+//            RenderSystem.enableBlend();
+//            RenderSystem.defaultBlendFunc();
+//            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+//
+//            blit(matrixStack, x, y, 32, this.isFocused() ? 20 : 0, 64, 20, 256, 256);
+//            blit(matrixStack, x + 48, y + 2, open ? 16 : 0, this.isFocused() || hovering ? 16 : 0, 16, 16, 256, 256);
+//            drawString(matrixStack, fontrenderer, entries.get(selected), this.x + (this.height - 8) / 2, this.y + (this.height - 8) / 2, 0xFFE0E0E0);
+//
+//            if(open) {
+//                int i = 1;
+//                for(ITextComponent entry : entries) {
+//                    minecraft.getTextureManager().bind(TEXTURE);
+//                    RenderSystem.enableDepthTest();
+//                    RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+//                    RenderSystem.enableBlend();
+//                    RenderSystem.defaultBlendFunc();
+//                    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+//
+//                    blit(matrixStack, x, y + i * 20, 32, this.isFocused() ? 20 : 0, 64, 20, 256, 256);
+//                    drawString(matrixStack, fontrenderer, entry, this.x + (this.height - 8) / 2, this.y + (this.height - 8) / 2 + i++ * 20, 0xFFE0E0E0);
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void onClick(double mouseX, double mouseY) {
+//            super.onClick(mouseX, mouseY);
+//            open = !open;
+//        }
+//    }
+}

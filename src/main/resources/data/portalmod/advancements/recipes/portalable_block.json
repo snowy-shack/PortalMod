@@ -1,0 +1,23 @@
+{
+  "parent": "portalmod:recipes/root",
+  "criteria": {
+    "has_endstone": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:endstone"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "portalmod:portalable_block",
+      "portalmod:unportalable_block"
+    ]
+  }
+}

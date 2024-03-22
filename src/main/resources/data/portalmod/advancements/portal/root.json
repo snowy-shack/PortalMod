@@ -1,0 +1,37 @@
+{
+  "criteria": {
+    "crafting_table": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:crafting_table"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "portalmod:textures/gui/advancements/backgrounds/portal.png",
+    "description": {
+      "translate": "advancements.portal.root.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:portalable_block"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.portal.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafting_table"
+    ]
+  ]
+}

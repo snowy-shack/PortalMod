@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "###",
+        "RRP"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:black_stained_glass"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        },
+        "P": {
+            "item": "minecraft:piston"
+        }
+    },
+    "result": {
+        "item": "portalmod:faithplate",
+        "count": 1
+    }
+}

@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/portal_surface",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.obtain_unportalable_block.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:unportalable_block"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.obtain_unportalable_block.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

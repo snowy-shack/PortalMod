@@ -1,0 +1,38 @@
+{
+  "parent": "portalmod:portal/cube_on_button",
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.fizzle_cubes.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:coal_block"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.fizzle_cubes.title"
+    }
+  },
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "player": {
+          "player": {
+            "stats": [
+              {
+                "type": "minecraft:killed",
+                "stat": "minecraft:zombie",
+                "value": {
+                  "min": 5
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

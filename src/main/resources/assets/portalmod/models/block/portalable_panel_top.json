@@ -1,0 +1,7 @@
+{
+  "parent": "portalmod:block/cube_part_top",
+  "textures": {
+    "side": "portalmod:block/portalable_block",
+    "top": "portalmod:block/portalable_block_top"
+  }
+}

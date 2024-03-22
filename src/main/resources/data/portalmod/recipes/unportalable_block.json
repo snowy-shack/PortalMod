@@ -1,0 +1,19 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#I",
+        "I#"
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:basalt"
+        },
+        "I": {
+            "item": "minecraft:iron_nugget"
+        }
+    },
+    "result": {
+        "item": "portalmod:unportalable_block",
+        "count": 4
+    }
+}

@@ -1,6 +1,0 @@
-{
-  "parent": "portalmod:gun/portalgun_model",
-  "textures": {
-    "base": "portalmod:gun/portalgun"
-  }
-}

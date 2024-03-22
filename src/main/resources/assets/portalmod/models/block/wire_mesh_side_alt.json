@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_glass_pane_side_alt",
+  "textures": {
+    "pane": "portalmod:block/wire_mesh",
+    "edge": "portalmod:block/wire_mesh_top"
+  }
+}

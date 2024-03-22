@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "axis=x,half=upper": {"model": "portalmod:block/fizzler_field_top", "y": 90},
+    "axis=z,half=upper": {"model": "portalmod:block/fizzler_field_top"},
+    "axis=x,half=lower": {"model": "portalmod:block/fizzler_field_bottom", "y": 90},
+    "axis=z,half=lower": {"model": "portalmod:block/fizzler_field_bottom"}
+  }
+}

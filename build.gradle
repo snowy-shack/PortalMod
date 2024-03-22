@@ -1,11 +1,11 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://maven.minecraftforge.net' }
         maven { url = "https://repo.spongepowered.org/maven" } // mixin
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT' // mixin
     }
 }
@@ -16,7 +16,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
 version = '1.0'
-group = 'io.github.serialsniper.portalmod'
+group = 'net.portalmod'
 archivesBaseName = 'portalmod'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
@@ -49,6 +49,8 @@ minecraft {
             // property 'forge.logging.markers', 'REGISTRIES'
             // property 'forge.logging.console.level', 'debug'
 
+            arg "-mixin.config=portalmod.mixins.json" // mixin
+
             mods {
                 portalmod {
                     source sourceSets.main
@@ -80,15 +82,14 @@ repositories {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.1.0'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.2.34'
     annotationProcessor 'org.spongepowered:mixin:0.8.3:processor'
 }
 
 mixin {
+//    defaultObfuscationEnv "searge"
     add sourceSets.main, "portalmod.refmap.json"
-
     config "portalmod.mixins.json"
-
 //    disableAnnotationProcessorCheck()
 }
 
@@ -96,11 +97,11 @@ jar {
     manifest {
         attributes([
             "Specification-Title": "PortalMod",
-            "Specification-Vendor": "SerialSniper",
+            "Specification-Vendor": "SerialSniper & PhantomEye",
             "Specification-Version": "1",
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"SerialSniper",
+            "Implementation-Vendor" :"SerialSniper & PhantomEye",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
 
             // mixin
@@ -111,7 +112,7 @@ jar {
     }
 }
 
-jar.finalizedBy('reobfJar') 
+jar.finalizedBy('reobfJar')
 
 publishing {
     publications {

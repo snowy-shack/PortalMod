@@ -7,8 +7,12 @@ modId="portalmod"
 version="0.1"
 displayName="PortalMod"
 #logoFile="examplemod.png"
-credits="Special thanks to Dave Kircher"
+#credits="Special thanks to Dave Kircher"
 authors="SerialSniper, ThePhantomEye"
 description='''
-"Science isn't about why, it's about why not"
+This is a Minecraft mod inspired by the Portal franchise, and it aims to recreate most of what those games have to offer
+
+CREDITS
+§lDevelopment:§r SerialSniper
+§lArt:§r PhantomEye
 '''

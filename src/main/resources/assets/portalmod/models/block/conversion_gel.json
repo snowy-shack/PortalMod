@@ -1,0 +1,6 @@
+{
+  "parent": "portalmod:block/gel",
+  "textures": {
+    "gel": "portalmod:block/conversion_gel"
+  }
+}

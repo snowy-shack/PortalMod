@@ -1,0 +1,34 @@
+{
+	"textures": {
+		"bottom":   "portalmod:block/forest_cake_bottom",
+		"inside":   "portalmod:block/forest_cake_inside",
+		"side":     "portalmod:block/forest_cake_side",
+		"top":      "portalmod:block/forest_cake_top_off",
+		"particle": "#side"
+	},
+	"elements": [
+		{
+			"from": [2, 0,  2],
+			"to":   [6, 8, 14],
+			"faces": {
+				"north": {"uv": [10, 8, 14, 16], "texture": "#side"},
+				"east":  {"uv": [ 2, 8, 14, 16], "texture": "#inside"},
+				"south": {"uv": [ 2, 8,  6, 16], "texture": "#side"},
+				"west":  {"uv": [ 2, 8, 14, 16], "texture": "#side"},
+				"up":    {"uv": [ 2, 2,  6, 14], "texture": "#top"},
+				"down":  {"uv": [ 2, 2,  6, 14], "texture": "#bottom"}
+			}
+		},
+		{
+			"from": [ 6, 0, 2],
+			"to":   [10, 8, 8],
+			"faces": {
+				"north": {"uv": [6, 8, 10, 16], "texture": "#side"},
+				"east":  {"uv": [8, 8, 14, 16], "texture": "#inside"},
+				"south": {"uv": [6, 8, 10, 16], "texture": "#inside"},
+				"up":    {"uv": [6, 2, 10,  8], "texture": "#top"},
+				"down":  {"uv": [6, 8, 10, 14], "texture": "#bottom"}
+			}
+		}
+	]
+}

@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/turret_defense",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.kill_turrets.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:bullets"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.kill_turrets.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

@@ -1,0 +1,33 @@
+{
+	"textures": {
+		"top": "portalmod:block/chamber_door_frame_top",
+		"side": "portalmod:block/chamber_door_frame_side_top",
+		"front": "portalmod:block/chamber_door_side_top",
+		"inside": "portalmod:block/chamber_door_frame_inside_top",
+		"bottom": "portalmod:block/chamber_door_frame_inside_ceiling",
+		"particle": "portalmod:block/chamber_door_side_top"
+	},
+	"elements": [
+		{
+			"from": [14, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [ 0,  0,  2, 16], "texture": "#front"},
+				"east":  {"uv": [ 0,  0, 16, 16], "texture": "#side"},
+				"south": {"uv": [ 0,  0,  2, 16], "texture": "#front"},
+				"west":  {"uv": [ 0,  0, 16, 16], "texture": "#inside"},
+				"up":    {"uv": [ 2,  0,  0, 16], "texture": "#top"}
+			}
+		},
+		{
+			"from": [ 0, 14,  0],
+			"to":   [14, 16, 16],
+			"faces": {
+				"north": {"uv": [ 2,  0, 16,  2], "texture": "#front"},
+				"south": {"uv": [16,  0,  2,  2], "texture": "#front"},
+				"up":    {"uv": [16,  0,  2, 16], "texture": "#top"},
+				"down":  {"uv": [16,  0,  2, 16], "texture": "#bottom"}
+			}
+		}
+	]
+}

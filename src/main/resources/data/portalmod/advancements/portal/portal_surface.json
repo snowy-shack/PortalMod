@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/place_portals",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "portalmod:portal_surface"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.portal_surface.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:portalable_block"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.portal_surface.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}

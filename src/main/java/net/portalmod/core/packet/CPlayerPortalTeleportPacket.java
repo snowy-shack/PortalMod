@@ -1,0 +1,26 @@
+package net.portalmod.core.packet;
+
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.common.sorted.portal.IClientTeleportable;
+
+import java.util.function.Supplier;
+
+public class CPlayerPortalTeleportPacket implements AbstractPacket<CPlayerPortalTeleportPacket> {
+    public CPlayerPortalTeleportPacket() {}
+
+    @Override
+    public void encode(PacketBuffer buffer) {}
+
+    @Override
+    public CPlayerPortalTeleportPacket decode(PacketBuffer buffer) {
+        return new CPlayerPortalTeleportPacket();
+    }
+
+    @Override
+    public boolean handle(Supplier<NetworkEvent.Context> context) {
+        context.get().enqueueWork(() -> ((IClientTeleportable)context.get().getSender()).setJustPortaled(true));
+        context.get().setPacketHandled(true);
+        return true;
+    }
+}

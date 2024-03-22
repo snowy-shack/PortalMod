@@ -1,0 +1,48 @@
+{
+    "loader": "portalmod:super_button",
+    "elements": [
+        {
+            "from": [ 7.5, 2, 7.5 ],
+            "to":   [  16, 4,  16 ],
+            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "faces": {
+                "north": { "uv": [ 0.5,  12,   9, 14 ], "texture": "#button" },
+                "west":  { "uv": [   0,  10, 8.5, 12 ], "texture": "#button" },
+                "up":    { "uv": [   0, 0.5, 8.5,  9 ], "texture": "#button", "rotation": 90 }
+            }
+        },
+        {
+            "from": [  4, 0,  4 ],
+            "to":   [ 16, 3, 16 ],
+            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "faces": {
+                "north": { "uv": [  0, 12, 12, 15 ], "texture": "#base" },
+                "west":  { "uv": [ 12,  0, 15, 12 ], "texture": "#base",   "rotation":  90 },
+                "up":    { "uv": [  0,  0, 12, 12 ], "texture": "#base",   "rotation": 180 },
+                "down":  { "uv": [  0, 12, 12,  0 ], "texture": "#bottom", "rotation": 180, "cullface": "down" }
+            }
+        },
+        {
+            "from": [ 0, 0, 13.5 ],
+            "to":   [ 4, 2,   16 ],
+            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "faces": {
+                "north": { "uv": [    5, 14,    9, 16 ], "texture": "#button" },
+                "west":  { "uv": [    9,  5, 11.5,  7 ], "texture": "#button", "cullface": "north" },
+                "up":    { "uv": [ 11.5,  4,    9,  0 ], "texture": "#button", "rotation": 270 },
+                "down":  { "uv": [ 11.5, 12,    9,  8 ], "texture": "#button", "rotation":  90, "cullface": "down" }
+            }
+        },
+        {
+            "from": [ 13.5, 0, 0 ],
+            "to":   [   16, 2, 4 ],
+            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "faces": {
+                "north": { "uv": [ 11.5,  5,   14,  7 ], "texture": "#button", "cullface": "north" },
+                "west":  { "uv": [    4, 14,    0, 16 ], "texture": "#button" },
+                "up":    { "uv": [   14,  4, 11.5,  0 ], "texture": "#button" },
+                "down":  { "uv": [   14, 12, 11.5,  8 ], "texture": "#button", "cullface": "down" }
+            }
+        }
+    ]
+}

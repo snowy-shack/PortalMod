@@ -1,0 +1,29 @@
+{
+  "parent": "portalmod:portal/mine_end_stone",
+  "criteria": {
+    "condition_name": {
+      "conditions": {},
+      "trigger": "portalmod:place_portals"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.portal.place_portals.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "portalmod:portalgun"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.portal.place_portals.title"
+    }
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}
