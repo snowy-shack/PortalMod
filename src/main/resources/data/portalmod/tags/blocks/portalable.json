@@ -2,6 +2,10 @@
   "replace": true,
   "values": [
     "portalmod:lunecast",
+    "portalmod:eroded_lunecast",
+    "portalmod:arbored_lunecast",
+    "portalmod:fractured_lunecast",
+    "portalmod:vintage_lunecast",
     "minecraft:end_stone"
   ]
 }
