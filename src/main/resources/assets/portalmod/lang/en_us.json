@@ -20,8 +20,8 @@
 
   "block.portalmod.radio":              "Radio",
   "block.portalmod.forest_cake":        "Black Forest Cake",
-  "block.portalmod.portalable_block":   "Lunecast",
-  "block.portalmod.unportalable_block": "Blackplate",
+  "block.portalmod.lunecast":   "Lunecast",
+  "block.portalmod.blackplate": "Blackplate",
   "block.portalmod.chamber_lights":     "Chamber Lights",
   "block.portalmod.wire_mesh":          "Wire Mesh",
   "block.portalmod.wire_mesh_block":    "Wire Mesh Block",
@@ -97,16 +97,16 @@
   "advancements.portal.root.description": "Like old times",
 
     "advancements.portal.mine_end_stone.title":       "Minin' Away",
-    "advancements.portal.mine_end_stone.description": "Collect End Stone for Portalable Panels",
+    "advancements.portal.mine_end_stone.description": "Collect End Stone for Lunecast Panels",
 
       "advancements.portal.place_portals.title":       "Through the Looking Glass",
       "advancements.portal.place_portals.description": "Carve a hole through spacetime",
 
         "advancements.portal.portal_surface.title":       "Quality Standards",
-        "advancements.portal.portal_surface.description": "Place a portal on a Portalable surface",
+        "advancements.portal.portal_surface.description": "Place a portal on a Lunecast surface",
 
-          "advancements.portal.obtain_unportalable_block.title":       "I Like It Shiny",
-          "advancements.portal.obtain_unportalable_block.description": "Obtain Unportalable Blocks for your test chamber",
+          "advancements.portal.obtain_blackplate.title":       "I Like It Shiny",
+          "advancements.portal.obtain_blackplate.description": "Obtain Blackplate Blocks for your test chamber",
 
         "advancements.portal.grab_entity.title":       "Wingardium Leviosa",
         "advancements.portal.grab_entity.description": "Lift an object using your Portal Gun",

@@ -1,29 +1,38 @@
 {
   "parent": "portalmod:portal/root",
   "criteria": {
-    "condition_name": {
-      "conditions": {},
-      "trigger": "minecraft:impossible"
+    "wears_longfall_boots": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "feet": {
+                  "item": "portalmod:longfall_boots"
+                }
+              }
+            }
+          }
+        ]
+      }
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "portalmod:longfall_boots"
+    },
+    "title": {
+      "translate": "advancements.portal.obtain_fall_boots.title"
+    },
     "description": {
       "translate": "advancements.portal.obtain_fall_boots.description"
     },
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:longfall_boots"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.obtain_fall_boots.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }
