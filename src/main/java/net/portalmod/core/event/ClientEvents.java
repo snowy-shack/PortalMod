@@ -1,41 +1,15 @@
 package net.portalmod.core.event;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.client.multiplayer.ClientChunkProvider;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.world.Dimension;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
-import net.portalmod.client.render.PortalFirstPersonRenderer;
-import net.portalmod.common.sorted.portal.*;
-import net.portalmod.core.chunkviewer.ChunkViewer;
-import net.portalmod.core.init.ShaderInit;
-import net.portalmod.mixins.accessors.ChunkManagerAccessor;
-import org.lwjgl.glfw.GLFW;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.BipedModel.ArmPose;
 import net.minecraft.client.settings.KeyBinding;
@@ -53,49 +27,56 @@ import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ChunkHolder;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderBlockOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PortalMod;
-import net.portalmod.core.injectors.MainMenuInjector;
+import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.portal.PortalEntity;
+import net.portalmod.common.sorted.portal.PortalEntityClient;
+import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
+import net.portalmod.common.sorted.turret.TurretEntity;
+import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.KeyInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
+import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.core.util.ChangeDetector;
-import org.lwjgl.opengl.GL11;
+import net.portalmod.mixins.accessors.ChunkManagerAccessor;
+import org.lwjgl.glfw.GLFW;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.CLIENT)
 public class ClientEvents {
@@ -241,7 +222,8 @@ public class ClientEvents {
             return;
 
         // todo dont actually have this
-        ChunkViewer.getInstance().setVisible(true);
+        // im so done with this
+        ChunkViewer.getInstance().setVisible(false);
 
         event.setGui(MainMenuInjector.getInjectedMenu(PortalModOptionsScreen.MENU.get(), MainMenuInjector.fading));
         MainMenuInjector.needsUpdate = false;
@@ -333,18 +315,18 @@ public class ClientEvents {
 //                    return;
 //                }
 
-                if(player.hasPassenger(Cube.class)) {
+                if(player.hasPassenger(Cube.class) || player.hasPassenger(TurretEntity.class)) {
                     PortalGun.dropCube(player, false);
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_CUBE).build());
 
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 } else {
                     try {
-                        Entity cube = Minecraft.getInstance().crosshairPickEntity;
+                        Entity entity = Minecraft.getInstance().crosshairPickEntity;
 
-                        if(cube instanceof Cube) {
-                            cube.startRiding(player);
-                            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_CUBE).data(cube.getId()).build());
+                        if(PortalGun.isHoldable(entity)) {
+                            entity.startRiding(player);
+                            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_CUBE).data(entity.getId()).build());
 
                             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                         }
