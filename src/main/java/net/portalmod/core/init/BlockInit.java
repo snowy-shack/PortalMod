@@ -22,6 +22,7 @@ import net.portalmod.common.sorted.gel.RepulsionGelBlock;
 import net.portalmod.common.sorted.laser.LaserCatcherBlock;
 import net.portalmod.common.sorted.laser.LaserEmitterBlock;
 import net.portalmod.common.sorted.laser.LaserRelayBlock;
+import net.portalmod.common.sorted.panel.PanelBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 
@@ -31,10 +32,16 @@ public class BlockInit {
     private BlockInit() {}
     
     public static final RegistryObject<Block> PORTALABLE_BLOCK = BLOCKS.register("portalable_block",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+            () -> new PanelBlock(false, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     
     public static final RegistryObject<Block> UNPORTALABLE_BLOCK = BLOCKS.register("unportalable_block",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+            () -> new PanelBlock(true, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> ARBORED_LUNECAST = BLOCKS.register("arbored_lunecast",
+            () -> new PanelBlock(false, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> ARBORED_BLACKPLATE = BLOCKS.register("arbored_blackplate",
+            () -> new PanelBlock(true, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     
     public static final RegistryObject<Block> RADIO = BLOCKS.register("radio",
             () -> new RadioBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(4.0F)));
