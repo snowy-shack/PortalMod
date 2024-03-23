@@ -1,38 +1,33 @@
 {
   "parent": "portalmod:portal/root",
   "criteria": {
-    "get_end_stone": {
+    "collected_end_stone": {
+      "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": [
-              "minecraft:end_stone"
-            ]
+            "item": "minecraft:end_stone",
+            "count": {
+              "min": 8
+            }
           }
         ]
-      },
-      "trigger": "minecraft:inventory_changed"
+      }
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "minecraft:diamond_pickaxe"
+    },
+    "title": {
+      "translate": "advancements.portal.mine_end_stone.title"
+    },
     "description": {
       "translate": "advancements.portal.mine_end_stone.description"
     },
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "minecraft:netherite_pickaxe",
-      "nbt": "{Damage:0}"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.mine_end_stone.title"
-    }
-  },
-  "requirements": [
-    [
-      "get_end_stone"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }

@@ -1,7 +1,7 @@
 {
   "values": [
-    "portalmod:portalable_block",
-    "portalmod:unportalable_block",
+    "portalmod:lunecast",
+    "portalmod:blackplate",
     "portalmod:wire_mesh_block"
   ]
 }

@@ -8,7 +8,7 @@
     "frame": "challenge",
     "hidden": false,
     "icon": {
-      "item": "minecraft:coal_block"
+      "item": "portalmod:fizzler_emitter"
     },
     "show_toast": true,
     "title": {
@@ -24,7 +24,7 @@
             "stats": [
               {
                 "type": "minecraft:killed",
-                "stat": "minecraft:zombie",
+                "stat": "minecraft:minecart",
                 "value": {
                   "min": 5
                 }

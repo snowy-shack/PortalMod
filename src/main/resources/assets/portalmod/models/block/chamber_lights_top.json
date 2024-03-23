@@ -1,7 +1,7 @@
 {
     "textures": {
-        "side":     "portalmod:block/unportalable_panel_top",
-        "end":      "portalmod:block/unportalable_block_top",
+        "side":     "portalmod:block/blackplate_panel_top",
+        "end":      "portalmod:block/blackplate_top",
         "glass":    "portalmod:block/chamber_lights_glass_top",
         "inside":   "portalmod:block/chamber_lights_inside",
         "lights":   "portalmod:block/chamber_lights",
