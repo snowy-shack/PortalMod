@@ -1,29 +1,34 @@
 {
-  "parent": "portalmod:portal/mine_end_stone",
+  "parent": "portalmod:portal/root",
   "criteria": {
-    "condition_name": {
-      "conditions": {},
-      "trigger": "minecraft:impossible"
+    "woop": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "dimension": "minecraft:the_end",
+          "block": {
+            "block": "portalmod:radio",
+            "state": {
+              "state": "active"
+            }
+          }
+        }
+      }
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "portalmod:radio"
+    },
+    "title": {
+      "translate": "advancements.portal.radio_transmission.title"
+    },
     "description": {
       "translate": "advancements.portal.radio_transmission.description"
     },
     "frame": "task",
-    "hidden": true,
-    "icon": {
-      "item": "portalmod:radio"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.radio_transmission.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": true
+  }
 }

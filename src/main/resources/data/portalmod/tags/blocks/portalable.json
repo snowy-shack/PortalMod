@@ -1,7 +1,7 @@
 {
   "replace": true,
   "values": [
-    "portalmod:portalable_block",
+    "portalmod:lunecast",
     "minecraft:end_stone"
   ]
 }

@@ -1,12 +1,12 @@
 {
-  "parent": "portalmod:recipes/portalable_block",
+  "parent": "portalmod:recipes/lunecast",
   "criteria": {
-    "has_portalable_blocks": {
+    "has_lunecasts": {
       "conditions": {
         "items": [
           {
             "items": [
-              "portalmod:portalable_block"
+              "portalmod:lunecast"
             ]
           }
         ]
