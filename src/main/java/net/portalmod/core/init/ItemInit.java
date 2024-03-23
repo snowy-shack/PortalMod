@@ -42,11 +42,11 @@ public class ItemInit {
     
     // BLOCK ITEMS
     
-    public static final RegistryObject<BlockItem> PORTALABLE_BLOCK = ITEMS.register("portalable_block",
-            () -> new BlockItem(BlockInit.PORTALABLE_BLOCK.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
-    
-    public static final RegistryObject<BlockItem> UNPORTALABLE_BLOCK = ITEMS.register("unportalable_block",
-            () -> new BlockItem(BlockInit.UNPORTALABLE_BLOCK.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+//    public static final RegistryObject<BlockItem> PORTALABLE_BLOCK = ITEMS.register("portalable_block",
+//            () -> new BlockItem(BlockInit.LUNECAST.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+//
+//    public static final RegistryObject<BlockItem> UNPORTALABLE_BLOCK = ITEMS.register("unportalable_block",
+//            () -> new BlockItem(BlockInit.BLACKPLATE.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
     
     public static final RegistryObject<BlockItem> RADIO = ITEMS.register("radio",
             () -> new RadioBlockItem(BlockInit.RADIO.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));

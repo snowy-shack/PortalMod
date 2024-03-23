@@ -1,16 +1,11 @@
 package net.portalmod.common.sorted.portalgun;
 
-import java.awt.*;
-import java.util.List;
-import java.util.UUID;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -27,13 +22,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.sorted.cube.Cube;
-import net.portalmod.common.sorted.faithplate.FaithPlateClient;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
-import net.portalmod.core.util.Colour;
+
+import java.util.List;
+import java.util.UUID;
 
 public class PortalGun extends Item {
     public PortalGun(Properties properties) {
@@ -131,7 +127,7 @@ public class PortalGun extends Item {
         boolean allQualityBlocks = true;
         for(BlockPos blockPos : portal.getBlocksBehind()) {
             // todo check any quality block
-            if(portal.level.getBlockState(blockPos).getBlock() != BlockInit.PORTALABLE_BLOCK.get())
+            if(portal.level.getBlockState(blockPos).getBlock() != BlockInit.LUNECAST.get())
                 allQualityBlocks = false;
         }
 
