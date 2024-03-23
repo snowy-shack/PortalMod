@@ -25,6 +25,7 @@ import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
+import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
 
@@ -43,12 +44,16 @@ public class PortalGun extends Item {
     public static void handleRightClick() {
         PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.ORANGE).build());
     }
+
+    public static boolean isHoldable(Entity entity) {
+        return entity instanceof Cube || entity instanceof TurretEntity;
+    }
     
     public static void dropCube(PlayerEntity player, boolean toBeThrown) {
         List<Entity> cubes = player.getPassengers();
         for(int i = cubes.size() - 1; i >= 0; --i) {
             Entity cube = cubes.get(0);
-            if(cube instanceof Cube) {
+            if(isHoldable(cube)) {
                 cube.stopRiding();
                 if(toBeThrown) {
                     float strength = .2f;
