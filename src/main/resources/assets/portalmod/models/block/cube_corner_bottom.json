@@ -1,6 +1,6 @@
 {
     "textures": {
-        "particle": "portalmod:block/#back"
+        "particle": "#back"
     },
     "parent": "block/block",
     "elements": [

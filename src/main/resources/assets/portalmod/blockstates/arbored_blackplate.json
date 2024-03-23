@@ -1,8 +1,22 @@
 {
   "variants": {
-    "state=single": {
-      "model": "portalmod:block/arbored_blackplate"
-    },
+    "state=single": [
+      {
+        "model": "portalmod:block/arbored_blackplate"
+      },
+      {
+        "model": "portalmod:block/arbored_blackplate",
+        "y": 90
+      },
+      {
+        "model": "portalmod:block/arbored_blackplate",
+        "y": 180
+      },
+      {
+        "model": "portalmod:block/arbored_blackplate",
+        "y": 270
+      }
+    ],
     "state=top": {
       "model": "portalmod:block/arbored_blackplate_panel_top"
     },

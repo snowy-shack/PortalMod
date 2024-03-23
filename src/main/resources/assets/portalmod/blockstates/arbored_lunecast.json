@@ -1,8 +1,22 @@
 {
   "variants": {
-    "state=single": {
-      "model": "portalmod:block/arbored_lunecast"
-    },
+    "state=single": [
+      {
+        "model": "portalmod:block/arbored_lunecast"
+      },
+      {
+        "model": "portalmod:block/arbored_lunecast",
+        "y": 90
+      },
+      {
+        "model": "portalmod:block/arbored_lunecast",
+        "y": 180
+      },
+      {
+        "model": "portalmod:block/arbored_lunecast",
+        "y": 270
+      }
+    ],
     "state=top": {
       "model": "portalmod:block/arbored_lunecast_panel_top"
     },
