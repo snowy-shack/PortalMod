@@ -1,0 +1,7 @@
+{
+  "parent": "portalmod:block/cube_part_top",
+  "textures": {
+    "side": "portalmod:block/eroded_lunecast_panel_top",
+    "top": "portalmod:block/eroded_lunecast_top"
+  }
+}

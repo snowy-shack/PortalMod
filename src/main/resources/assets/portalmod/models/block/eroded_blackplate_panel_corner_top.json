@@ -1,0 +1,9 @@
+{
+  "parent": "portalmod:block/cube_corner_top",
+  "textures": {
+    "top": "portalmod:block/eroded_blackplate_top",
+    "back": "portalmod:block/eroded_blackplate_panel_top",
+    "left": "portalmod:block/eroded_blackplate_panel_top_left",
+    "right": "portalmod:block/eroded_blackplate_panel_top_right"
+  }
+}

@@ -33,8 +33,8 @@ public class BlockInit {
     
     public static final RegistryObject<Block> LUNECAST = registerLunecast("");
     public static final RegistryObject<Block> BLACKPLATE = registerBlackplate("");
-    public static final RegistryObject<Block> ARBORED_LUNECAST = registerLunecast("abored_");
-    public static final RegistryObject<Block> ARBORED_BLACKPLATE = registerBlackplate("abored_");
+    public static final RegistryObject<Block> ARBORED_LUNECAST = registerLunecast("arbored_");
+    public static final RegistryObject<Block> ARBORED_BLACKPLATE = registerBlackplate("arbored_");
     public static final RegistryObject<Block> ERODED_LUNECAST = registerLunecast("eroded_");
     public static final RegistryObject<Block> ERODED_BLACKPLATE = registerBlackplate("eroded_");
     public static final RegistryObject<Block> FRACTURED_LUNECAST = registerLunecast("fractured_");

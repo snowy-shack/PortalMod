@@ -20,11 +20,21 @@
 
   "block.portalmod.radio":              "Radio",
   "block.portalmod.forest_cake":        "Black Forest Cake",
-  "block.portalmod.lunecast":   "Lunecast",
-  "block.portalmod.blackplate": "Blackplate",
   "block.portalmod.chamber_lights":     "Chamber Lights",
-  "block.portalmod.wire_mesh":          "Wire Mesh",
-  "block.portalmod.wire_mesh_block":    "Wire Mesh Block",
+
+
+  "block.portalmod.lunecast":             "Lunecast",
+  "block.portalmod.blackplate":           "Blackplate",
+  "block.portalmod.eroded_lunecast":      "Eroded Lunecast",
+  "block.portalmod.eroded_blackplate":    "Eroded Blackplate",
+  "block.portalmod.arbored_lunecast":     "Arbored Lunecast",
+  "block.portalmod.arbored_blackplate":   "Arbored Blackplate",
+  "block.portalmod.fractured_lunecast":   "Fractured Lunecast",
+  "block.portalmod.fractured_blackplate": "Fractured Blackplate",
+  "block.portalmod.vintage_lunecast":     "Vintage Lunecast",
+  "block.portalmod.vintage_blackplate":   "Vintage Blackplate",
+  "block.portalmod.wire_mesh":            "Wire Mesh",
+  "block.portalmod.wire_mesh_block":      "Wire Mesh Block",
 
   "block.portalmod.antline":            "Antline",
   "block.portalmod.antline_indicator":  "Antline Indicator",

@@ -1,0 +1,7 @@
+{
+  "parent": "portalmod:block/cube_part_bottom",
+  "textures": {
+    "side": "portalmod:block/vintage_blackplate_panel_bottom",
+    "bottom": "portalmod:block/vintage_blackplate_bottom"
+  }
+}
