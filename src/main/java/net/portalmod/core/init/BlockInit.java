@@ -2,8 +2,6 @@ package net.portalmod.core.init;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -27,7 +25,6 @@ import net.portalmod.common.sorted.laser.LaserRelayBlock;
 import net.portalmod.common.sorted.panel.PanelBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
-import net.portalmod.core.PortalModTab;
 
 public class BlockInit {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortalMod.MODID);
@@ -108,18 +105,10 @@ public class BlockInit {
             () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15).noOcclusion()));
 
     public static RegistryObject<Block> registerLunecast(String name) {
-        RegistryObject<Block> block = BLOCKS.register(name + "lunecast", () -> new PanelBlock(false, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-        registerBlockItem(name + "lunecast", block.get());
-        return block;
+        return BLOCKS.register(name + "lunecast", () -> new PanelBlock(false, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerBlackplate(String name) {
-        RegistryObject<Block> block = BLOCKS.register(name + "blackplate", () -> new PanelBlock(true, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-        registerBlockItem(name + "blackplate", block.get());
-        return block;
-    }
-
-    public static void registerBlockItem(String name, Block block) {
-        ItemInit.ITEMS.register(name, () -> new BlockItem(block, new Item.Properties().tab(PortalModTab.INSTANCE)));
+        return BLOCKS.register(name + "blackplate", () -> new PanelBlock(true, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 }

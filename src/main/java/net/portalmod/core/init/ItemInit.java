@@ -1,5 +1,6 @@
 package net.portalmod.core.init;
 
+import net.minecraft.block.Block;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BucketItem;
@@ -32,7 +33,7 @@ public class ItemInit {
     
     public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench",
             () -> new WrenchItem(new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
-    
+
 //    public static final RegistryObject<Item> MOON_ROCK = ITEMS.register("moon_rock",
 //            () -> new Item(new Item.Properties().tab(PortalTab.INSTANCE)));
     
@@ -41,13 +42,18 @@ public class ItemInit {
                     new Item.Properties().tab(PortalModTab.INSTANCE).fireResistant()));
     
     // BLOCK ITEMS
-    
-//    public static final RegistryObject<BlockItem> PORTALABLE_BLOCK = ITEMS.register("portalable_block",
-//            () -> new BlockItem(BlockInit.LUNECAST.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
-//
-//    public static final RegistryObject<BlockItem> UNPORTALABLE_BLOCK = ITEMS.register("unportalable_block",
-//            () -> new BlockItem(BlockInit.BLACKPLATE.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
-    
+
+    public static final RegistryObject<BlockItem> LUNECAST = registerBlockItem("lunecast", BlockInit.LUNECAST);
+    public static final RegistryObject<BlockItem> BLACKPLATE = registerBlockItem("blackplate", BlockInit.BLACKPLATE);
+    public static final RegistryObject<BlockItem> ARBORED_LUNECAST = registerBlockItem("arbored_lunecast", BlockInit.ARBORED_LUNECAST);
+    public static final RegistryObject<BlockItem> ARBORED_BLACKPLATE = registerBlockItem("arbored_blackplate", BlockInit.ARBORED_BLACKPLATE);
+    public static final RegistryObject<BlockItem> ERODED_LUNECAST = registerBlockItem("eroded_lunecast", BlockInit.ERODED_LUNECAST);
+    public static final RegistryObject<BlockItem> ERODED_BLACKPLATE = registerBlockItem("eroded_blackplate", BlockInit.ERODED_BLACKPLATE);
+    public static final RegistryObject<BlockItem> FRACTURED_LUNECAST = registerBlockItem("fractured_lunecast", BlockInit.FRACTURED_LUNECAST);
+    public static final RegistryObject<BlockItem> FRACTURED_BLACKPLATE = registerBlockItem("fractured_blackplate", BlockInit.FRACTURED_BLACKPLATE);
+    public static final RegistryObject<BlockItem> VINTAGE_LUNECAST = registerBlockItem("vintage_lunecast", BlockInit.VINTAGE_LUNECAST);
+    public static final RegistryObject<BlockItem> VINTAGE_BLACKPLATE = registerBlockItem("vintage_blackplate", BlockInit.VINTAGE_BLACKPLATE);
+
     public static final RegistryObject<BlockItem> RADIO = ITEMS.register("radio",
             () -> new RadioBlockItem(BlockInit.RADIO.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
     
@@ -147,4 +153,8 @@ public class ItemInit {
     
     public static final RegistryObject<Item> BULLETS = ITEMS.register("bullets",
             () -> new Item(new Item.Properties().tab(PortalModTab.INSTANCE)));
+
+    public static RegistryObject<BlockItem> registerBlockItem(String name, RegistryObject<Block> block) {
+        return ItemInit.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+    }
 }
