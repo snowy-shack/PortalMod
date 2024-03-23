@@ -1,10 +1,14 @@
 {
   "parent": "portalmod:recipes/root",
   "criteria": {
-    "has_planks": {
+    "has_blackstone": {
       "conditions": {
         "items": [
-          "minecraft:basalt"
+          {
+            "items": [
+              "minecraft:blackstone"
+            ]
+          }
         ]
       },
       "trigger": "minecraft:inventory_changed"
@@ -12,8 +16,8 @@
   },
   "rewards": {
     "recipes": [
-      "portalmod:portalable_block",
-      "portalmod:unportalable_block"
+      "portalmod:lunecast",
+      "portalmod:blackplate"
     ]
   }
 }

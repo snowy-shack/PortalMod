@@ -9,16 +9,16 @@
   "display": {
     "announce_to_chat": true,
     "description": {
-      "translate": "advancements.portal.obtain_unportalable_block.description"
+      "translate": "advancements.portal.obtain_blackplate.description"
     },
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "portalmod:unportalable_block"
+      "item": "portalmod:blackplate"
     },
     "show_toast": true,
     "title": {
-      "translate": "advancements.portal.obtain_unportalable_block.title"
+      "translate": "advancements.portal.obtain_blackplate.title"
     }
   },
   "requirements": [

@@ -1,0 +1,33 @@
+{
+  "display": {
+    "icon": {
+      "item": "portalmod:radio"
+    },
+    "title": {
+      "translate": "advancements.portal.turret_band.title"
+    },
+    "description": {
+      "translate": "advancements.portal.turret_band.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "portalmod:portal/turret_defense",
+  "criteria": {
+    "woop": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "block": {
+            "block": "portalmod:radio",
+            "powered": {
+              "powered": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

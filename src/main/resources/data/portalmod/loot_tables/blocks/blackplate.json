@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:portalable_block"
+          "name": "portalmod:blackplate"
         }
       ],
       "rolls": 1.0
