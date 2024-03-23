@@ -2,12 +2,12 @@ package net.portalmod.core.init;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.material.MaterialColor;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.ChamberLightsBlock;
+import net.portalmod.common.blocks.ForestCakeBlock;
 import net.portalmod.common.blocks.WireMeshBlock;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
@@ -51,7 +51,7 @@ public class BlockInit {
             () -> new PaneBlock(AbstractBlock.Properties.copy(Blocks.CHAIN)));
     
     public static final RegistryObject<Block> FOREST_CAKE = BLOCKS.register("forest_cake",
-            () -> new CakeBlock(AbstractBlock.Properties.copy(Blocks.CAKE)));
+            () -> new ForestCakeBlock(AbstractBlock.Properties.copy(Blocks.CAKE)));
 
     public static final RegistryObject<Block> CHAMBER_DOOR = BLOCKS.register("chamber_door",
             () -> new ChamberDoorBlock(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE).noOcclusion()));
