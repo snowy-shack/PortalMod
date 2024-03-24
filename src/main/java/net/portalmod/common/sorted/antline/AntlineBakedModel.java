@@ -1,7 +1,6 @@
 package net.portalmod.common.sorted.antline;
 
 import com.google.common.collect.ImmutableList;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -23,7 +22,10 @@ import net.portalmod.core.math.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class AntlineBakedModel implements IDynamicBakedModel {
 //    public static final ResourceLocation ACTIVE_DOT = new ResourceLocation(PortalMod.MODID, "blocks/antline/active_dot");
@@ -32,11 +34,11 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 //    public static final ResourceLocation INACTIVE_CORNER = new ResourceLocation(PortalMod.MODID, "blocks/antline/inactive_corner");
 
     public static ResourceLocation active(String string) {
-        return new ResourceLocation(PortalMod.MODID, "antline/active/" + string);
+        return new ResourceLocation(PortalMod.MODID, "antline/" + string);
     }
 
     public static ResourceLocation inactive(String string) {
-        return new ResourceLocation(PortalMod.MODID, "antline/inactive/" + string);
+        return new ResourceLocation(PortalMod.MODID, "antline/" + string);
     }
 
     public static List<ResourceLocation> getAllTextures() {
