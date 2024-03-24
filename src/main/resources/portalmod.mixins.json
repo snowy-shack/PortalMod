@@ -44,7 +44,8 @@
     "renderer.GameRendererMixin",
     "renderer.LevelRendererMixin",
     "renderer.LevelRendererMixinFinal",
-    "renderer.LivingRendererMixin"
+    "renderer.LivingRendererMixin",
+    "renderer.WorldRendererMixin"
   ],
   "minVersion": "0.8",
   "injectors": {
