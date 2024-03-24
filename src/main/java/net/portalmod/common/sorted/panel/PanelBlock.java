@@ -61,7 +61,7 @@ public class PanelBlock extends Block {
         }
 
         // Block is double and placing on side
-        if (this.canBeLarge && clickedPanelState.isDouble() && isSide(clickedFace) && areTwoBlocksInInventory(player, this) && world.getBlockState(context.getClickedPos().below()).canBeReplaced(context)) {
+        if (this.canBeLarge && clickedPanelState.isDouble() && isSide(clickedFace) && areTwoBlocksInInventory(player, this) && world.getBlockState(context.getClickedPos().relative(clickedPanelState.getVerticalFacing())).canBeReplaced(context)) {
             removeBlockFromInventory(player, this);
             return this.defaultBlockState()
                     .setValue(STATE, getStateFromDirection(clickedFace, clickedPanelState))
