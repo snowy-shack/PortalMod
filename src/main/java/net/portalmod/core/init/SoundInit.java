@@ -1,8 +1,10 @@
 package net.portalmod.core.init;
 
-import net.minecraft.util.*;
-import net.minecraftforge.fml.*;
-import net.minecraftforge.registries.*;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 
 public class SoundInit {
@@ -10,11 +12,11 @@ public class SoundInit {
 
     private SoundInit() {}
 
-    public static final RegistryObject<SoundEvent> RADIO_LOOP = register("radio.loop");
-    public static final RegistryObject<SoundEvent> RADIO_DINOSAUR1 = register("radio.dinosaur1");
+    public static final RegistryObject<SoundEvent> RADIO_LOOP = register("block.radio.loop");
+    public static final RegistryObject<SoundEvent> RADIO_DINOSAUR1 = register("block.radio.dinosaur");
 
-    public static final RegistryObject<SoundEvent> GEL_BLOCK_BREAK = register("gel.grab");
-    public static final RegistryObject<SoundEvent> GEL_BLOCK_PLACE = register("gel.place");
+    public static final RegistryObject<SoundEvent> GEL_BLOCK_BREAK = register("block.gel.grab");
+    public static final RegistryObject<SoundEvent> GEL_BLOCK_PLACE = register("block.gel.place");
 
     public static final RegistryObject<SoundEvent> FAITHPLATE_LAUNCH = register("block.faithplate.launch");
     
