@@ -1,35 +1,3 @@
 {
-  "parent": "portalmod:gun/portalgun_off",
-  "display": {
-    "thirdperson_righthand": {
-      "translation": [0, 4.25, -2.5]
-    },
-    "thirdperson_lefthand": {
-      "translation": [0, 4.25, -2.5]
-    },
-    "firstperson_righthand": {
-      "rotation": [0, 5, 0],
-      "translation": [-2.75, 9.5, 3.75],
-      "scale": [1, 0.98, 0.9]
-    },
-    "firstperson_lefthand": {
-      "rotation": [0, 5, 0],
-      "translation": [-2.75, 9.5, 3.75],
-      "scale": [1, 0.98, 0.9]
-    },
-    "ground": {
-      "translation": [0, 5, 0]
-    },
-    "gui": {
-      "rotation": [30, -135, 0],
-      "translation": [-0.75, 4.75, 0],
-      "scale": [1.1, 1.1, 1.1]
-    },
-    "fixed": {
-      "rotation": [0, -90, 0],
-      "translation": [-0.25, 5.25, -0.25],
-      "scale": [1.3, 1.3, 1.3]
-    }
-  },
   "loader": "portalmod:portalgun"
 }
