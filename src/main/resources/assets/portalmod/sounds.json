@@ -1,202 +1,116 @@
 {
-    "radio.loop": {
-        "sounds": [
-            "portalmod:radio/loop"
-        ],
-        "subtitle": "subtitles.block.radio.loop"
-    },
-    "radio.dinosaur1": {
-        "sounds": [
-            "portalmod:radio/dinosaur1"
-        ],
-        "subtitle": "subtitles.block.radio.transmission"
-    },
-    "radio.dinosaur2": {
-        "sounds": [
-            "portalmod:radio/dinosaur2"
-        ],
-        "subtitle": "subtitles.block.radio.transmission"
-    },
-    "radio.dinosaur4": {
-        "sounds": [
-            "portalmod:radio/dinosaur4"
-        ],
-        "subtitle": "subtitles.block.radio.transmission"
-    },
     "block.radio.loop": {
         "sounds": [
-            "portalmod:radio/loop"
+            "portalmod:block.radio/loop"
         ],
         "subtitle": "subtitles.block.radio.loop"
     },
-    "block.radio.dinosaur1": {
+    "block.radio.dinosaur": {
         "sounds": [
-            "portalmod:radio/dinosaur1"
-        ],
-        "subtitle": "subtitles.block.radio.transmission"
-    },
-    "block.radio.dinosaur2": {
-        "sounds": [
-            "portalmod:radio/dinosaur2"
-        ],
-        "subtitle": "subtitles.block.radio.transmission"
-    },
-    "block.radio.dinosaur4": {
-        "sounds": [
-            "portalmod:radio/dinosaur4"
+            "portalmod:block/radio/dinosaur1",
+            "portalmod:block/radio/dinosaur2",
+            "portalmod:block/radio/dinosaur4"
         ],
         "subtitle": "subtitles.block.radio.transmission"
     },
     "entity.turret.fire": {
         "sounds": [
-            "portalmod:turret/fire_1",
-            "portalmod:turret/fire_2",
-            "portalmod:turret/fire_3"
+            "portalmod:mob/turret/temp_fire"
         ],
         "subtitle": "subtitles.entity.turret.fire"
     },
     "entity.turret.deploy": {
         "sounds": [
-            "portalmod:turret/deploy"
+            "portalmod:mob/turret/temp_deploy"
         ],
         "subtitle": "subtitles.entity.turret.deploy"
     },
     "entity.turret.retract": {
         "sounds": [
-            "portalmod:turret/retract"
+            "portalmod:mob/turret/temp_retract"
         ],
         "subtitle": "subtitles.entity.turret.retract"
     },
     "entity.turret.voice.activated": {
         "sounds": [
-            "portalmod:turret/voice/turret_activated_1",
-            "portalmod:turret/voice/turret_activated_2",
-            "portalmod:turret/voice/turret_activated_3",
-            "portalmod:turret/voice/turret_activated_4",
-            "portalmod:turret/voice/turret_activated_5"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.search"
     },
     "entity.turret.voice.death": {
         "sounds": [
-            "portalmod:turret/voice/turret_death_1",
-            "portalmod:turret/voice/turret_death_2",
-            "portalmod:turret/voice/turret_death_3",
-            "portalmod:turret/voice/turret_death_4",
-            "portalmod:turret/voice/turret_death_5",
-            "portalmod:turret/voice/turret_death_6"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.sleep"
     },
     "entity.turret.voice.fall": {
         "sounds": [
-            "portalmod:turret/voice/turret_fall_1",
-            "portalmod:turret/voice/turret_fall_2",
-            "portalmod:turret/voice/turret_fall_3"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.fall"
     },
     "entity.turret.voice.fire": {
         "sounds": [
-            "portalmod:turret/voice/turret_fire_1",
-            "portalmod:turret/voice/turret_fire_2",
-            "portalmod:turret/voice/turret_fire_3",
-            "portalmod:turret/voice/turret_fire_4",
-            "portalmod:turret/voice/turret_fire_5",
-            "portalmod:turret/voice/turret_fire_6"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.fire"
     },
     "entity.turret.voice.fizzle": {
         "sounds": [
-            "portalmod:turret/voice/turret_fizzle"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.fizzle"
     },
     "entity.turret.voice.pickup": {
         "sounds": [
-            "portalmod:turret/voice/turret_pickup_1",
-            "portalmod:turret/voice/turret_pickup_2",
-            "portalmod:turret/voice/turret_pickup_3",
-            "portalmod:turret/voice/turret_pickup_4",
-            "portalmod:turret/voice/turret_pickup_5",
-            "portalmod:turret/voice/turret_pickup_6",
-            "portalmod:turret/voice/turret_pickup_7",
-            "portalmod:turret/voice/turret_pickup_8"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.pickup"
     },
     "entity.turret.voice.search": {
         "sounds": [
-            "portalmod:turret/voice/turret_search_1",
-            "portalmod:turret/voice/turret_search_2",
-            "portalmod:turret/voice/turret_search_3"
+            "portalmod:error"
         ]
-    },
-    "entity.turret.voice.shotat": {
-        "sounds": [
-            "portalmod:turret/voice/turret_shotat_1",
-            "portalmod:turret/voice/turret_shotat_2",
-            "portalmod:turret/voice/turret_shotat_3"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.shotat"
     },
     "entity.turret.voice.sleep": {
         "sounds": [
-            "portalmod:turret/voice/turret_sleep_1",
-            "portalmod:turret/voice/turret_sleep_2",
-            "portalmod:turret/voice/turret_sleep_3",
-            "portalmod:turret/voice/turret_sleep_4",
-            "portalmod:turret/voice/turret_sleep_5",
-            "portalmod:turret/voice/turret_sleep_6"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.sleep"
     },
     "entity.turret.voice.target": {
         "sounds": [
-            "portalmod:turret/voice/turret_target_1",
-            "portalmod:turret/voice/turret_target_2",
-            "portalmod:turret/voice/turret_target_3",
-            "portalmod:turret/voice/turret_target_4",
-            "portalmod:turret/voice/turret_target_5",
-            "portalmod:turret/voice/turret_target_6"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.turret.voice.target"
     },
     "entity.cube.impact": {
         "sounds": [
-            "portalmod:cube/impact_1",
-            "portalmod:cube/impact_2",
-            "portalmod:cube/impact_3",
-            "portalmod:cube/impact_4"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.entity.cube.impact"
     },
-    "item.gun.fire_blue": {
+    "item.portalgun.fire_blue": {
         "sounds": [
-            "portalmod:gun/fire_blue_1",
-            "portalmod:gun/fire_blue_2",
-            "portalmod:gun/fire_blue_3"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.item.gun.fire"
     },
-    "item.gun.fire_orange": {
+    "item.portalgun.fire_orange": {
         "sounds": [
-            "portalmod:gun/fire_orange_1",
-            "portalmod:gun/fire_orange_2",
-            "portalmod:gun/fire_orange_3"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.item.gun.fire"
     },
-    "item.gun.fizzle": {
+    "item.portalgun.fizzle": {
         "sounds": [
-            "portalmod:gun/fizzle"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.item.gun.fizzle"
     },
-    "item.gun.activate": {
+    "item.portalgun.activate": {
         "sounds": [
-            "portalmod:gun/activate"
+            "portalmod:error"
         ],
         "subtitle": "subtitles.item.gun.activate"
     },
@@ -219,7 +133,7 @@
     },
     "block.faithplate.launch": {
         "sounds": [
-              "portalmod:block/faithplate/faithplate_launch"
+              "portalmod:block/faithplate/launch"
         ],
         "subtitle": "subtitles.block.faithplate.launch"
     },
@@ -250,5 +164,11 @@
         "item/bucket/fill_lava3"
       ],
       "subtitle": "subtitles.item.bucket.fill"
+    },
+    "portal.teleport": {
+        "sounds": [
+            "portalmod:portal/teleport"
+        ],
+        "subtitle": "subtitles.portal.teleport"
     }
 }
