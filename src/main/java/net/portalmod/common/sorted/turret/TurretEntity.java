@@ -107,6 +107,8 @@ public class TurretEntity extends LivingEntity {
         if(this.position().distanceTo(ridingPos) > 1.5) {
             this.stopRiding();
         }
+
+        this.fallDistance = 0;
     }
 
     @Override
