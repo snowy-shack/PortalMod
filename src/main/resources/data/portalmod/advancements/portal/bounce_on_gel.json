@@ -1,29 +1,23 @@
 {
   "parent": "portalmod:portal/obtain_fall_boots",
   "criteria": {
-    "condition_name": {
-      "conditions": {},
+    "requirement": {
       "trigger": "portalmod:bounce_on_gel"
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "portalmod:repulsion_gel"
+    },
+    "title": {
+      "translate": "advancements.portal.bounce_on_gel.title"
+    },
     "description": {
       "translate": "advancements.portal.bounce_on_gel.description"
     },
     "frame": "challenge",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:repulsion_gel"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.bounce_on_gel.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }

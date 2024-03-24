@@ -1,6 +1,6 @@
 {
   "criteria": {
-    "crafting_table": {
+    "requirement": {
       "conditions": {
         "items": [
           {
@@ -14,24 +14,19 @@
     }
   },
   "display": {
-    "announce_to_chat": false,
-    "background": "portalmod:textures/gui/advancements/backgrounds/portal.png",
+    "icon": {
+      "item": "portalmod:radio"
+    },
+    "title": {
+      "translate": "advancements.portal.root.title"
+    },
     "description": {
       "translate": "advancements.portal.root.description"
     },
+    "background": "portalmod:textures/gui/advancements/backgrounds/portal.png",
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:lunecast"
-    },
+    "announce_to_chat": false,
     "show_toast": false,
-    "title": {
-      "translate": "advancements.portal.root.title"
-    }
-  },
-  "requirements": [
-    [
-      "crafting_table"
-    ]
-  ]
+    "hidden": false
+  }
 }

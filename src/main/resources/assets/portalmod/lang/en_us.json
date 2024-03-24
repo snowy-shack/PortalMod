@@ -105,63 +105,44 @@
 
   "advancements.portal.root.title":       "PortalMod",
   "advancements.portal.root.description": "Like old times",
-
-    "advancements.portal.mine_end_stone.title":       "Minin' Away",
-    "advancements.portal.mine_end_stone.description": "Collect End Stone for Lunecast Panels",
-
-      "advancements.portal.place_portals.title":       "Through the Looking Glass",
-      "advancements.portal.place_portals.description": "Carve a hole through spacetime",
-
-        "advancements.portal.portal_surface.title":       "Quality Standards",
-        "advancements.portal.portal_surface.description": "Place a portal on a Lunecast surface",
-
-          "advancements.portal.obtain_blackplate.title":       "I Like It Shiny",
-          "advancements.portal.obtain_blackplate.description": "Obtain Blackplate Blocks for your test chamber",
-
-        "advancements.portal.grab_entity.title":       "Wingardium Leviosa",
-        "advancements.portal.grab_entity.description": "Lift an object using your Portal Gun",
-
-          "advancements.portal.cube_on_button.title":       "Cubic Companion",
-          "advancements.portal.cube_on_button.description": "Weigh down a Super Button using a Storage Cube",
-
-            "advancements.portal.fizzle_cubes.title":       "Reduced to Pixels",
-            "advancements.portal.fizzle_cubes.description": "Disintegrate 5 Weighted Cubes",
-
-        "advancements.portal.ender_pearl_portals.title":       "Triple Teleportation",
-        "advancements.portal.ender_pearl_portals.description": "Land an ender pearl by throwing it through two portals",
-
-        "advancements.portal.shoot_portal_far.title":       "Sharpshooter",
-        "advancements.portal.shoot_portal_far.description": "Place a Portal from a 100 block distance",
-
-          "advancements.portal.shoot_moon.title":       "Fly me to the Moon",
-          "advancements.portal.shoot_moon.description": "Attempt to shoot a Portal on the moon",
-
-      "advancements.portal.radio_transmission.title":       "What's That Noise?",
-      "advancements.portal.radio_transmission.description": "Receive a transmission on a Radio",
-
-    "advancements.portal.turret_defense.title":       "Friendly Fire",
-    "advancements.portal.turret_defense.description": "Use a Turret to defend against monsters",
-
-      "advancements.portal.survive_turret.title":       "This is Awkward",
-      "advancements.portal.survive_turret.description": "Survive 10 seconds of being fired at by a Turret",
-
-    "advancements.portal.turret_band.title": "21 Bullets",
-    "advancements.portal.turret_band.description": "Start a band with a Turret using a Radio",
-
-      "advancements.portal.kill_turrets.title":       "Whip It Good!",
-      "advancements.portal.kill_turrets.description": "Knock over 3 Turrets in 3 seconds",
-
-    "advancements.portal.obtain_fall_boots.title":       "New Heights",
-    "advancements.portal.obtain_fall_boots.description": "Craft yourself a pair of Long-Fall Boots to negate fall damage",
-
-      "advancements.portal.faith_plate_elytra.title":       "We Have Liftoff",
-      "advancements.portal.faith_plate_elytra.description": "Launch yourself with a Faith Plate for Elytra flight",
-
-      "advancements.portal.bounce_on_gel.title":       "Leap of Faith",
-      "advancements.portal.bounce_on_gel.description": "Bounce on repulsion gel from a height of over 100m",
-
-  "advancements.portal.eat_cake.title":       "Gullible",
-  "advancements.portal.eat_cake.description": "Fall for The Cake",
+  "advancements.portal.mine_end_stone.title":       "Minin' Away",
+  "advancements.portal.mine_end_stone.description": "Collect End Stone for Lunecast Panels",
+  "advancements.portal.place_portals.title":       "Through the Looking Glass",
+  "advancements.portal.place_portals.description": "Carve a hole through spacetime",
+  "advancements.portal.portal_surface.title":       "Quality Standards",
+  "advancements.portal.portal_surface.description": "Place a portal on a Lunecast surface",
+  "advancements.portal.obtain_blackplate.title":       "I Like It Shiny",
+  "advancements.portal.obtain_blackplate.description": "Obtain Blackplate blocks for your test chamber",
+  "advancements.portal.grab_entity.title":       "Wingardium Leviosa",
+  "advancements.portal.grab_entity.description": "Lift an object using your Portal Gun",
+  "advancements.portal.cube_on_button.title":       "Cubic Companion",
+  "advancements.portal.cube_on_button.description": "Weigh down a Super Button using a Storage Cube",
+  "advancements.portal.fizzle_cubes.title":       "Reduced to Pixels",
+  "advancements.portal.fizzle_cubes.description": "Disintegrate 5 Weighted Cubes",
+  "advancements.portal.ender_pearl_portals.title":       "Triple Teleportation",
+  "advancements.portal.ender_pearl_portals.description": "Land an ender pearl by throwing it through two portals",
+  "advancements.portal.shoot_portal_far.title":       "Sharpshooter",
+  "advancements.portal.shoot_portal_far.description": "Place a Portal from a 100 block distance",
+  "advancements.portal.shoot_moon.title":       "Fly me to the Moon",
+  "advancements.portal.shoot_moon.description": "Attempt to shoot a Portal on the moon",
+  "advancements.portal.radio_transmission.title":       "What's That Noise?",
+  "advancements.portal.radio_transmission.description": "Receive a transmission on a Radio",
+  "advancements.portal.turret_defense.title":       "Friendly Fire",
+  "advancements.portal.turret_defense.description": "Use a Turret to defend against monsters",
+  "advancements.portal.survive_turret.title":       "This is Awkward",
+  "advancements.portal.survive_turret.description": "Survive 10 seconds of being fired at by a Turret",
+  "advancements.portal.turret_band.title":       "21 Bullets",
+  "advancements.portal.turret_band.description": "Start a band with a Turret using a Radio",
+  "advancements.portal.kill_turrets.title":       "Whip It Good!",
+  "advancements.portal.kill_turrets.description": "Knock over 3 Turrets in 3 seconds",
+  "advancements.portal.obtain_fall_boots.title":       "New Heights",
+  "advancements.portal.obtain_fall_boots.description": "Craft yourself a pair of Long-Fall Boots to negate fall damage",
+  "advancements.portal.faith_plate_elytra.title":       "We Have Liftoff",
+  "advancements.portal.faith_plate_elytra.description": "Launch yourself with a Faith Plate for Elytra flight",
+  "advancements.portal.bounce_on_gel.title":       "Leap of Faith",
+  "advancements.portal.bounce_on_gel.description": "Bounce on repulsion gel from a height of over 100m",
+  "advancements.portal.eat_forest_cake.title":       "Gullible",
+  "advancements.portal.eat_forest_cake.description": "Fall for the Cake",
   
   "stat.portalmod.portals_shot": "Portals Shot"
 }

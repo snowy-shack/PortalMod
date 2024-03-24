@@ -1,7 +1,7 @@
 {
   "parent": "portalmod:portal/root",
   "criteria": {
-    "wears_longfall_boots": {
+    "requirement": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "player": [

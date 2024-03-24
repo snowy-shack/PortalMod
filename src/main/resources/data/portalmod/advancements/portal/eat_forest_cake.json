@@ -1,4 +1,20 @@
 {
+  "parent": "portalmod:portal/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "block": {
+            "block": "portalmod:forest_cake",
+            "powered": {
+              "powered": true
+            }
+          }
+        }
+      }
+    }
+  },
   "display": {
     "icon": {
       "item": "portalmod:forest_cake"
@@ -13,21 +29,5 @@
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
-  },
-  "parent": "portalmod:portal/root",
-  "criteria": {
-    "woop": {
-      "trigger": "minecraft:item_used_on_block",
-      "conditions": {
-        "location": {
-          "block": {
-            "block": "portalmod:forest_cake",
-            "powered": {
-              "powered": true
-            }
-          }
-        }
-      }
-    }
   }
 }

@@ -1,29 +1,38 @@
 {
   "parent": "portalmod:portal/mine_end_stone",
   "criteria": {
-    "condition_name": {
-      "conditions": {},
-      "trigger": "portalmod:place_portals"
+    "requirement": {
+      "trigger": "portalmod:place_portals",
+      "conditions": {
+        "player": {
+          "player": {
+            "stats": [
+              {
+                "type": "minecraft:custom",
+                "stat": "portalmod:portals_shot",
+                "value": {
+                  "min": 1
+                }
+              }
+            ]
+          }
+        }
+      }
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "portalmod:portalgun"
+    },
+    "title": {
+      "translate": "advancements.portal.place_portals.title"
+    },
     "description": {
       "translate": "advancements.portal.place_portals.description"
     },
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:portalgun"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.place_portals.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }

@@ -1,20 +1,5 @@
 {
   "parent": "portalmod:portal/cube_on_button",
-  "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancements.portal.fizzle_cubes.description"
-    },
-    "frame": "challenge",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:fizzler_emitter"
-    },
-    "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.fizzle_cubes.title"
-    }
-  },
   "criteria": {
     "requirement": {
       "trigger": "minecraft:player_killed_entity",
@@ -24,9 +9,9 @@
             "stats": [
               {
                 "type": "minecraft:killed",
-                "stat": "minecraft:minecart",
+                "stat": "portalmod:storage_cube",
                 "value": {
-                  "min": 5
+                  "min": 4
                 }
               }
             ]
@@ -34,5 +19,20 @@
         }
       }
     }
+  },
+  "display": {
+    "icon": {
+      "item": "portalmod:fizzler_emitter"
+    },
+    "title": {
+      "translate": "advancements.portal.fizzle_cubes.title"
+    },
+    "description": {
+      "translate": "advancements.portal.fizzle_cubes.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
   }
 }

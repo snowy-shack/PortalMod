@@ -1,4 +1,20 @@
 {
+  "parent": "portalmod:portal/turret_defense",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": {
+          "block": {
+            "block": "portalmod:radio",
+            "state": {
+              "state": "on"
+            }
+          }
+        }
+      }
+    }
+  },
   "display": {
     "icon": {
       "item": "portalmod:radio"
@@ -13,21 +29,5 @@
     "show_toast": true,
     "announce_to_chat": true,
     "hidden": false
-  },
-  "parent": "portalmod:portal/turret_defense",
-  "criteria": {
-    "woop": {
-      "trigger": "minecraft:item_used_on_block",
-      "conditions": {
-        "location": {
-          "block": {
-            "block": "portalmod:radio",
-            "powered": {
-              "powered": true
-            }
-          }
-        }
-      }
-    }
   }
 }

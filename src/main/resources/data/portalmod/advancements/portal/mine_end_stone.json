@@ -1,7 +1,7 @@
 {
   "parent": "portalmod:portal/root",
   "criteria": {
-    "collected_end_stone": {
+    "requirement": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [

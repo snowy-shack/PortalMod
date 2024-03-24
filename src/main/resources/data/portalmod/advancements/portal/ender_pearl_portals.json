@@ -2,28 +2,22 @@
   "parent": "portalmod:portal/place_portals",
   "criteria": {
     "condition_name": {
-      "conditions": {},
       "trigger": "minecraft:impossible"
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "minecraft:ender_pearl"
+    },
+    "title": {
+      "translate": "advancements.portal.ender_pearl_portals.title"
+    },
     "description": {
       "translate": "advancements.portal.ender_pearl_portals.description"
     },
     "frame": "challenge",
-    "hidden": false,
-    "icon": {
-      "item": "minecraft:ender_pearl"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.ender_pearl_portals.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }

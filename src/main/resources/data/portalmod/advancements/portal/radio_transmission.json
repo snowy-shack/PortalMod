@@ -1,7 +1,7 @@
 {
   "parent": "portalmod:portal/root",
   "criteria": {
-    "woop": {
+    "requirement": {
       "trigger": "minecraft:item_used_on_block",
       "conditions": {
         "location": {

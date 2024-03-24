@@ -1,29 +1,23 @@
 {
   "parent": "portalmod:portal/place_portals",
   "criteria": {
-    "condition_name": {
-      "conditions": {},
+    "requirement": {
       "trigger": "portalmod:portal_surface"
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "portalmod:lunecast"
+    },
+    "title": {
+      "translate": "advancements.portal.portal_surface.title"
+    },
     "description": {
       "translate": "advancements.portal.portal_surface.description"
     },
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:lunecast"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.portal_surface.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }

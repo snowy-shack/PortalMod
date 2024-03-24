@@ -1,29 +1,23 @@
 {
   "parent": "portalmod:portal/place_portals",
   "criteria": {
-    "condition_name": {
-      "conditions": {},
+    "requirement": {
       "trigger": "portalmod:grab_entity"
     }
   },
   "display": {
-    "announce_to_chat": true,
+    "icon": {
+      "item": "portalmod:storage_cube"
+    },
+    "title": {
+      "translate": "advancements.portal.grab_entity.title"
+    },
     "description": {
       "translate": "advancements.portal.grab_entity.description"
     },
     "frame": "task",
-    "hidden": false,
-    "icon": {
-      "item": "portalmod:storage_cube"
-    },
     "show_toast": true,
-    "title": {
-      "translate": "advancements.portal.grab_entity.title"
-    }
-  },
-  "requirements": [
-    [
-      "condition_name"
-    ]
-  ]
+    "announce_to_chat": true,
+    "hidden": false
+  }
 }
