@@ -1,15 +1,7 @@
 package net.portalmod.common.sorted.cube;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.MoverType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.BoatEntity;
@@ -27,14 +19,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
-import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cube extends LivingEntity {
     private double oldDeltaY = 0;
@@ -118,6 +110,8 @@ public class Cube extends LivingEntity {
         if(this.position().distanceTo(ridingPos) > 1.5) {
             this.stopRiding();
         }
+
+        this.fallDistance = 0;
     }
 
     @Override
