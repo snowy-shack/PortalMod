@@ -22,7 +22,6 @@
   "block.portalmod.forest_cake":        "Black Forest Cake",
   "block.portalmod.chamber_lights":     "Chamber Lights",
 
-
   "block.portalmod.lunecast":             "Lunecast",
   "block.portalmod.blackplate":           "Blackplate",
   "block.portalmod.eroded_lunecast":      "Eroded Lunecast",
@@ -45,7 +44,7 @@
   
   "entity.portalmod.companion_cube":   "Companion Cube",
   "entity.portalmod.storage_cube":     "Storage Cube",
-  "entity.portalmod.redirection_cube": "Redirection Cube",
+  "entity.portalmod.vintage_cube":     "Vintage Cube",
   "entity.portalmod.portal":           "Portal",
   "entity.portalmod.turret":           "Sentry Turret",
 
