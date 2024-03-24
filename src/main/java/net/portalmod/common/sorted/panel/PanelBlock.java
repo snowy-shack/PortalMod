@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.panel;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
@@ -20,14 +21,22 @@ import java.util.Objects;
 
 public class PanelBlock extends Block {
 
-    public final boolean canBeBig;
+    // TODO: fix the blockstates for lunecast
+    public final boolean canBeLarge;
     public static final EnumProperty<PanelState> STATE = EnumProperty.create("state", PanelState.class);
+    public static final EnumProperty<PanelState> STATE_SMALL = EnumProperty.create("state", PanelState.class, PanelState.SINGLE, PanelState.TOP, PanelState.BOTTOM);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
 
-    public PanelBlock(boolean canBeBig, Properties properties) {
+    public PanelBlock(boolean canBeLarge, Properties properties) {
         super(properties);
-        this.canBeBig = canBeBig;
+        this.canBeLarge = canBeLarge;
         this.registerDefaultState(this.stateDefinition.any().setValue(STATE, PanelState.SINGLE).setValue(AXIS, Direction.Axis.X));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(STATE, AXIS);
     }
 
     @Nullable
@@ -37,9 +46,10 @@ public class PanelBlock extends Block {
         Direction clickedFace = context.getClickedFace();
         BlockPos clickedOnPos = context.getClickedPos().relative(clickedFace.getOpposite());
         BlockState clickedBlock = world.getBlockState(clickedOnPos);
+        PlayerEntity player = context.getPlayer();
 
         // Block is not this one or shift is down
-        if (!clickedBlock.getBlock().is(this) || Objects.requireNonNull(context.getPlayer()).isShiftKeyDown()) {
+        if (!clickedBlock.getBlock().is(this) || Objects.requireNonNull(player).isShiftKeyDown()) {
             return this.defaultBlockState();
         }
 
@@ -47,30 +57,14 @@ public class PanelBlock extends Block {
 
         // Block is single and placing on top or bottom
         if (clickedPanelState.isSingle() && !isSide(clickedFace)) {
-            world.setBlockAndUpdate(clickedOnPos, clickedBlock.setValue(STATE, clickedFace == Direction.UP ? PanelState.BOTTOM : PanelState.TOP));
             return this.defaultBlockState().setValue(STATE, clickedFace == Direction.UP ? PanelState.TOP : PanelState.BOTTOM);
         }
 
         // Block is double and placing on side
-        if (this.canBeBig && clickedPanelState.isDouble() && isSide(clickedFace) && isBlockInInventoryAndRemove(context.getPlayer(), this)) {
-//
-            // New block
-            world.setBlock(context.getClickedPos().relative(clickedPanelState.getVerticalFacing()), clickedBlock
-                    .setValue(STATE, directionalState(clickedFace, clickedPanelState.oppositeVertical()))
-                    .setValue(AXIS, clickedFace.getAxis()), 0);
-
-            // Block under/above clicked block
-            world.setBlock(clickedOnPos.relative(clickedPanelState.getVerticalFacing()), clickedBlock
-                    .setValue(STATE, directionalState(clickedFace.getOpposite(), clickedPanelState.oppositeVertical()))
-                    .setValue(AXIS, clickedFace.getAxis()), 0);
-
-            // Clicked block
-            world.setBlock(clickedOnPos, clickedBlock
-                    .setValue(STATE, directionalState(clickedFace.getOpposite(), clickedPanelState))
-                    .setValue(AXIS, clickedFace.getAxis()), 0);
-
+        if (this.canBeLarge && clickedPanelState.isDouble() && isSide(clickedFace) && areTwoBlocksInInventory(player, this) && world.getBlockState(context.getClickedPos().below()).canBeReplaced(context)) {
+            removeBlockFromInventory(player, this);
             return this.defaultBlockState()
-                    .setValue(STATE, directionalState(clickedFace, clickedPanelState))
+                    .setValue(STATE, getStateFromDirection(clickedFace, clickedPanelState))
                     .setValue(AXIS, clickedFace.getAxis());
         }
 
@@ -78,45 +72,42 @@ public class PanelBlock extends Block {
     }
 
     @Override
-    public void onPlace(BlockState blockState, World world, BlockPos pos, BlockState p_220082_4_, boolean p_220082_5_) {
-//        PanelState panelState = blockState.getValue(STATE);
-//
-//        // Place the other half
-//        if (panelState.isDouble()) {
-//            world.setBlockAndUpdate(pos.relative(panelState.getVerticalFacing()), blockState.setValue(STATE, panelState.oppositeVertical()));
-//            return;
-//        }
-//
-//        Direction.Axis axis = blockState.getValue(AXIS);
-//
-//        // Place the other 3 blocks
-//        if (panelState.isQuadruple()) {
-//            Direction direction = Direction.fromAxisAndDirection(axis, panelState.isLeft() ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE);
-//
-//            // Clicked block
-//            setBlockUnlessStateMatches(world, pos, directionalState(direction.getOpposite(), panelState), axis);
-//
-//            // New block
-//            setBlockUnlessStateMatches(world, pos.relative(panelState.getVerticalFacing()), directionalState(direction, panelState.oppositeVertical()), axis);
-//
-//            // Block under/above clicked block
-//            setBlockUnlessStateMatches(world, pos.relative(panelState.getVerticalFacing()), directionalState(direction.getOpposite(), panelState.oppositeVertical()), axis);
-//        }
+    public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
+        PanelState panelState = blockState.getValue(STATE);
+
+        // Place the other half
+        if (panelState.isDouble()) {
+            world.setBlockAndUpdate(pos.relative(panelState.getVerticalFacing()), blockState.setValue(STATE, panelState.oppositeVertical()));
+            return;
+        }
+
+        Direction.Axis axis = blockState.getValue(AXIS);
+
+        // Place the other 3 blocks
+        if (panelState.isQuadruple()) {
+//            Direction direction = Direction.fromAxisAndDirection(axis, panelState.isLeft() ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE);
+            Direction direction = axis == Direction.Axis.X ? panelState.isLeft() ? Direction.EAST : Direction.WEST : panelState.isLeft() ? Direction.NORTH : Direction.SOUTH;
+
+            // New block
+            setBlock(world, pos.relative(panelState.getVerticalFacing()), getStateFromDirection(direction.getOpposite(), panelState.oppositeVertical()), axis);
+
+            // Clicked block
+            setBlock(world, pos.relative(direction), getStateFromDirection(direction, panelState), axis);
+
+            // Block under/above clicked block
+            setBlock(world, pos.relative(direction).relative(panelState.getVerticalFacing()), getStateFromDirection(direction, panelState.oppositeVertical()), axis);
+        }
     }
 
     public static boolean isSide(Direction direction) {
         return direction != Direction.UP && direction != Direction.DOWN;
     }
 
-    public void setBlockUnlessStateMatches(World world, BlockPos pos, PanelState state, Direction.Axis axis) {
-        BlockState checkingState = world.getBlockState(pos);
-        if (checkingState.is(this) && checkingState.getValue(STATE) == state && checkingState.getValue(AXIS) == axis) {
-            return;
-        }
-        world.setBlockAndUpdate(pos, this.defaultBlockState().setValue(STATE, state).setValue(STATE, state));
+    public void setBlock(World world, BlockPos pos, PanelState state, Direction.Axis axis) {
+        world.setBlockAndUpdate(pos, this.defaultBlockState().setValue(STATE, state).setValue(AXIS, axis));
     }
 
-    public static PanelState directionalState(Direction direction, PanelState placedState) {
+    public static PanelState getStateFromDirection(Direction direction, PanelState placedState) {
         boolean isBottom = placedState.isBottom();
         switch (direction) {
             case EAST:
@@ -132,59 +123,55 @@ public class PanelBlock extends Block {
 
     @Override
     public BlockState updateShape(BlockState blockState, Direction p_196271_2_, BlockState p_196271_3_, IWorld world, BlockPos blockPos, BlockPos p_196271_6_) {
-        Direction checkingDirection = Direction.UP;
-        PanelState correctState = PanelState.TOP;
-        switch (blockState.getValue(STATE)) {
-            case TOP:
-                checkingDirection = Direction.DOWN;
-                correctState = PanelState.BOTTOM;
-                break;
-            case TOP_LEFT:
-                checkingDirection = Direction.DOWN;
-                correctState = PanelState.BOTTOM_LEFT;
-                break;
-            case TOP_RIGHT:
-                checkingDirection = Direction.DOWN;
-                correctState = PanelState.BOTTOM_RIGHT;
-                break;
-            case BOTTOM_LEFT:
-                correctState = PanelState.TOP_LEFT;
-                break;
-            case BOTTOM_RIGHT:
-                correctState = PanelState.TOP_RIGHT;
-                break;
+        for (BlockPos connectedPos : getConnectedPositions(blockState, blockPos)) {
+            if (!world.getBlockState(connectedPos).is(this)) {
+                return defaultBlockState();
+            }
         }
-
-//        BlockState checkingBlockState = world.getBlockState(blockPos.relative(checkingDirection));
-//        if (checkingBlockState.getBlock().is(this)) {
-//            if (checkingBlockState.getValue(STATE) != correctState){
-//                return this.defaultBlockState();
-//            }
-//        } else {
-//            return this.defaultBlockState();
-//        }
-
-        return super.updateShape(blockState, p_196271_2_, p_196271_3_, world, blockPos, p_196271_6_);
+        return blockState;
     }
 
-    @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(STATE, AXIS);
-    }
-
-    public static boolean isBlockInInventoryAndRemove(PlayerEntity player, Block block) {
+    public static boolean areTwoBlocksInInventory(PlayerEntity player, Block block) {
         if (player.isCreative()) {
             return true;
         }
 
+        int total = 0;
+        for (ItemStack itemStack : player.getAllSlots()) {
+            Item item = itemStack.getItem();
+            if (item instanceof BlockItem && ((BlockItem) item).getBlock().is(block)) {
+                total += itemStack.getCount();
+                if (total >= 2) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static void removeBlockFromInventory(PlayerEntity player, Block block) {
         for (ItemStack itemStack : player.getAllSlots()) {
             Item item = itemStack.getItem();
             if (item instanceof BlockItem && ((BlockItem) item).getBlock().is(block)) {
                 itemStack.shrink(1);
-                return true;
             }
         }
-        return false;
+    }
+
+    public BlockPos[] getConnectedPositions(BlockState state, BlockPos pos) {
+        PanelState panelState = state.getValue(STATE);
+        Direction.Axis axis = state.getValue(AXIS);
+        if (panelState.isDouble()) {
+            return new BlockPos[]{pos.relative(panelState.getVerticalFacing())};
+        }
+        if (panelState.isQuadruple()) {
+            Direction direction = axis == Direction.Axis.X ? panelState.isLeft() ? Direction.EAST : Direction.WEST : panelState.isLeft() ? Direction.NORTH : Direction.SOUTH;
+            return new BlockPos[]{
+                    pos.relative(panelState.getVerticalFacing()),
+                    pos.relative(panelState.getVerticalFacing()).relative(direction),
+                    pos.relative(direction)
+            };
+        }
+        return new BlockPos[]{pos};
     }
 }
