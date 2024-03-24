@@ -1,24 +1,12 @@
 package net.portalmod.common.sorted.portal;
 
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
-
-import java.awt.*;
-import java.nio.FloatBuffer;
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.Nullable;
-
-import net.minecraft.client.renderer.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.portalmod.core.util.Colour;
-import org.lwjgl.BufferUtils;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.AtlasTexture;
@@ -26,26 +14,31 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.util.math.vector.*;
 import net.minecraft.util.text.ITextComponent;
 import net.portalmod.client.render.NewWorldRenderer;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.portalgun.PortalGun;
-import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.RenderUtil;
 import net.portalmod.core.util.StencilUtil;
 import net.portalmod.mixins.accessors.FogRendererAccessor;
+import org.lwjgl.BufferUtils;
+
+import javax.annotation.Nullable;
+import java.nio.FloatBuffer;
+import java.util.List;
+import java.util.Optional;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
 
 public class PortalRenderer extends EntityRenderer<PortalEntity> {
     public static final float OFFSET = .00001f;
@@ -115,7 +108,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
 //            Shader.uniform1i("frameCount", frameCount);
 //            Shader.uniform1f("frameIndex", frameIndex);
 //            Shader.uniformMatrix("modelViewProjection", modelViewProjection);
-//            RenderUtil.bindTexture("texture", "textures/portals/" + (open ? "open_" : "closed_")
+//            RenderUtil.bindTexture("texture", "textures/portal/" + (open ? "open_" : "closed_")
 //                    + portal.getEnd().getSerializedName() + ".png", 0);
         
             ShaderInit.PORTAL_FRAME.get().bind()
@@ -123,7 +116,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
             .setFloat("frameIndex", frameIndex)
             .setMatrix("modelViewProjection", modelViewProjection);
             
-            RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portals/" + (open ? "open_" : "closed_")
+            RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/" + (open ? "open_" : "closed_")
                     + portal.getEnd().getSerializedName() + ".png", 0);
             
             RenderSystem.depthMask(false);
@@ -180,7 +173,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
             ShaderInit.PORTAL_VIEW.get().bind()
                     .setMatrix("modelViewProjection", modelViewProjection)
                     .setFloat("color", 0, 0, 0, 1);
-            RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portals/portal_mask.png", 0);
+            RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portal/portal_mask.png", 0);
 
             RenderSystem.enableDepthTest();
             RenderSystem.enableCull();
@@ -369,7 +362,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
         ShaderInit.PORTAL_VIEW.get().bind()
                 .setMatrix("modelViewProjection", modelViewProjection)
                 .setFloat("color", 0, 0, 0, 1);
-        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portals/portal_mask.png", 0);
+        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portal/portal_mask.png", 0);
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
@@ -438,7 +431,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
                 .setFloat("frameIndex", frameIndex)
                 .setMatrix("modelViewProjection", modelViewProjection);
 
-        RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portals/portal_" + (open ? "open_" : "closed_")
+        RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/portal_" + (open ? "open_" : "closed_")
                 + portal.getHue() + ".png", 0);
 
         RenderSystem.depthMask(false);
@@ -522,11 +515,11 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
 //        ShaderInit.PORTAL_VIEW.get().bind();
 //        Shader.uniformMatrix("modelViewProjection", modelViewProjection);
 //        Shader.uniform4f("color", r, g, b, 1);
-//        RenderUtil.bindTextureOld("mask", "textures/portals/portal_mask.png", 0);
+//        RenderUtil.bindTextureOld("mask", "textures/portal/portal_mask.png", 0);
         ShaderInit.PORTAL_VIEW.get().bind()
             .setMatrix("modelViewProjection", modelViewProjection)
             .setFloat("color", r, g, b, 1);
-        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portals/portal_mask.png", 0);
+        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portal/portal_mask.png", 0);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
@@ -697,11 +690,11 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
 //        ShaderInit.PORTAL_VIEW.get()1.bind();
 //        Shader.uniformMatrix("modelViewProjection", modelViewProjection);
 //        Shader.uniform4f("color", 0, 0, 0, 1);
-//        RenderUtil.bindTextureOld("mask", "textures/portals/portal_mask.png", 0);
+//        RenderUtil.bindTextureOld("mask", "textures/portal/portal_mask.png", 0);
         ShaderInit.PORTAL_VIEW.get().bind()
             .setMatrix("modelViewProjection", modelViewProjection)
             .setFloat("color", 0, 0, 0, 1);
-        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portals/portal_mask.png", 0);
+        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portal/portal_mask.png", 0);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
@@ -790,7 +783,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
         ShaderInit.PORTAL_VIEW.get().bind()
             .setMatrix("modelViewProjection", modelViewProjection)
             .setFloat("color", r, g, b, 1);
-        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portals/portal_mask.png", 0);
+        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portal/portal_mask.png", 0);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
@@ -1031,7 +1024,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
         ShaderInit.PORTAL_VIEW.get().bind()
                 .setMatrix("modelViewProjection", modelViewProjection)
                 .setFloat("color", 0, 0, 0, 1);
-        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portals/portal_mask.png", 0);
+        RenderUtil.bindTexture(ShaderInit.PORTAL_VIEW.get(), "mask", "textures/portal/portal_mask.png", 0);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
@@ -1098,7 +1091,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
                         .setMatrix("modelViewProjection", getModelViewProjectionMatrix(portal, null, OFFSET * 3));
                     
                     RenderUtil.bindTexture(ShaderInit.PORTAL_HIGHLIGHT.get(), "texture",
-                            "textures/portals/highlight_" + portal.getEnd().getSerializedName() + ".png", 0);
+                            "textures/portal/highlight_" + portal.getEnd().getSerializedName() + ".png", 0);
 //                    Shader.uniform1f("intensity", (float)portal.position().distanceTo(cameraPos));
                     ShaderInit.PORTAL_HIGHLIGHT.get().setFloat("intensity", (float)portal.position().distanceTo(cameraPos));
                     
