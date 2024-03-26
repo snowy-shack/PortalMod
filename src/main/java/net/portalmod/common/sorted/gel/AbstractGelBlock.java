@@ -1,7 +1,5 @@
 package net.portalmod.common.sorted.gel;
 
-import java.util.HashMap;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
@@ -29,6 +27,8 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
+
+import java.util.HashMap;
 
 public class AbstractGelBlock extends Block {
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
@@ -59,7 +59,7 @@ public class AbstractGelBlock extends Block {
                 .setValue(SOUTH, false)
                 .setValue(WEST,  false)
                 .setValue(UP,    false)
-                .setValue(DOWN,  false));
+                .setValue(DOWN,  true));
     }
     
     @Override
