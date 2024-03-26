@@ -44,7 +44,7 @@ public class BlockInit {
     public static final RegistryObject<Block> VINTAGE_BLACKPLATE = registerBlackplate("vintage_");
     
     public static final RegistryObject<Block> IRON_FRAME = BLOCKS.register("iron_frame",
-            () -> new FrameBlock(AbstractBlock.Properties.of(Material.METAL).noOcclusion().strength(4.0F)));
+            () -> new FrameBlock(AbstractBlock.Properties.of(Material.METAL).noOcclusion()));
 
     public static final RegistryObject<Block> RADIO = BLOCKS.register("radio",
             () -> new RadioBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));

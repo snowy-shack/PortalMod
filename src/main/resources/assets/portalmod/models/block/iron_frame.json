@@ -1,5 +1,4 @@
 {
-	"ambientocclusion": false,
 	"textures": {
 		"particle": "portalmod:block/frame_sides",
 		"sides": "portalmod:block/frame_sides",
@@ -9,6 +8,7 @@
 		{
 			"from": [0, 15, 0],
 			"to": [16, 16, 2],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 1]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 1], "texture": "#top_bottom"},
 				"east": {"uv": [14, 13, 16, 14], "texture": "#top_bottom"},
@@ -21,6 +21,7 @@
 		{
 			"from": [0, 0, 0],
 			"to": [16, 1, 2],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 1]},
 			"faces": {
 				"north": {"uv": [0, 7, 16, 8], "texture": "#top_bottom"},
 				"east": {"uv": [0, 13, 2, 14], "texture": "#top_bottom"},
@@ -33,6 +34,7 @@
 		{
 			"from": [0, 1, 0],
 			"to": [1, 15, 2],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 1]},
 			"faces": {
 				"north": {"uv": [7, 0, 8, 14], "texture": "#sides"},
 				"east": {"uv": [11, 0, 13, 14], "texture": "#sides"},
@@ -43,6 +45,7 @@
 		{
 			"from": [15, 1, 0],
 			"to": [16, 15, 2],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 8, 1]},
 			"faces": {
 				"north": {"uv": [0, 0, 1, 14], "texture": "#sides"},
 				"east": {"uv": [4, 0, 6, 14], "texture": "#sides"},
