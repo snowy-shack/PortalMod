@@ -62,7 +62,9 @@ public class ItemInit {
 
     public static final RegistryObject<BlockItem> WIRE_MESH = ITEMS.register("wire_mesh",
             () -> new BlockItem(BlockInit.WIRE_MESH.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
-    
+
+    public static final RegistryObject<BlockItem> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);
+
     public static final RegistryObject<BlockItem> FOREST_CAKE = ITEMS.register("forest_cake",
             () -> new BlockItem(BlockInit.FOREST_CAKE.get(), new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
     

@@ -8,6 +8,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.ChamberLightsBlock;
 import net.portalmod.common.blocks.ForestCakeBlock;
+import net.portalmod.common.blocks.FrameBlock;
 import net.portalmod.common.blocks.WireMeshBlock;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
@@ -43,10 +44,10 @@ public class BlockInit {
     public static final RegistryObject<Block> VINTAGE_BLACKPLATE = registerBlackplate("vintage_");
     
     public static final RegistryObject<Block> IRON_FRAME = BLOCKS.register("iron_frame",
-            () -> new RotatedPillarBlock(AbstractBlock.Properties.of(Material.METAL)));
+            () -> new FrameBlock(AbstractBlock.Properties.of(Material.METAL).noOcclusion().strength(4.0F)));
 
     public static final RegistryObject<Block> RADIO = BLOCKS.register("radio",
-            () -> new RadioBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(4.0F)));
+            () -> new RadioBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));
     
     public static final RegistryObject<Block> FAITHPLATE = BLOCKS.register("faithplate",
             () -> new FaithPlateBlock(AbstractBlock.Properties.copy(Blocks.STONE)));
