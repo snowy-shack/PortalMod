@@ -1,0 +1,6 @@
+{
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "portalmod:block/fizzler_field_top"
+    }
+}

@@ -62,14 +62,5 @@ public class ChamberLightsBlock extends Block {
         return blockState;
     }
 
-//    @Override
-//    public void playerWillDestroy(World world, BlockPos pos, BlockState blockState, PlayerEntity p_176208_4_) {
-//        breakOtherHaldIfNeeded(world, blockState, pos);
-//        super.playerWillDestroy(world, pos, blockState, p_176208_4_);
-//    }
-//
-//    public void breakOtherHaldIfNeeded(World world, BlockState blockState, BlockPos pos) {
-//        boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
-//        world.setBlockAndUpdate(pos.relative(isLower ? Direction.UP : Direction.DOWN), Blocks.AIR.defaultBlockState());
-//    }
+
 }

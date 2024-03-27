@@ -10,7 +10,10 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -24,15 +27,15 @@ import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
 import javax.annotation.Nullable;
-
-import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.Center.*;
-
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
+import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.Center.FALSE;
+
 public class AntlineBlock extends Block {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    public static final VoxelShape SHAPE = Block.box(4, 4, 4, 12, 12, 12);  // test
 
     public AntlineBlock(Properties properties) {
         super(properties);
@@ -230,6 +233,9 @@ public class AntlineBlock extends Block {
                 level.sendBlockUpdated(pos, state, state, 0);
                 level.updateNeighborsAt(pos, BlockInit.ANTLINE.get());
                 blockEntity.requestModelDataUpdate();
+                if (!player.isCreative()) {
+                    dropResources(state, level, pos);
+                }
                 break;
             }
         }
@@ -326,7 +332,7 @@ public class AntlineBlock extends Block {
 //
 //        return RESULT.get();
         // todo implement actual thing but for now this to compat server
-        return VoxelShapes.block();
+        return SHAPE;
     }
 
     @Override
