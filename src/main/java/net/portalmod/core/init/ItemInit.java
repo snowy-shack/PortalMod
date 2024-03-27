@@ -99,14 +99,14 @@ public class ItemInit {
     public static final RegistryObject<BlockItem> ANTLINE_INDICATOR = ITEMS.register("antline_indicator",
             () -> new BlockItem(BlockInit.ANTLINE_INDICATOR.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
     
-    public static final RegistryObject<BlockItem> LASER_EMITTER = ITEMS.register("laser_emitter",
-            () -> new BlockItem(BlockInit.LASER_EMITTER.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
-    
-    public static final RegistryObject<BlockItem> LASER_CATCHER = ITEMS.register("laser_catcher",
-            () -> new BlockItem(BlockInit.LASER_CATCHER.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
-    
-    public static final RegistryObject<BlockItem> LASER_RELAY = ITEMS.register("laser_relay",
-            () -> new BlockItem(BlockInit.LASER_RELAY.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+//    public static final RegistryObject<BlockItem> LASER_EMITTER = ITEMS.register("laser_emitter",
+//            () -> new BlockItem(BlockInit.LASER_EMITTER.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+//
+//    public static final RegistryObject<BlockItem> LASER_CATCHER = ITEMS.register("laser_catcher",
+//            () -> new BlockItem(BlockInit.LASER_CATCHER.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+//
+//    public static final RegistryObject<BlockItem> LASER_RELAY = ITEMS.register("laser_relay",
+//            () -> new BlockItem(BlockInit.LASER_RELAY.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
 
     public static final RegistryObject<BlockItem> FIZZLER_EMITTER = ITEMS.register("fizzler_emitter",
             () -> new BlockItem(BlockInit.FIZZLER_EMITTER.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
@@ -128,8 +128,8 @@ public class ItemInit {
     public static final RegistryObject<BlockItem> PROPULSION_GEL = ITEMS.register("propulsion_gel",
             () -> new GelContainer(BlockInit.PROPULSION_GEL.get(), GEL_BASE, 0xE3834A));
     
-    public static final RegistryObject<BlockItem> ADHESION_GEL = ITEMS.register("adhesion_gel",
-            () -> new GelContainer(BlockInit.ADHESION_GEL.get(), GEL_BASE, 0x954CC0));
+//    public static final RegistryObject<BlockItem> ADHESION_GEL = ITEMS.register("adhesion_gel",
+//            () -> new GelContainer(BlockInit.ADHESION_GEL.get(), GEL_BASE, 0x954CC0));
     
     public static final RegistryObject<BlockItem> CONVERSION_GEL = ITEMS.register("conversion_gel",
             () -> new GelContainer(BlockInit.CONVERSION_GEL.get(), GEL_BASE, 0xF7F7F8));
