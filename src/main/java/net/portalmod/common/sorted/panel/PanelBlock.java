@@ -124,9 +124,14 @@ public class PanelBlock extends Block {
     @Override
     public BlockState updateShape(BlockState blockState, Direction p_196271_2_, BlockState p_196271_3_, IWorld world, BlockPos blockPos, BlockPos p_196271_6_) {
         for (BlockPos connectedPos : getConnectedPositions(blockState, blockPos)) {
-            if (!world.getBlockState(connectedPos).is(this)) {
-                return defaultBlockState();
+            if (world.getBlockState(connectedPos).is(this)) {
+                continue;
             }
+            PanelState panelState = blockState.getValue(STATE);
+            if (panelState.isQuadruple() && !(connectedPos.getX() == blockPos.getX() && connectedPos.getZ() == blockPos.getZ())) {
+                return defaultBlockState().setValue(STATE, panelState.isBottom() ? PanelState.BOTTOM : PanelState.TOP);
+            }
+            return defaultBlockState();
         }
         return blockState;
     }
