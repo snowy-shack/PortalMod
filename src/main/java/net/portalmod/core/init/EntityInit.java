@@ -26,6 +26,11 @@ public class EntityInit {
                     .sized(.8f, .8f)
                     .build(new ResourceLocation(PortalMod.MODID, "storage_cube").toString()));
 
+    public static final RegistryObject<EntityType<Cube>> VINTAGE_CUBE = ENTITIES.register("vintage_cube",
+            () -> EntityType.Builder.of(Cube::new, EntityClassification.AMBIENT)
+                    .sized(.8f, .8f)
+                    .build(new ResourceLocation(PortalMod.MODID, "vintage_cube").toString()));
+
     public static final RegistryObject<EntityType<TurretEntity>> TURRET = ENTITIES.register("turret",
             () -> EntityType.Builder.<TurretEntity>of(TurretEntity::new, EntityClassification.CREATURE)
                     .sized(.8f, 1.3f)

@@ -1,7 +1,5 @@
 package net.portalmod.core.event;
 
-import java.io.File;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -21,23 +19,20 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.portalmod.PortalMod;
-import net.portalmod.client.screens.PortalModOptionsScreen;
-import net.portalmod.common.blocks.GeometryWrapper;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
 import net.portalmod.common.sorted.antline.AntlineLoader;
-import net.portalmod.common.sorted.cube.companion.CompanionCubeRenderer;
 import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.sorted.cube.companion.CompanionCubeRenderer;
 import net.portalmod.common.sorted.cube.storage.StorageCubeRenderer;
+import net.portalmod.common.sorted.cube.vintage.VintageCubeRenderer;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
@@ -48,6 +43,8 @@ import net.portalmod.common.sorted.superbutton.SuperButtonGeometry;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
+
+import java.io.File;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientModEvents {
@@ -84,6 +81,7 @@ public class ClientModEvents {
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.TURRET.get(), TurretRenderer::new);
         Minecraft.getInstance().getItemColors().register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
@@ -107,6 +105,7 @@ public class ClientModEvents {
     public static void registerAttributes(final EntityAttributeCreationEvent event) {
         event.put(EntityInit.COMPANION_CUBE.get(), Cube.createAttributes().build());
         event.put(EntityInit.STORAGE_CUBE.get(), Cube.createAttributes().build());
+        event.put(EntityInit.VINTAGE_CUBE.get(), Cube.createAttributes().build());
         event.put(EntityInit.TURRET.get(), TurretEntity.createAttributes().build());
     }
 
