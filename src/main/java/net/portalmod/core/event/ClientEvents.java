@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.entity.model.BipedModel.ArmPose;
@@ -20,6 +19,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
@@ -65,6 +65,7 @@ import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.chunkviewer.ChunkViewer;
+import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.KeyInit;
 import net.portalmod.core.init.PacketInit;
@@ -259,7 +260,28 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void renderFog(final EntityViewRenderEvent.RenderFogEvent event) {
-        FogRenderer.setupNoFog();
+//        FogRenderer.setupNoFog();
+    }
+
+    @SubscribeEvent
+    public static void fogDensity(final EntityViewRenderEvent.FogDensity event) {
+        if (event.getInfo().getFluidInCamera().is(FluidTagInit.GOO)) {
+            event.setDensity(0.95f);
+            event.setCanceled(true);
+        }
+    }
+
+    // R: 55
+    // G: 46
+    // B: 33
+    @SubscribeEvent
+    public static void fogColor(final EntityViewRenderEvent.FogColors event) {
+        FluidState fluidInCamera = event.getInfo().getFluidInCamera();
+        if (fluidInCamera.is(FluidTagInit.GOO)) {
+            event.setRed(0.215f);
+            event.setGreen(0.180f);
+            event.setBlue(0.129f);
+        }
     }
     
     @SubscribeEvent

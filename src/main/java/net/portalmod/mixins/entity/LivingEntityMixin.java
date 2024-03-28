@@ -2,20 +2,27 @@ package net.portalmod.mixins.entity;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.portal.*;
+import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.math.Vec3;
+import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
+import net.portalmod.core.math.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -24,12 +31,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
-import net.portalmod.core.injectors.LivingEntityInjector;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Deque;
@@ -51,6 +52,10 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Shadow protected double lerpZ;
 
     @Shadow protected int lerpSteps;
+
+    @Shadow protected abstract boolean isAffectedByFluids();
+
+    @Shadow public abstract boolean canStandOnFluid(Fluid p_230285_1_);
 
     @Inject(
             remap = false,
@@ -336,5 +341,15 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Override
     public boolean isLaunched() {
         return pmLaunched;
+    }
+
+    @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
+    public void pmAddGooResistance(Vector3d p_213352_1_, CallbackInfo ci) {
+        FluidState fluidState = this.level.getFluidState(this.blockPosition());
+        boolean isInGoo = !this.firstTick && this.fluidHeight.getDouble(FluidTagInit.GOO) > 0;
+
+        if (isInGoo && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(0.3, 0.6, 0.3));
+        }
     }
 }

@@ -1,19 +1,28 @@
 package net.portalmod.mixins.entity;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-import java.util.stream.Stream;
-
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.Pose;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.tags.ITag;
+import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.portal.DiscontinuousLerpPos;
+import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portal.ITeleportable2;
 import net.portalmod.common.sorted.portal.PortalEntity;
-import net.portalmod.common.sorted.portal.ITeleportable;
+import net.portalmod.core.init.BlockInit;
+import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.interfaces.IDiscontinuouslyLerpable;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -29,18 +38,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.ReuseableStream;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.portalmod.common.sorted.cube.Cube;
-import net.portalmod.common.sorted.gel.PropulsionGelBlock;
-import net.portalmod.core.init.BlockInit;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDiscontinuouslyLerpable, ITeleportLerpable {
@@ -52,6 +55,10 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
 //    @Shadow protected abstract AxisAlignedBB getBoundingBoxForPose(Pose pose);
 
     @Shadow public abstract EntitySize getDimensions(Pose p_213305_1_);
+
+    @Shadow public abstract boolean isInWater();
+
+    @Shadow public abstract boolean updateFluidHeightAndDoFluidPushing(ITag<Fluid> p_210500_1_, double p_210500_2_);
 
     private int lastUsedPortal = -1;
 
@@ -235,5 +242,10 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         BlockState state = entity.level.getBlockState(pos);
         if(state.getBlock() == BlockInit.PROPULSION_GEL.get())
             info.setReturnValue(((PropulsionGelBlock)state.getBlock()).getSpeedFactor(pos, state, entity));
+    }
+
+    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, remap = false)
+    public void pmAddFlowingGooPhysics(CallbackInfoReturnable<Boolean> cir, double d0, boolean flag) {
+        cir.setReturnValue(this.isInWater() || flag || this.updateFluidHeightAndDoFluidPushing(FluidTagInit.GOO, 0.01));
     }
 }

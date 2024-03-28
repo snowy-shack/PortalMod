@@ -1,6 +1,5 @@
 package net.portalmod.core.init;
 
-import net.minecraft.block.Block;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
@@ -39,5 +38,6 @@ public class FluidInit {
     .tickRate(20)
     .levelDecreasePerBlock(2)
     .block(() -> BlockInit.GOO.get())
+    .canMultiply()
     .bucket(() -> ItemInit.GOO_BUCKET.get());
 }
