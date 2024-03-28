@@ -59,7 +59,7 @@ public class AbstractGelBlock extends Block {
                 .setValue(SOUTH, false)
                 .setValue(WEST,  false)
                 .setValue(UP,    false)
-                .setValue(DOWN,  true));
+                .setValue(DOWN,  false));
     }
     
     @Override
