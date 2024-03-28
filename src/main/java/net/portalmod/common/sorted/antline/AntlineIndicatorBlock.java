@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.antline;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer.Builder;
@@ -20,6 +21,12 @@ public class AntlineIndicatorBlock extends Block {
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.UP)
                 .setValue(ACTIVE, false));
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
+        return this.defaultBlockState()
+                .setValue(FACING, context.getClickedFace());
     }
     
     @Override
