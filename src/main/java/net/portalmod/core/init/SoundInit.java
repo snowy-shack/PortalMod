@@ -19,7 +19,12 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> GEL_BLOCK_PLACE = register("block.gel.place");
 
     public static final RegistryObject<SoundEvent> FAITHPLATE_LAUNCH = register("block.faithplate.launch");
-    
+
+    public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
+    public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
+
+    public static final RegistryObject<SoundEvent> GOO_DAMAGE = register("entity.player.hurt_goo");
+
     private static RegistryObject<SoundEvent> register(String id) {
         return SOUNDS.register(id, () -> new SoundEvent(new ResourceLocation(PortalMod.MODID, id)));
     }

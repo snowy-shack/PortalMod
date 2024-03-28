@@ -8,6 +8,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.portal.*;
+import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
@@ -350,6 +352,25 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
 
         if (isInGoo && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
             this.setDeltaMovement(this.getDeltaMovement().multiply(0.3, 0.6, 0.3));
+        }
+    }
+
+    @Inject(method = "baseTick", at = @At("HEAD"), remap = false)
+    public void pmAddGooDamage(CallbackInfo ci) {
+        boolean isInGoo = !this.firstTick && this.fluidHeight.getDouble(FluidTagInit.GOO) > 0;
+        if (isInGoo) {
+            this.fallDistance = 0;
+            this.hurt(FluidInit.GOO_DAMAGE, 4.0F);
+        }
+    }
+
+    //todo might have to create a packet to hurt the entity on the client as well, will have to test this on a server
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;broadcastEntityEvent(Lnet/minecraft/entity/Entity;B)V"))
+    public void pmHandleGooDamage(World instance, Entity entity, byte p_72960_2_, DamageSource p_70097_1_) {
+        if (p_70097_1_ == FluidInit.GOO_DAMAGE && p_72960_2_ == 2 && entity instanceof LivingEntity) {
+            this.level.playSound(null, entity, ((LivingEntity) entity).getHurtSound(p_70097_1_), SoundCategory.PLAYERS, 0, 0);
+        } else {
+            this.level.broadcastEntityEvent(this, p_72960_2_);
         }
     }
 }

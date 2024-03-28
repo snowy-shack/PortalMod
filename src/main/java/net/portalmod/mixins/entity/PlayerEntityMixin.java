@@ -7,6 +7,8 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -17,6 +19,8 @@ import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
 import net.portalmod.core.init.CriteriaTriggerInit;
+import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.interfaces.IGetPose;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -145,6 +150,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             if(((IFaithPlateLaunchable)this).isLaunched() && ((PlayerEntity)(Object)this).getDeltaMovement().length() > .7) {
                 CriteriaTriggerInit.FAITH_PLATE_ELYTRA.get().trigger((ServerPlayerEntity)(Object)this);
             }
+        }
+    }
+
+    @Inject(
+            remap = false,
+            method = "getHurtSound",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public void pmPlayGooHurtSound(DamageSource damageSource, CallbackInfoReturnable<SoundEvent> cir) {
+        if (damageSource == FluidInit.GOO_DAMAGE) {
+            cir.setReturnValue(SoundInit.GOO_DAMAGE.get());
         }
     }
 }
