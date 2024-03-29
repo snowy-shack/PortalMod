@@ -90,7 +90,7 @@
         ],
         "subtitle": "subtitles.entity.cube.impact"
     },
-    "entity.player.hurt.goo": {
+    "entity.player.hurt_goo": {
         "sounds": [
             "portalmod:error"
         ],
