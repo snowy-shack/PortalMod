@@ -21,6 +21,9 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_OPEN = register("block.chamber_door.open");
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_CLOSE = register("block.chamber_door.close");
 
+    public static final RegistryObject<SoundEvent> SUPER_BUTTON_ACTIVATE = register("block.super_button.activate");
+    public static final RegistryObject<SoundEvent> SUPER_BUTTON_DEACTIVATE = register("block.super_button.deactivate");
+
     public static final RegistryObject<SoundEvent> FAITHPLATE_LAUNCH = register("block.faithplate.launch");
 
     public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");

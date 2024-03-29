@@ -1,12 +1,5 @@
 package net.portalmod.common.sorted.superbutton;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
@@ -19,12 +12,9 @@ import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.util.*;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -37,10 +27,17 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.portalmod.core.init.BlockInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Predicate;
 
 public class SuperButtonBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -247,13 +244,14 @@ public class SuperButtonBlock extends Block {
         }
         
         if(pressed)
-            level.getBlockTicks().scheduleTick(pos, this, 1);
+            level.getBlockTicks().scheduleTick(pos, this, 8);
         
         if(state.getValue(ACTIVE) != pressed) {
             for(BlockPos block : blocks) {
                 BlockState oldState = level.getBlockState(block);
                 level.setBlock(block, oldState.setValue(ACTIVE, pressed), BlockFlags.DEFAULT);
             }
+            level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
         }
     }
 
