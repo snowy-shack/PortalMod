@@ -12,8 +12,8 @@
             "from": [ 0,  0,  2],
             "to":   [16, 16, 14],
             "faces": {
-                "north": { "uv": [ 0,  0, 16, 16], "texture": "#lights", "cullface": "north" },
-                "south": { "uv": [ 0,  0, 16, 16], "texture": "#lights", "cullface": "south" }
+                "north": { "uv": [ 0,  0, 16, 16], "texture": "#lights"},
+                "south": { "uv": [ 0,  0, 16, 16], "texture": "#lights"}
             }
         },
         {
