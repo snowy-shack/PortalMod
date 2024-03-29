@@ -2,7 +2,9 @@ package net.portalmod.common.blocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -19,14 +21,16 @@ import net.portalmod.core.math.VoxelShapeGroup;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FrameBlock extends Block {
+public class FrameBlock extends Block implements IWaterLoggable {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public boolean isFilled;
 
     public FrameBlock(Properties properties, boolean isFilled) {
         super(properties);
         registerDefaultState(stateDefinition.any()
-                .setValue(FACING, Direction.UP));
+                .setValue(FACING, Direction.UP)
+                .setValue(WATERLOGGED, false));
         this.initAABBs();
         this.isFilled = isFilled;
     }
@@ -38,7 +42,7 @@ public class FrameBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, WATERLOGGED);
     }
 
     private static final Map<Direction, VoxelShapeGroup> SHAPE = new HashMap<>();
