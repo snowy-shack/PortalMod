@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "IiI",
+        "ioi",
+        "IiI"
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "i": {
+            "item": "minecraft:iron_nugget"
+        },
+        "o": {
+            "tag": "portalmod:stripped_logs"
+        }
+    },
+    "result": {
+        "item": "portalmod:vintage_cube",
+        "count": 1
+    }
+}
