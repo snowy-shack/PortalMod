@@ -1,4 +1,4 @@
-package net.portalmod.mixins;
+package net.portalmod.mixins.fluid;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.FlowingFluid;
@@ -23,7 +23,7 @@ public abstract class FlowingFluidMixin {
     @Shadow protected abstract int getDropOff(IWorldReader p_204528_1_);
 
     @Inject(method = "getNewLiquid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FlowingFluid;getDropOff(Lnet/minecraft/world/IWorldReader;)I"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, remap = false)
-    public void pmMake5(IWorldReader p_205576_1_, BlockPos p_205576_2_, BlockState p_205576_3_, CallbackInfoReturnable<FluidState> cir, int i) {
+    public void pmSpread5Blocks(IWorldReader p_205576_1_, BlockPos p_205576_2_, BlockState p_205576_3_, CallbackInfoReturnable<FluidState> cir, int i) {
         int k = i - this.getDropOff(p_205576_1_);
         if (this.getSource().is(FluidTagInit.GOO)) {
             if (i == 4 || i == 2) {

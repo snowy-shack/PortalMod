@@ -5,7 +5,6 @@
   "refmap": "portalmod.refmap.json",
   "mixins": [
     "AbstractBlockMixin",
-    "FlowingFluidMixin",
     "KeyBindingClass",
     "MinecraftServerMixin",
     "accessors.AbstractMinecartAccessor",
@@ -19,6 +18,8 @@
     "entity.LivingEntityMixin",
     "entity.PlayerEntityMixin",
     "entity.TrackedEntityMixin",
+    "fluid.FlowingFluidBlockMixin",
+    "fluid.FlowingFluidMixin",
     "level.EntityTrackerMixin",
     "level.ServerLevelMixin",
     "level.chunk.ChunkMixin",
