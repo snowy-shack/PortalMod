@@ -244,7 +244,7 @@ public class SuperButtonBlock extends Block {
         }
         
         if(pressed)
-            level.getBlockTicks().scheduleTick(pos, this, 8);
+            level.getBlockTicks().scheduleTick(pos, this, 12);
         
         if(state.getValue(ACTIVE) != pressed) {
             for(BlockPos block : blocks) {
