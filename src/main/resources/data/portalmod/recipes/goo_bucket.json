@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "a",
+        "b",
+        "u"
+    ],
+    "key": {
+        "a": {
+            "item": "minecraft:dirt"
+        },
+        "b": {
+            "item": "minecraft:soul_sand"
+        },
+        "u": {
+            "item": "minecraft:water_bucket"
+        }
+    },
+    "result": {
+        "item": "portalmod:goo_bucket",
+        "count": 1
+    }
+}
