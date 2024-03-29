@@ -147,13 +147,25 @@
         "sounds": [
               "portalmod:block/super_button/activate"
         ],
-        "subtitle": "subtitles.super_button_activate"
+        "subtitle": "subtitles.super_button.activate"
     },
     "block.super_button.deactivate": {
         "sounds": [
               "portalmod:block/super_button/deactivate"
         ],
-        "subtitle": "subtitles.super_button_deactivate"
+        "subtitle": "subtitles.super_button.deactivate"
+    },
+    "block.chamber_door.open": {
+        "sounds": [
+              "portalmod:block/super_button/activate"
+        ],
+        "subtitle": "subtitles.chamber_door.open"
+    },
+    "block.chamber_door.close": {
+        "sounds": [
+              "portalmod:block/super_button/deactivate"
+        ],
+        "subtitle": "subtitles.chamber_door.close"
     },
     "item.bucket.empty_goo": {
       "sounds": [

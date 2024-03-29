@@ -64,6 +64,7 @@ public class ChamberLightsBlock extends Block {
         return blockState;
     }
 
+    @Override
     public void playerWillDestroy(World world, BlockPos pos, BlockState blockState, PlayerEntity player) {
         if (!world.isClientSide) {
             if (player.isCreative()) {
@@ -76,6 +77,7 @@ public class ChamberLightsBlock extends Block {
         super.playerWillDestroy(world, pos, blockState, player);
     }
 
+    @Override
     public void playerDestroy(World world, PlayerEntity player, BlockPos pos, BlockState blockState, @Nullable TileEntity tileEntity, ItemStack itemStack) {
         super.playerDestroy(world, player, pos, Blocks.AIR.defaultBlockState(), tileEntity, itemStack);
     }

@@ -64,6 +64,8 @@
   "subtitles.block.faithplate.launch":       "Faith Plate launches",
   "subtitles.block.super_button.activate":   "Super Button activates",
   "subtitles.block.super_button.deactivate": "Super Button deactivates",
+  "subtitles.block.chamber_door.open":       "Chamber Door opens",
+  "subtitles.block.chamber_door.close":      "Chamber Door closes",
 
   "subtitles.entity.turret.fire":         "Turret fires",
   "subtitles.entity.turret.deploy":       "Turret activates",
