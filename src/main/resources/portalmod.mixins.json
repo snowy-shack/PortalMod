@@ -5,6 +5,7 @@
   "refmap": "portalmod.refmap.json",
   "mixins": [
     "AbstractBlockMixin",
+    "FlowingFluidMixin",
     "MinecraftServerMixin",
     "accessors.AbstractMinecartAccessor",
     "accessors.ChunkManagerAccessor",
