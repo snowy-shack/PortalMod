@@ -3,6 +3,8 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IWaterLoggable;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
@@ -14,6 +16,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
@@ -87,14 +90,25 @@ public class FrameBlock extends Block implements IWaterLoggable {
     public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         return isFilled ? this.getShape(state, level, pos, context) : COLLISIONSHAPE.get(state.getValue(FACING)).getShape();
     }
+
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        if(context.getPlayer().isCrouching()) {
-            return this.stateDefinition.any()
-                    .setValue(FACING, context.getNearestLookingDirection());
-        } else {
-            return this.stateDefinition.any()
-                    .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+        Direction nearestLookingDirection = context.getNearestLookingDirection();
+        return this.stateDefinition.any()
+                .setValue(FACING, context.getPlayer().isCrouching() ? nearestLookingDirection : nearestLookingDirection.getOpposite())
+                .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+    }
+
+    @Override
+    public BlockState updateShape(BlockState p_196271_1_, Direction p_196271_2_, BlockState p_196271_3_, IWorld p_196271_4_, BlockPos p_196271_5_, BlockPos p_196271_6_) {
+        if (p_196271_1_.getValue(WATERLOGGED)) {
+            p_196271_4_.getLiquidTicks().scheduleTick(p_196271_5_, Fluids.WATER, Fluids.WATER.getTickDelay(p_196271_4_));
         }
+        return p_196271_1_;
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState blockState) {
+        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 }
