@@ -6,6 +6,7 @@
   "mixins": [
     "AbstractBlockMixin",
     "FlowingFluidMixin",
+    "KeyBindingClass",
     "MinecraftServerMixin",
     "accessors.AbstractMinecartAccessor",
     "accessors.ChunkManagerAccessor",
