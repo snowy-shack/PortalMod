@@ -3,6 +3,6 @@
     "textures": {
         "particle": "portalmod:block/iron_frame",
         "texture": "portalmod:block/iron_frame",
-        "inner": "portalmod:block/air"
+        "inner": "portalmod:block/barred_iron_frame"
     }
 }
