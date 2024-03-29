@@ -2,6 +2,15 @@
   "values": [
     "portalmod:lunecast",
     "portalmod:blackplate",
-    "portalmod:wire_mesh_block"
+    "portalmod:eroded_lunecast",
+    "portalmod:eroded_blackplate",
+    "portalmod:arbored_lunecast",
+    "portalmod:arbored_blackplate",
+    "portalmod:fractured_lunecast",
+    "portalmod:fractured_blackplate",
+    "portalmod:vintage_lunecast",
+    "portalmod:vintage_blackplate",
+    "portalmod:wire_mesh_block",
+    "portalmod:wire_mesh"
   ]
 }
