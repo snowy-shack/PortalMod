@@ -14,7 +14,7 @@
 
   "item.portalmod.storage_cube":     "Storage Cube",
   "item.portalmod.companion_cube":   "Companion Cube",
-  "item.portalmod.redirection_cube": "Redirection Cube",
+  "item.portalmod.vintage_cube":     "Vintage Cube",
   "item.portalmod.turret":           "Sentry Turret",
   "item.portalmod.goo_bucket":       "Goo Bucket",
 
@@ -57,8 +57,6 @@
 
   "subtitles.block.gel.grab":    "Gel Container fills",
   "subtitles.block.gel.place":   "Gel placed",
-  "subtitles.item.bucket.empty": "Bucket empties",
-  "subtitles.item.bucket.fill":  "Bucket fills",
 
   "subtitles.block.radio.loop":              "Radio plays",
   "subtitles.block.radio.transmission":      "Radio transmitting",
