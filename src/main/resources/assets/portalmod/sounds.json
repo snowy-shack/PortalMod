@@ -90,6 +90,12 @@
         ],
         "subtitle": "subtitles.entity.cube.impact"
     },
+    "entity.player.hurt.goo": {
+        "sounds": [
+            "portalmod:error"
+        ],
+        "subtitle": "subtitles.entity.player.hurt"
+    },
     "item.portalgun.fire_blue": {
         "sounds": [
             "portalmod:error"
