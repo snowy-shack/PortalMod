@@ -33,7 +33,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
         possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos));
         possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing)));
-        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing.getOpposite())));
+        possibleIndicatorPositions.addAll(getDoorPositions(blockState, pos.relative(facing))); // fill the gap
 
         boolean hasIndicators = false;
         boolean allIndicatorsActivated = true;
@@ -85,10 +85,10 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     horizontal >
     vertical ^
 
-    5   6   7    8
-    4   15  14   9
-    3   16  13   10
-    2   1   12   11
+    5      6       7      8
+    4     door    door    9
+    3   updated   door    10
+    2      1       12     11
 
      */
     public static List<BlockPos> getSurroundingPositions(BlockState blockState, BlockPos pos) {
@@ -111,7 +111,19 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 pos.relative(horizontal, 2).relative(vertical),
                 pos.relative(horizontal, 2),
                 pos.relative(horizontal, 2).relative(vertical.getOpposite()),
-                pos.relative(horizontal).relative(vertical.getOpposite()),
+                pos.relative(horizontal).relative(vertical.getOpposite())
+        ));
+    }
+
+    public static List<BlockPos> getDoorPositions(BlockState blockState, BlockPos pos) {
+        Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
+        boolean isLower = blockState.getValue(ChamberDoorBlock.HALF) == DoubleBlockHalf.LOWER;
+        boolean isLeft = blockState.getValue(ChamberDoorBlock.SIDE) == ChamberDoorBlock.Side.LEFT;
+
+        Direction vertical = isLower ? Direction.UP : Direction.DOWN;
+        Direction horizontal = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
+
+        return new ArrayList<>(Arrays.asList(
                 pos.relative(horizontal),
                 pos.relative(horizontal).relative(vertical),
                 pos.relative(vertical),
