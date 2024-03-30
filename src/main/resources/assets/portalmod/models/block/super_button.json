@@ -28,7 +28,7 @@
             "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
             "faces": {
                 "north": { "uv": [    5, 14,    9, 16 ], "texture": "#button" },
-                "west":  { "uv": [    9,  5, 11.5,  7 ], "texture": "#button", "cullface": "north" },
+                "west":  { "uv": [    9,  5, 11.5,  7 ], "texture": "#button", "cullface": "west" },
                 "up":    { "uv": [ 11.5,  4,    9,  0 ], "texture": "#button", "rotation": 270 },
                 "down":  { "uv": [ 11.5, 12,    9,  8 ], "texture": "#button", "rotation":  90, "cullface": "down" }
             }
