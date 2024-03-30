@@ -3,7 +3,6 @@ package net.portalmod.common.sorted.fizzler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -15,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -27,9 +27,13 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunAnimation;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
 import net.portalmod.core.HorizontalAxis;
-import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
+import net.portalmod.core.math.VoxelShapeGroup;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class FizzlerFieldBlock extends Block {
@@ -41,11 +45,35 @@ public class FizzlerFieldBlock extends Block {
         this.registerDefaultState(stateDefinition.any()
                 .setValue(AXIS, HorizontalAxis.X)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
+        this.initAABBs();
     }
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(AXIS, HALF);
+    }
+
+
+    private static final Map<HorizontalAxis, VoxelShapeGroup> SHAPE = new HashMap<>();
+    private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
+            .add(0,0,7,16,16,9)
+            .build();
+
+    private void initAABBs() {
+        for(HorizontalAxis axis : HorizontalAxis.values()) {
+            Mat4 matrix = Mat4.identity();
+            matrix.translate(new Vec3(.5));
+
+            matrix.rotateDeg(Vector3f.YP, (axis == HorizontalAxis.X) ? 0 : 90);
+            matrix.translate(new Vec3(-.5));
+
+            SHAPE.put(axis, shape.clone().transform(matrix));
+        }
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+        return SHAPE.get(state.getValue(AXIS)).getShape();
     }
 
     @Override
