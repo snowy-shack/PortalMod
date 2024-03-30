@@ -17,7 +17,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.portalmod.common.blocks.ChamberDoorBlock;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
@@ -42,7 +41,6 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        updateChamberDoor(context.getLevel(), context.getClickedPos());
         return super.getStateForPlacement(context);
     }
 
@@ -54,21 +52,6 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
 
     public void setActive(boolean active, World world, BlockPos pos) {
         world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVE, active));
-        updateChamberDoor(world, pos);
-    }
-
-    private void updateChamberDoor(World world, BlockPos pos) {
-        for (int x = -1; x <= 1; x++) {
-            for (int y = -1; y <= 1; y++) {
-                for (int z = -1; z <= 1; z++) {
-                    BlockPos offset = pos.offset(x, y, z);
-                    if (world.getBlockState(offset).getBlock() instanceof ChamberDoorBlock) {
-                        world.neighborChanged(offset, this, pos);
-                        return;
-                    }
-                }
-            }
-        }
     }
 
     private void initAABBs() {

@@ -1,4 +1,4 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.chamberdoor;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
@@ -12,17 +12,18 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.Direction;
+import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
@@ -181,7 +182,7 @@ public class ChamberDoorBlock extends Block {
         if (doubleblockhalf == DoubleBlockHalf.UPPER || side == Side.RIGHT) {
             for (BlockPos otherPos : getOtherPositions(blockState, pos)) {
                 BlockState blockstate = world.getBlockState(otherPos);
-                if (blockstate.getBlock() == blockState.getBlock() && blockstate.getValue(HALF) == DoubleBlockHalf.LOWER && blockstate.getValue(SIDE) == Side.LEFT) {
+                if (blockstate.getBlock() == blockState.getBlock() && isMainBlock(blockstate)) {
                     world.setBlock(otherPos, Blocks.AIR.defaultBlockState(), 35);
                     world.levelEvent(player, 2001, otherPos, Block.getId(blockstate));
                 }
@@ -205,22 +206,15 @@ public class ChamberDoorBlock extends Block {
 
     public static void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         setValue(OPEN, open, blockState, world, pos);
+        ChamberDoorBlock.playSound(open, world, pos);
     }
 
     public static void setPowered(boolean open, BlockState blockState, World world, BlockPos pos) {
         setValue(POWERED, open, blockState, world, pos);
     }
 
-    private static void playSound(boolean open, World world, BlockPos pos) {
+    public static void playSound(boolean open, World world, BlockPos pos) {
         world.playSound(null, pos, open ? SoundInit.CHAMBER_DOOR_OPEN.get() : SoundInit.CHAMBER_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, 1);
-    }
-
-    @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity p_225533_4_, Hand hand, BlockRayTraceResult p_225533_6_) {
-        boolean open = !blockState.getValue(OPEN);
-        setOpen(open, blockState, world, pos);
-        playSound(open, world, pos);
-        return ActionResultType.SUCCESS;
     }
 
     @Override
@@ -258,40 +252,6 @@ public class ChamberDoorBlock extends Block {
 
         if (wasPowered != isPowered) {
             setPowered(isPowered, blockState, world, pos);
-            if (blockState.getValue(OPEN) != isPowered) {
-                setOpen(isPowered, blockState, world, pos);
-                if (blockState.getValue(HALF) == DoubleBlockHalf.LOWER && blockState.getValue(SIDE) == Side.LEFT) {
-                    playSound(isPowered, world, pos);
-                }
-            }
-        }
-
-        Direction facing = blockState.getValue(FACING);
-
-        List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
-        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos));
-        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing)));
-        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing.getOpposite())));
-
-        boolean hasIndicators = false;
-        boolean allIndicatorsActivated = true;
-
-        for (BlockPos blockPos : possibleIndicatorPositions) {
-            BlockState worldBlockState = world.getBlockState(blockPos);
-            if (worldBlockState.getBlock() instanceof AntlineIndicatorBlock) {
-                hasIndicators = true;
-                if (!worldBlockState.getValue(AntlineIndicatorBlock.ACTIVE)) {
-                    allIndicatorsActivated = false;
-                }
-            }
-        }
-
-        if (hasIndicators && wasPowered != allIndicatorsActivated) {
-            setPowered(allIndicatorsActivated, blockState, world, pos);
-            if (blockState.getValue(OPEN) != allIndicatorsActivated) {
-                setOpen(allIndicatorsActivated, blockState, world, pos);
-                playSound(isPowered, world, pos);
-            }
         }
     }
 
@@ -315,41 +275,20 @@ public class ChamberDoorBlock extends Block {
         return otherPositions;
     }
 
-    /*
-    horizontal >
-    vertical ^
-
-    5      6       7      8
-    4     door    door    9
-    3   updated   door    10
-    2      1       12     11
-
-     */
-    public static List<BlockPos> getSurroundingPositions(BlockState blockState, BlockPos pos) {
-        Direction facing = blockState.getValue(FACING);
-        boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
-        boolean isLeft = blockState.getValue(SIDE) == Side.LEFT;
-
-        Direction vertical = isLower ? Direction.UP : Direction.DOWN;
-        Direction horizontal = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
-
-        return new ArrayList<>(Arrays.asList(
-                pos.relative(vertical.getOpposite()),
-                pos.relative(horizontal.getOpposite()).relative(vertical.getOpposite()),
-                pos.relative(horizontal.getOpposite()),
-                pos.relative(horizontal.getOpposite()).relative(vertical),
-                pos.relative(horizontal.getOpposite()).relative(vertical, 2),
-                pos.relative(vertical, 2),
-                pos.relative(horizontal).relative(vertical, 2),
-                pos.relative(horizontal, 2).relative(vertical, 2),
-                pos.relative(horizontal, 2).relative(vertical),
-                pos.relative(horizontal, 2),
-                pos.relative(horizontal, 2).relative(vertical.getOpposite()),
-                pos.relative(horizontal).relative(vertical.getOpposite())
-        ));
+    @Override
+    public boolean hasTileEntity(BlockState state) {
+        return isMainBlock(state);
     }
 
+    public static boolean isMainBlock(BlockState state) {
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(SIDE) == Side.LEFT;
+    }
 
+    @Nullable
+    @Override
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+        return isMainBlock(state) ? TileEntityTypeInit.CHAMBER_DOOR.get().create() : null;
+    }
 
     public enum Side implements IStringSerializable {
         LEFT,

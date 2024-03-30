@@ -6,6 +6,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.antline.AntlineTileEntity;
+import net.portalmod.common.sorted.chamberdoor.ChamberDoorTileEntity;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.radio.RadioBlockTileEntity;
 
@@ -22,4 +23,7 @@ public class TileEntityTypeInit {
 
     public static final RegistryObject<TileEntityType<FaithPlateTileEntity>> FAITHPLATE = TILE_ENTITY_TYPES.register("faithplate",
             () -> TileEntityType.Builder.of(FaithPlateTileEntity::new, BlockInit.FAITHPLATE.get()).build(null));
+
+    public static final RegistryObject<TileEntityType<ChamberDoorTileEntity>> CHAMBER_DOOR = TILE_ENTITY_TYPES.register("chamber_door",
+            () -> TileEntityType.Builder.of(ChamberDoorTileEntity::new, BlockInit.CHAMBER_DOOR.get()).build(null));
 }
