@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.chamber_door;
+package net.portalmod.common.blocks;
 
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
@@ -21,6 +21,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -196,10 +197,10 @@ public class ChamberDoorBlock extends Block {
         Direction vertical = isLower ? Direction.UP : Direction.DOWN;
         Direction horizontal = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
 
-        world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(property, open));
-        world.setBlockAndUpdate(pos.relative(horizontal), world.getBlockState(pos.relative(horizontal)).setValue(property, open));
-        world.setBlockAndUpdate(pos.relative(vertical), world.getBlockState(pos.relative(vertical)).setValue(property, open));
-        world.setBlockAndUpdate(pos.relative(horizontal).relative(vertical), world.getBlockState(pos.relative(horizontal).relative(vertical)).setValue(property, open));
+        world.setBlock(pos, world.getBlockState(pos).setValue(property, open), 2);
+        world.setBlock(pos.relative(horizontal), world.getBlockState(pos.relative(horizontal)).setValue(property, open), 2);
+        world.setBlock(pos.relative(vertical), world.getBlockState(pos.relative(vertical)).setValue(property, open), 2);
+        world.setBlock(pos.relative(horizontal).relative(vertical), world.getBlockState(pos.relative(horizontal).relative(vertical)).setValue(property, open), 2);
     }
 
     public static void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
@@ -264,6 +265,34 @@ public class ChamberDoorBlock extends Block {
                 }
             }
         }
+
+        Direction facing = blockState.getValue(FACING);
+
+        List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
+        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos));
+        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing)));
+        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing.getOpposite())));
+
+        boolean hasIndicators = false;
+        boolean allIndicatorsActivated = true;
+
+        for (BlockPos blockPos : possibleIndicatorPositions) {
+            BlockState worldBlockState = world.getBlockState(blockPos);
+            if (worldBlockState.getBlock() instanceof AntlineIndicatorBlock) {
+                hasIndicators = true;
+                if (!worldBlockState.getValue(AntlineIndicatorBlock.ACTIVE)) {
+                    allIndicatorsActivated = false;
+                }
+            }
+        }
+
+        if (hasIndicators && wasPowered != allIndicatorsActivated) {
+            setPowered(allIndicatorsActivated, blockState, world, pos);
+            if (blockState.getValue(OPEN) != allIndicatorsActivated) {
+                setOpen(allIndicatorsActivated, blockState, world, pos);
+                playSound(isPowered, world, pos);
+            }
+        }
     }
 
     public static List<BlockPos> getOtherPositions(BlockState blockState, BlockPos pos) {
@@ -285,6 +314,42 @@ public class ChamberDoorBlock extends Block {
         otherPositions.add(pos);
         return otherPositions;
     }
+
+    /*
+    horizontal >
+    vertical ^
+
+    5      6       7      8
+    4     door    door    9
+    3   updated   door    10
+    2      1       12     11
+
+     */
+    public static List<BlockPos> getSurroundingPositions(BlockState blockState, BlockPos pos) {
+        Direction facing = blockState.getValue(FACING);
+        boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
+        boolean isLeft = blockState.getValue(SIDE) == Side.LEFT;
+
+        Direction vertical = isLower ? Direction.UP : Direction.DOWN;
+        Direction horizontal = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
+
+        return new ArrayList<>(Arrays.asList(
+                pos.relative(vertical.getOpposite()),
+                pos.relative(horizontal.getOpposite()).relative(vertical.getOpposite()),
+                pos.relative(horizontal.getOpposite()),
+                pos.relative(horizontal.getOpposite()).relative(vertical),
+                pos.relative(horizontal.getOpposite()).relative(vertical, 2),
+                pos.relative(vertical, 2),
+                pos.relative(horizontal).relative(vertical, 2),
+                pos.relative(horizontal, 2).relative(vertical, 2),
+                pos.relative(horizontal, 2).relative(vertical),
+                pos.relative(horizontal, 2),
+                pos.relative(horizontal, 2).relative(vertical.getOpposite()),
+                pos.relative(horizontal).relative(vertical.getOpposite())
+        ));
+    }
+
+
 
     public enum Side implements IStringSerializable {
         LEFT,
