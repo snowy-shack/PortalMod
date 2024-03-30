@@ -65,6 +65,9 @@ public class BlockInit {
     public static final RegistryObject<Block> FOREST_CAKE = BLOCKS.register("forest_cake",
             () -> new ForestCakeBlock(AbstractBlock.Properties.copy(Blocks.CAKE)));
 
+    public static final RegistryObject<Block> TEST_BLOCK = BLOCKS.register("test_block",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.NETHERITE_BLOCK).noCollission()));
+
     public static final RegistryObject<Block> CHAMBER_DOOR = BLOCKS.register("chamber_door",
             () -> new ChamberDoorBlock(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE).noOcclusion()));
     
@@ -92,7 +95,7 @@ public class BlockInit {
             () -> new FizzlerEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> FIZZLER_FIELD = BLOCKS.register("fizzler_field",
-            () -> new FizzlerFieldBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+            () -> new FizzlerFieldBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion().strength(-1.0F,3600000.0F).noDrops()));
 
     public static final RegistryObject<FlowingFluidBlock> GOO = BLOCKS.register("goo",
             () -> new FlowingFluidBlock(() -> FluidInit.GOO_FLUID.get(), AbstractBlock.Properties.of(Material.WATER)));

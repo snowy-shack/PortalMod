@@ -75,6 +75,8 @@ public class ItemInit {
     public static final RegistryObject<BlockItem> CHAMBER_DOOR = ITEMS.register("chamber_door",
             () -> new BlockItem(BlockInit.CHAMBER_DOOR.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
 
+    public static final RegistryObject<BlockItem> TEST_BLOCK = ITEMS.register("test_block",
+            () -> new BlockItem(BlockInit.TEST_BLOCK.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
     // SPAWN EGGS
     
     public static final RegistryObject<ModSpawnEggItem> COMPANION_CUBE = ITEMS.register("companion_cube",
