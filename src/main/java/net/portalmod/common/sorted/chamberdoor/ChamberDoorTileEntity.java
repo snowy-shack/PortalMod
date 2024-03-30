@@ -63,6 +63,9 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         else {
             boolean hasNearbyPlayer = false;
             for (PlayerEntity player : world.players()) {
+                if (player.isSpectator()) {
+                    continue;
+                }
                 Vector3d middlePos = Vector3d.atBottomCenterOf(pos).add(new Vec3(facing.getCounterClockWise().getNormal()).mul(0.5).add(0, 1, 0).to3d());
                 boolean inFront = player.position().subtract(middlePos).multiply(1, 0, 1).dot(new Vec3(facing.getNormal()).to3d()) > 0;
                 double playerDistance = player.position().distanceTo((middlePos));
@@ -82,10 +85,10 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     horizontal >
     vertical ^
 
-    5      6       7      8
-    4     door    door    9
-    3   updated   door    10
-    2      1       12     11
+    5   6   7    8
+    4   15  14   9
+    3   16  13   10
+    2   1   12   11
 
      */
     public static List<BlockPos> getSurroundingPositions(BlockState blockState, BlockPos pos) {
@@ -108,7 +111,11 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 pos.relative(horizontal, 2).relative(vertical),
                 pos.relative(horizontal, 2),
                 pos.relative(horizontal, 2).relative(vertical.getOpposite()),
-                pos.relative(horizontal).relative(vertical.getOpposite())
+                pos.relative(horizontal).relative(vertical.getOpposite()),
+                pos.relative(horizontal),
+                pos.relative(horizontal).relative(vertical),
+                pos.relative(vertical),
+                pos
         ));
     }
 }
