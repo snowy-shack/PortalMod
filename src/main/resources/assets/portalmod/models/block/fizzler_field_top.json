@@ -1,14 +1,15 @@
 {
 	"textures": {
-		"field":    "portalmod:block/fizzler_field_top"
+		"base":    "portalmod:block/fizzler_field_top",
+		"particle": "#base"
 	},
 	"elements": [
 		{
 			"from": [ 7,  0,  0],
 			"to":   [ 9, 16, 16],
 			"faces": {
-				"east": {"uv": [ 0,  0, 16, 16], "texture": "#field"},
-				"west": {"uv": [ 0,  0, 16, 16], "texture": "#field"}
+				"east": {"uv": [ 0,  0, 16, 16], "texture": "#base"},
+				"west": {"uv": [ 0,  0, 16, 16], "texture": "#base"}
 			}
 		}
 	]
