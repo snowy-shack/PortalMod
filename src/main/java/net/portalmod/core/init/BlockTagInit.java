@@ -18,4 +18,7 @@ public class BlockTagInit {
 
     public static final Tags.IOptionalNamedTag<Block> PORTAL_NONBLOCKING = BlockTags.createOptional(
             new ResourceLocation(PortalMod.MODID, "portal_nonblocking"));
+
+    public static final Tags.IOptionalNamedTag<Block> ANTLINE_CONNECTABLE = BlockTags.createOptional(
+            new ResourceLocation(PortalMod.MODID, "antline_connectable"));
 }
