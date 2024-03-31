@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "values": [
+    "portalmod:antline",
+    "portalmod:antline_indicator",
+    "portalmod:super_button"
+  ]
+}
