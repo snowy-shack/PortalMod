@@ -1,7 +1,6 @@
 package net.portalmod.client.screens;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.DialogTexts;
 import net.minecraft.client.gui.screen.Screen;
@@ -11,8 +10,8 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 import net.portalmod.PortalMod;
-import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.client.screens.widgets.ToggleButton;
+import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.skins.SkinSelectorScreen;
 
 public class PortalModOptionsScreen extends Screen {
@@ -125,7 +124,7 @@ public class PortalModOptionsScreen extends Screen {
         boolean prevMenu = MENU.get();
         CROSSHAIR.set(CROSSHAIR_BUTTON.getValue());
         ADHESION_GEL.set(ADHESION_GEL_BUTTON.getValue());
-        CUSTOM_GUN.set(CUSTOM_GUN_BUTTON.getValue());
+//        CUSTOM_GUN.set(CUSTOM_GUN_BUTTON.getValue());
         MENU.set(MENU_BUTTON.getValue());
         RECURSION.set((int)Math.round(RECURSION_SLIDER.getValue()));
         
