@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DoubleBlock extends MultiBlock {
@@ -25,9 +26,9 @@ public class DoubleBlock extends MultiBlock {
 
     @Override
     public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        List<BlockPos> list = new ArrayList<>();
-        list.add(mainPos.above());
-        return list;
+        return new ArrayList<>(Arrays.asList(
+                mainPos.above()
+        ));
     }
 
     @Override
