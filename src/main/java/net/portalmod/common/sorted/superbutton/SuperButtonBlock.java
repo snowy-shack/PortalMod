@@ -4,9 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
@@ -26,7 +24,7 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.BlockFlags;
-import net.portalmod.core.init.BlockInit;
+import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
@@ -35,11 +33,12 @@ import net.portalmod.core.math.VoxelShapeGroup;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class SuperButtonBlock extends Block {
+public class SuperButtonBlock extends MultiBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -54,7 +53,50 @@ public class SuperButtonBlock extends Block {
                 .setValue(ACTIVE, false));
         this.initAABBs();
     }
-    
+
+    @Override
+    public BlockPos getMainPosition(BlockState blockState, BlockPos pos) {
+        QuadBlockCorner corner = blockState.getValue(CORNER);
+        Direction facing = blockState.getValue(FACING);
+
+        Direction horizontal = facing == Direction.UP ? Direction.WEST : facing == Direction.DOWN ? Direction.EAST : facing.getClockWise();
+        Direction vertical = facing.getAxis() == Axis.Y ? Direction.NORTH : Direction.UP;
+
+        if (!corner.isLeft()) {
+            pos = pos.relative(horizontal);
+        }
+        if (!corner.isUp()) {
+            pos = pos.relative(vertical);
+        }
+        return pos;
+    }
+
+    @Override
+    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
+        Direction facing = blockState.getValue(FACING);
+
+        Direction horizontal = facing == Direction.UP ? Direction.EAST : facing == Direction.DOWN ? Direction.WEST : facing.getCounterClockWise();
+        Direction vertical = facing.getAxis() == Axis.Y ? Direction.SOUTH : Direction.DOWN;
+
+        return new ArrayList<>(Arrays.asList(
+                mainPos.relative(horizontal),
+                mainPos.relative(horizontal).relative(vertical),
+                mainPos.relative(vertical)
+        ));
+    }
+
+    @Override
+    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
+        QuadBlockCorner base = blockState.getValue(CORNER);
+        Direction facing = blockState.getValue(FACING);
+
+        for(QuadBlockCorner corner : QuadBlockCorner.values()) {
+            if(corner == base)
+                continue;
+            world.setBlock(getOtherBlock(pos, base, corner, facing), blockState.setValue(CORNER, corner), BlockFlags.DEFAULT);
+        }
+    }
+
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, CORNER, ACTIVE);
@@ -196,30 +238,15 @@ public class SuperButtonBlock extends Block {
             return new Tuple<>(Direction.EAST, Direction.UP);
         return new Tuple<>(Direction.EAST, Direction.NORTH);
     }
-
-    @Override
-    public void setPlacedBy(World level, BlockPos pos, BlockState state, LivingEntity entity, ItemStack itemStack) {
-        if(level.isClientSide)
-            return;
-        
-        QuadBlockCorner base = state.getValue(CORNER);
-        Direction facing = state.getValue(FACING);
-        
-        for(QuadBlockCorner corner : QuadBlockCorner.values()) {
-            if(corner == base)
-                continue;
-            level.setBlock(getOtherBlock(pos, base, corner, facing), state.setValue(CORNER, corner), BlockFlags.DEFAULT);
-        }
-    }
     
     @Override
     public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
         if(level.isClientSide)
             return;
         
-        if(!this.isMultiblockComplete(level, pos, state))
-            level.destroyBlock(pos, false, null, 0);
-        else if(!state.canSurvive(level, pos))
+//        if(!this.isMultiblockComplete(level, pos, state))
+//            level.destroyBlock(pos, false, null, 0);
+        if(!state.canSurvive(level, pos))
             level.destroyBlock(pos, true, null, 0);
     }
     
@@ -281,10 +308,10 @@ public class SuperButtonBlock extends Block {
                 && canSurvive(level, pos, corner, context.getClickedFace());
     }
     
-    private boolean isMultiblockComplete(World level, BlockPos pos, BlockState state) {
-        return checkEachBlock(level, pos, state.getValue(CORNER), state.getValue(FACING),
-                s -> s.getBlock() != BlockInit.SUPER_BUTTON.get());
-    }
+//    private boolean isMultiblockComplete(World level, BlockPos pos, BlockState state) {
+//        return checkEachBlock(level, pos, state.getValue(CORNER), state.getValue(FACING),
+//                s -> s.getBlock() != BlockInit.SUPER_BUTTON.get());
+//    }
 
     private boolean checkEachBlock(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing, Predicate<BlockState> p) {
         for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))

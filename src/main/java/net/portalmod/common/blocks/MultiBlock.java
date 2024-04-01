@@ -46,7 +46,9 @@ public abstract class MultiBlock extends Block {
 
     @Override
     public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        this.placeConnectedBlocks(world, blockState, pos);
+        if (!world.isClientSide) {
+            this.placeConnectedBlocks(world, blockState, pos);
+        }
     }
 
     @Override

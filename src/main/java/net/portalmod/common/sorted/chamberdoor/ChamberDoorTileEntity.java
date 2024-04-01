@@ -26,6 +26,10 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     @Override
     public void tick() {
         BlockState blockState = this.getBlockState();
+        if (!(blockState.getBlock() instanceof ChamberDoorBlock)) {
+            return;
+        }
+        ChamberDoorBlock doorBlock = (ChamberDoorBlock) blockState.getBlock();
         BlockPos pos = this.getBlockPos();
         World world = this.level;
         Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
@@ -52,12 +56,12 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
 
         if (blockState.getValue(ChamberDoorBlock.POWERED)) {
             if (!isOpen) {
-                ChamberDoorBlock.setOpen(true, blockState, world, pos);
+                doorBlock.setOpen(true, blockState, world, pos);
             }
         }
         else if (hasIndicators) {
             if (isOpen != allIndicatorsActivated) {
-                ChamberDoorBlock.setOpen(allIndicatorsActivated, blockState, world, pos);
+                doorBlock.setOpen(allIndicatorsActivated, blockState, world, pos);
             }
         }
         else {
@@ -76,7 +80,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 }
             }
             if (isOpen != hasNearbyPlayer) {
-                ChamberDoorBlock.setOpen(hasNearbyPlayer, blockState, world, pos);
+                doorBlock.setOpen(hasNearbyPlayer, blockState, world, pos);
             }
         }
     }
