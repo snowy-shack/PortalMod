@@ -91,6 +91,10 @@ public class ItemInit {
             () -> new ModSpawnEggItem(EntityInit.VINTAGE_CUBE, 0xFFFFFF, 0xFFFFFF,
                     new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
 
+    public static final RegistryObject<ModSpawnEggItem> GABE = ITEMS.register("gabe",
+            () -> new ModSpawnEggItem(EntityInit.GABE, 0xFFFFFF, 0xFFFFFF,
+                    new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
+
     public static final RegistryObject<ModSpawnEggItem> TURRET = ITEMS.register("turret",
             () -> new ModSpawnEggItem(EntityInit.TURRET, 0xFFFFFF, 0xFFFFFF,
                     new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));

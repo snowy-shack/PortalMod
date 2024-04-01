@@ -30,6 +30,7 @@ import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
 import net.portalmod.common.sorted.antline.AntlineLoader;
 import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.sorted.cube.GabeRenderer;
 import net.portalmod.common.sorted.cube.companion.CompanionCubeRenderer;
 import net.portalmod.common.sorted.cube.storage.StorageCubeRenderer;
 import net.portalmod.common.sorted.cube.vintage.VintageCubeRenderer;
@@ -84,6 +85,7 @@ public class ClientModEvents {
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityInit.GABE.get(), GabeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.TURRET.get(), TurretRenderer::new);
         Minecraft.getInstance().getItemColors().register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
@@ -108,6 +110,7 @@ public class ClientModEvents {
         event.put(EntityInit.COMPANION_CUBE.get(), Cube.createAttributes().build());
         event.put(EntityInit.STORAGE_CUBE.get(), Cube.createAttributes().build());
         event.put(EntityInit.VINTAGE_CUBE.get(), Cube.createAttributes().build());
+        event.put(EntityInit.GABE.get(), Cube.createAttributes().build());
         event.put(EntityInit.TURRET.get(), TurretEntity.createAttributes().build());
     }
 
