@@ -16,6 +16,11 @@ public class EntityInit {
 
     private EntityInit() {}
     
+    public static final RegistryObject<EntityType<Cube>> GABE = ENTITIES.register("gabe",
+            () -> EntityType.Builder.of(Cube::new, EntityClassification.AMBIENT)
+                    .sized(.8f, .8f)
+                    .build(new ResourceLocation(PortalMod.MODID, "gabe").toString()));
+
     public static final RegistryObject<EntityType<Cube>> COMPANION_CUBE = ENTITIES.register("companion_cube",
             () -> EntityType.Builder.of(Cube::new, EntityClassification.AMBIENT)
                     .sized(.8f, .8f)
