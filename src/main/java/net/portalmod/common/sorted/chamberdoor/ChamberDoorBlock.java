@@ -181,7 +181,10 @@ public class ChamberDoorBlock extends MultiBlock {
 
     public void setValue(BooleanProperty property, boolean open, BlockState blockState, World world, BlockPos pos) {
         for (BlockPos doorPos : this.getAllPositions(blockState, pos)) {
-            world.setBlock(doorPos, world.getBlockState(doorPos).setValue(property, open), 2);
+            BlockState doorBlock = world.getBlockState(doorPos);
+            if (doorBlock.getBlock() instanceof ChamberDoorBlock) {
+                world.setBlock(doorPos, doorBlock.setValue(property, open), 2);
+            }
         }
     }
 
