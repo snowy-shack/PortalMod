@@ -19,6 +19,8 @@ public class ParticleInit {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, PortalMod.MODID);
     public static final RegistryObject<BasicParticleType> PORTAL_PARTICLE = PARTICLE_TYPES.register("portal_particle",
             () -> new BasicParticleType(false));
+    public static final RegistryObject<BasicParticleType> CUBE_FIZZLE = PARTICLE_TYPES.register("cube_fizzle",
+            () -> new BasicParticleType(false));
 //    public static final RegistryObject<BasicParticleType> SMALL_FLAME = PARTICLE_TYPES.register("small_flame",
 //            () -> new BasicParticleType(false));
 

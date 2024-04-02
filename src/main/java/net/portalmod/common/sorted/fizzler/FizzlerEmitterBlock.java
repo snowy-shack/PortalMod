@@ -85,38 +85,44 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
-        if(!(entity instanceof PlayerEntity) || level.isClientSide)
-            return;
-
-        boolean didFizzleAny = false;
-
-        for(ItemStack itemStack : ((PlayerEntity)entity).inventory.items) {
-            if(!(itemStack.getItem() instanceof PortalGun))
-                continue;
-
-            UUID gunUUID = PortalGun.getUUID(itemStack);
-            PortalPair pair = PortalManager.getPair(gunUUID);
-
-            if(pair == null)
-                continue;
-
-            if(pair.has(PortalEnd.BLUE)) {
-                PortalEntity blue = pair.get(PortalEnd.BLUE);
-                ((ServerWorld)blue.level).removeEntity(blue, false);
-                PortalManager.remove(gunUUID, blue);
-                didFizzleAny = true;
-            }
-            if(pair.has(PortalEnd.ORANGE)) {
-                PortalEntity orange = pair.get(PortalEnd.ORANGE);
-                ((ServerWorld)orange.level).removeEntity(orange, false);
-                PortalManager.remove(gunUUID, orange);
-                didFizzleAny = true;
-            }
+        if (entity instanceof Cube) {
+            ((Cube) entity).startFizzling();
         }
 
-        if(didFizzleAny)
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)entity),
-                    new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
+        if(level.isClientSide)
+            return;
+
+        if (entity instanceof PlayerEntity) {
+            boolean didFizzleAny = false;
+
+            for (ItemStack itemStack : ((PlayerEntity) entity).inventory.items) {
+                if (!(itemStack.getItem() instanceof PortalGun))
+                    continue;
+
+                UUID gunUUID = PortalGun.getUUID(itemStack);
+                PortalPair pair = PortalManager.getPair(gunUUID);
+
+                if (pair == null)
+                    continue;
+
+                if (pair.has(PortalEnd.BLUE)) {
+                    PortalEntity blue = pair.get(PortalEnd.BLUE);
+                    ((ServerWorld) blue.level).removeEntity(blue, false);
+                    PortalManager.remove(gunUUID, blue);
+                    didFizzleAny = true;
+                }
+                if (pair.has(PortalEnd.ORANGE)) {
+                    PortalEntity orange = pair.get(PortalEnd.ORANGE);
+                    ((ServerWorld) orange.level).removeEntity(orange, false);
+                    PortalManager.remove(gunUUID, orange);
+                    didFizzleAny = true;
+                }
+            }
+
+            if (didFizzleAny)
+                PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity),
+                        new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
+        }
     }
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
