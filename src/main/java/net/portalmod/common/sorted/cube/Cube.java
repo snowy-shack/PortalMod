@@ -10,6 +10,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.Hand;
@@ -27,142 +32,82 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Cube extends LivingEntity {
+
+    public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(Cube.class, DataSerializers.INT);
+
     private double oldDeltaY = 0;
     private boolean oldActive = true;
-    
+    public int fizzleTicks = 0;
+    public boolean canFizzle;
+
     public Cube(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
+        this.canFizzle = true;
     }
     
     public static DamageSource cube(LivingEntity entity) {
         return new EntityDamageSource("cube", entity);
     }
-    
+
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return MobEntity.createMobAttributes()
         .add(Attributes.MAX_HEALTH, 120.0D);
     }
 
-    public boolean isPushable() {
-        return true;
+    public boolean isFizzling() {
+        return this.fizzleTicks > 0;
     }
-    
+
+    public void startFizzling() {
+        if (canFizzle && !this.isFizzling()) {
+            this.fizzleTicks++;
+            this.setNoGravity(true);
+        }
+    }
+
+    @Override
+    public boolean isPushable() {
+        return !isFizzling();
+    }
+
+    @Override
     public boolean canCollideWith(Entity entity) {
-        return entity instanceof PlayerEntity && !entity.hasPassenger(this);
+        return entity instanceof PlayerEntity && !entity.hasPassenger(this) && !this.isFizzling();
     }
     
     @Override
     public void push(Entity entity) {
         super.push(entity);
     }
-    
-    @Override
-    public void rideTick() {
-        this.setDeltaMovement(Vector3d.ZERO);
-        this.tick();
 
-        if(this.getVehicle() instanceof PlayerEntity) {
-            this.yRot = this.getVehicle().getYHeadRot();
-            this.yBodyRot = this.yRot;
-        } else {
-            if(!(this.getVehicle() instanceof AbstractMinecartEntity
-                || this.getVehicle() instanceof BoatEntity))
-                this.stopRiding();
-            return;
-        }
-        
-        PlayerEntity player = (PlayerEntity)getVehicle();
-        if(!(player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof PortalGun)
-            && !(player.getItemInHand(Hand.OFF_HAND).getItem() instanceof PortalGun)) {
-            this.stopRiding();
-            return;
-        }
-        
-        final float factor = 2;
-        Vector3d eyePos = player.getEyePosition(1).add(0, -.4, 0);
-        
-        float xRot = player.getViewXRot(1);
-        float yRot = player.getViewYRot(1);
-
-        xRot *= (float)Math.PI / 180f;
-        yRot *= -(float)Math.PI / 180f;
-        float cosy = MathHelper.cos(yRot);
-        float siny = MathHelper.sin(yRot);
-        float cosx = MathHelper.cos(xRot);
-        float sinx = MathHelper.sin(xRot);
-        float x = siny * cosx;
-        float y = -sinx;
-        float z = cosy * cosx;
-
-        this.xo = this.getX();
-        this.yo = this.getY();
-        this.zo = this.getZ();
-        
-        Vector3d ridingPos = new Vector3d(
-                eyePos.x + x * factor,
-                eyePos.y + y * factor,
-                eyePos.z + z * factor);
-        
-        this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
-        
-        if(this.position().distanceTo(ridingPos) > 1.5) {
-            this.stopRiding();
-        }
-
-        this.fallDistance = 0;
-    }
-
-    @Override
-    public boolean isPassenger() {
-        return super.isPassenger();
-    }
-
-    @Override
-    public boolean hurt(DamageSource source, float damage) {
-        if(level.isClientSide)
-            return false;
-        if(source == DamageSource.OUT_OF_WORLD || source instanceof EntityDamageSource)
-            return super.hurt(source, damage);
-        
-//        if(source.isCreativePlayer()) {
-//            remove();
-//            return true;
-//        }
-        
-        return false;
-    }
-
-    @Override
-    public void stopRiding() {
-        this.removeVehicle();
-        this.boardingCooldown = 0;
-        
-        Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
-        this.setDeltaMovement(momentum);
-    }
-
-    public boolean isActive() {
-        for(int z = -1; z <= 1; z++) {
-            for(int y = -1; y <= 1; y++) {
-                for(int x = -1; x <= 1; x++) {
-                    BlockPos pos = new BlockPos(x, y, z).offset(this.blockPosition());
-                    BlockState state = this.level.getBlockState(pos);
-                    if(state.getBlock() == BlockInit.SUPER_BUTTON.get() && state.getValue(SuperButtonBlock.ACTIVE)) {
-                        if(((SuperButtonBlock)BlockInit.SUPER_BUTTON.get()).getTrigger(state, pos).intersects(this.getBoundingBox())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    
     @Override
     public void tick() {
         super.tick();
+
+        if (this.isFizzling()) {
+            double minSpeed = 0.08;
+            Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
+            Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
+            this.setDeltaMovement(newMovement);
+
+            this.yRot++;
+
+            if (this.fizzleTicks > 30) {
+                this.remove();
+            }
+
+            for (int i = 0; i < new Random().nextInt(30); i++) {
+                double randomX = this.position().x + (new Random().nextFloat() - 0.5) * 1.5;
+                double randomY = this.position().y + (new Random().nextFloat() - 0.5) * 1.5 + this.getBbHeight() * 0.5;
+                double randomZ = this.position().z + (new Random().nextFloat() - 0.5) * 1.5;
+                this.level.addParticle(ParticleTypes.ASH, randomX, randomY, randomZ, 0, 0, 0);
+            }
+
+            this.fizzleTicks++;
+        }
 
         // todo only super button
         if(!this.level.isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
@@ -198,8 +143,132 @@ public class Cube extends LivingEntity {
         }
 
         oldDeltaY = getDeltaMovement().y;
-        
+
         this.yHeadRot = this.yBodyRot;
+    }
+
+    @Override
+    public void rideTick() {
+        this.setDeltaMovement(Vector3d.ZERO);
+        this.tick();
+
+        if(this.getVehicle() instanceof PlayerEntity) {
+            this.yRot = this.getVehicle().getYHeadRot();
+            this.yBodyRot = this.yRot;
+        } else {
+            if(!(this.getVehicle() instanceof AbstractMinecartEntity
+                || this.getVehicle() instanceof BoatEntity))
+                this.stopRiding();
+            return;
+        }
+
+        PlayerEntity player = (PlayerEntity)getVehicle();
+        if(!(player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof PortalGun)
+            && !(player.getItemInHand(Hand.OFF_HAND).getItem() instanceof PortalGun)) {
+            this.stopRiding();
+            return;
+        }
+
+        final float factor = 2;
+        Vector3d eyePos = player.getEyePosition(1).add(0, -.4, 0);
+
+        float xRot = player.getViewXRot(1);
+        float yRot = player.getViewYRot(1);
+
+        xRot *= (float)Math.PI / 180f;
+        yRot *= -(float)Math.PI / 180f;
+        float cosy = MathHelper.cos(yRot);
+        float siny = MathHelper.sin(yRot);
+        float cosx = MathHelper.cos(xRot);
+        float sinx = MathHelper.sin(xRot);
+        float x = siny * cosx;
+        float y = -sinx;
+        float z = cosy * cosx;
+
+        this.xo = this.getX();
+        this.yo = this.getY();
+        this.zo = this.getZ();
+
+        Vector3d ridingPos = new Vector3d(
+                eyePos.x + x * factor,
+                eyePos.y + y * factor,
+                eyePos.z + z * factor);
+
+        this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
+
+        if(this.position().distanceTo(ridingPos) > 1.5) {
+            this.stopRiding();
+        }
+
+        this.fallDistance = 0;
+
+        if (this.isFizzling()) {
+            this.stopRiding();
+        }
+    }
+
+    @Override
+    public boolean isPassenger() {
+        return super.isPassenger();
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float damage) {
+        if(level.isClientSide)
+            return false;
+        if(source == DamageSource.OUT_OF_WORLD || source instanceof EntityDamageSource)
+            return super.hurt(source, damage);
+
+//        if(source.isCreativePlayer()) {
+//            remove();
+//            return true;
+//        }
+
+        return false;
+    }
+
+    @Override
+    public void stopRiding() {
+        this.removeVehicle();
+        this.boardingCooldown = 0;
+
+        Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
+        this.setDeltaMovement(momentum);
+    }
+
+    public boolean isActive() {
+        for(int z = -1; z <= 1; z++) {
+            for(int y = -1; y <= 1; y++) {
+                for(int x = -1; x <= 1; x++) {
+                    BlockPos pos = new BlockPos(x, y, z).offset(this.blockPosition());
+                    BlockState state = this.level.getBlockState(pos);
+                    if(state.getBlock() == BlockInit.SUPER_BUTTON.get() && state.getValue(SuperButtonBlock.ACTIVE)) {
+                        if(((SuperButtonBlock)BlockInit.SUPER_BUTTON.get()).getTrigger(state, pos).intersects(this.getBoundingBox())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(FIZZLE_TICKS_ID, this.fizzleTicks);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT nbt) {
+        super.addAdditionalSaveData(nbt);
+        nbt.putInt("FizzleTicks", this.fizzleTicks);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT nbt) {
+        super.readAdditionalSaveData(nbt);
+        this.fizzleTicks = nbt.getInt("FizzleTicks");
     }
 
     @Override
