@@ -1,9 +1,9 @@
 package net.portalmod.common.sorted.cube;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 
@@ -34,9 +34,11 @@ public abstract class CubeRenderer extends LivingRenderer<Cube, CubeModel<Cube>>
 //        RenderSystem.activeTexture(GL_TEXTURE0);
 //        minecraft.textureManager.bind(minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
 //        PortalShaders.uniform1i("texture", 0);
+
+        int light = Math.max(0, 15 - cube.fizzleTicks);
         
-        super.render(cube, f, f2, matrixStack, renderTypeBuffer, i);
-        
+        super.render(cube, f, f2, matrixStack, renderTypeBuffer, LightTexture.pack(light, light));
+
 //        IRenderTypeBuffer.Impl irendertypebuffer$impl = minecraft.levelRenderer.renderBuffers.bufferSource();
 //        irendertypebuffer$impl.endBatch(renderType);
 //        

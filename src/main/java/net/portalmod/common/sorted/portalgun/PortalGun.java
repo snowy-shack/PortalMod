@@ -46,7 +46,8 @@ public class PortalGun extends Item {
     }
 
     public static boolean isHoldable(Entity entity) {
-        return entity instanceof Cube || entity instanceof TurretEntity;
+        // todo this doesnt work for some reason, can still hold cube if fizzling
+        return entity instanceof Cube && !((Cube) entity).isFizzling() || entity instanceof TurretEntity;
     }
     
     public static void dropCube(PlayerEntity player, boolean toBeThrown) {

@@ -14,7 +14,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.Hand;
@@ -24,6 +23,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.portalmod.common.particles.FizzleFlakeParticle;
+import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
@@ -32,7 +33,6 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Cube extends LivingEntity {
 
@@ -41,6 +41,7 @@ public class Cube extends LivingEntity {
     private double oldDeltaY = 0;
     private boolean oldActive = true;
     public int fizzleTicks = 0;
+    public int maxFizzleTime = 30;
     public boolean canFizzle;
 
     public Cube(EntityType<? extends LivingEntity> entityType, World level) {
@@ -93,28 +94,22 @@ public class Cube extends LivingEntity {
             Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
             this.setDeltaMovement(newMovement);
 
-            this.yRot++;
-
-            if (this.fizzleTicks > 30) {
+            if (this.fizzleTicks > this.maxFizzleTime) {
                 this.remove();
             }
 
-            for (int i = 0; i < new Random().nextInt(30); i++) {
-                double randomX = this.position().x + (new Random().nextFloat() - 0.5) * 1.5;
-                double randomY = this.position().y + (new Random().nextFloat() - 0.5) * 1.5 + this.getBbHeight() * 0.5;
-                double randomZ = this.position().z + (new Random().nextFloat() - 0.5) * 1.5;
-                this.level.addParticle(ParticleTypes.ASH, randomX, randomY, randomZ, 0, 0, 0);
-            }
+            FizzleGlowParticle.createGlowParticles(level, this);
+            FizzleFlakeParticle.createFlakeParticles(level, this);
 
             this.fizzleTicks++;
-        }
+        } else {
 
-        // todo only super button
-        if(!this.level.isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
-            CriteriaTriggerInit.CUBE_ON_BUTTON.get().trigger((ServerPlayerEntity)this.getVehicle());
-        }
+            // todo only super button
+            if (!this.level.isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
+                CriteriaTriggerInit.CUBE_ON_BUTTON.get().trigger((ServerPlayerEntity) this.getVehicle());
+            }
 
-        this.oldActive = isActive();
+            this.oldActive = isActive();
 
 //        System.out.println(this.position());
 //        System.out.println(this.getDeltaMovement());
@@ -122,24 +117,25 @@ public class Cube extends LivingEntity {
 
 //        System.out.println((this.level.isClientSide ? "c " : "") + this.position().equals(new Vector3d(this.xo, this.yo, this.zo)));
 
-        // todo better damage system
+            // todo better damage system
 
-        AxisAlignedBB aabb = getBoundingBox().inflate(1.0E-7D);
-        List<Entity> entities = this.level.getEntities(this, aabb.inflate(1.0E-1D));
+            AxisAlignedBB aabb = getBoundingBox().inflate(1.0E-7D);
+            List<Entity> entities = this.level.getEntities(this, aabb.inflate(1.0E-1D));
 
-        for(Entity entity : entities) {
-            AxisAlignedBB entityAABB = entity.getBoundingBox();
-            double x0 = (aabb.maxX - entityAABB.minX);
-            double x1 = -(aabb.minX - entityAABB.maxX);
-            double y1 = -(aabb.minY - entityAABB.maxY);
-            double z0 = (aabb.maxZ - entityAABB.minZ);
-            double z1 = -(aabb.minZ - entityAABB.maxZ);
+            for (Entity entity : entities) {
+                AxisAlignedBB entityAABB = entity.getBoundingBox();
+                double x0 = (aabb.maxX - entityAABB.minX);
+                double x1 = -(aabb.minX - entityAABB.maxX);
+                double y1 = -(aabb.minY - entityAABB.maxY);
+                double z0 = (aabb.maxZ - entityAABB.minZ);
+                double z1 = -(aabb.minZ - entityAABB.maxZ);
 
-            double x = Math.min(x0, x1);
-            double z = Math.min(z0, z1);
+                double x = Math.min(x0, x1);
+                double z = Math.min(z0, z1);
 
-            if(y1 < x && y1 < z && getDeltaMovement().y > -.1 && oldDeltaY < -0.5f)
-                entity.hurt(cube(this), (float)oldDeltaY * -3);
+                if (y1 < x && y1 < z && getDeltaMovement().y > -.1 && oldDeltaY < -0.5f)
+                    entity.hurt(cube(this), (float) oldDeltaY * -3);
+            }
         }
 
         oldDeltaY = getDeltaMovement().y;

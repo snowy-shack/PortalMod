@@ -1,6 +1,7 @@
 package net.portalmod.core.init;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.ParticleType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,6 +13,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
+import net.portalmod.common.particles.FizzleFlakeParticle;
+import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.sorted.portal.PortalParticle;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
@@ -19,7 +22,11 @@ public class ParticleInit {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, PortalMod.MODID);
     public static final RegistryObject<BasicParticleType> PORTAL_PARTICLE = PARTICLE_TYPES.register("portal_particle",
             () -> new BasicParticleType(false));
-    public static final RegistryObject<BasicParticleType> CUBE_FIZZLE = PARTICLE_TYPES.register("cube_fizzle",
+    public static final RegistryObject<BasicParticleType> FIZZLE_GLOW = PARTICLE_TYPES.register("fizzle_glow",
+            () -> new BasicParticleType(false));
+    public static final RegistryObject<BasicParticleType> FIZZLE_FLAKE_FALLING = PARTICLE_TYPES.register("fizzle_flake_falling",
+            () -> new BasicParticleType(false));
+    public static final RegistryObject<BasicParticleType> FIZZLE_FLAKE_LANDING = PARTICLE_TYPES.register("fizzle_flake_landing",
             () -> new BasicParticleType(false));
 //    public static final RegistryObject<BasicParticleType> SMALL_FLAME = PARTICLE_TYPES.register("small_flame",
 //            () -> new BasicParticleType(false));
@@ -28,7 +35,11 @@ public class ParticleInit {
 
     @SubscribeEvent
     public static void registerParticleFactory(final ParticleFactoryRegisterEvent event) {
-        Minecraft.getInstance().particleEngine.register(ParticleInit.PORTAL_PARTICLE.get(), PortalParticle.Factory::new);
+        ParticleManager particleEngine = Minecraft.getInstance().particleEngine;
+        particleEngine.register(ParticleInit.PORTAL_PARTICLE.get(), PortalParticle.Factory::new);
+        particleEngine.register(ParticleInit.FIZZLE_GLOW.get(), FizzleGlowParticle.Factory::new);
+        particleEngine.register(ParticleInit.FIZZLE_FLAKE_FALLING.get(), FizzleFlakeParticle.FallingFactory::new);
+        particleEngine.register(ParticleInit.FIZZLE_FLAKE_LANDING.get(), FizzleFlakeParticle.LandingFactory::new);
     }
 
 //    public static class SmallFlameParticle implements IParticleFactory<BasicParticleType> {
