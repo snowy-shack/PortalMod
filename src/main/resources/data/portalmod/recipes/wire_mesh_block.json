@@ -5,12 +5,7 @@
         "nnn"
     ],
     "key": {
-        "n": {
-            "item": "minecraft:iron_nugget"
-        }
+        "n": { "item": "minecraft:iron_nugget" }
     },
-    "result": {
-        "item": "portalmod:wire_mesh_block",
-        "count": 1
-    }
+    "result": { "item": "portalmod:wire_mesh_block" }
 }

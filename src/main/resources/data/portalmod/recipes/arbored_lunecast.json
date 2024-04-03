@@ -1,0 +1,13 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [ "Lg" ],
+    "key": {
+        "B": { "item": "portalmod:lunecast" },
+        "g": [
+            { "item": "minecraft:seagrass" },
+            { "item": "minecraft:tall_grass" },
+            { "item": "minecraft:grass" }
+        ]
+    },
+    "result": { "item": "portalmod:lunecast" }
+}

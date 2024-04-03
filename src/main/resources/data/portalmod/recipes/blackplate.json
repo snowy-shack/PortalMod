@@ -5,12 +5,8 @@
         "I#"
     ],
     "key": {
-        "#": {
-            "item": "minecraft:blackstone"
-        },
-        "I": {
-            "item": "minecraft:iron_nugget"
-        }
+        "#": { "item": "minecraft:blackstone" },
+        "I": { "item": "minecraft:iron_nugget" }
     },
     "result": {
         "item": "portalmod:blackplate",

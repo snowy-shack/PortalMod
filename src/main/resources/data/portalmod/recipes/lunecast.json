@@ -5,12 +5,8 @@
         "Q#"
     ],
     "key": {
-        "#": {
-            "item": "minecraft:end_stone"
-        },
-        "Q": {
-            "item": "minecraft:quartz"
-        }
+        "#": { "item": "minecraft:end_stone" },
+        "Q": { "item": "minecraft:quartz" }
     },
     "result": {
         "item": "portalmod:lunecast",

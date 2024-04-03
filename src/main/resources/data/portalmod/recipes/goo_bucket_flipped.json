@@ -6,18 +6,10 @@
         "u"
     ],
     "key": {
-        "a": {
-            "item": "minecraft:soul_sand"
-        },
-        "b": {
-            "item": "minecraft:dirt"
-        },
-        "u": {
-            "item": "minecraft:water_bucket"
-        }
+        "a": { "item": "minecraft:dirt" },
+        "b": { "item": "minecraft:soul_sand" },
+        "u": { "item": "minecraft:water_bucket" }
     },
-    "result": {
-        "item": "portalmod:goo_bucket",
-        "count": 1
-    }
+    "result": { "item": "portalmod:goo_bucket" },
+    "show_notification": false
 }

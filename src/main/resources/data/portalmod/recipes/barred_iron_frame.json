@@ -6,12 +6,8 @@
         " i "
     ],
     "key": {
-        "i": {
-            "item": "minecraft:iron_ingot"
-        },
-        "x": {
-            "item": "minecraft:iron_bars"
-        }
+        "i": { "item": "minecraft:iron_ingot" },
+        "x": { "item": "minecraft:iron_bars" }
     },
     "result": {
         "item": "portalmod:barred_iron_frame",

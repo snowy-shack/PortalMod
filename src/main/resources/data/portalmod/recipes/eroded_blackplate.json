@@ -1,0 +1,5 @@
+{
+    "type": "smoking",
+    "ingredient": { "item": "portalmod:blackplate" },
+    "result": "portalmod:eroded_blackplate"
+}

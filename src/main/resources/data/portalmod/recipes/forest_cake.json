@@ -1,29 +1,16 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "#T#",
-        "CEC",
-        "WWW"
+        "oio",
+        "sOs",
+        "www"
     ],
     "key": {
-        "#": {
-            "item": "minecraft:sweet_berries"
-        },
-        "T": {
-            "item": "minecraft:torch"
-        },
-        "C": {
-            "item": "minecraft:cocoa_beans"
-        },
-        "E": {
-            "item": "minecraft:egg"
-        },
-        "W": {
-            "item": "minecraft:wheat"
-        }
+        "o": { "item": "minecraft:sweet_berries" },
+        "i": { "item": "minecraft:torch" },
+        "s": { "item": "minecraft:cocoa_beans" },
+        "O": { "item": "minecraft:egg" },
+        "w": { "item": "minecraft:wheat" }
     },
-    "result": {
-        "item": "portalmod:forest_cake",
-        "count": 1
-    }
+    "result": { "item": "portalmod:forest_cake" }
 }

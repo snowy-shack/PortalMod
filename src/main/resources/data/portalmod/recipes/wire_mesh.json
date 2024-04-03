@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "www",
+        "www"
+    ],
+    "key": {
+        "w": { "item": "portalmod:wire_mesh_block" }
+    },
+    "result": {
+        "item": "portalmod:wire_mesh",
+        "count": 16
+    }
+}

@@ -5,12 +5,8 @@
         "S#"
     ],
     "key": {
-        "#": {
-            "item": "minecraft:redstone"
-        },
-        "S": {
-            "item": "minecraft:slime_ball"
-        }
+        "#": { "item": "minecraft:redstone" },
+        "S": { "item": "minecraft:slime_ball" }
     },
     "result": {
         "item": "portalmod:antline",

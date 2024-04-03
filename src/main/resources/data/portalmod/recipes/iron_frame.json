@@ -6,9 +6,7 @@
         " i "
     ],
     "key": {
-        "i": {
-            "item": "minecraft:iron_ingot"
-        }
+        "i": { "item": "minecraft:iron_ingot" }
     },
     "result": {
         "item": "portalmod:iron_frame",

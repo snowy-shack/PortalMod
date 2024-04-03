@@ -1,0 +1,13 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [ "Bg" ],
+    "key": {
+        "B": { "item": "portalmod:blackplate" },
+        "g": [
+            { "item": "minecraft:seagrass" },
+            { "item": "minecraft:tall_grass" },
+            { "item": "minecraft:grass" }
+        ]
+    },
+    "result": { "item": "portalmod:blackplate" }
+}

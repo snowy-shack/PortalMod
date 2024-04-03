@@ -6,15 +6,8 @@
         "IiI"
     ],
     "key": {
-        "I": {
-            "item": "minecraft:iron_ingot"
-        },
-        "i": {
-            "item": "minecraft:iron_nugget"
-        }
+        "I": { "item": "minecraft:iron_ingot" },
+        "i": { "item": "minecraft:iron_nugget" }
     },
-    "result": {
-        "item": "portalmod:storage_cube",
-        "count": 1
-    }
+    "result": { "item": "portalmod:storage_cube" }
 }

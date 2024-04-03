@@ -13,8 +13,5 @@
             "item": "minecraft:stick"
         }
     },
-    "result": {
-        "item": "portalmod:wrench",
-        "count": 1
-    }
+    "result": { "item": "portalmod:wrench" }
 }

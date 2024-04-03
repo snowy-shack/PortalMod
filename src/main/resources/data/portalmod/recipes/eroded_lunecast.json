@@ -1,0 +1,5 @@
+{
+    "type": "smoking",
+    "ingredient": { "item": "portalmod:lunecast" },
+    "result": "portalmod:eroded_lunecast"
+}
