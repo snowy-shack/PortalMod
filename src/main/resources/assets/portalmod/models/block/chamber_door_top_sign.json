@@ -12,7 +12,7 @@
 			"faces": {
 				"north": {"uv": [ 2,  2, 16, 16], "texture": "#side"},
 				"south": {"uv": [16,  2,  2, 16], "texture": "#sign"},
-				"west":  {"uv": [ 2,  2, 14, 16], "texture": "#middle"}
+				"west":  {"uv": [ 2,  2, 14, 16], "texture": "#middle", "cullface": "west"}
 			}
 		}
 	]
