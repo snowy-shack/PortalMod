@@ -128,10 +128,19 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return this.stateDefinition.any()
-                .setValue(FACING, context.getClickedFace())
-                .setValue(ACTIVE, false)
-                .setValue(HALF, DoubleBlockHalf.LOWER);
+        BlockPos clickedPos = context.getClickedPos();
+        World world = context.getLevel();
+
+        if (world.getBlockState(clickedPos.above()).canBeReplaced(context)) {
+            return this.defaultBlockState()
+                    .setValue(FACING, context.getClickedFace());
+        }
+        else if (world.getBlockState(clickedPos.below()).canBeReplaced(context)) {
+            return this.defaultBlockState()
+                    .setValue(FACING, context.getClickedFace())
+                    .setValue(HALF, DoubleBlockHalf.UPPER);
+        }
+        return null;
     }
 
     @Override
