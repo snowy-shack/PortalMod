@@ -1,68 +1,76 @@
 {
   "variants": {
     "face=floor,facing=south,half=upper": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 0
     },
     "face=floor,facing=south,half=lower": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 180
     },
     "face=floor,facing=west,half=upper": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 90
     },
     "face=floor,facing=west,half=lower": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 270
     },
     "face=floor,facing=north,half=upper": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 180
     },
     "face=floor,facing=north,half=lower": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 0
     },
     "face=floor,facing=east,half=upper": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 270
     },
     "face=floor,facing=east,half=lower": {
-      "model": "portalmod:block/faithplate_floor", 
+      "model": "portalmod:block/faithplate", 
       "y": 90
     },
     "face=wall,facing=south,half=upper": {
-      "model": "portalmod:block/faithplate_top", 
-      "y": 180
-    },
-    "face=wall,facing=west,half=upper": {
-      "model": "portalmod:block/faithplate_top", 
-      "y": 270
-    },
-    "face=wall,facing=north,half=upper": {
-      "model": "portalmod:block/faithplate_top", 
+      "model": "portalmod:block/faithplate",
+      "x": 270,
       "y": 0
     },
-    "face=wall,facing=east,half=upper": {
-      "model": "portalmod:block/faithplate_top", 
+    "face=wall,facing=west,half=upper": {
+      "model": "portalmod:block/faithplate",
+      "x": 270,
       "y": 90
     },
+    "face=wall,facing=north,half=upper": {
+      "model": "portalmod:block/faithplate",
+      "x": 270,
+      "y": 180
+    },
+    "face=wall,facing=east,half=upper": {
+      "model": "portalmod:block/faithplate",
+      "x": 270,
+      "y": 270
+    },
     "face=wall,facing=south,half=lower": {
-      "model": "portalmod:block/faithplate_bottom", 
+      "model": "portalmod:block/faithplate",
+      "x": 90,
       "y": 180
     },
     "face=wall,facing=west,half=lower": {
-      "model": "portalmod:block/faithplate_bottom", 
+      "model": "portalmod:block/faithplate",
+      "x": 90,
       "y": 270
     },
     "face=wall,facing=north,half=lower": {
-      "model": "portalmod:block/faithplate_bottom", 
-      "y":   0
+      "model": "portalmod:block/faithplate",
+      "x": 90,
+      "y": 0
     },
     "face=wall,facing=east,half=lower": {
-      "model": "portalmod:block/faithplate_bottom", 
-      "y":  90
+      "model": "portalmod:block/faithplate",
+      "x": 90,
+      "y": 90
     }
   }
 }
