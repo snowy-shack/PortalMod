@@ -1,77 +1,49 @@
 {
   "multipart": [
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_post"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_post" },
+      "when": { "OR": [
+          { "north": "true" },
+          { "east": "true" },
+          { "south": "true" },
+          { "west": "true" }
+        ]}
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_side"
-      },
-      "when": {
-        "north": "true"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_post_single" },
+      "when": { "north": "false", "east": "false", "south": "false", "west": "false" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_side",
-        "y": 90
-      },
-      "when": {
-        "east": "true"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_side" },
+      "when": { "north": "true" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_side_alt"
-      },
-      "when": {
-        "south": "true"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_side", "y": 90 },
+      "when": { "east": "true" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_side_alt",
-        "y": 90
-      },
-      "when": {
-        "west": "true"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_side_alt" },
+      "when": { "south": "true" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_noside"
-      },
-      "when": {
-        "north": "false"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_side_alt", "y": 90 },
+      "when": { "west": "true" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_noside_alt"
-      },
-      "when": {
-        "east": "false"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_noside" },
+      "when": { "north": "false" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_noside_alt",
-        "y": 90
-      },
-      "when": {
-        "south": "false"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_noside_alt" },
+      "when": { "east": "false" }
     },
     {
-      "apply": {
-        "model": "portalmod:block/wire_mesh_noside",
-        "y": 270
-      },
-      "when": {
-        "west": "false"
-      }
+      "apply": { "model": "portalmod:block/wire_mesh_noside_alt", "y": 90 },
+      "when": { "south": "false" }
+    },
+    {
+      "apply": { "model": "portalmod:block/wire_mesh_noside", "y": 270 },
+      "when": { "west": "false" }
     }
   ]
 }

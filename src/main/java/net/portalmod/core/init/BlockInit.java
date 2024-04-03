@@ -66,7 +66,7 @@ public class BlockInit {
             () -> new ForestCakeBlock(AbstractBlock.Properties.copy(Blocks.CAKE)));
 
     public static final RegistryObject<Block> TEST_BLOCK = BLOCKS.register("test_block",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.NETHERITE_BLOCK).noCollission()));
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.NETHERITE_BLOCK)));
 
     public static final RegistryObject<Block> CHAMBER_DOOR = BLOCKS.register("chamber_door",
             () -> new ChamberDoorBlock(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE).noOcclusion()));
@@ -111,7 +111,7 @@ public class BlockInit {
     public static final RegistryObject<Block> CONVERSION_GEL = BLOCKS.register("conversion_gel", () -> new ConversionGelBlock(GEL_BASE));
     
     public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
-            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15).noOcclusion()));
+            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
 
     public static RegistryObject<Block> registerLunecast(String name) {
         return BLOCKS.register(name + "lunecast", () -> new PanelBlock(false, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));

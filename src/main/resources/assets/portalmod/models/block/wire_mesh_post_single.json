@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:block/template_wire_mesh_side",
+  "parent": "portalmod:block/template_wire_mesh_post_single",
   "textures": {
     "pane": "portalmod:block/wire_mesh",
     "edge": "portalmod:block/wire_mesh_top"

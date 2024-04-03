@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/template_glass_pane_post",
+  "parent": "portalmod:block/template_wire_mesh_post",
   "textures": {
     "pane": "portalmod:block/wire_mesh",
     "edge": "portalmod:block/wire_mesh_top"
