@@ -1,12 +1,12 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "#S",
-        "S#"
+        "ro",
+        "or"
     ],
     "key": {
-        "#": { "item": "minecraft:redstone" },
-        "S": { "item": "minecraft:slime_ball" }
+        "r": { "item": "minecraft:redstone" },
+        "o": { "item": "minecraft:slime_ball" }
     },
     "result": {
         "item": "portalmod:antline",

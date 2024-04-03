@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "BoB",
+        "BoB"
+    ],
+    "key": {
+        "B": { "item": "portalmod:blackplate" },
+        "o": { "item": "minecraft:sea_lantern" }
+    },
+    "result": {
+        "item": "portalmod:chamber_lights",
+        "count": 2
+    }
+}

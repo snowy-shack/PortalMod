@@ -2,14 +2,14 @@
     "type": "minecraft:crafting_shaped",
     "pattern": [
         "ggg",
-        "rpp"
+        "paa"
     ],
     "key": {
         "g": [
             { "item": "minecraft:black_stained_glass" },
             { "item": "minecraft:glass" }
         ],
-        "r": { "item": "minecraft:redstone" },
+        "a": { "item": "portalmod:antline" },
         "p": { "item": "minecraft:piston" }
     },
     "result": { "item": "portalmod:faithplate" }

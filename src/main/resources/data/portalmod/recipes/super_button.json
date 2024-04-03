@@ -1,0 +1,13 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "iri",
+        "iai"
+    ],
+    "key": {
+        "r": { "item": "minecraft:red_dye" },
+        "i": { "item": "minecraft:iron_ingot" },
+        "a": { "item": "portalmod:antline" }
+    },
+    "result": { "item": "portalmod:super_button" }
+}
