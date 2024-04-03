@@ -6,6 +6,7 @@ import net.minecraft.block.HorizontalBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
@@ -124,6 +125,15 @@ public class FizzlerEmitterBlock extends DoubleBlock {
                         new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
         }
     }
+
+    @Override
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
+        return this.stateDefinition.any()
+                .setValue(FACING, context.getClickedFace())
+                .setValue(ACTIVE, false)
+                .setValue(HALF, DoubleBlockHalf.LOWER);
+    }
+
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, ACTIVE, HALF);
