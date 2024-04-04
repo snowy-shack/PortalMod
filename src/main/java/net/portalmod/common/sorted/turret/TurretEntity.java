@@ -55,6 +55,13 @@ public class TurretEntity extends FizzleableEntity {
         return HandSide.RIGHT;
     }
 
+    @Override
+    public void tick() {
+        super.tick();
+
+        this.yBodyRot = this.yRot;
+    }
+
     // Copy of Cube.rideTick()
     @Override
     public void rideTick() {

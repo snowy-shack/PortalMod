@@ -12,13 +12,13 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
-import net.portalmod.common.sorted.cube.Cube;
+
+import java.util.Random;
 
 public abstract class FizzleableEntity extends LivingEntity {
 
-    public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(Cube.class, DataSerializers.INT);
+    public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(FizzleableEntity.class, DataSerializers.INT);
 
-    public int fizzleTicks = 0;
     public int maxFizzleTime = 30;
     public boolean canFizzle;
 
@@ -27,36 +27,47 @@ public abstract class FizzleableEntity extends LivingEntity {
         this.canFizzle = true;
     }
 
-    //todo fix no visuals when fizzling a cube that you're not holding
     //todo track all intersected blocks between ticks
 
     @Override
     public void tick() {
         super.tick();
+
+        int fizzleTicks = this.entityData.get(FIZZLE_TICKS_ID);
+        if (fizzleTicks != this.getFizzleTicks()) {
+            this.setFizzleTicks(fizzleTicks);
+        }
+
         if (isFizzling()) {
             double minSpeed = 0.08;
             Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
+
+            // If no horizontal movement, choose randomly
+            if (xzMovement.length() == 0) {
+                xzMovement = new Vector3d(new Random().nextFloat() * 0.1 - 0.05, 0, new Random().nextFloat() * 0.1 - 0.05);
+            }
+
             Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
             this.setDeltaMovement(newMovement);
 
-            if (this.fizzleTicks > this.maxFizzleTime) {
+            if (this.getFizzleTicks() > this.maxFizzleTime) {
                 this.remove();
             }
 
             FizzleGlowParticle.createGlowParticles(level, this);
             FizzleFlakeParticle.createFlakeParticles(level, this);
 
-            this.fizzleTicks++;
+            this.setFizzleTicks(this.getFizzleTicks() + 1);
         }
     }
 
     public boolean isFizzling() {
-        return this.fizzleTicks > 0;
+        return this.getFizzleTicks() > 0;
     }
 
     public void startFizzling() {
         if (canFizzle && !this.isFizzling()) {
-            this.fizzleTicks++;
+            this.setFizzleTicks(this.getFizzleTicks() + 1);
             this.setNoGravity(true);
             this.level.playSound(null, this, SoundEvents.HORSE_DEATH, SoundCategory.BLOCKS, 1, 1);
         }
@@ -65,18 +76,26 @@ public abstract class FizzleableEntity extends LivingEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(FIZZLE_TICKS_ID, this.fizzleTicks);
+        this.entityData.define(FIZZLE_TICKS_ID, 0);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putInt("FizzleTicks", this.fizzleTicks);
+        nbt.putInt("FizzleTicks", this.getFizzleTicks());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
-        this.fizzleTicks = nbt.getInt("FizzleTicks");
+        this.setFizzleTicks(nbt.getInt("FizzleTicks"));
+    }
+
+    public int getFizzleTicks() {
+        return this.entityData.get(FIZZLE_TICKS_ID);
+    }
+
+    public void setFizzleTicks(int fizzleTicks) {
+        this.entityData.set(FIZZLE_TICKS_ID, fizzleTicks);
     }
 }

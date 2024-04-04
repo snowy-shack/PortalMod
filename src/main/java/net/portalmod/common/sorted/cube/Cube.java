@@ -102,6 +102,8 @@ public class Cube extends FizzleableEntity {
             }
         }
 
+        this.yBodyRot = this.yRot;
+
         oldDeltaY = getDeltaMovement().y;
 
         this.yHeadRot = this.yBodyRot;

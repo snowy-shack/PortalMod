@@ -39,7 +39,7 @@ public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<Tur
 //        if(super.shouldRender(turret, ))
 
         int maxLight = Math.max(LightTexture.block(i), LightTexture.sky(i));
-        int light = Math.max(0, maxLight - turret.fizzleTicks);
+        int light = Math.max(0, maxLight - turret.getFizzleTicks());
         // todo dont render turret if clipped
         super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, LightTexture.pack(light, light));
 

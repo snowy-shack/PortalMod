@@ -36,7 +36,7 @@ public abstract class CubeRenderer extends LivingRenderer<Cube, CubeModel<Cube>>
 //        PortalShaders.uniform1i("texture", 0);
 
         int maxLight = Math.max(LightTexture.block(i), LightTexture.sky(i));
-        int light = Math.max(0, maxLight - cube.fizzleTicks);
+        int light = Math.max(0, maxLight - cube.getFizzleTicks());
         
         super.render(cube, f, f2, matrixStack, renderTypeBuffer, LightTexture.pack(light, light));
 
