@@ -10,10 +10,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.Hand;
@@ -23,8 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.particles.FizzleFlakeParticle;
-import net.portalmod.common.particles.FizzleGlowParticle;
+import net.portalmod.common.entity.FizzleableEntity;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
@@ -34,19 +29,13 @@ import net.portalmod.core.util.ModUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cube extends LivingEntity {
-
-    public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(Cube.class, DataSerializers.INT);
+public class Cube extends FizzleableEntity {
 
     private double oldDeltaY = 0;
     private boolean oldActive = true;
-    public int fizzleTicks = 0;
-    public int maxFizzleTime = 30;
-    public boolean canFizzle;
 
     public Cube(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
-        this.canFizzle = true;
     }
     
     public static DamageSource cube(LivingEntity entity) {
@@ -56,17 +45,6 @@ public class Cube extends LivingEntity {
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return MobEntity.createMobAttributes()
         .add(Attributes.MAX_HEALTH, 120.0D);
-    }
-
-    public boolean isFizzling() {
-        return this.fizzleTicks > 0;
-    }
-
-    public void startFizzling() {
-        if (canFizzle && !this.isFizzling()) {
-            this.fizzleTicks++;
-            this.setNoGravity(true);
-        }
     }
 
     @Override
@@ -88,21 +66,7 @@ public class Cube extends LivingEntity {
     public void tick() {
         super.tick();
 
-        if (this.isFizzling()) {
-            double minSpeed = 0.08;
-            Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
-            Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
-            this.setDeltaMovement(newMovement);
-
-            if (this.fizzleTicks > this.maxFizzleTime) {
-                this.remove();
-            }
-
-            FizzleGlowParticle.createGlowParticles(level, this);
-            FizzleFlakeParticle.createFlakeParticles(level, this);
-
-            this.fizzleTicks++;
-        } else {
+        if (!this.isFizzling()) {
 
             // todo only super button
             if (!this.level.isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
@@ -137,6 +101,8 @@ public class Cube extends LivingEntity {
                     entity.hurt(cube(this), (float) oldDeltaY * -3);
             }
         }
+
+        this.yBodyRot = this.yRot;
 
         oldDeltaY = getDeltaMovement().y;
 
@@ -247,24 +213,6 @@ public class Cube extends LivingEntity {
             }
         }
         return false;
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(FIZZLE_TICKS_ID, this.fizzleTicks);
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
-        super.addAdditionalSaveData(nbt);
-        nbt.putInt("FizzleTicks", this.fizzleTicks);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
-        super.readAdditionalSaveData(nbt);
-        this.fizzleTicks = nbt.getInt("FizzleTicks");
     }
 
     @Override

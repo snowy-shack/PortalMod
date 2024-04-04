@@ -38,7 +38,7 @@ public class FizzleGlowParticle extends SpriteTexturedParticle {
             Vector3d offset = new Vector3d(random(widthMid), random(heightMid), random(widthMid));
             Vector3d particlePos = middle.add(offset);
 
-            world.addParticle(ParticleInit.FIZZLE_GLOW.get(), particlePos.x, particlePos.y, particlePos.z, offset.x * 0.7, offset.y * 0.7, offset.z * 0.7);
+            world.addParticle(ParticleInit.FIZZLE_GLOW.get(), particlePos.x, particlePos.y, particlePos.z, offset.x * 0.5, offset.y * 0.5, offset.z * 0.5);
         }
     }
 

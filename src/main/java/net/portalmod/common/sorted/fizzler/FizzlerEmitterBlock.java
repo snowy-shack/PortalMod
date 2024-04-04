@@ -14,15 +14,17 @@ import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.entity.FizzleableEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -56,8 +58,7 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
             .add(0, 0, 2, 1, 16, 14)
             .addPart("activeCollision", 1, 0, 5, 4, 16, 11)
-            .addPart("active", 1, 0, 5, 4, 16, 11)
-            .addPart("active",0,0,7,16,16,9)
+            .addPart("active", VoxelShapes.or(Block.box(0,0,7,16,16,9), Block.box(1, 0, 5, 4, 16, 11)))
             .build();
 
     private void initAABBs() {
@@ -86,8 +87,13 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
-        if (entity instanceof Cube) {
-            ((Cube) entity).startFizzling();
+        if (entity instanceof FizzleableEntity) {
+            VoxelShape voxelshape = this.getShape(state, level, pos, ISelectionContext.of(entity));
+            VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
+            VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
+            if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
+                ((FizzleableEntity) entity).startFizzling();
+            }
         }
 
         if(level.isClientSide)
@@ -130,14 +136,19 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         BlockPos clickedPos = context.getClickedPos();
         World world = context.getLevel();
+        Direction clickedFace = context.getClickedFace();
+
+        if (clickedFace.getAxis() == Direction.Axis.Y) {
+            return null;
+        }
 
         if (world.getBlockState(clickedPos.above()).canBeReplaced(context)) {
             return this.defaultBlockState()
-                    .setValue(FACING, context.getClickedFace());
+                    .setValue(FACING, clickedFace);
         }
         else if (world.getBlockState(clickedPos.below()).canBeReplaced(context)) {
             return this.defaultBlockState()
-                    .setValue(FACING, context.getClickedFace())
+                    .setValue(FACING, clickedFace)
                     .setValue(HALF, DoubleBlockHalf.UPPER);
         }
         return null;

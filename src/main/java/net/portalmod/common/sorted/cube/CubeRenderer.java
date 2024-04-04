@@ -35,7 +35,8 @@ public abstract class CubeRenderer extends LivingRenderer<Cube, CubeModel<Cube>>
 //        minecraft.textureManager.bind(minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
 //        PortalShaders.uniform1i("texture", 0);
 
-        int light = Math.max(0, 15 - cube.fizzleTicks);
+        int maxLight = Math.max(LightTexture.block(i), LightTexture.sky(i));
+        int light = Math.max(0, maxLight - cube.getFizzleTicks());
         
         super.render(cube, f, f2, matrixStack, renderTypeBuffer, LightTexture.pack(light, light));
 
