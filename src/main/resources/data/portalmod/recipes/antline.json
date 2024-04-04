@@ -1,8 +1,7 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "ro",
-        "or"
+        "ro"
     ],
     "key": {
         "r": { "item": "minecraft:redstone" },
@@ -10,6 +9,6 @@
     },
     "result": {
         "item": "portalmod:antline",
-        "count": 4
+        "count": 2
     }
 }
