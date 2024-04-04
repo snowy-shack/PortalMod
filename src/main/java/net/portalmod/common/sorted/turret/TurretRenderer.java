@@ -2,32 +2,24 @@ package net.portalmod.common.sorted.turret;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.settings.CloudOption;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
-import org.lwjgl.opengl.GL11;
 
 public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<TurretEntity>> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png");
@@ -45,8 +37,15 @@ public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<Tur
     @Override
     public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i) {
 //        if(super.shouldRender(turret, ))
+
+        int maxLight = Math.max(LightTexture.block(i), LightTexture.sky(i));
+        int light = Math.max(0, maxLight - turret.fizzleTicks);
         // todo dont render turret if clipped
-        super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, i);
+        super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, LightTexture.pack(light, light));
+
+        if (turret.isFizzling()) {
+            return;
+        }
 
         final float eyeHeight = 12f/16f;
         float rotation = -MathHelper.lerp(partialTicks, turret.yBodyRotO, turret.yBodyRot) * ((float)Math.PI / 180f);

@@ -10,6 +10,7 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -19,7 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.entity.FizzleableEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -83,8 +84,13 @@ public class FizzlerFieldBlock extends DoubleBlock {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
-        if (entity instanceof Cube) {
-            ((Cube) entity).startFizzling();
+        if (entity instanceof FizzleableEntity) {
+            VoxelShape voxelshape = this.getShape(state, level, pos, ISelectionContext.of(entity));
+            VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
+            VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
+            if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
+                ((FizzleableEntity) entity).startFizzling();
+            }
         }
 
         if(level.isClientSide)
