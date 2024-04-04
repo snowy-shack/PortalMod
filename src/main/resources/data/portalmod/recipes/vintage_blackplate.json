@@ -1,0 +1,14 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [ "Bg" ],
+    "key": {
+        "B": { "item": "portalmod:blackplate" },
+        "g": [
+            { "item": "minecraft:stone" },
+            { "item": "minecraft:andesite" },
+            { "item": "minecraft:granite" },
+            { "item": "minecraft:diorite" }
+        ]
+    },
+    "result": { "item": "portalmod:vintage_blackplate" }
+}

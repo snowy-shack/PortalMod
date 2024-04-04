@@ -1,5 +1,13 @@
 {
-    "type": "smoking",
-    "ingredient": { "item": "portalmod:lunecast" },
-    "result": "portalmod:eroded_lunecast"
+    "type": "minecraft:crafting_shaped",
+    "pattern": [ "Lg" ],
+    "key": {
+        "L": { "item": "portalmod:lunecast" },
+        "g": [
+            { "item": "minecraft:dirt" },
+            { "item": "minecraft:coarse_dirt" },
+            { "item": "minecraft:gravel" }
+        ]
+    },
+    "result": { "item": "portalmod:eroded_lunecast" }
 }

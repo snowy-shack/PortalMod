@@ -1,5 +1,13 @@
 {
-    "type": "smoking",
-    "ingredient": { "item": "portalmod:blackplate" },
-    "result": "portalmod:eroded_blackplate"
+    "type": "minecraft:crafting_shaped",
+    "pattern": [ "Bg" ],
+    "key": {
+        "B": { "item": "portalmod:blackplate" },
+        "g": [
+            { "item": "minecraft:dirt" },
+            { "item": "minecraft:coarse_dirt" },
+            { "item": "minecraft:gravel" }
+        ]
+    },
+    "result": { "item": "portalmod:eroded_blackplate" }
 }
