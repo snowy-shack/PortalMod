@@ -9,6 +9,5 @@
             { "item": "minecraft:gravel" }
         ]
     },
-    "result": { "item": "portalmod:eroded_lunecast" },
-    "group": "damaged_lunecast"
+    "result": { "item": "portalmod:eroded_lunecast" }
 }

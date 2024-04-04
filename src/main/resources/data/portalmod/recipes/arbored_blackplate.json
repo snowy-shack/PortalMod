@@ -9,6 +9,5 @@
             { "item": "minecraft:grass" }
         ]
     },
-    "result": { "item": "portalmod:arbored_blackplate" },
-    "group": "damaged_blackplate"
+    "result": { "item": "portalmod:arbored_blackplate" }
 }

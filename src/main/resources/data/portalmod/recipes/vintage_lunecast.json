@@ -10,6 +10,5 @@
             { "item": "minecraft:diorite" }
         ]
     },
-    "result": { "item": "portalmod:vintage_lunecast" },
-    "group": "damaged_lunecast"
+    "result": { "item": "portalmod:vintage_lunecast" }
 }

@@ -9,6 +9,5 @@
             { "item": "minecraft:gravel" }
         ]
     },
-    "result": { "item": "portalmod:eroded_blackplate" },
-    "group": "damaged_blackplate"
+    "result": { "item": "portalmod:eroded_blackplate" }
 }

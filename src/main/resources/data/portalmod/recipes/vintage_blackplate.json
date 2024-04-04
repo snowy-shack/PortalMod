@@ -10,6 +10,5 @@
             { "item": "minecraft:diorite" }
         ]
     },
-    "result": { "item": "portalmod:vintage_blackplate" },
-    "group": "damaged_blackplate"
+    "result": { "item": "portalmod:vintage_blackplate" }
 }
