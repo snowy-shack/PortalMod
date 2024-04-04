@@ -9,5 +9,6 @@
             { "item": "minecraft:grass" }
         ]
     },
-    "result": { "item": "portalmod:arbored_lunecast" }
+    "result": { "item": "portalmod:arbored_lunecast" },
+    "group": "damaged_lunecast"
 }

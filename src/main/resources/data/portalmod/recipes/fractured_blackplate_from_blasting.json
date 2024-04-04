@@ -1,5 +1,0 @@
-{
-    "type": "blasting",
-    "ingredient": { "item": "portalmod:blackplate" },
-    "result": "portalmod:fractured_blackplate"
-}
