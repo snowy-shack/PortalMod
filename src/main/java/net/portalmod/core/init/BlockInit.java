@@ -73,7 +73,7 @@ public class BlockInit {
             () -> new ChamberDoorBlock(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> CUBE_DROPPER = BLOCKS.register("cube_dropper",
-            () -> new CubeDropperBlock(AbstractBlock.Properties.of(Material.STONE)));
+            () -> new CubeDropperBlock(AbstractBlock.Properties.of(Material.STONE).noOcclusion()));
     
     // ANTLINE
     
