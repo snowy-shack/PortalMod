@@ -1,0 +1,54 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "portalmod:block/fizzler_emitter",
+		"base": "portalmod:block/fizzler_emitter"
+	},
+	"elements": [
+		{
+			"from": [10, 0, 15],
+			"to": [13, 16, 16],
+			"faces": {
+				"north": {"uv": [9, 0, 12, 16], "texture": "#base"},
+				"east": {"uv": [9, 0, 10, 16], "texture": "#base"},
+				"south": {"uv": [12, 0, 9, 16], "texture": "#base", "cullface": "south"},
+				"west": {"uv": [11, 0, 12, 16], "texture": "#base"},
+				"up": {"uv": [6, 0, 9, 1], "texture": "#base"}
+			}
+		},
+		{
+			"from": [8, 0, 15],
+			"to": [10, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [9, 8, 14.5]},
+			"faces": {
+				"north": {"uv": [13, 0, 15, 16], "texture": "#base"},
+				"south": {"uv": [14, 0, 16, 16], "texture": "#base"},
+				"west": {"uv": [14, 0, 15, 16], "texture": "#base"},
+				"up": {"uv": [3, 0, 5, 1], "texture": "#base"}
+			}
+		},
+		{
+			"from": [3, 0, 15],
+			"to": [6, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, 0]},
+			"faces": {
+				"north": {"uv": [12, 0, 9, 16], "texture": "#base"},
+				"east": {"uv": [12, 0, 11, 16], "texture": "#base"},
+				"south": {"uv": [9, 0, 12, 16], "texture": "#base", "cullface": "south"},
+				"west": {"uv": [10, 0, 9, 16], "texture": "#base"},
+				"up": {"uv": [9, 0, 6, 1], "texture": "#base"}
+			}
+		},
+		{
+			"from": [6, 0, 15],
+			"to": [8, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 8, 14.5]},
+			"faces": {
+				"north": {"uv": [15, 0, 13, 16], "texture": "#base"},
+				"east": {"uv": [15, 0, 14, 16], "texture": "#base"},
+				"south": {"uv": [16, 0, 14, 16], "texture": "#base"},
+				"up": {"uv": [3, 1, 5, 0], "rotation": 180, "texture": "#base"}
+			}
+		}
+	]
+}

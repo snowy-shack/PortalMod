@@ -75,6 +75,7 @@ public class FizzlerFieldBlock extends DoubleBlock {
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         return SHAPE.get(state.getValue(AXIS)).getShape();
+//        return VoxelShapes.empty();
     }
 
     @Override

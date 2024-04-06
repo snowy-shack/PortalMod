@@ -56,9 +56,8 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     private static final Map<Direction, VoxelShapeGroup> SHAPE = new HashMap<>();
     private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
-            .add(0, 0, 2, 1, 16, 14)
-            .addPart("activeCollision", 1, 0, 5, 4, 16, 11)
-            .addPart("active", VoxelShapes.or(Block.box(0,0,7,16,16,9), Block.box(1, 0, 5, 4, 16, 11)))
+            .add(0, 0, 3, 1, 16, 13)
+            .addPart("active", VoxelShapes.or(Block.box(1, 0, 5, 3, 16, 11), Block.box(1, 0, 6.5, 4.5, 16, 9.5)))
             .build();
 
     private void initAABBs() {
@@ -80,10 +79,10 @@ public class FizzlerEmitterBlock extends DoubleBlock {
         return SHAPE.get(state.getValue(FACING)).getVariant(state.getValue(ACTIVE) ? "active" : "");
     }
 
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(FACING)).getVariant(state.getValue(ACTIVE) ? "activeCollision" : "");
-    }
+//    @Override
+//    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+//        return SHAPE.get(state.getValue(FACING)).getVariant(state.getValue(ACTIVE) ? "activeCollision" : "");
+//    }
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {

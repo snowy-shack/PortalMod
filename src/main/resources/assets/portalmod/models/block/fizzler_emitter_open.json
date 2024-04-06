@@ -1,5 +1,5 @@
 {
-	"credit": "Made with Blockbench",
+	"ambientocclusion": false,
 	"textures": {
 		"particle": "portalmod:block/fizzler_emitter",
 		"base": "portalmod:block/fizzler_emitter"

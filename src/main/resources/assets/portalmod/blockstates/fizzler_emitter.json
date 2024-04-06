@@ -1,35 +1,35 @@
 {
   "multipart": [
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "x": 180, "y": 180},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "x": 180, "y": 180},
       "when": {"half": "lower", "facing": "north", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "x": 180, "y": 90},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "x": 180, "y": 90},
       "when": {"half": "lower", "facing": "west", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "x": 180},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "x": 180},
       "when": {"half": "lower", "facing": "south", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "x": 180, "y": 270},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "x": 180, "y": 270},
       "when": {"half": "lower", "facing": "east", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter"},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open"},
       "when": {"half": "upper", "facing": "north", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "y": 270},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "y": 270},
       "when": {"half": "upper", "facing": "west", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "y": 180},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "y": 180},
       "when": {"half": "upper", "facing": "south", "active": "true"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_emitter", "y": 90},
+      "apply": {"model": "portalmod:block/fizzler_emitter_open", "y": 90},
       "when": {"half": "upper", "facing": "east", "active": "true"}
     },
 
