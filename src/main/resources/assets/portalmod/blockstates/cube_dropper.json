@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "half=upper,corner=up_left": {"model": "portalmod:block/cube_dropper_top"},
+    "half=upper,corner=up_right": {"model": "portalmod:block/cube_dropper_top", "y":  90},
+    "half=upper,corner=down_right": {"model": "portalmod:block/cube_dropper_top", "y":  180},
+    "half=upper,corner=down_left": {"model": "portalmod:block/cube_dropper_top", "y":  270},
+    "half=lower,corner=up_left": {"model": "portalmod:block/cube_dropper_bottom"},
+    "half=lower,corner=up_right": {"model": "portalmod:block/cube_dropper_bottom", "y":  90},
+    "half=lower,corner=down_right": {"model": "portalmod:block/cube_dropper_bottom", "y":  180},
+    "half=lower,corner=down_left": {"model": "portalmod:block/cube_dropper_bottom", "y":  270}
+  }
+}
