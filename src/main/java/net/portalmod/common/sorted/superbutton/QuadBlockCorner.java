@@ -61,4 +61,24 @@ public enum QuadBlockCorner implements IStringSerializable {
     public boolean isUp() {
         return this == UP_LEFT || this == UP_RIGHT;
     }
+
+    public QuadBlockCorner mirrorLeftRight() {
+        switch (this) {
+            case UP_LEFT: return UP_RIGHT;
+            case UP_RIGHT: return UP_LEFT;
+            case DOWN_LEFT: return DOWN_RIGHT;
+            case DOWN_RIGHT: return DOWN_LEFT;
+        }
+        return UP_LEFT;
+    }
+
+    public QuadBlockCorner mirrorUpDown() {
+        switch (this) {
+            case UP_LEFT: return DOWN_LEFT;
+            case UP_RIGHT: return DOWN_RIGHT;
+            case DOWN_LEFT: return UP_LEFT;
+            case DOWN_RIGHT: return UP_RIGHT;
+        }
+        return UP_LEFT;
+    }
  }

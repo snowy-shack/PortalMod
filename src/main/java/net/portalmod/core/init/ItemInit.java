@@ -38,7 +38,7 @@ public class ItemInit {
     public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench",
             () -> new WrenchItem(new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
 
-    // Spawn Items
+    // Cubes
     public static final RegistryObject<ModSpawnEggItem> COMPANION_CUBE = ITEMS.register("companion_cube",
             () -> new ModSpawnEggItem(EntityInit.COMPANION_CUBE, 0xFFFFFF, 0xFFFFFF,
                     new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
@@ -48,6 +48,7 @@ public class ItemInit {
     public static final RegistryObject<ModSpawnEggItem> VINTAGE_CUBE = ITEMS.register("vintage_cube",
             () -> new ModSpawnEggItem(EntityInit.VINTAGE_CUBE, 0xFFFFFF, 0xFFFFFF,
                     new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
+    public static final RegistryObject<BlockItem> CUBE_DROPPER = registerBlockItem("cube_dropper", BlockInit.CUBE_DROPPER);
 
     // Blocks
     public static final RegistryObject<BlockItem> LUNECAST = registerBlockItem("lunecast", BlockInit.LUNECAST);

@@ -135,7 +135,7 @@ public class ChamberDoorBlock extends MultiBlock {
         BlockState rotated = this.defaultBlockState().setValue(FACING, facing.getOpposite());
 
         if (world.hasNeighborSignal(pos)) {
-            rotated = rotated.setValue(OPEN, true).setValue(POWERED, true);
+            rotated = rotated.setValue(POWERED, true);
         }
 
         if (canPlace(new BlockPos[]{

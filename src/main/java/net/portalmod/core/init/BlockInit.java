@@ -13,6 +13,7 @@ import net.portalmod.common.blocks.WireMeshBlock;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.common.sorted.chamberdoor.ChamberDoorBlock;
+import net.portalmod.common.sorted.cubedropper.CubeDropperBlock;
 import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
@@ -70,6 +71,9 @@ public class BlockInit {
 
     public static final RegistryObject<Block> CHAMBER_DOOR = BLOCKS.register("chamber_door",
             () -> new ChamberDoorBlock(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE).noOcclusion()));
+
+    public static final RegistryObject<Block> CUBE_DROPPER = BLOCKS.register("cube_dropper",
+            () -> new CubeDropperBlock(AbstractBlock.Properties.of(Material.STONE)));
     
     // ANTLINE
     
