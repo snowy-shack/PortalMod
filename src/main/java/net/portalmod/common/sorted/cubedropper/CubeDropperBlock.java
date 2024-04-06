@@ -8,11 +8,14 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.sorted.superbutton.QuadBlockCorner;
+import net.portalmod.core.init.TileEntityTypeInit;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -23,6 +26,7 @@ public class CubeDropperBlock extends MultiBlock {
 
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
 
     public CubeDropperBlock(Properties properties) {
@@ -163,8 +167,50 @@ public class CubeDropperBlock extends MultiBlock {
         return true;
     }
 
+    public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
+        this.setBlockStateValue(OPEN, open, blockState, world, pos);
+    }
+
+    public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
+        this.setBlockStateValue(POWERED, powered, blockState, world, pos);
+    }
+
+    @Override
+    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block p_220069_4_, BlockPos p_220069_5_, boolean p_220069_6_) {
+        if (world.isClientSide) {
+            return;
+        }
+
+        boolean wasPowered = blockState.getValue(POWERED);
+        boolean isPowered = false;
+        for (BlockPos checkingPos : getAllPositions(blockState, pos)) {
+            if (world.hasNeighborSignal(checkingPos)) {
+                isPowered = true;
+            }
+        }
+
+        if (wasPowered != isPowered) {
+            setPowered(isPowered, blockState, world, pos);
+        }
+    }
+
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(CORNER, HALF, OPEN);
+        builder.add(CORNER, HALF, POWERED, OPEN);
+    }
+
+    public static boolean isMainBlock(BlockState state) {
+        return state.getValue(HALF) == DoubleBlockHalf.UPPER && state.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
+    }
+
+    @Override
+    public boolean hasTileEntity(BlockState state) {
+        return isMainBlock(state);
+    }
+
+    @Nullable
+    @Override
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+        return isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create() : null;
     }
 }

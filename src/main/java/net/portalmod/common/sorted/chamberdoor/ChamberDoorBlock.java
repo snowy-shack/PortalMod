@@ -211,13 +211,13 @@ public class ChamberDoorBlock extends MultiBlock {
         }
     }
 
+    public static boolean isMainBlock(BlockState state) {
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(SIDE) == Side.LEFT;
+    }
+
     @Override
     public boolean hasTileEntity(BlockState state) {
         return isMainBlock(state);
-    }
-
-    public static boolean isMainBlock(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(SIDE) == Side.LEFT;
     }
 
     @Nullable
