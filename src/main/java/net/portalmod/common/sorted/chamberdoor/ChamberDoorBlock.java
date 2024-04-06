@@ -179,22 +179,13 @@ public class ChamberDoorBlock extends MultiBlock {
         return true;
     }
 
-    public void setValue(BooleanProperty property, boolean open, BlockState blockState, World world, BlockPos pos) {
-        for (BlockPos doorPos : this.getAllPositions(blockState, pos)) {
-            BlockState doorBlock = world.getBlockState(doorPos);
-            if (doorBlock.getBlock() instanceof ChamberDoorBlock) {
-                world.setBlock(doorPos, doorBlock.setValue(property, open), 2);
-            }
-        }
-    }
-
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
-        this.setValue(OPEN, open, blockState, world, pos);
+        this.setBlockStateValue(OPEN, open, blockState, world, pos);
         playSound(open, world, pos);
     }
 
-    public void setPowered(boolean open, BlockState blockState, World world, BlockPos pos) {
-        this.setValue(POWERED, open, blockState, world, pos);
+    public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
+        this.setBlockStateValue(POWERED, powered, blockState, world, pos);
     }
 
     public static void playSound(boolean open, World world, BlockPos pos) {

@@ -6,6 +6,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.Property;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -32,6 +33,15 @@ public abstract class MultiBlock extends Block {
         List<BlockPos> connectedPositions = this.getConnectedPositions(blockState, mainPos);
         connectedPositions.add(mainPos);
         return connectedPositions;
+    }
+
+    public <T extends Comparable<T>> void setBlockStateValue(Property<T> property, T value, BlockState blockState, World world, BlockPos pos) {
+        for (BlockPos multiBlockPos : this.getAllPositions(blockState, pos)) {
+            BlockState multiBlockState = world.getBlockState(multiBlockPos);
+            if (multiBlockState.getBlock().is(this)) {
+                world.setBlock(multiBlockPos, multiBlockState.setValue(property, value), 2);
+            }
+        }
     }
 
     @Override
