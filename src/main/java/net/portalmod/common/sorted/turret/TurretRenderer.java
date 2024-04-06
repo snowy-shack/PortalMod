@@ -73,7 +73,7 @@ public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<Tur
         Vector3d from = turretEyePos.to3d();
         Vector3d to = from.add(rayPath);
 
-        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.ANY, null);
+        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null);
         RayTraceResult rayResult = turret.level.clip(rayCtx);
 
         float laserLen = (float)rayResult.getLocation().subtract(from).length();
