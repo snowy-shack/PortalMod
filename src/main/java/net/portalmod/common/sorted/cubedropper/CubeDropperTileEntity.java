@@ -79,9 +79,10 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     // Open dropper and fizzle first cube
     public void openDropper(CubeDropperBlock dropperBlock) {
-        dropperBlock.setOpen(true, this.getBlockState(), this.level, this.getBlockPos());
+        // todo this may also need to be only on the server?
 
         if (this.level instanceof ServerWorld) {
+            dropperBlock.setOpen(true, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 1;
             if (this.entityUUIDs.size() == 2) {
                 Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
@@ -97,9 +98,9 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     // Close dropper and spawn a new cube inside the dropper
     public void closeDropper(CubeDropperBlock dropperBlock) {
-        dropperBlock.setOpen(false, this.getBlockState(), this.level, this.getBlockPos());
 
         if (this.level instanceof ServerWorld) {
+            dropperBlock.setOpen(false, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 0;
             addEntity();
         }
