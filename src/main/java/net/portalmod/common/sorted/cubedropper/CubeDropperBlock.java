@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,6 +25,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.superbutton.QuadBlockCorner;
@@ -211,6 +213,15 @@ public class CubeDropperBlock extends MultiBlock {
         return null;
     }
 
+    public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
+        for (BlockPos pos : posArray) {
+            if (!world.getBlockState(pos).canBeReplaced(context)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
         if (world.isClientSide) {
@@ -222,32 +233,30 @@ public class CubeDropperBlock extends MultiBlock {
         TileEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
         if (tileEntity instanceof CubeDropperTileEntity) {
             CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) tileEntity;
+
             if (item instanceof SpawnEggItem) {
                 EntityType<?> spawnEggType = ((SpawnEggItem) item).getType(itemStack.getTag());
                 if (spawnEggType != dropperEntity.entityType) {
                     dropperEntity.removeAllEntities();
                     dropperEntity.entityType = spawnEggType;
+                    if (!player.isCreative()) {
+                        itemStack.shrink(1);
+                    }
                     return ActionResultType.SUCCESS;
                 }
-                return ActionResultType.CONSUME;
+                return ActionResultType.PASS;
             }
-            if (item instanceof WrenchItem) {
-                boolean hadEntity = dropperEntity.entityType != null;
+
+            if (item instanceof WrenchItem && dropperEntity.entityType != null) {
                 dropperEntity.removeAllEntities();
+                if (!player.isCreative()) {
+                    player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
+                }
                 dropperEntity.entityType = null;
-                return hadEntity ? ActionResultType.SUCCESS : ActionResultType.CONSUME;
+                return ActionResultType.SUCCESS;
             }
         }
         return ActionResultType.FAIL;
-    }
-
-    public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
-        for (BlockPos pos : posArray) {
-            if (!world.getBlockState(pos).canBeReplaced(context)) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
@@ -263,7 +272,10 @@ public class CubeDropperBlock extends MultiBlock {
         if (isMainBlock(blockState) && !blockState.is(newState.getBlock())) {
             TileEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CubeDropperTileEntity) {
-                ((CubeDropperTileEntity) blockEntity).removeAllEntities();
+                CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) blockEntity;
+                dropperEntity.removeAllEntities();
+                BlockPos mainPosition = this.getMainPosition(blockState, pos);
+                InventoryHelper.dropItemStack(world, mainPosition.getX(), mainPosition.getY(), mainPosition.getZ(), new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
             }
         }
         super.onRemove(blockState, world, pos, newState, b);
