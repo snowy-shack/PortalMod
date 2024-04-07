@@ -24,6 +24,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
+import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
@@ -180,6 +181,9 @@ public class Cube extends FizzleableEntity {
             return false;
         if(source == DamageSource.OUT_OF_WORLD || source instanceof EntityDamageSource)
             return super.hurt(source, damage);
+
+        if(source == FluidInit.GOO_DAMAGE)
+            return super.hurt(source, (float) (this.getAttributeValue(Attributes.MAX_HEALTH) * 0.3));
 
 //        if(source.isCreativePlayer()) {
 //            remove();
