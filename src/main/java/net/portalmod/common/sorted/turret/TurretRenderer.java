@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -38,10 +37,8 @@ public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<Tur
     public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i) {
 //        if(super.shouldRender(turret, ))
 
-        int maxLight = Math.max(LightTexture.block(i), LightTexture.sky(i));
-        int light = Math.max(0, maxLight - turret.getFizzleTicks());
         // todo dont render turret if clipped
-        super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, LightTexture.pack(light, light));
+        super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, turret.getFizzleLight(i));
 
         if (turret.isFizzling()) {
             return;

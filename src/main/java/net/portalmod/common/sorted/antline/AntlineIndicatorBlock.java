@@ -17,17 +17,16 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AntlineIndicatorBlock extends HorizontalFaceBlock {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
-    private static final Map<Direction, Map<AttachFace, VoxelShapeGroup>> SHAPE = new HashMap<>();
+    private static final BiHashMap<Direction, AttachFace, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
     public AntlineIndicatorBlock(Properties properties) {
         super(properties);
@@ -60,8 +59,6 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
                 .build();
 
         for(Direction facing : Direction.values()) {
-            Map<AttachFace, VoxelShapeGroup> map = new HashMap<>();
-
             for(AttachFace attachFace : AttachFace.values()) {
                 Mat4 matrix = Mat4.identity();
                 matrix.translate(new Vec3(.5));
@@ -75,15 +72,14 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
                 }
                 matrix.translate(new Vec3(-.5));
 
-                map.put(attachFace, shape.clone().transform(matrix));
+                SHAPE.put(facing, attachFace, shape.clone().transform(matrix));
             }
-            SHAPE.put(facing, map);
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(FACING)).get(state.getValue(FACE)).getShape();
+        return SHAPE.get(state.getValue(FACING), state.getValue(FACE)).getShape();
     }
 
     @Override

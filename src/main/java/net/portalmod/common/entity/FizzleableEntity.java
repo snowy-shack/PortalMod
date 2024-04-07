@@ -1,5 +1,6 @@
 package net.portalmod.common.entity;
 
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -71,6 +72,12 @@ public abstract class FizzleableEntity extends LivingEntity {
             this.setNoGravity(true);
             this.level.playSound(null, this, SoundEvents.HORSE_DEATH, SoundCategory.BLOCKS, 1, 1);
         }
+    }
+
+    public int getFizzleLight(int packedLight) {
+        int maxLight = Math.max(LightTexture.block(packedLight), LightTexture.sky(packedLight));
+        int light = Math.max(0, maxLight - (int) (this.getFizzleTicks() * 0.75));
+        return LightTexture.pack(light, light);
     }
 
     @Override

@@ -11,11 +11,18 @@ import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.sorted.superbutton.QuadBlockCorner;
 import net.portalmod.core.init.TileEntityTypeInit;
+import net.portalmod.core.math.BiHashMap;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
+import net.portalmod.core.math.VoxelShapeGroup;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -28,14 +35,51 @@ public class CubeDropperBlock extends MultiBlock {
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
+    private static final BiHashMap<DoubleBlockHalf, QuadBlockCorner, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
     public CubeDropperBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(CORNER, QuadBlockCorner.UP_LEFT).setValue(HALF, DoubleBlockHalf.UPPER).setValue(OPEN, false));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(CORNER, QuadBlockCorner.UP_LEFT)
+                .setValue(HALF, DoubleBlockHalf.UPPER)
+                .setValue(OPEN, false));
+        this.initAABBs();
+    }
+
+    private void initAABBs() {
+        VoxelShapeGroup upper = new VoxelShapeGroup.Builder()
+                .add(0, 6, 0, 16, 16, 8)
+                .add(0, 6, 0, 8, 16, 16)
+                .add(2, 0, 2, 16, 6, 8)
+                .add(2, 0, 2, 8, 6, 16)
+                .add(0, 15, 0, 16, 16, 16)
+                .build();
+        VoxelShapeGroup lower = new VoxelShapeGroup.Builder()
+                .add(2, 0, 2, 16, 16, 8)
+                .add(2, 0, 2, 8, 16, 16)
+                .addPart("closed", 8, 2, 8, 16, 3, 16)
+                .build();
+
+        for(QuadBlockCorner corner : QuadBlockCorner.values()) {
+            for(DoubleBlockHalf half : DoubleBlockHalf.values()) {
+                Mat4 matrix = Mat4.identity();
+                matrix.translate(new Vec3(.5));
+                matrix.rotateDeg(new Vector3f(0, 1, 0), corner.getRot() - 90);
+                matrix.translate(new Vec3(-.5));
+                VoxelShapeGroup group = half == DoubleBlockHalf.LOWER ? lower : upper;
+
+                SHAPE.put(half, corner, group.clone().transform(matrix));
+            }
+        }
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState blockState, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+        return SHAPE.get(blockState.getValue(HALF), blockState.getValue(CORNER)).getVariant(blockState.getValue(OPEN) ? "" : "closed");
     }
 
     /*
-              North
+               North
 
      West    main  UR    East
               DL   DR
@@ -173,6 +217,17 @@ public class CubeDropperBlock extends MultiBlock {
 
     public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(POWERED, powered, blockState, world, pos);
+    }
+
+    @Override
+    public void onRemove(BlockState blockState, World world, BlockPos pos, BlockState newState, boolean b) {
+        if (isMainBlock(blockState) && !blockState.is(newState.getBlock())) {
+            TileEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof CubeDropperTileEntity) {
+                ((CubeDropperTileEntity) blockEntity).removeAllCubes();
+            }
+        }
+        super.onRemove(blockState, world, pos, newState, b);
     }
 
     @Override
