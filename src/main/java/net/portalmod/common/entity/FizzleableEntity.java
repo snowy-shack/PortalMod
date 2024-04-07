@@ -75,9 +75,11 @@ public abstract class FizzleableEntity extends LivingEntity {
     }
 
     public int getFizzleLight(int packedLight) {
-        int maxLight = Math.max(LightTexture.block(packedLight), LightTexture.sky(packedLight));
-        int light = Math.max(0, maxLight - (int) (this.getFizzleTicks() * 0.75));
-        return LightTexture.pack(light, light);
+        int fizzleAmount = (int) (this.getFizzleTicks() * 0.75);
+        return LightTexture.pack(
+                Math.max(0, LightTexture.block(packedLight) - fizzleAmount),
+                Math.max(0, LightTexture.sky(packedLight) - fizzleAmount)
+        );
     }
 
     @Override

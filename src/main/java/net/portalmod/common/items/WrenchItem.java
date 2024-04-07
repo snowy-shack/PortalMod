@@ -1,24 +1,20 @@
 package net.portalmod.common.items;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.monster.ZombieEntity;
-import net.minecraft.entity.passive.BeeEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.core.init.PacketInit;
-import net.portalmod.core.util.ModUtil;
 
 public class WrenchItem extends Item {
     public WrenchItem(Properties properties) {
@@ -30,8 +26,14 @@ public class WrenchItem extends Item {
         BlockPos pos = new BlockPos(6, 55, 20);
         Direction face = Direction.UP;
         BlockPos selected = new BlockPos(-5, 55, 20);
+        TileEntity blockEntity = level.getBlockEntity(selected);
+        ItemStack itemStack = player.getItemInHand(hand);
 
-        FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(selected);
+        if (!(blockEntity instanceof FaithPlateTileEntity)) {
+            return ActionResult.fail(itemStack);
+        }
+
+        FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
         CompoundNBT nbt = new CompoundNBT();
         CompoundNBT target = new CompoundNBT();
@@ -51,7 +53,7 @@ public class WrenchItem extends Item {
         PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
         FaithPlateTER.selected = null;
 //        if(true)
-        return ActionResult.success(player.getItemInHand(hand));
+        return ActionResult.success(itemStack);
 
 
 

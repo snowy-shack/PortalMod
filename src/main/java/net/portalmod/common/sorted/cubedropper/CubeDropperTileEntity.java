@@ -1,15 +1,18 @@
 package net.portalmod.common.sorted.cubedropper;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.portalmod.common.entity.FizzleableEntity;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
-import net.portalmod.common.sorted.cube.Cube;
-import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 
@@ -20,9 +23,10 @@ import java.util.UUID;
 
 public class CubeDropperTileEntity extends TileEntity implements ITickableTileEntity {
 
-    public List<UUID> cubeUUIDs = new ArrayList<>();
+    public List<UUID> entityUUIDs = new ArrayList<>();
     public int openTicks = 0;
     public boolean wasPowered = false;
+    public EntityType<? extends Entity> entityType = null;
 
     public CubeDropperTileEntity() {
         super(TileEntityTypeInit.CUBE_DROPPER.get());
@@ -31,7 +35,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     @Override
     public void tick() {
         BlockState blockState = this.getBlockState();
-        if (!(blockState.getBlock() instanceof CubeDropperBlock)) {
+        if (!(blockState.getBlock() instanceof CubeDropperBlock) || this.entityType == null) {
             return;
         }
 
@@ -39,7 +43,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             this.openTicks++;
         }
 
-        this.updateCubes();
+        this.updateEntities();
 
         CubeDropperBlock dropperBlock = (CubeDropperBlock) blockState.getBlock();
 
@@ -62,7 +66,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
         boolean isPowered = blockState.getValue(CubeDropperBlock.POWERED) || hasIndicators && allIndicatorsActivated;
 
-        if (isPowered && (this.openTicks == 0 && this.cubeUUIDs.size() == 1 || !this.wasPowered)) {
+        if (isPowered && this.openTicks == 0 && (this.entityUUIDs.size() == 1 || !this.wasPowered)) {
             openDropper(dropperBlock);
         }
 
@@ -79,10 +83,14 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
         if (this.level instanceof ServerWorld) {
             this.openTicks = 1;
-            if (this.cubeUUIDs.size() == 2) {
-                Cube cube = (Cube) ((ServerWorld) this.level).getEntity(this.cubeUUIDs.get(0));
-                cube.startFizzling();
-                this.cubeUUIDs.remove(0);
+            if (this.entityUUIDs.size() == 2) {
+                Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
+                if (entity instanceof FizzleableEntity) {
+                    ((FizzleableEntity) entity).startFizzling();
+                } else {
+                    entity.remove();
+                }
+                this.entityUUIDs.remove(0);
             }
         }
     }
@@ -93,89 +101,98 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
         if (this.level instanceof ServerWorld) {
             this.openTicks = 0;
-            addCube();
+            addEntity();
         }
     }
 
-    public void updateCubes() {
-        if (this.cubeUUIDs.isEmpty()) {
-            addCube();
+    public void updateEntities() {
+        if (this.entityUUIDs.isEmpty()) {
+            addEntity();
         }
-        this.cubeUUIDs.removeIf(uuid -> this.level instanceof ServerWorld && ((ServerWorld) this.level).getEntity(uuid) == null);
+        this.entityUUIDs.removeIf(uuid -> this.level instanceof ServerWorld && ((ServerWorld) this.level).getEntity(uuid) == null);
     }
 
-    public void addCube() {
-        Cube cube = new Cube(EntityInit.STORAGE_CUBE.get(), this.level);
+    public void addEntity() {
+        if (this.entityType == null) {
+            return;
+        }
+
+        Entity entity = this.entityType.create(this.level);
         Vector3f position = new Vec3(this.getBlockPos().south().east()).to3f();
-        cube.teleportTo(position.x(), position.y(), position.z());
-        this.cubeUUIDs.add(cube.getUUID());
-        this.level.addFreshEntity(cube);
+        entity.teleportTo(position.x(), position.y(), position.z());
+        this.entityUUIDs.add(entity.getUUID());
+        this.level.addFreshEntity(entity);
     }
 
-    public void removeAllCubes() {
+    public void removeAllEntities() {
         if (this.level instanceof ServerWorld) {
-            for (UUID uuid : this.cubeUUIDs) {
-                Cube cube = (Cube) ((ServerWorld) this.level).getEntity(uuid);
-                if (cube != null) {
-                    cube.startFizzling();
+            for (UUID uuid : this.entityUUIDs) {
+                Entity entity = ((ServerWorld) this.level).getEntity(uuid);
+                if (entity != null) {
+                    if (entity instanceof FizzleableEntity) {
+                        ((FizzleableEntity) entity).startFizzling();
+                    } else {
+                        entity.remove();
+                    }
                 }
             }
-            this.cubeUUIDs.clear();
+            this.entityUUIDs.clear();
         }
     }
 
     /*
-    horizontal >
-    vertical ^
 
     5      6       7      8
-    4   dropper  dropper  9
-    3   updated  dropper  10
+    4   updated  dropper  9
+    3   dropper  dropper  10
     2      1       12     11
 
      */
     public static List<BlockPos> getSurroundingPositions(BlockPos pos) {
         return new ArrayList<>(Arrays.asList(
-                pos.south(),
+                pos.south(2),
+                pos.south(2).west(),
                 pos.south().west(),
                 pos.west(),
                 pos.north().west(),
-                pos.north(2).west(),
-                pos.north(2),
-                pos.north(2).east(),
-                pos.north(2).east(2),
+                pos.north(),
+                pos.north().east(),
                 pos.north().east(2),
                 pos.east(2),
                 pos.south().east(2),
-                pos.south().east()
+                pos.south(2).east(2),
+                pos.south(2).east()
         ));
     }
 
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         nbt = super.save(nbt);
-        if (!this.cubeUUIDs.isEmpty()) {
-            nbt.putUUID("CubeUUID1", this.cubeUUIDs.get(0));
+        if (!this.entityUUIDs.isEmpty()) {
+            nbt.putUUID("UUID1", this.entityUUIDs.get(0));
         }
-        if (this.cubeUUIDs.size() >= 2) {
-            nbt.putUUID("CubeUUID2", this.cubeUUIDs.get(1));
+        if (this.entityUUIDs.size() >= 2) {
+            nbt.putUUID("UUID2", this.entityUUIDs.get(1));
         }
         nbt.putBoolean("Powered", this.wasPowered);
         nbt.putInt("OpenTicks", this.openTicks);
+        nbt.putString("EntityType", this.entityType == null ? "null" : this.entityType.getRegistryName().toString());
         return nbt;
     }
 
     @Override
     public void load(BlockState blockState, CompoundNBT nbt) {
         super.load(blockState, nbt);
-        this.cubeUUIDs.clear();
-        if (nbt.hasUUID("CubeUUID1")) {
-            this.cubeUUIDs.add(nbt.getUUID("CubeUUID1"));
+        this.entityUUIDs.clear();
+        if (nbt.hasUUID("UUID1")) {
+            this.entityUUIDs.add(nbt.getUUID("UUID1"));
         }
-        if (nbt.hasUUID("CubeUUID2")) {
-            this.cubeUUIDs.add(nbt.getUUID("CubeUUID2"));
+        if (nbt.hasUUID("UUID2")) {
+            this.entityUUIDs.add(nbt.getUUID("UUID2"));
         }
         this.wasPowered = nbt.getBoolean("Powered");
         this.openTicks = nbt.getInt("OpenTicks");
+        String entityType = nbt.getString("EntityType");
+        this.entityType = entityType.equals("null") ? null : ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityType));
     }
 }

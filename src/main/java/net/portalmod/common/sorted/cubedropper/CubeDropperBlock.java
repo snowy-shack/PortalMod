@@ -2,21 +2,30 @@ package net.portalmod.common.sorted.cubedropper;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.MultiBlock;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.superbutton.QuadBlockCorner;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.BiHashMap;
@@ -202,6 +211,36 @@ public class CubeDropperBlock extends MultiBlock {
         return null;
     }
 
+    @Override
+    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+        if (world.isClientSide) {
+            return ActionResultType.PASS;
+        }
+
+        ItemStack itemStack = player.getItemInHand(hand);
+        Item item = itemStack.getItem();
+        TileEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
+        if (tileEntity instanceof CubeDropperTileEntity) {
+            CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) tileEntity;
+            if (item instanceof SpawnEggItem) {
+                EntityType<?> spawnEggType = ((SpawnEggItem) item).getType(itemStack.getTag());
+                if (spawnEggType != dropperEntity.entityType) {
+                    dropperEntity.removeAllEntities();
+                    dropperEntity.entityType = spawnEggType;
+                    return ActionResultType.SUCCESS;
+                }
+                return ActionResultType.CONSUME;
+            }
+            if (item instanceof WrenchItem) {
+                boolean hadEntity = dropperEntity.entityType != null;
+                dropperEntity.removeAllEntities();
+                dropperEntity.entityType = null;
+                return hadEntity ? ActionResultType.SUCCESS : ActionResultType.CONSUME;
+            }
+        }
+        return ActionResultType.FAIL;
+    }
+
     public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
         for (BlockPos pos : posArray) {
             if (!world.getBlockState(pos).canBeReplaced(context)) {
@@ -224,7 +263,7 @@ public class CubeDropperBlock extends MultiBlock {
         if (isMainBlock(blockState) && !blockState.is(newState.getBlock())) {
             TileEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CubeDropperTileEntity) {
-                ((CubeDropperTileEntity) blockEntity).removeAllCubes();
+                ((CubeDropperTileEntity) blockEntity).removeAllEntities();
             }
         }
         super.onRemove(blockState, world, pos, newState, b);
