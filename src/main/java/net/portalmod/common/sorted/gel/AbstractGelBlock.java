@@ -50,16 +50,19 @@ public class AbstractGelBlock extends Block {
         STATES.put(Direction.DOWN,  DOWN);
         genAABBs();
     }
-    
+
+    private BlockState emptyBlockState;
+
     public AbstractGelBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any()
+        BlockState test = this.stateDefinition.any()
                 .setValue(NORTH, false)
                 .setValue(EAST,  false)
                 .setValue(SOUTH, false)
                 .setValue(WEST,  false)
-                .setValue(UP,    false)
-                .setValue(DOWN,  false));
+                .setValue(UP,    false);
+        this.emptyBlockState = (test.setValue(DOWN,  false));
+        this.registerDefaultState(test.setValue(DOWN,  true));
     }
     
     @Override
@@ -91,7 +94,7 @@ public class AbstractGelBlock extends Block {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         BlockState previousState = context.getLevel().getBlockState(context.getClickedPos());
         if(previousState.getBlock() != this)
-            previousState = this.defaultBlockState();
+            previousState = this.emptyBlockState;
         
         BlockRayTraceResult ray = ModUtil.rayTraceBlock(context.getPlayer(), context.getLevel(), 10);
         if(ray.getBlockPos().equals(context.getClickedPos()))
