@@ -17,13 +17,9 @@ import net.portalmod.common.sorted.cubedropper.CubeDropperBlock;
 import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
-import net.portalmod.common.sorted.gel.AdhesionGelBlock;
 import net.portalmod.common.sorted.gel.ConversionGelBlock;
 import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.gel.RepulsionGelBlock;
-import net.portalmod.common.sorted.laser.LaserCatcherBlock;
-import net.portalmod.common.sorted.laser.LaserEmitterBlock;
-import net.portalmod.common.sorted.laser.LaserRelayBlock;
 import net.portalmod.common.sorted.panel.PanelBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
@@ -86,14 +82,14 @@ public class BlockInit {
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
             () -> new AntlineIndicatorBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
     
-    public static final RegistryObject<Block> LASER_EMITTER = BLOCKS.register("laser_emitter",
-            () -> new LaserEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
-    
-    public static final RegistryObject<Block> LASER_CATCHER = BLOCKS.register("laser_catcher",
-            () -> new LaserCatcherBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
-    
-    public static final RegistryObject<Block> LASER_RELAY = BLOCKS.register("laser_relay",
-            () -> new LaserRelayBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+//    public static final RegistryObject<Block> LASER_EMITTER = BLOCKS.register("laser_emitter",
+//            () -> new LaserEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+//
+//    public static final RegistryObject<Block> LASER_CATCHER = BLOCKS.register("laser_catcher",
+//            () -> new LaserCatcherBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+//
+//    public static final RegistryObject<Block> LASER_RELAY = BLOCKS.register("laser_relay",
+//            () -> new LaserRelayBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> FIZZLER_EMITTER = BLOCKS.register("fizzler_emitter",
             () -> new FizzlerEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
@@ -111,7 +107,6 @@ public class BlockInit {
     
     public static final RegistryObject<Block> REPULSION_GEL = BLOCKS.register("repulsion_gel", () -> new RepulsionGelBlock(GEL_BASE));
     public static final RegistryObject<Block> PROPULSION_GEL = BLOCKS.register("propulsion_gel", () -> new PropulsionGelBlock(GEL_BASE));
-    public static final RegistryObject<Block> ADHESION_GEL = BLOCKS.register("adhesion_gel", () -> new AdhesionGelBlock(GEL_BASE));
     public static final RegistryObject<Block> CONVERSION_GEL = BLOCKS.register("conversion_gel", () -> new ConversionGelBlock(GEL_BASE));
     
     public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",

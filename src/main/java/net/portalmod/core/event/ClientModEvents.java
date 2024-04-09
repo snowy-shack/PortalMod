@@ -64,14 +64,14 @@ public class ClientModEvents {
         System.out.println(modFolder.mkdir());
 
         RenderTypeLookup.setRenderLayer(BlockInit.ANTLINE.get(),            RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),      RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.LASER_CATCHER.get(),      RenderType.cutout());
+//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),      RenderType.cutout());
+//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_CATCHER.get(),      RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH_BLOCK.get(),    RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH.get(),          RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.IRON_FRAME.get(),         RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.BARRED_IRON_FRAME.get(),  RenderType.cutout());
 
-        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),        RenderType.translucent());
+//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),        RenderType.translucent());
         RenderTypeLookup.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),     RenderType.translucent());
         RenderTypeLookup.setRenderLayer(BlockInit.CUBE_DROPPER.get(),       RenderType.translucent());
         RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(),    RenderType.translucent());
