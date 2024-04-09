@@ -1,10 +1,9 @@
 {
   "parent": "portalmod:block/template_cube_dropper_bottom",
   "textures": {
-    "aperture": "portalmod:block/cube_dropper_aperture",
+    "aperture": "portalmod:block/cube_dropper_aperture_open",
     "glass":    "portalmod:block/cube_dropper_glass",
     "ribs":     "portalmod:block/cube_dropper_ribs",
-    "rim":      "portalmod:block/cube_dropper_rim",
-    "particle": "portalmod:block/cube_dropper_aperture"
+    "rim":      "portalmod:block/cube_dropper_rim"
   }
 }

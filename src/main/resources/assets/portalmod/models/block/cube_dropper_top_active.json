@@ -5,8 +5,8 @@
     "base_right": "portalmod:block/cube_dropper_base_right",
     "bottom":     "portalmod:block/cube_dropper_bottom",
     "inside":     "portalmod:block/cube_dropper_inside",
-    "ring_left":  "portalmod:block/cube_dropper_ring_left",
-    "ring_right": "portalmod:block/cube_dropper_ring_right",
+    "ring_left":  "portalmod:block/cube_dropper_ring_left_active",
+    "ring_right": "portalmod:block/cube_dropper_ring_right_active",
     "top":        "portalmod:block/cube_dropper_top"
   }
 }

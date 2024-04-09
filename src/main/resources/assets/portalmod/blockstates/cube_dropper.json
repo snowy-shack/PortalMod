@@ -1,12 +1,20 @@
 {
   "variants": {
-    "half=upper,corner=up_left": {"model": "portalmod:block/cube_dropper_top"},
-    "half=upper,corner=up_right": {"model": "portalmod:block/cube_dropper_top", "y":  90},
-    "half=upper,corner=down_right": {"model": "portalmod:block/cube_dropper_top", "y":  180},
-    "half=upper,corner=down_left": {"model": "portalmod:block/cube_dropper_top", "y":  270},
-    "half=lower,corner=up_left": {"model": "portalmod:block/cube_dropper_bottom"},
-    "half=lower,corner=up_right": {"model": "portalmod:block/cube_dropper_bottom", "y":  90},
-    "half=lower,corner=down_right": {"model": "portalmod:block/cube_dropper_bottom", "y":  180},
-    "half=lower,corner=down_left": {"model": "portalmod:block/cube_dropper_bottom", "y":  270}
+    "open=false,half=upper,corner=up_left": {"model": "portalmod:block/cube_dropper_top"},
+    "open=false,half=upper,corner=up_right": {"model": "portalmod:block/cube_dropper_top", "y":  90},
+    "open=false,half=upper,corner=down_right": {"model": "portalmod:block/cube_dropper_top", "y":  180},
+    "open=false,half=upper,corner=down_left": {"model": "portalmod:block/cube_dropper_top", "y":  270},
+    "open=false,half=lower,corner=up_left": {"model": "portalmod:block/cube_dropper_bottom"},
+    "open=false,half=lower,corner=up_right": {"model": "portalmod:block/cube_dropper_bottom", "y":  90},
+    "open=false,half=lower,corner=down_right": {"model": "portalmod:block/cube_dropper_bottom", "y":  180},
+    "open=false,half=lower,corner=down_left": {"model": "portalmod:block/cube_dropper_bottom", "y":  270},
+    "open=true,half=upper,corner=up_left": {"model": "portalmod:block/cube_dropper_top_active"},
+    "open=true,half=upper,corner=up_right": {"model": "portalmod:block/cube_dropper_top_active", "y":  90},
+    "open=true,half=upper,corner=down_right": {"model": "portalmod:block/cube_dropper_top_active", "y":  180},
+    "open=true,half=upper,corner=down_left": {"model": "portalmod:block/cube_dropper_top_active", "y":  270},
+    "open=true,half=lower,corner=up_left": {"model": "portalmod:block/cube_dropper_bottom_active"},
+    "open=true,half=lower,corner=up_right": {"model": "portalmod:block/cube_dropper_bottom_active", "y":  90},
+    "open=true,half=lower,corner=down_right": {"model": "portalmod:block/cube_dropper_bottom_active", "y":  180},
+    "open=true,half=lower,corner=down_left": {"model": "portalmod:block/cube_dropper_bottom_active", "y":  270}
   }
 }
