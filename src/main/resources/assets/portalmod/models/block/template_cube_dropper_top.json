@@ -6,10 +6,10 @@
 			"from": [0,  6,  0],
 			"to":   [8, 16, 16],
 			"faces": {
-				"north": {"uv": [8, 0, 16, 10], "texture": "#base_right"},
+				"north": {"uv": [8, 0, 16, 10], "texture": "#base_right", "cullface": "north"},
 				"east":  {"uv": [0, 0, 16, 10], "texture": "#inside"},
-				"west":  {"uv": [0, 0, 16, 10], "texture": "#base_left"},
-				"up":    {"uv": [0, 0,  8, 16], "texture": "#top"},
+				"west":  {"uv": [0, 0, 16, 10], "texture": "#base_left", "cullface": "west"},
+				"up":    {"uv": [0, 0,  8, 16], "texture": "#top", "cullface":  "up"},
 				"down":  {"uv": [0, 0,  8, 16], "texture": "#bottom"}
 			}
 		},
@@ -17,9 +17,9 @@
 			"from": [ 8,  6, 0],
 			"to":   [16, 16, 8],
 			"faces": {
-				"north": {"uv": [0, 0,  8, 10], "texture": "#base_right"},
+				"north": {"uv": [0, 0,  8, 10], "texture": "#base_right", "cullface": "north"},
 				"south": {"uv": [8, 0, 16, 10], "texture": "#inside"},
-				"up":    {"uv": [8, 0, 16,  8], "texture": "#top"},
+				"up":    {"uv": [8, 0, 16,  8], "texture": "#top", "cullface":  "up"},
 				"down":  {"uv": [8, 8, 16, 16], "texture": "#bottom"}
 			}
 		},
@@ -27,7 +27,7 @@
 			"from": [ 8, 15,  8],
 			"to":   [16, 16, 16],
 			"faces": {
-				"up":    {"uv": [8, 8, 16, 16], "texture": "#top"},
+				"up":    {"uv": [8, 8, 16, 16], "texture": "#top", "cullface":  "up"},
 				"down":  {"uv": [8, 0, 16,  8], "texture": "#bottom"}
 			}
 		},
@@ -36,7 +36,7 @@
 			"to":   [16, 6, 8],
 			"faces": {
 				"north": {"uv": [ 0,  0, 14,  6], "texture": "#ring_right"},
-				"south": {"uv": [14, 10,  0, 16], "texture": "#ring_right"},
+				"south": {"uv": [14, 16,  0, 10], "texture": "#ring_right"},
 				"west":  {"uv": [ 0,  0,  6,  6], "texture": "#ring_left"},
 				"down":  {"uv": [14, 11,  0,  5], "texture": "#ring_right"}
 			}
@@ -45,7 +45,7 @@
 			"from": [2, 0,  8],
 			"to":   [8, 6, 16],
 			"faces": {
-				"east":  {"uv": [14, 10,  6, 16], "texture": "#ring_left"},
+				"east":  {"uv": [14, 16,  6, 10], "texture": "#ring_left"},
 				"west":  {"uv": [ 6,  0, 14,  6], "texture": "#ring_left"},
 				"down":  {"uv": [14, 11,  6,  5], "texture": "#ring_left", "rotation": 90}
 			}
