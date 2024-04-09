@@ -123,19 +123,25 @@
     "block.gel.grab": {
         "sounds": [
               "portalmod:block/gel/collect1",
-              "portalmod:block/gel/collect2",
-              "portalmod:block/gel/collect3"
+              "portalmod:block/gel/collect2"
         ],
-        "subtitle": "subtitles.block.gel.grab"
+        "subtitle": "subtitles.block.gel.fill"
     },
     "block.gel.place": {
-        "replace": true,
         "sounds": [
               "portalmod:block/gel/place1",
               "portalmod:block/gel/place2",
               "portalmod:block/gel/place3"
         ],
-        "subtitle": "subtitles.block.gel.grab"
+        "subtitle": "subtitles.block.generic.place"
+    },
+    "block.gel.step": {
+        "sounds": [
+            "portalmod:block/gel/step1",
+            "portalmod:block/gel/step2",
+            "portalmod:block/gel/step3"
+        ],
+        "subtitle": "subtitles.block.generic.footsteps"
     },
     "block.faithplate.launch": {
         "sounds": [
