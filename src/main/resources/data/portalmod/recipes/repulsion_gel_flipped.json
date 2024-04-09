@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "a",
+        "b",
+        "u"
+    ],
+    "key": {
+        "a": { "item": "minecraft:slime_ball" },
+        "b": { "item": "minecraft:warped_wart_block" },
+        "u": { "item": "portalmod:container" }
+    },
+    "result": { "item": "portalmod:repulsion_gel" },
+    "group": "repulsion_gel"
+}

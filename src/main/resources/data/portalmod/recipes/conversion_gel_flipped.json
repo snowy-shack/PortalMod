@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "a",
+        "b",
+        "u"
+    ],
+    "key": {
+        "a": { "item": "minecraft:quartz" },
+        "b": { "item": "minecraft:end_stone" },
+        "u": { "item": "portalmod:container" }
+    },
+    "result": { "item": "portalmod:conversion_gel" },
+    "group": "conversion_gel"
+}
