@@ -11,7 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.portalmod.common.entity.FizzleableEntity;
+import net.portalmod.common.entity.TestElementEntity;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
@@ -86,8 +86,8 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             this.openTicks = 1;
             if (this.entityUUIDs.size() == 2) {
                 Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
-                if (entity instanceof FizzleableEntity) {
-                    ((FizzleableEntity) entity).startFizzling();
+                if (entity instanceof TestElementEntity) {
+                    ((TestElementEntity) entity).startFizzling();
                 } else {
                     entity.remove();
                 }
@@ -121,6 +121,11 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         Entity entity = this.entityType.create(this.level);
         Vector3f position = new Vec3(this.getBlockPos().south().east()).to3f();
         entity.teleportTo(position.x(), position.y(), position.z());
+
+        if (entity instanceof TestElementEntity) {
+            ((TestElementEntity) entity).setFromDropper(true);
+        }
+
         this.entityUUIDs.add(entity.getUUID());
         this.level.addFreshEntity(entity);
     }
@@ -130,8 +135,8 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             for (UUID uuid : this.entityUUIDs) {
                 Entity entity = ((ServerWorld) this.level).getEntity(uuid);
                 if (entity != null) {
-                    if (entity instanceof FizzleableEntity) {
-                        ((FizzleableEntity) entity).startFizzling();
+                    if (entity instanceof TestElementEntity) {
+                        ((TestElementEntity) entity).startFizzling();
                     } else {
                         entity.remove();
                     }

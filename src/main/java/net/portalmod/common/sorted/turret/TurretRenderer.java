@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -17,10 +16,11 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.PortalMod;
+import net.portalmod.common.entity.TestElementEntityRenderer;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
-public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<TurretEntity>> {
+public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, TurretModel<TurretEntity>> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png");
     private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR);
 
@@ -34,11 +34,11 @@ public class TurretRenderer extends LivingRenderer<TurretEntity, TurretModel<Tur
     }
 
     @Override
-    public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i) {
+    public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int light) {
 //        if(super.shouldRender(turret, ))
 
         // todo dont render turret if clipped
-        super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, turret.getFizzleLight(i));
+        super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, light);
 
         if (turret.isFizzling()) {
             return;

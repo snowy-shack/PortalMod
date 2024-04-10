@@ -3,7 +3,6 @@ package net.portalmod.common.sorted.cube;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -19,18 +18,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.entity.FizzleableEntity;
+import net.portalmod.common.entity.TestElementEntity;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
-import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cube extends FizzleableEntity {
+public class Cube extends TestElementEntity {
 
     private double oldDeltaY = 0;
     private boolean oldActive = true;
@@ -44,8 +42,8 @@ public class Cube extends FizzleableEntity {
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MobEntity.createMobAttributes()
-        .add(Attributes.MAX_HEALTH, 120.0D);
+        return MobEntity.createMobAttributes();
+//        .add(Attributes.MAX_HEALTH, 120.0D);
     }
 
     @Override
@@ -173,24 +171,6 @@ public class Cube extends FizzleableEntity {
     @Override
     public boolean isPassenger() {
         return super.isPassenger();
-    }
-
-    @Override
-    public boolean hurt(DamageSource source, float damage) {
-        if(level.isClientSide)
-            return false;
-        if(source == DamageSource.OUT_OF_WORLD || source instanceof EntityDamageSource)
-            return super.hurt(source, damage);
-
-        if(source == FluidInit.GOO_DAMAGE)
-            return super.hurt(source, (float) (this.getAttributeValue(Attributes.MAX_HEALTH) * 0.3));
-
-//        if(source.isCreativePlayer()) {
-//            remove();
-//            return true;
-//        }
-
-        return false;
     }
 
     @Override

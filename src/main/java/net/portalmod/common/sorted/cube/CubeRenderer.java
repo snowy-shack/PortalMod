@@ -1,19 +1,13 @@
 package net.portalmod.common.sorted.cube;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.portalmod.common.entity.TestElementEntityRenderer;
 
-public abstract class CubeRenderer extends LivingRenderer<Cube, CubeModel<Cube>> {
+public abstract class CubeRenderer extends TestElementEntityRenderer<Cube, CubeModel<Cube>> {
     public CubeRenderer(EntityRendererManager erm) {
         super(erm, new CubeModel<>(), 0.5f);
-    }
-    
-    @Override
-    protected boolean shouldShowName(Cube cube) {
-        return Minecraft.renderNames() && cube.hasCustomName() && this.entityRenderDispatcher.crosshairPickEntity == cube;
     }
     
 //    private static final float[] projectionBuffer = new float[16];
@@ -34,7 +28,7 @@ public abstract class CubeRenderer extends LivingRenderer<Cube, CubeModel<Cube>>
 //        minecraft.textureManager.bind(minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
 //        PortalShaders.uniform1i("texture", 0);
         
-        super.render(cube, f, f2, matrixStack, renderTypeBuffer, cube.getFizzleLight(i));
+        super.render(cube, f, f2, matrixStack, renderTypeBuffer, i);
 
 //        IRenderTypeBuffer.Impl irendertypebuffer$impl = minecraft.levelRenderer.renderBuffers.bufferSource();
 //        irendertypebuffer$impl.endBatch(renderType);

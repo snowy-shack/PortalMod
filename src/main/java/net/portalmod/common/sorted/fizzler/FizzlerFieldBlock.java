@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.entity.FizzleableEntity;
+import net.portalmod.common.entity.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -85,12 +85,12 @@ public class FizzlerFieldBlock extends DoubleBlock {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
-        if (entity instanceof FizzleableEntity) {
+        if (entity instanceof TestElementEntity) {
             VoxelShape voxelshape = this.getShape(state, level, pos, ISelectionContext.of(entity));
             VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
             VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
             if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
-                ((FizzleableEntity) entity).startFizzling();
+                ((TestElementEntity) entity).startFizzling();
             }
         }
 

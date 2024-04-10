@@ -15,14 +15,14 @@ import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.entity.FizzleableEntity;
+import net.portalmod.common.entity.TestElementEntity;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.util.ModUtil;
 
 import java.util.Collections;
 
-public class TurretEntity extends FizzleableEntity {
+public class TurretEntity extends TestElementEntity {
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
     }
