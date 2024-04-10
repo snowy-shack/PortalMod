@@ -74,8 +74,11 @@ public class FizzlerFieldBlock extends DoubleBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+        return VoxelShapes.empty();
+    }
+
+    public VoxelShape getFieldShape(BlockState state) {
         return SHAPE.get(state.getValue(AXIS)).getShape();
-//        return VoxelShapes.empty();
     }
 
     @Override
@@ -86,7 +89,7 @@ public class FizzlerFieldBlock extends DoubleBlock {
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
         if (entity instanceof TestElementEntity) {
-            VoxelShape voxelshape = this.getShape(state, level, pos, ISelectionContext.of(entity));
+            VoxelShape voxelshape = this.getFieldShape(state);
             VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
             VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
             if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {

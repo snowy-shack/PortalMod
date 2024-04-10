@@ -33,12 +33,11 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunAnimation;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class FizzlerEmitterBlock extends DoubleBlock {
@@ -54,29 +53,39 @@ public class FizzlerEmitterBlock extends DoubleBlock {
         this.initAABBs();
     }
 
-    private static final Map<Direction, VoxelShapeGroup> SHAPE = new HashMap<>();
+    private static final BiHashMap<Direction, DoubleBlockHalf, VoxelShapeGroup> SHAPE = new BiHashMap<>();
     private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
             .add(0, 0, 3, 1, 16, 13)
-            .addPart("active", VoxelShapes.or(Block.box(1, 0, 5, 3, 16, 11), Block.box(1, 0, 6.5, 4.5, 16, 9.5)))
+            .addPart("active", VoxelShapes.or(
+                    Block.box(1, 0, 5, 3, 16, 11),
+                    Block.box(1, 0, 6.5, 4.5, 15, 9.5)))
+            .addPart("field", 0,0,7,16,16,9)
             .build();
 
     private void initAABBs() {
         for(Direction facing : Direction.values()) {
-            Mat4 matrix = Mat4.identity();
-            matrix.translate(new Vec3(.5));
+            for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+                Mat4 matrix = Mat4.identity();
+                matrix.translate(new Vec3(.5));
 
-            int angle = facing.get2DDataValue() * -90 - 90;
-            matrix.rotateDeg(Vector3f.YP, angle);
+                int angle = facing.get2DDataValue() * -90 - 90;
+                matrix.rotateDeg(Vector3f.YP, angle);
+                matrix.scale(1, (half == DoubleBlockHalf.UPPER) ? 1 : -1, 1);
 
-            matrix.translate(new Vec3(-.5));
+                matrix.translate(new Vec3(-.5));
 
-            SHAPE.put(facing, shape.clone().transform(matrix));
+                SHAPE.put(facing, half, shape.clone().transform(matrix));
+            }
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(FACING)).getVariant(state.getValue(ACTIVE) ? "active" : "");
+        return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(ACTIVE) ? "active" : "");
+    }
+
+    public VoxelShape getFieldShape(BlockState state) {
+        return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant("field");
     }
 
 //    @Override
@@ -87,7 +96,7 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
         if (entity instanceof TestElementEntity) {
-            VoxelShape voxelshape = this.getShape(state, level, pos, ISelectionContext.of(entity));
+            VoxelShape voxelshape = this.getFieldShape(state);
             VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
             VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
             if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {

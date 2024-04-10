@@ -57,8 +57,12 @@
   "container.faithplate.enable":  "Require Power",
   "container.faithplate.signage": "Render Signage",
 
-  "subtitles.block.gel.grab":    "Gel Container fills",
-  "subtitles.block.gel.place":   "Gel placed",
+  "subtitles.block.gel.fill":    "Gel Container fills",
+
+  "subtitles.block.generic.break": "Block broken",
+  "subtitles.block.generic.footsteps": "Footsteps",
+  "subtitles.block.generic.hit": "Block breaking",
+  "subtitles.block.generic.place": "Block placed",
 
   "subtitles.block.radio.loop":              "Radio plays",
   "subtitles.block.radio.transmission":      "Radio transmitting",

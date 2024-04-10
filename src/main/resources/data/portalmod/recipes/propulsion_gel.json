@@ -1,0 +1,15 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "a",
+        "b",
+        "u"
+    ],
+    "key": {
+        "a": { "item": "minecraft:soul_soil" },
+        "b": { "item": "minecraft:blaze_powder" },
+        "u": { "item": "portalmod:container" }
+    },
+    "result": { "item": "portalmod:propulsion_gel" },
+    "group": "propulsion_gel"
+}

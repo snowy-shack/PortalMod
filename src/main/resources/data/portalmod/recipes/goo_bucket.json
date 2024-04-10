@@ -8,7 +8,8 @@
     "key": {
         "a": { "item": "minecraft:soul_sand" },
         "b": { "item": "minecraft:dirt" },
-        "u": { "item": "minecraft:water_bucket" }
+        "u": { "item": "minecraft:bucket" }
     },
-    "result": { "item": "portalmod:goo_bucket" }
+    "result": { "item": "portalmod:goo_bucket" },
+    "group": "goo_bucket"
 }
