@@ -95,7 +95,7 @@ public class FrameBlock extends Block implements IWaterLoggable {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         Direction nearestLookingDirection = context.getNearestLookingDirection();
         return this.stateDefinition.any()
-                .setValue(FACING, context.getPlayer().isCrouching() ? nearestLookingDirection : nearestLookingDirection.getOpposite())
+                .setValue(FACING, context.getPlayer().isShiftKeyDown() ? nearestLookingDirection : nearestLookingDirection.getOpposite())
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
