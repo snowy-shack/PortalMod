@@ -20,7 +20,8 @@ import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.gel.ConversionGelBlock;
 import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.gel.RepulsionGelBlock;
-import net.portalmod.common.sorted.panel.PanelBlock;
+import net.portalmod.common.sorted.panel.LargePanelBlock;
+import net.portalmod.common.sorted.panel.SmallPanelBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 
@@ -113,10 +114,10 @@ public class BlockInit {
             () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
 
     public static RegistryObject<Block> registerLunecast(String name) {
-        return BLOCKS.register(name + "lunecast", () -> new PanelBlock(false, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+        return BLOCKS.register(name + "lunecast", () -> new SmallPanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerBlackplate(String name) {
-        return BLOCKS.register(name + "blackplate", () -> new PanelBlock(true, AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+        return BLOCKS.register(name + "blackplate", () -> new LargePanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 }

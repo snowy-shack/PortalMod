@@ -19,17 +19,12 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class PanelBlock extends Block {
-
-    // TODO: fix the blockstates for lunecast
-    public final boolean canBeLarge;
+public class LargePanelBlock extends Block {
     public static final EnumProperty<PanelState> STATE = EnumProperty.create("state", PanelState.class);
-    public static final EnumProperty<PanelState> STATE_SMALL = EnumProperty.create("state", PanelState.class, PanelState.SINGLE, PanelState.TOP, PanelState.BOTTOM);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
 
-    public PanelBlock(boolean canBeLarge, Properties properties) {
+    public LargePanelBlock(Properties properties) {
         super(properties);
-        this.canBeLarge = canBeLarge;
         this.registerDefaultState(this.stateDefinition.any().setValue(STATE, PanelState.SINGLE).setValue(AXIS, Direction.Axis.X));
     }
 
@@ -61,7 +56,7 @@ public class PanelBlock extends Block {
         }
 
         // Block is double and placing on side
-        if (this.canBeLarge && clickedPanelState.isDouble() && isSide(clickedFace) && areTwoBlocksInInventory(player, this) && world.getBlockState(context.getClickedPos().relative(clickedPanelState.getVerticalFacing())).canBeReplaced(context)) {
+        if (clickedPanelState.isDouble() && isSide(clickedFace) && areTwoBlocksInInventory(player, this) && world.getBlockState(context.getClickedPos().relative(clickedPanelState.getVerticalFacing())).canBeReplaced(context)) {
             removeBlockFromInventory(player, this);
             return this.defaultBlockState()
                     .setValue(STATE, getStateFromDirection(clickedFace, clickedPanelState))
