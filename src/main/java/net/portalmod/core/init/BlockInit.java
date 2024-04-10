@@ -46,6 +46,9 @@ public class BlockInit {
 
     public static final RegistryObject<Block> BARRED_IRON_FRAME = BLOCKS.register("barred_iron_frame",
             () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), true));
+
+    public static final RegistryObject<Block> MESHED_IRON_FRAME = BLOCKS.register("meshed_iron_frame",
+            () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), true));
     public static final RegistryObject<Block> RADIO = BLOCKS.register("radio",
             () -> new RadioBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));
     

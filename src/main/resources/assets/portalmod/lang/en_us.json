@@ -37,6 +37,7 @@
   "block.portalmod.wire_mesh_block":      "Wire Mesh Block",
   "block.portalmod.iron_frame":           "Iron Frame",
   "block.portalmod.barred_iron_frame":    "Barred Iron Frame",
+  "block.portalmod.meshed_iron_frame":    "Meshed Iron Frame",
 
   "block.portalmod.antline":            "Antline",
   "block.portalmod.antline_indicator":  "Antline Indicator",

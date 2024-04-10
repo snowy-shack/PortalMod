@@ -1,0 +1,16 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " i ",
+        "ixi",
+        " i "
+    ],
+    "key": {
+        "i": { "item": "minecraft:iron_ingot" },
+        "x": { "item": "portalmod:wire_mesh" }
+    },
+    "result": {
+        "item": "portalmod:meshed_iron_frame",
+        "count": 4
+    }
+}
