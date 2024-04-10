@@ -67,6 +67,7 @@ public class ItemInit {
             () -> new BlockItem(BlockInit.WIRE_MESH.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
     public static final RegistryObject<BlockItem> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);
     public static final RegistryObject<BlockItem> BARRED_IRON_FRAME = registerBlockItem("barred_iron_frame", BlockInit.BARRED_IRON_FRAME);
+    public static final RegistryObject<BlockItem> MESHED_IRON_FRAME = registerBlockItem("meshed_iron_frame", BlockInit.MESHED_IRON_FRAME);
     public static final RegistryObject<BlockItem> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
             () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),
                     new Item.Properties().tab(PortalModTab.INSTANCE)
