@@ -9,10 +9,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -43,22 +40,26 @@ public class Cube extends TestElementEntity {
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return MobEntity.createMobAttributes();
-//        .add(Attributes.MAX_HEALTH, 120.0D);
+    }
+
+    @Override
+    public void remove() {
+        super.remove();
     }
 
     @Override
     public boolean isPushable() {
-        return !isFizzling();
+        return true;
+    }
+
+    @Override
+    public boolean canBeCollidedWith() {
+        return true;
     }
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        return entity instanceof PlayerEntity && !entity.hasPassenger(this) && !this.isFizzling();
-    }
-    
-    @Override
-    public void push(Entity entity) {
-        super.push(entity);
+        return entity instanceof PlayerEntity && !entity.hasPassenger(this);
     }
 
     @Override
@@ -98,6 +99,13 @@ public class Cube extends TestElementEntity {
 
                 if (y1 < x && y1 < z && getDeltaMovement().y > -.1 && oldDeltaY < -0.5f)
                     entity.hurt(cube(this), (float) oldDeltaY * -3);
+            }
+
+            // push when entity near (copied from BoatEntity)
+            this.checkInsideBlocks();
+            List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.15, -0.01, 0.15), EntityPredicates.pushableBy(this));
+            for(Entity entity : list) {
+                this.push(entity);
             }
         }
 

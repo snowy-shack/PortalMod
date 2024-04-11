@@ -67,12 +67,12 @@ public abstract class TestElementEntity extends LivingEntity {
             Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
             this.setDeltaMovement(newMovement);
 
-            if (this.getFizzleTicks() > this.maxFizzleTime) {
-                this.remove();
-            }
-
             FizzleGlowParticle.createGlowParticles(level, this);
             FizzleFlakeParticle.createFlakeParticles(level, this);
+
+            if (this.getFizzleTicks() > this.maxFizzleTime && !this.level.isClientSide && this.isAlive()) {
+                this.remove();
+            }
 
             this.setFizzleTicks(this.getFizzleTicks() + 1);
         }
@@ -80,7 +80,7 @@ public abstract class TestElementEntity extends LivingEntity {
 
     @Override
     public boolean hurt(DamageSource source, float damage) {
-        if (this.level.isClientSide || this.removed) {
+        if (this.level.isClientSide || !this.isAlive()) {
             return false;
         }
 
@@ -98,14 +98,14 @@ public abstract class TestElementEntity extends LivingEntity {
         }
 
         if (shouldHurt) {
-            this.applyHurt(source, damage, shouldSwing, isCreative);
+            this.applyDamage(source, damage, shouldSwing, isCreative);
             return true;
         }
 
         return false;
     }
 
-    public void applyHurt(DamageSource source, float damage, boolean swing, boolean creative) {
+    public void applyDamage(DamageSource source, float damage, boolean swing, boolean creative) {
         if (swing) {
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
