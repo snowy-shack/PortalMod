@@ -5,9 +5,9 @@ import net.minecraft.util.IStringSerializable;
 public enum QuadBlockCorner implements IStringSerializable {
     UP_LEFT("up_left", 0, 1, 90),
     UP_RIGHT("up_right", 1, 1, 0),
-    DOWN_LEFT("down_left", 0, 0, 180),
-    DOWN_RIGHT("down_right", 1, 0, -90);
-    
+    DOWN_RIGHT("down_right", 1, 0, -90),
+    DOWN_LEFT("down_left", 0, 0, 180);
+
     private final String name;
     private final int x, y;
     private final int rot;

@@ -161,10 +161,13 @@ public class CubeDropperBlock extends MultiBlock {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         World world = context.getLevel();
         BlockPos pos = context.getClickedPos();
+        PlayerEntity player = context.getPlayer();
 
         if (context.getClickedFace() != Direction.DOWN) {
             return null;
         }
+
+        List<QuadBlockCorner> possibleCorners = new ArrayList<>();
 
         if (canPlace(new BlockPos[]{
                 pos.relative(Direction.EAST),
@@ -175,9 +178,10 @@ public class CubeDropperBlock extends MultiBlock {
                 pos.below().relative(Direction.SOUTH),
                 pos.below().relative(Direction.SOUTH).relative(Direction.EAST)
         }, context, world)) {
-            return this.defaultBlockState();
+            possibleCorners.add(QuadBlockCorner.UP_LEFT);
         }
-        else if (canPlace(new BlockPos[]{
+
+        if (canPlace(new BlockPos[]{
                 pos.relative(Direction.WEST),
                 pos.relative(Direction.SOUTH),
                 pos.relative(Direction.SOUTH).relative(Direction.WEST),
@@ -186,9 +190,10 @@ public class CubeDropperBlock extends MultiBlock {
                 pos.below().relative(Direction.SOUTH),
                 pos.below().relative(Direction.SOUTH).relative(Direction.WEST)
         }, context, world)) {
-            return this.defaultBlockState().setValue(CORNER, QuadBlockCorner.UP_RIGHT);
+            possibleCorners.add(QuadBlockCorner.UP_RIGHT);
         }
-        else if (canPlace(new BlockPos[]{
+
+        if (canPlace(new BlockPos[]{
                 pos.relative(Direction.WEST),
                 pos.relative(Direction.NORTH),
                 pos.relative(Direction.NORTH).relative(Direction.WEST),
@@ -197,9 +202,10 @@ public class CubeDropperBlock extends MultiBlock {
                 pos.below().relative(Direction.NORTH),
                 pos.below().relative(Direction.NORTH).relative(Direction.WEST)
         }, context, world)) {
-            return this.defaultBlockState().setValue(CORNER, QuadBlockCorner.DOWN_RIGHT);
+            possibleCorners.add(QuadBlockCorner.DOWN_RIGHT);
         }
-        else if (canPlace(new BlockPos[]{
+
+        if (canPlace(new BlockPos[]{
                 pos.relative(Direction.EAST),
                 pos.relative(Direction.NORTH),
                 pos.relative(Direction.NORTH).relative(Direction.EAST),
@@ -208,9 +214,20 @@ public class CubeDropperBlock extends MultiBlock {
                 pos.below().relative(Direction.NORTH),
                 pos.below().relative(Direction.NORTH).relative(Direction.EAST)
         }, context, world)) {
-            return this.defaultBlockState().setValue(CORNER, QuadBlockCorner.DOWN_LEFT);
+            possibleCorners.add(QuadBlockCorner.DOWN_LEFT);
         }
-        return null;
+
+        if (possibleCorners.isEmpty()) {
+            return null;
+        }
+
+        int i = (int) (player.yRotO / 90 + 1) % 4;
+        if (i < 0) i += 4; // stupid java modulo can be negative >:(
+        QuadBlockCorner preferredCorner = QuadBlockCorner.values()[i];
+        if (possibleCorners.contains(preferredCorner)) {
+            return defaultBlockState().setValue(CORNER, preferredCorner);
+        }
+        return defaultBlockState().setValue(CORNER, possibleCorners.get(0));
     }
 
     public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {

@@ -15,9 +15,11 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -131,6 +133,7 @@ public class ChamberDoorBlock extends MultiBlock {
         World world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Direction facing = context.getHorizontalDirection();
+        Direction clickedFace = context.getClickedFace();
 
         BlockState rotated = this.defaultBlockState().setValue(FACING, facing.getOpposite());
 
@@ -138,36 +141,58 @@ public class ChamberDoorBlock extends MultiBlock {
             rotated = rotated.setValue(POWERED, true);
         }
 
+        List<Tuple<DoubleBlockHalf, Side>> possibleStates = new ArrayList<>();
+
         if (canPlace(new BlockPos[]{
                 pos.above(),
                 pos.relative(facing.getClockWise()),
                 pos.relative(facing.getClockWise()).above()
         }, context, world)) {
-            return rotated;
+            possibleStates.add(new Tuple<>(DoubleBlockHalf.LOWER, Side.LEFT));
         }
-        else if (canPlace(new BlockPos[]{
+
+        if (canPlace(new BlockPos[]{
                 pos.below(),
                 pos.relative(facing.getClockWise()),
                 pos.relative(facing.getClockWise()).below()
         }, context, world)) {
-            return rotated.setValue(HALF, DoubleBlockHalf.UPPER);
+            possibleStates.add(new Tuple<>(DoubleBlockHalf.UPPER, Side.LEFT));
         }
-        else if (canPlace(new BlockPos[]{
+
+        if (canPlace(new BlockPos[]{
                 pos.above(),
                 pos.relative(facing.getCounterClockWise()),
                 pos.relative(facing.getCounterClockWise()).above()
         }, context, world)) {
-            return rotated.setValue(SIDE, Side.RIGHT);
+            possibleStates.add(new Tuple<>(DoubleBlockHalf.LOWER, Side.RIGHT));
         }
-        else if (canPlace(new BlockPos[]{
+
+        if (canPlace(new BlockPos[]{
                 pos.below(),
                 pos.relative(facing.getCounterClockWise()),
                 pos.relative(facing.getCounterClockWise()).below()
         }, context, world)) {
-            return rotated.setValue(HALF, DoubleBlockHalf.UPPER).setValue(SIDE, Side.RIGHT);
+            possibleStates.add(new Tuple<>(DoubleBlockHalf.UPPER, Side.RIGHT));
         }
 
-        return null;
+        if (possibleStates.isEmpty()) {
+            return null;
+        }
+
+        if (clickedFace == Direction.UP) {
+            Vector3d clickOffset = context.getClickLocation().subtract(Vector3d.atCenterOf(pos));
+            double perpendicular = facing.getAxis() == Direction.Axis.X ?
+                    facing.getAxisDirection() == Direction.AxisDirection.POSITIVE ?
+                            clickOffset.z : -clickOffset.z :
+                    facing.getAxisDirection() == Direction.AxisDirection.POSITIVE ?
+                            -clickOffset.x : clickOffset.x;
+            Tuple<DoubleBlockHalf, Side> preferredState = new Tuple<>(DoubleBlockHalf.LOWER, perpendicular > 0 ? Side.LEFT : Side.RIGHT);
+            if (possibleStates.stream().anyMatch(tuple -> tuple.getA() == preferredState.getA() && tuple.getB() == preferredState.getB())) {
+                return rotated.setValue(HALF, preferredState.getA()).setValue(SIDE, preferredState.getB());
+            }
+        }
+
+        return rotated.setValue(HALF, possibleStates.get(0).getA()).setValue(SIDE, possibleStates.get(0).getB());
     }
 
     public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
