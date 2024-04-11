@@ -1,9 +1,8 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.antline;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 
 import java.util.List;
 

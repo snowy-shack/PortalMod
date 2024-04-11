@@ -1,4 +1,4 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.antline;
 
 public class IndicatorInfo {
     public final int totalIndicators;

@@ -9,8 +9,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.blocks.IndicatorActivated;
-import net.portalmod.common.blocks.IndicatorInfo;
+import net.portalmod.common.sorted.antline.IndicatorActivated;
+import net.portalmod.common.sorted.antline.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 
