@@ -79,8 +79,6 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     // Open dropper and fizzle first cube
     public void openDropper(CubeDropperBlock dropperBlock) {
-        // todo this may also need to be only on the server?
-
         if (this.level instanceof ServerWorld) {
             dropperBlock.setOpen(true, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 1;
@@ -88,7 +86,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
                 Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
                 if (entity instanceof TestElementEntity) {
                     ((TestElementEntity) entity).startFizzling();
-                } else {
+                } else if (entity.isAlive()) {
                     entity.remove();
                 }
                 this.entityUUIDs.remove(0);
@@ -98,7 +96,6 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     // Close dropper and spawn a new cube inside the dropper
     public void closeDropper(CubeDropperBlock dropperBlock) {
-
         if (this.level instanceof ServerWorld) {
             dropperBlock.setOpen(false, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 0;
@@ -110,7 +107,9 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         if (this.entityUUIDs.isEmpty()) {
             addEntity();
         }
-        this.entityUUIDs.removeIf(uuid -> this.level instanceof ServerWorld && ((ServerWorld) this.level).getEntity(uuid) == null);
+        if (this.level instanceof ServerWorld) {
+            this.entityUUIDs.removeIf(uuid -> ((ServerWorld) this.level).getEntity(uuid) == null);
+        }
     }
 
     public void addEntity() {
@@ -137,7 +136,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
                 if (entity != null) {
                     if (entity instanceof TestElementEntity) {
                         ((TestElementEntity) entity).startFizzling();
-                    } else {
+                    } else if (entity.isAlive()) {
                         entity.remove();
                     }
                 }
@@ -149,7 +148,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     /*
 
     5      6       7      8
-    4   updated  dropper  9
+    4   entity   dropper  9
     3   dropper  dropper  10
     2      1       12     11
 
