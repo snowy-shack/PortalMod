@@ -20,6 +20,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
@@ -221,9 +222,7 @@ public class CubeDropperBlock extends MultiBlock {
             return null;
         }
 
-        int i = (int) (player.yRotO / 90 + 1) % 4;
-        if (i < 0) i += 4; // stupid java modulo can be negative >:(
-        QuadBlockCorner preferredCorner = QuadBlockCorner.values()[i];
+        QuadBlockCorner preferredCorner = QuadBlockCorner.values()[MathHelper.positiveModulo(MathHelper.floor(player.yRot / 90 + 1), 4)];
         if (possibleCorners.contains(preferredCorner)) {
             return defaultBlockState().setValue(CORNER, preferredCorner);
         }
