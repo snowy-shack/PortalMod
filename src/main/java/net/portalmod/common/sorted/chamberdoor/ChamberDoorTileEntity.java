@@ -9,7 +9,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
+import net.portalmod.common.blocks.IndicatorActivated;
+import net.portalmod.common.blocks.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEntity {
+public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
 
     public ChamberDoorTileEntity() {
         super(TileEntityTypeInit.CHAMBER_DOOR.get());
@@ -34,24 +35,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         World world = this.level;
         Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
 
-        List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
-        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos));
-        possibleIndicatorPositions.addAll(getSurroundingPositions(blockState, pos.relative(facing)));
-        possibleIndicatorPositions.addAll(getDoorPositions(blockState, pos.relative(facing))); // fill the gap
-
-        boolean hasIndicators = false;
-        boolean allIndicatorsActivated = true;
-
-        for (BlockPos blockPos : possibleIndicatorPositions) {
-            BlockState worldBlockState = world.getBlockState(blockPos);
-            if (worldBlockState.getBlock() instanceof AntlineIndicatorBlock) {
-                hasIndicators = true;
-                if (!worldBlockState.getValue(AntlineIndicatorBlock.ACTIVE)) {
-                    allIndicatorsActivated = false;
-                }
-            }
-        }
-
+        IndicatorInfo indicatorInfo = this.checkIndicators(blockState, world, pos);
         boolean isOpen = blockState.getValue(ChamberDoorBlock.OPEN);
 
         if (blockState.getValue(ChamberDoorBlock.POWERED)) {
@@ -59,9 +43,9 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 doorBlock.setOpen(true, blockState, world, pos);
             }
         }
-        else if (hasIndicators) {
-            if (isOpen != allIndicatorsActivated) {
-                doorBlock.setOpen(allIndicatorsActivated, blockState, world, pos);
+        else if (indicatorInfo.hasIndicators) {
+            if (isOpen != indicatorInfo.allIndicatorsActivated) {
+                doorBlock.setOpen(indicatorInfo.allIndicatorsActivated, blockState, world, pos);
             }
         }
         else {
@@ -73,7 +57,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 Vector3d middlePos = Vector3d.atBottomCenterOf(pos).add(new Vec3(facing.getCounterClockWise().getNormal()).mul(0.5).add(0, 1, 0).to3d());
                 boolean inFront = player.position().subtract(middlePos).multiply(1, 0, 1).dot(new Vec3(facing.getNormal()).to3d()) > 0;
                 double playerDistance = player.position().distanceTo((middlePos));
-                int changeProximity = isOpen ? 5 : 3;  // Open in 3, close in 5
+                int changeProximity = isOpen ? 5 : 3;  // Open in 3 blocks, close in 5
                 if (playerDistance < changeProximity && inFront || playerDistance < 1.5 && isOpen) {
                     hasNearbyPlayer = true;
                     break;
@@ -83,6 +67,16 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 doorBlock.setOpen(hasNearbyPlayer, blockState, world, pos);
             }
         }
+    }
+
+    @Override
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, BlockPos pos) {
+        Direction facing = this.getBlockState().getValue(ChamberDoorBlock.FACING);
+        List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
+        possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockState(), pos));
+        possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockState(), pos.relative(facing)));
+        possibleIndicatorPositions.addAll(getDoorPositions(this.getBlockState(), pos.relative(facing))); // fill the gap
+        return possibleIndicatorPositions;
     }
 
     /*

@@ -11,8 +11,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.portalmod.common.blocks.IndicatorActivated;
+import net.portalmod.common.blocks.IndicatorInfo;
 import net.portalmod.common.entity.TestElementEntity;
-import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 
@@ -21,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class CubeDropperTileEntity extends TileEntity implements ITickableTileEntity {
+public class CubeDropperTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
 
     public List<UUID> entityUUIDs = new ArrayList<>();
     public int openTicks = 0;
@@ -35,6 +36,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     @Override
     public void tick() {
         BlockState blockState = this.getBlockState();
+        BlockPos pos = this.getBlockPos();
         if (!(blockState.getBlock() instanceof CubeDropperBlock) || this.entityType == null) {
             return;
         }
@@ -46,25 +48,8 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         this.updateEntities();
 
         CubeDropperBlock dropperBlock = (CubeDropperBlock) blockState.getBlock();
-
-        List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
-        possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockPos()));
-        possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockPos().below()));
-
-        boolean hasIndicators = false;
-        boolean allIndicatorsActivated = true;
-
-        for (BlockPos blockPos : possibleIndicatorPositions) {
-            BlockState worldBlockState = this.level.getBlockState(blockPos);
-            if (worldBlockState.getBlock() instanceof AntlineIndicatorBlock) {
-                hasIndicators = true;
-                if (!worldBlockState.getValue(AntlineIndicatorBlock.ACTIVE)) {
-                    allIndicatorsActivated = false;
-                }
-            }
-        }
-
-        boolean isPowered = blockState.getValue(CubeDropperBlock.POWERED) || hasIndicators && allIndicatorsActivated;
+        IndicatorInfo indicatorInfo = this.checkIndicators(blockState, this.level, pos);
+        boolean isPowered = blockState.getValue(CubeDropperBlock.POWERED) || indicatorInfo.hasIndicators && indicatorInfo.allIndicatorsActivated;
 
         if (isPowered && this.openTicks == 0 && (this.entityUUIDs.size() == 1 || !this.wasPowered)) {
             openDropper(dropperBlock);
@@ -143,6 +128,14 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             }
             this.entityUUIDs.clear();
         }
+    }
+
+    @Override
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, BlockPos pos) {
+        List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
+        possibleIndicatorPositions.addAll(getSurroundingPositions(pos));
+        possibleIndicatorPositions.addAll(getSurroundingPositions(pos.below()));
+        return possibleIndicatorPositions;
     }
 
     /*
