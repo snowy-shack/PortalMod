@@ -47,8 +47,6 @@
   "block.portalmod.chamber_door":       "Test Chamber Door",
   "block.portalmod.fizzler_emitter":    "Fizzler Emitter",
 
-  "tooltip.portalmod.hold_control": "[Hold Control]",
-
   "entity.portalmod.companion_cube":   "Companion Cube",
   "entity.portalmod.storage_cube":     "Storage Cube",
   "entity.portalmod.vintage_cube":     "Vintage Cube",
@@ -60,6 +58,21 @@
   "container.faithplate.select":  "Select Target",
   "container.faithplate.enable":  "Require Power",
   "container.faithplate.signage": "Render Signage",
+
+  "tooltip.portalmod.hold_control": "[Hold Control]",
+  "tooltip.portalmod.wrench": "",
+  "tooltip.portalmod.cube_dropper": "",
+  "tooltip.portalmod.button_pedestal": "",
+  "tooltip.portalmod.super_button": "",
+  "tooltip.portalmod.antline": "",
+  "tooltip.portalmod.antline_indicator": "",
+  "tooltip.portalmod.chamber_door": "",
+  "tooltip.portalmod.faithplate": "",
+  "tooltip.portalmod.fizzler_emitter": "",
+
+  "actionbar.portalmod.button_mode.normal": "Set Button Mode to Normal",
+  "actionbar.portalmod.button_mode.persistent": "Set Button Mode to Persistent",
+  "actionbar.portalmod.button_mode.toggle": "Set Button Mode to Toggle",
 
   "subtitles.block.gel.fill":    "Gel Container fills",
 

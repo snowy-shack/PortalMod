@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.ActionResultType;
@@ -17,9 +18,11 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
@@ -33,13 +36,14 @@ import java.util.Random;
 public class ButtonPedestalBlock extends DoubleBlock {
 
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
-    public boolean stayPressed = false;
+    public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
 
     public ButtonPedestalBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(ACTIVE, false)
+                .setValue(MODE, ButtonMode.NORMAL)
         );
         this.initAABBs();
     }
@@ -72,21 +76,30 @@ public class ButtonPedestalBlock extends DoubleBlock {
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF, ACTIVE);
+        builder.add(HALF, ACTIVE, MODE);
     }
 
     public void activate(BlockState blockState, World world, BlockPos pos) {
-        if (!blockState.getValue(ACTIVE)) {
+        ButtonMode mode = blockState.getValue(MODE);
+        Boolean isActive = blockState.getValue(ACTIVE);
+        if (mode == ButtonMode.TOGGLE) {
+            this.setBlockStateValue(ACTIVE, !isActive, blockState, world, pos);
+            world.updateNeighborsAt(pos, this);
+            this.playSound(world, pos, !isActive);
+        }
+        else if (!isActive) {
             this.setBlockStateValue(ACTIVE, true, blockState, world, pos);
             world.updateNeighborsAt(pos, this);
-            world.getBlockTicks().scheduleTick(pos, this, 30);
             this.playSound(world, pos, true);
+            if (mode == ButtonMode.NORMAL) {
+                world.getBlockTicks().scheduleTick(pos, this, 30);
+            }
         }
     }
 
     @Override
     public void tick(BlockState blockState, ServerWorld world, BlockPos pos, Random random) {
-        if (!this.stayPressed && blockState.getValue(ACTIVE)) {
+        if (blockState.getValue(MODE) == ButtonMode.NORMAL && blockState.getValue(ACTIVE)) {
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             world.updateNeighborsAt(pos, this);
             this.playSound(world, pos, false);
@@ -99,11 +112,24 @@ public class ButtonPedestalBlock extends DoubleBlock {
 
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && !blockState.getValue(ACTIVE)) {
+        if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
+            ButtonMode newMode = cycleMode(blockState, world, pos);
+            this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+        else if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && (blockState.getValue(ACTIVE) || blockState.getValue(MODE) == ButtonMode.TOGGLE)) {
             this.activate(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
         return ActionResultType.FAIL;
+    }
+
+    public ButtonMode cycleMode(BlockState blockState, World world, BlockPos pos) {
+        ButtonMode currentMode = blockState.getValue(MODE);
+        ButtonMode newMode = currentMode.cycle();
+        this.setBlockStateValue(MODE, newMode, blockState, world, pos);
+        return newMode;
     }
 
     @Nullable

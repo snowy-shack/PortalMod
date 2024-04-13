@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
@@ -17,17 +18,21 @@ import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.BlockFlags;
+import net.portalmod.common.blocks.ButtonMode;
 import net.portalmod.common.blocks.MultiBlock;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
@@ -46,6 +51,7 @@ public class SuperButtonBlock extends MultiBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
     
     private static final BiHashMap<Direction, QuadBlockCorner, VoxelShapeGroup> SHAPES = new BiHashMap<>();
     
@@ -54,7 +60,9 @@ public class SuperButtonBlock extends MultiBlock {
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.UP)
                 .setValue(CORNER, QuadBlockCorner.UP_LEFT)
-                .setValue(ACTIVE, false));
+                .setValue(ACTIVE, false)
+                .setValue(MODE, ButtonMode.NORMAL)
+        );
         this.initAABBs();
     }
 
@@ -103,7 +111,7 @@ public class SuperButtonBlock extends MultiBlock {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(FACING, CORNER, ACTIVE);
+        builder.add(FACING, CORNER, ACTIVE, MODE);
     }
     
     @Override
@@ -207,6 +215,24 @@ public class SuperButtonBlock extends MultiBlock {
                     .setValue(CORNER, corner);
         
         return null;
+    }
+
+    @Override
+    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+        if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
+            ButtonMode newMode = this.cycleMode(blockState, world, pos);
+            this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+        return ActionResultType.FAIL;
+    }
+
+    public ButtonMode cycleMode(BlockState blockState, World world, BlockPos pos) {
+        ButtonMode currentMode = blockState.getValue(MODE);
+        ButtonMode newMode = currentMode.cycle();
+        this.setBlockStateValue(MODE, newMode, blockState, world, pos);
+        return newMode;
     }
     
     @Override
@@ -365,6 +391,6 @@ public class SuperButtonBlock extends MultiBlock {
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
-        ModUtil.addTooltip("supper_button", list);
+        ModUtil.addTooltip("super_button", list);
     }
 }
