@@ -95,8 +95,11 @@ public class ButtonPedestalBlock extends DoubleBlock {
 
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
-        this.activate(blockState, world, pos);
-        return blockState.getValue(ACTIVE) ? ActionResultType.FAIL : ActionResultType.sidedSuccess(world.isClientSide);
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && !blockState.getValue(ACTIVE)) {
+            this.activate(blockState, world, pos);
+            return ActionResultType.sidedSuccess(world.isClientSide);
+        }
+        return ActionResultType.FAIL;
     }
 
     @Nullable
