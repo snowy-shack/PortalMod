@@ -77,6 +77,7 @@ public class ClientModEvents {
         RenderTypeLookup.setRenderLayer(BlockInit.CUBE_DROPPER.get(),       RenderType.translucent());
         RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(),    RenderType.translucent());
         RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_FIELD.get(),      RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.BUTTON_PEDESTAL.get(),    RenderType.cutout());
 
         RenderTypeLookup.setRenderLayer(BlockInit.GOO.get(),                RenderType.translucent());
         RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLUID.get(),          RenderType.translucent());

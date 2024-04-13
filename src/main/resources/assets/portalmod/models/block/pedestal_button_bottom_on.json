@@ -1,0 +1,7 @@
+{
+	"parent": "portalmod:block/pedestal_button_bottom_template",
+	"textures": {
+		"cover": "portalmod:block/pedestal_button_cover",
+		"base": "portalmod:block/pedestal_button_on"
+	}
+}

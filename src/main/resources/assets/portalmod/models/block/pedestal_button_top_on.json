@@ -1,0 +1,41 @@
+{
+	"textures": {
+		"cover": "portalmod:block/pedestal_button_cover",
+		"base": "portalmod:block/pedestal_button_on",
+		"particle": "#cover"
+	},
+	"elements": [
+		{
+			"from": [ 6, 3,  6],
+			"to":   [10, 3.5, 10],
+			"faces": {
+				"north": {"uv": [5, 14, 9, 14.5], "texture": "#cover"},
+				"east":  {"uv": [5, 14, 9, 14.5], "texture": "#cover"},
+				"south": {"uv": [5, 14, 9, 14.5], "texture": "#cover"},
+				"west":  {"uv": [5, 14, 9, 14.5], "texture": "#cover"},
+				"up":    {"uv": [5, 10, 9,   14], "texture": "#cover"}
+			}
+		},
+		{
+			"from": [ 6, 0,  6],
+			"to":   [10, 3, 10],
+			"faces": {
+				"north": {"uv": [12, 2, 16, 5], "texture": "#base"},
+				"east":  {"uv": [12, 2, 16, 5], "texture": "#base"},
+				"south": {"uv": [12, 2, 16, 5], "texture": "#base"},
+				"west":  {"uv": [12, 2, 16, 5], "texture": "#base"}
+			}
+		},
+		{
+			"from": [ 5.5, 0,  5.5],
+			"to":   [10.5, 3, 10.5],
+			"faces": {
+				"north": {"uv": [ 0, 0, 5, 3], "texture": "#cover"},
+				"east":  {"uv": [ 0, 0, 5, 3], "texture": "#cover"},
+				"south": {"uv": [ 0, 0, 5, 3], "texture": "#cover"},
+				"west":  {"uv": [ 0, 0, 5, 3], "texture": "#cover"},
+				"up":    {"uv": [10, 5, 5, 0], "texture": "#cover"}
+			}
+		}
+	]
+}

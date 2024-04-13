@@ -1,0 +1,38 @@
+{
+	"textures": { "particle": "#cover" },
+	"elements": [
+		{
+			"from": [ 4, 0,  4],
+			"to":   [12, 2, 12],
+			"faces": {
+				"north": {"uv": [8, 0, 16,  2], "texture": "#base"},
+				"east":  {"uv": [8, 0, 16,  2], "texture": "#base"},
+				"south": {"uv": [8, 0, 16,  2], "texture": "#base"},
+				"west":  {"uv": [8, 0, 16,  2], "texture": "#base"},
+				"up":    {"uv": [8, 8,  0,  0], "texture": "#base"},
+				"down":  {"uv": [8, 8,  0, 16], "texture": "#base"}
+			}
+		},
+		{
+			"from": [ 5.5,  2.95,  5.5],
+			"to":   [10.5,    16, 10.5],
+			"faces": {
+				"north": {"uv": [0, 3,  5, 16], "texture": "#cover"},
+				"east":  {"uv": [0, 3,  5, 16], "texture": "#cover"},
+				"south": {"uv": [0, 3,  5, 16], "texture": "#cover"},
+				"west":  {"uv": [0, 3,  5, 16], "texture": "#cover"},
+				"down":  {"uv": [5, 5, 10, 10], "texture": "#cover"}
+			}
+		},
+		{
+			"from": [ 6,  2,  6],
+			"to":   [10, 16, 10],
+			"faces": {
+				"north": {"uv": [8, 2, 12, 16], "texture": "#base"},
+				"east":  {"uv": [8, 2, 12, 16], "texture": "#base"},
+				"south": {"uv": [8, 2, 12, 16], "texture": "#base"},
+				"west":  {"uv": [8, 2, 12, 16], "texture": "#base"}
+			}
+		}
+	]
+}
