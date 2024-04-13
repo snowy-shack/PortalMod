@@ -13,6 +13,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.ISTERWrapper;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.sorted.antline.AntlineBlockItem;
 import net.portalmod.common.sorted.gel.container.EmptyGelContainer;
 import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
@@ -71,7 +72,10 @@ public class ItemInit {
     // Test Elements
     public static final RegistryObject<BlockItem> BUTTON_PEDESTAL = registerBlockItem("button_pedestal", BlockInit.BUTTON_PEDESTAL);
     public static final RegistryObject<BlockItem> SUPER_BUTTON = registerBlockItem("super_button", BlockInit.SUPER_BUTTON);
-    public static final RegistryObject<BlockItem> ANTLINE = registerBlockItem("antline", BlockInit.ANTLINE);
+
+    public static final RegistryObject<BlockItem> ANTLINE = ITEMS.register("antline",
+            () -> new AntlineBlockItem(BlockInit.ANTLINE.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+
     public static final RegistryObject<BlockItem> ANTLINE_INDICATOR = registerBlockItem("antline_indicator", BlockInit.ANTLINE_INDICATOR);
     public static final RegistryObject<BlockItem> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
     public static final RegistryObject<BlockItem> RADIO = registerBlockItem("radio", BlockInit.RADIO);
