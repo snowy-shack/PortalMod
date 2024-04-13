@@ -110,7 +110,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                 case PRESS_BUTTON:
                     BlockState blockState = player.level.getBlockState(blockHit.getBlockPos());
                     Block block = blockState.getBlock();
-                    if (block instanceof ButtonPedestalBlock) {
+                    if (block instanceof ButtonPedestalBlock && ((ButtonPedestalBlock) block).canActivate(blockState)) {
                         ((ButtonPedestalBlock) block).activate(blockState, player.level, blockHit.getBlockPos());
                     }
             }

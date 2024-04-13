@@ -330,7 +330,7 @@ public class ClientEvents {
                 BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
 
                 // TODO ray trace on the server too
-                // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and don't confirm anything
+                // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and then don't confirm anything
 
 //                if(rayHit.getType() == RayTraceResult.Type.MISS) {
 //                    return;
