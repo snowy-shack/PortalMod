@@ -118,7 +118,7 @@ public class ButtonPedestalBlock extends DoubleBlock {
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
-        else if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && (blockState.getValue(ACTIVE) || blockState.getValue(MODE) == ButtonMode.TOGGLE)) {
+        else if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && (!blockState.getValue(ACTIVE) || blockState.getValue(MODE) == ButtonMode.TOGGLE)) {
             this.activate(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
