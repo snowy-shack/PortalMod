@@ -9,7 +9,7 @@ public class PortalGunClient {
     protected static void handleLeftClick() {
         if(Minecraft.getInstance().player.hasPassenger(Cube.class)) {
             PortalGun.dropCube(Minecraft.getInstance().player, true);
-            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.THROW_CUBE).build());
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.THROW_ENTITY).build());
         } else PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.BLUE).build());
     }
 }

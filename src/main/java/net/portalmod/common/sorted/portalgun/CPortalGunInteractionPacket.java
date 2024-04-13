@@ -1,33 +1,43 @@
 package net.portalmod.common.sorted.portalgun;
 
-import java.util.function.Supplier;
-
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.common.blocks.ButtonPedestalBlock;
 import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.init.CriteriaTriggerInit;
 import net.portalmod.core.packet.AbstractPacket;
 
+import java.util.function.Supplier;
+
 public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInteractionPacket> {
     private PortalGunInteraction type;
     private PortalEnd end;
     private int data;
+    private BlockRayTraceResult blockHit;
 
     public CPortalGunInteractionPacket() {}
 
-    public CPortalGunInteractionPacket(PortalGunInteraction type, PortalEnd end, int data) {
+    public CPortalGunInteractionPacket(PortalGunInteraction type, PortalEnd end, int data, BlockRayTraceResult blockHit) {
         this.type = type;
         this.end = end;
         this.data = data;
+        this.blockHit = blockHit;
     }
 
     public static class Builder {
         private final PortalGunInteraction type;
         private PortalEnd end = PortalEnd.NONE;
         private int data = -1;
+        private BlockRayTraceResult blockHit = BlockRayTraceResult.miss(Vector3d.ZERO, Direction.NORTH, BlockPos.ZERO);
         
         public Builder(PortalGunInteraction type) {
             this.type = type;
@@ -42,9 +52,14 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
             this.data = data;
             return this;
         }
+
+        public Builder blockHit(BlockRayTraceResult blockHit) {
+            this.blockHit = blockHit;
+            return this;
+        }
         
         public CPortalGunInteractionPacket build() {
-            return new CPortalGunInteractionPacket(type, end, data);
+            return new CPortalGunInteractionPacket(type, end, data, blockHit);
         }
     }
     
@@ -53,6 +68,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
         buffer.writeEnum(type);
         buffer.writeEnum(end);
         buffer.writeInt(data);
+        buffer.writeBlockHitResult(blockHit);
     }
 
     @Override
@@ -60,7 +76,8 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
         return new CPortalGunInteractionPacket(
                 buffer.readEnum(PortalGunInteraction.class),
                 buffer.readEnum(PortalEnd.class),
-                buffer.readInt());
+                buffer.readInt(),
+                buffer.readBlockHitResult());
     }
 
     @Override
@@ -71,24 +88,31 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                 return;
 
             switch(type) {
-                case PICK_CUBE:
+                case PICK_ENTITY:
                     CriteriaTriggerInit.GRAB_ENTITY.get().trigger((ServerPlayerEntity)player);
                     player.level.getEntity(data).startRiding(player);
                     // todo only temporary fix
                     ((ITeleportable)player.level.getEntity(data)).removeLastUsedPortal();
                     break;
 
-                case DROP_CUBE:
+                case DROP_ENTITY:
                     PortalGun.dropCube(player, false);
                     break;
 
-                case THROW_CUBE:
+                case THROW_ENTITY:
                     PortalGun.dropCube(player, true);
                     break;
 
                 case SHOOT_PORTAL:
                     PortalGun.placePortal(player, player.level, end, player.getMainHandItem());
                     break;
+
+                case PRESS_BUTTON:
+                    BlockState blockState = player.level.getBlockState(blockHit.getBlockPos());
+                    Block block = blockState.getBlock();
+                    if (block instanceof ButtonPedestalBlock) {
+                        ((ButtonPedestalBlock) block).activate(blockState, player.level, blockHit.getBlockPos());
+                    }
             }
         });
 

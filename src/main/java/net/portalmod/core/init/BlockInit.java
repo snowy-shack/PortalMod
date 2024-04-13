@@ -6,10 +6,7 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
-import net.portalmod.common.blocks.ChamberLightsBlock;
-import net.portalmod.common.blocks.ForestCakeBlock;
-import net.portalmod.common.blocks.FrameBlock;
-import net.portalmod.common.blocks.WireMeshBlock;
+import net.portalmod.common.blocks.*;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.common.sorted.chamberdoor.ChamberDoorBlock;
@@ -66,22 +63,29 @@ public class BlockInit {
     public static final RegistryObject<Block> FOREST_CAKE = BLOCKS.register("forest_cake",
             () -> new ForestCakeBlock(AbstractBlock.Properties.copy(Blocks.CAKE)));
 
-    public static final RegistryObject<Block> TEST_BLOCK = BLOCKS.register("test_block",
-            () -> new Block(AbstractBlock.Properties.copy(Blocks.NETHERITE_BLOCK)));
-
     public static final RegistryObject<Block> CHAMBER_DOOR = BLOCKS.register("chamber_door",
             () -> new ChamberDoorBlock(AbstractBlock.Properties.of(Material.STONE).sound(SoundType.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> CUBE_DROPPER = BLOCKS.register("cube_dropper",
             () -> new CubeDropperBlock(AbstractBlock.Properties.of(Material.STONE).noOcclusion()));
+
+    // todo rename
+    public static final RegistryObject<Block> BUTTON_PEDESTAL = BLOCKS.register("button_pedestal",
+            () -> new ButtonPedestalBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+
+    public static final RegistryObject<Block> SUPER_BUTTON = BLOCKS.register("super_button",
+            () -> new SuperButtonBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+
+    public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
+            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
+
+    public static final RegistryObject<Block> TEST_BLOCK = BLOCKS.register("test_block",
+            () -> new Block(AbstractBlock.Properties.copy(Blocks.NETHERITE_BLOCK)));
     
     // ANTLINE
     
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
             () -> new AntlineBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_WIRE).lightLevel(i -> 7).emissiveRendering(($0, $1, $2) -> true)));
-    
-    public static final RegistryObject<Block> SUPER_BUTTON = BLOCKS.register("super_button",
-            () -> new SuperButtonBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
             () -> new AntlineIndicatorBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
@@ -112,9 +116,6 @@ public class BlockInit {
     public static final RegistryObject<Block> REPULSION_GEL = BLOCKS.register("repulsion_gel", () -> new RepulsionGelBlock(GEL_BASE));
     public static final RegistryObject<Block> PROPULSION_GEL = BLOCKS.register("propulsion_gel", () -> new PropulsionGelBlock(GEL_BASE));
     public static final RegistryObject<Block> CONVERSION_GEL = BLOCKS.register("conversion_gel", () -> new ConversionGelBlock(GEL_BASE));
-    
-    public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
-            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
 
     public static RegistryObject<Block> registerLunecast(String name) {
         return BLOCKS.register(name + "lunecast", () -> new SmallPanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));

@@ -25,10 +25,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
@@ -51,6 +48,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.common.blocks.ButtonPedestalBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
@@ -321,17 +319,18 @@ public class ClientEvents {
 
         if(KeyInit.PORTALGUN_INTERACT.isDown()) {
             if(player.getMainHandItem().getItem() instanceof PortalGun && !wasPressed) {
-//                int rayLength = 100;
-//                Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
-//                Vector3d rayPath = playerRotation.scale(rayLength);
-//
-//                Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
-//                Vector3d to = from.add(rayPath);
-//
-//                RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.ANY, null);
-//                BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
+                float rayLength = Minecraft.getInstance().gameMode.getPickRange();
+                Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
+                Vector3d rayPath = playerRotation.scale(rayLength);
+
+                Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
+                Vector3d to = from.add(rayPath);
+
+                RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
+                BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
 
                 // TODO ray trace on the server too
+                // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and don't confirm anything
 
 //                if(rayHit.getType() == RayTraceResult.Type.MISS) {
 //                    return;
@@ -339,16 +338,21 @@ public class ClientEvents {
 
                 if(player.hasPassenger(Cube.class) || player.hasPassenger(TurretEntity.class)) {
                     PortalGun.dropCube(player, false);
-                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_CUBE).build());
+                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
-                } else {
+                }
+                else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof ButtonPedestalBlock) {
+                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
+                    consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+                }
+                else {
                     try {
                         Entity entity = Minecraft.getInstance().crosshairPickEntity;
 
                         if(PortalGun.isHoldable(entity)) {
                             entity.startRiding(player);
-                            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_CUBE).data(entity.getId()).build());
+                            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
 
                             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                         }
