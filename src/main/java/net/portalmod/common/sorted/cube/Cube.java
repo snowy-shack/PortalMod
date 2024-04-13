@@ -103,7 +103,7 @@ public class Cube extends TestElementEntity {
 
             // push when entity near (copied from BoatEntity)
             this.checkInsideBlocks();
-            List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.15, -0.01, 0.15), EntityPredicates.pushableBy(this));
+            List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.05, -0.01, 0.05), EntityPredicates.pushableBy(this));
             for(Entity entity : list) {
                 this.push(entity);
             }
