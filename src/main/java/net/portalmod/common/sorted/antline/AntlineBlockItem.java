@@ -2,13 +2,20 @@ package net.portalmod.common.sorted.antline;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.util.*;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.portalmod.core.init.BlockInit;
+import net.portalmod.core.util.ModUtil;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class AntlineBlockItem extends BlockItem {
     public AntlineBlockItem(Block block, Properties properties) {
@@ -81,5 +88,10 @@ public class AntlineBlockItem extends BlockItem {
         context.getLevel().updateNeighborsAt(pos, BlockInit.ANTLINE.get());
         blockEntity.requestModelDataUpdate();
         return true;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip("antline", list);
     }
 }

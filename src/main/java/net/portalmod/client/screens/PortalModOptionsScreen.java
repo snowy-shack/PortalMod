@@ -18,13 +18,14 @@ public class PortalModOptionsScreen extends Screen {
     public static final ForgeConfigSpec CONFIG;
     public static final ForgeConfigSpec.ConfigValue<Boolean> CROSSHAIR;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ADHESION_GEL;
+    public static final ForgeConfigSpec.ConfigValue<Boolean> TOOLTIPS;
     public static final ForgeConfigSpec.ConfigValue<Boolean> CUSTOM_GUN;
     public static final ForgeConfigSpec.ConfigValue<Boolean> MENU;
     public static final ForgeConfigSpec.ConfigValue<Integer> RECURSION;
     
     private final Screen lastScreen;
     private ToggleButton CROSSHAIR_BUTTON;
-    private ToggleButton ADHESION_GEL_BUTTON;
+    private ToggleButton TOOLTIPS_BUTTON;
     private ToggleButton CUSTOM_GUN_BUTTON;
     private ToggleButton MENU_BUTTON;
     private Slider RECURSION_SLIDER;
@@ -37,6 +38,7 @@ public class PortalModOptionsScreen extends Screen {
         ADHESION_GEL = builder.define("adhesion_gel", false);
         CUSTOM_GUN = builder.define("custom_gun", true);
         MENU = builder.define("menu", true);
+        TOOLTIPS = builder.define("tooltips", true);
         RECURSION = builder.define("recursion", 3);
 
         CONFIG = builder.build();
@@ -75,8 +77,8 @@ public class PortalModOptionsScreen extends Screen {
             }
         };
 
-        ADHESION_GEL_BUTTON = new ToggleButton(this.width / 2 + 5, baseY, buttonWidth, buttonHeight,
-                new TranslationTextComponent("options." + PortalMod.MODID + ".adhesion_gel"), $1 -> {}, ADHESION_GEL.get());
+        TOOLTIPS_BUTTON = new ToggleButton(this.width / 2 + 5, baseY, buttonWidth, buttonHeight,
+                new TranslationTextComponent("options." + PortalMod.MODID + ".tooltips"), $1 -> {}, TOOLTIPS.get());
 
         MENU_BUTTON = new ToggleButton(this.width / 2 + 5, baseY + (buttonHeight + 5), buttonWidth, buttonHeight,
                 new TranslationTextComponent("options." + PortalMod.MODID + ".menu"), $1 -> {}, MENU.get());
@@ -91,7 +93,7 @@ public class PortalModOptionsScreen extends Screen {
                 });
         
         this.addButton(CROSSHAIR_BUTTON);
-        this.addButton(ADHESION_GEL_BUTTON);
+        this.addButton(TOOLTIPS_BUTTON);
 //        this.addButton(CUSTOM_GUN_BUTTON);
         this.addButton(MENU_BUTTON);
         this.addButton(RECURSION_SLIDER);
@@ -123,7 +125,7 @@ public class PortalModOptionsScreen extends Screen {
     private void close(boolean goBackElseClose) {
         boolean prevMenu = MENU.get();
         CROSSHAIR.set(CROSSHAIR_BUTTON.getValue());
-        ADHESION_GEL.set(ADHESION_GEL_BUTTON.getValue());
+        TOOLTIPS.set(TOOLTIPS_BUTTON.getValue());
 //        CUSTOM_GUN.set(CUSTOM_GUN_BUTTON.getValue());
         MENU.set(MENU_BUTTON.getValue());
         RECURSION.set((int)Math.round(RECURSION_SLIDER.getValue()));

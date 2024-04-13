@@ -1,5 +1,6 @@
 package net.portalmod.core.util;
 
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
@@ -8,7 +9,13 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.portalmod.client.screens.PortalModOptionsScreen;
+
+import java.util.List;
 
 public class ModUtil {
     public static VoxelShape moveVoxelShape(VoxelShape shape, Direction direction, int multiplier) {
@@ -31,5 +38,14 @@ public class ModUtil {
 
     public static Vector3d getOldPos(Entity entity) {
         return new Vector3d(entity.xo, entity.yo, entity.zo);
+    }
+
+    public static void addTooltip(String name, List<ITextComponent> list) {
+        if (PortalModOptionsScreen.TOOLTIPS.get()) {
+            if (!Screen.hasControlDown()) {
+                name = "hold_control";
+            }
+            list.add(new TranslationTextComponent("tooltip.portalmod." + name).withStyle(TextFormatting.GRAY));
+        }
     }
 }

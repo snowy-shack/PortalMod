@@ -46,7 +46,9 @@
   "block.portalmod.button_pedestal":    "Standing Button",
   "block.portalmod.chamber_door":       "Test Chamber Door",
   "block.portalmod.fizzler_emitter":    "Fizzler Emitter",
-  
+
+  "tooltip.portalmod.hold_control": "[Hold Control]",
+
   "entity.portalmod.companion_cube":   "Companion Cube",
   "entity.portalmod.storage_cube":     "Storage Cube",
   "entity.portalmod.vintage_cube":     "Vintage Cube",
