@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.portalmod.common.blocks.ButtonPedestalBlock;
+import net.portalmod.common.blocks.StandingButtonBlock;
 import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.init.CriteriaTriggerInit;
@@ -110,8 +110,8 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                 case PRESS_BUTTON:
                     BlockState blockState = player.level.getBlockState(blockHit.getBlockPos());
                     Block block = blockState.getBlock();
-                    if (block instanceof ButtonPedestalBlock && ((ButtonPedestalBlock) block).canActivate(blockState)) {
-                        ((ButtonPedestalBlock) block).activate(blockState, player.level, blockHit.getBlockPos());
+                    if (block instanceof StandingButtonBlock && ((StandingButtonBlock) block).canActivate(blockState)) {
+                        ((StandingButtonBlock) block).activate(blockState, player.level, blockHit.getBlockPos());
                     }
             }
         });

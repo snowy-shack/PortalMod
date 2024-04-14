@@ -70,8 +70,8 @@ public class ItemInit {
             () -> new BucketItem(() -> FluidInit.GOO_FLUID.get(), new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
 
     // Test Elements
-    public static final RegistryObject<BlockItem> BUTTON_PEDESTAL = registerBlockItem("button_pedestal", BlockInit.BUTTON_PEDESTAL);
     public static final RegistryObject<BlockItem> SUPER_BUTTON = registerBlockItem("super_button", BlockInit.SUPER_BUTTON);
+    public static final RegistryObject<BlockItem> STANDING_BUTTON = registerBlockItem("standing_button", BlockInit.STANDING_BUTTON);
 
     public static final RegistryObject<BlockItem> ANTLINE = ITEMS.register("antline",
             () -> new AntlineBlockItem(BlockInit.ANTLINE.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));

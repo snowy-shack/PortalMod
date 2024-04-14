@@ -1,14 +1,14 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "iri",
-        "bab"
+        "r",
+        "i",
+        "b"
     ],
     "key": {
         "r": { "item": "minecraft:red_dye" },
         "i": { "item": "minecraft:iron_ingot" },
-        "a": { "item": "portalmod:antline" },
         "b": { "item": "minecraft:blackstone" }
     },
-    "result": { "item": "portalmod:super_button" }
+    "result": { "item": "portalmod:standing_button" }
 }

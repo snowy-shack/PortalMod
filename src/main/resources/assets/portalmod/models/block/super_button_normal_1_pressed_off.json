@@ -1,0 +1,8 @@
+{
+    "parent": "portalmod:block/super_button_pressed",
+    "textures": {
+        "base":     "portalmod:block/super_button_corner_1",
+        "bottom":   "portalmod:block/super_button_bottom_1",
+        "button":   "portalmod:block/super_button_top_normal"
+    }
+}

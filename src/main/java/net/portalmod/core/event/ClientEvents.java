@@ -48,7 +48,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
-import net.portalmod.common.blocks.ButtonPedestalBlock;
+import net.portalmod.common.blocks.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
@@ -342,7 +342,7 @@ public class ClientEvents {
 
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 }
-                else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof ButtonPedestalBlock) {
+                else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock) {
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 }

@@ -37,14 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class ButtonPedestalBlock extends DoubleBlock {
+public class StandingButtonBlock extends DoubleBlock {
 
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
     public static final int BUTTON_DELAY = 20;
 
-    public ButtonPedestalBlock(Properties properties) {
+    public StandingButtonBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HALF, DoubleBlockHalf.LOWER)
@@ -184,6 +184,6 @@ public class ButtonPedestalBlock extends DoubleBlock {
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
-        ModUtil.addTooltip("button_pedestal", list);
+        ModUtil.addTooltip("standing_button", list);
     }
 }

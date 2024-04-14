@@ -70,8 +70,8 @@ public class BlockInit {
             () -> new CubeDropperBlock(AbstractBlock.Properties.of(Material.STONE).noOcclusion()));
 
     // todo rename
-    public static final RegistryObject<Block> BUTTON_PEDESTAL = BLOCKS.register("button_pedestal",
-            () -> new ButtonPedestalBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+    public static final RegistryObject<Block> STANDING_BUTTON = BLOCKS.register("standing_button",
+            () -> new StandingButtonBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> SUPER_BUTTON = BLOCKS.register("super_button",
             () -> new SuperButtonBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
