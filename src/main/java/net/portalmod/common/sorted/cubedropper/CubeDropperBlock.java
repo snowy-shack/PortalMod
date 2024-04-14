@@ -256,11 +256,12 @@ public class CubeDropperBlock extends MultiBlock {
             if (item instanceof SpawnEggItem) {
                 EntityType<?> spawnEggType = ((SpawnEggItem) item).getType(itemStack.getTag());
                 if (spawnEggType != dropperEntity.entityType) {
-                    dropperEntity.removeAllEntities();
-                    dropperEntity.entityType = spawnEggType;
                     if (!player.isCreative()) {
                         itemStack.shrink(1);
+                        player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
                     }
+                    dropperEntity.removeAllEntities();
+                    dropperEntity.entityType = spawnEggType;
                     return ActionResultType.SUCCESS;
                 }
                 return ActionResultType.PASS;
