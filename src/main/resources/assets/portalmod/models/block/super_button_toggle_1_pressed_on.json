@@ -3,6 +3,6 @@
     "textures": {
         "base":     "portalmod:block/super_button_corner_1_active",
         "bottom":   "portalmod:block/super_button_bottom_1_active",
-        "button":   "portalmod:block/super_button_top_normal"
+        "button":   "portalmod:block/super_button_top_toggle"
     }
 }

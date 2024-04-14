@@ -3,7 +3,6 @@
     "textures": {
         "base":     "portalmod:block/super_button_corner_2",
         "bottom":   "portalmod:block/super_button_bottom_2",
-        "button":   "portalmod:block/super_button_top_normal",
-        "particle": "#base"
+        "button":   "portalmod:block/super_button_top_normal"
     }
 }

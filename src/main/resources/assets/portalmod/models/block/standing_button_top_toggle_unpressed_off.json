@@ -1,0 +1,8 @@
+{
+	"parent": "portalmod:block/standing_button_top_template_unpressed",
+	"textures": {
+		"cover": "portalmod:block/standing_button_cover_toggle",
+		"light": "portalmod:block/standing_button_off",
+		"base": "portalmod:block/standing_button_base"
+	}
+}

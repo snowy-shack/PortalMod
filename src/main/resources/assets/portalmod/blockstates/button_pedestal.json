@@ -1,8 +1,15 @@
 {
   "variants": {
-    "active=false,half=lower":  {"model": "portalmod:block/pedestal_button_bottom_off"},
-    "active=true,half=lower":  {"model": "portalmod:block/pedestal_button_bottom_on"},
-    "active=false,half=upper":  {"model": "portalmod:block/pedestal_button_top_off"},
-    "active=true,half=upper":  {"model": "portalmod:block/pedestal_button_top_on"}
+    "half=lower,active=false": {"model": "portalmod:block/standing_button_bottom_off"},
+    "half=lower,active=true": {"model": "portalmod:block/standing_button_bottom_on"},
+    "half=upper,mode=normal,active=false": {"model": "portalmod:block/standing_button_top_normal_unpressed"},
+    "half=upper,mode=normal,active=true": {"model": "portalmod:block/standing_button_top_normal_pressed"},
+    "half=upper,mode=persistent,active=false": {"model": "portalmod:block/standing_button_top_persistent_unpressed_off"},
+    "half=upper,mode=persistent,active=true,pressed=true": {"model": "portalmod:block/standing_button_top_persistent_pressed"},
+    "half=upper,mode=persistent,active=true,pressed=false": {"model": "portalmod:block/standing_button_top_persistent_unpressed_on"},
+    "half=upper,mode=toggle,active=true,pressed=true": {"model": "portalmod:block/standing_button_top_toggle_pressed_on"},
+    "half=upper,mode=toggle,active=true,pressed=false": {"model": "portalmod:block/standing_button_top_toggle_unpressed_on"},
+    "half=upper,mode=toggle,active=false,pressed=true": {"model": "portalmod:block/standing_button_top_toggle_pressed_off"},
+    "half=upper,mode=toggle,active=false,pressed=false": {"model": "portalmod:block/standing_button_top_toggle_unpressed_off"}
   }
 }
