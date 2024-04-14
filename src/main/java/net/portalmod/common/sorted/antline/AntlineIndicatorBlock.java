@@ -18,8 +18,10 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -31,6 +33,7 @@ import java.util.List;
 
 public class AntlineIndicatorBlock extends HorizontalFaceBlock {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
     private static final BiHashMap<Direction, AttachFace, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
     public AntlineIndicatorBlock(Properties properties) {
@@ -38,7 +41,9 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(ACTIVE, false)
-                .setValue(FACE, AttachFace.FLOOR));
+                .setValue(REVERSED, false)
+                .setValue(FACE, AttachFace.FLOOR)
+        );
         this.initAABBs();
     }
 
@@ -50,12 +55,25 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
 
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
-        setActive(!blockState.getValue(ACTIVE), world, pos);
+        boolean reversed = blockState.getValue(REVERSED);
+        if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
+            world.setBlockAndUpdate(pos, blockState.setValue(REVERSED, !reversed));
+            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
+        } else {
+            // temporary
+            setActive(!blockState.getValue(ACTIVE), world, pos);
+        }
         return ActionResultType.SUCCESS;
     }
 
     public void setActive(boolean active, World world, BlockPos pos) {
         world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVE, active));
+    }
+
+    public static boolean isOn(BlockState blockState) {
+        boolean active = blockState.getValue(ACTIVE);
+        boolean reversed = blockState.getValue(REVERSED);
+        return reversed != active;
     }
 
     private void initAABBs() {
@@ -89,7 +107,7 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(FACING, ACTIVE, FACE);
+        builder.add(FACING, ACTIVE, REVERSED, FACE);
     }
     
     @Override

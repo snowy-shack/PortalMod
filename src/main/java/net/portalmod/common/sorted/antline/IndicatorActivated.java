@@ -16,7 +16,7 @@ public interface IndicatorActivated {
             BlockState currentState = world.getBlockState(indicatorPos);
             if (currentState.getBlock() instanceof AntlineIndicatorBlock) {
                 totalIndicators++;
-                if (currentState.getValue(AntlineIndicatorBlock.ACTIVE)) {
+                if (AntlineIndicatorBlock.isOn(currentState)) {
                     activeIndicators++;
                 }
             }

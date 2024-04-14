@@ -72,6 +72,8 @@
   "actionbar.portalmod.button_mode.normal": "Set Button Mode to Normal",
   "actionbar.portalmod.button_mode.persistent": "Set Button Mode to Persistent",
   "actionbar.portalmod.button_mode.toggle": "Set Button Mode to Toggle",
+  "actionbar.portalmod.indicator_mode.normal": "Set Indicator Mode to Normal",
+  "actionbar.portalmod.indicator_mode.reversed": "Set Indicator Mode to Reversed",
 
   "subtitles.block.gel.fill":    "Gel Container fills",
 
