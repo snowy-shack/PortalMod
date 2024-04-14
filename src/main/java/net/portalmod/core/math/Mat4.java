@@ -1,12 +1,11 @@
 package net.portalmod.core.math;
 
-import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
-
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
 
 public class Mat4 {
     public static Mat4 identity() {
@@ -298,7 +297,7 @@ public class Mat4 {
     }
     
     public Mat4 rotateDeg(Vector3f axis, float angle) {
-        return this.mul(new Quaternion(axis, angle, true));
+        return this.mul(new Quaternion(axis, angle % 360, true));
     }
     
     public static Mat4 createTranslation(double x, double y, double z) {
