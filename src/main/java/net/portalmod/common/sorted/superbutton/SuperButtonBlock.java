@@ -263,7 +263,7 @@ public class SuperButtonBlock extends MultiBlock {
     public boolean canSurvive(BlockState state, IWorldReader level, BlockPos pos) {
         return canSurvive(level, pos, state.getValue(CORNER), state.getValue(FACING));
     }
-    
+
     private Tuple<Direction, Direction> placementDirectionsFromFacing(Axis axis) {
         if(axis == Axis.X)
             return new Tuple<>(Direction.NORTH, Direction.UP);
@@ -281,6 +281,18 @@ public class SuperButtonBlock extends MultiBlock {
 //            level.destroyBlock(pos, false, null, 0);
         if(!state.canSurvive(level, pos))
             level.destroyBlock(pos, true, null, 0);
+
+        if (state.getValue(MODE) == ButtonMode.PERSISTENT && state.getValue(ACTIVE)) {
+            boolean isPowered = false;
+            for (BlockPos checkingPos : getAllPositions(state, pos)) {
+                if (level.hasNeighborSignal(checkingPos)) {
+                    isPowered = true;
+                }
+            }
+            if (isPowered) {
+                this.setBlockStateValue(ACTIVE, false, state, level, pos);
+            }
+        }
     }
     
     @Override

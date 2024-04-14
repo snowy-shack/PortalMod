@@ -168,6 +168,23 @@ public class StandingButtonBlock extends DoubleBlock {
     }
 
     @Override
+    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos pos2, boolean b) {
+        super.neighborChanged(state, level, pos, block, pos2, b);
+
+        if (state.getValue(MODE) == ButtonMode.PERSISTENT && state.getValue(ACTIVE)) {
+            boolean isPowered = false;
+            for (BlockPos checkingPos : getAllPositions(state, pos)) {
+                if (level.hasNeighborSignal(checkingPos)) {
+                    isPowered = true;
+                }
+            }
+            if (isPowered) {
+                this.setBlockStateValue(ACTIVE, false, state, level, pos);
+            }
+        }
+    }
+
+    @Override
     public boolean canSurvive(BlockState blockState, IWorldReader world, BlockPos pos) {
         BlockPos belowPos = pos.below();
         BlockState belowState = world.getBlockState(belowPos);
