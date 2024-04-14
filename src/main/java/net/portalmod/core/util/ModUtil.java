@@ -41,11 +41,26 @@ public class ModUtil {
     }
 
     public static void addTooltip(String name, List<ITextComponent> list) {
-        if (PortalModOptionsScreen.TOOLTIPS.get()) {
-            if (!Screen.hasControlDown()) {
-                name = "hold_control";
-            }
+        addTooltip(name, 1, list);
+    }
+
+    public static void addTooltip(String name, int lines, List<ITextComponent> list) {
+        if (!PortalModOptionsScreen.TOOLTIPS.get()) {
+            return;
+        }
+
+        if (!Screen.hasControlDown()) {
+            list.add(new TranslationTextComponent("tooltip.portalmod.hold_control").withStyle(TextFormatting.GRAY));
+            return;
+        }
+
+        if (lines == 1) {
             list.add(new TranslationTextComponent("tooltip.portalmod." + name).withStyle(TextFormatting.GRAY));
+            return;
+        }
+
+        for (int i = 1; i <= lines; i++) {
+            list.add(new TranslationTextComponent("tooltip.portalmod." + name + "_" + i).withStyle(TextFormatting.GRAY));
         }
     }
 }

@@ -293,7 +293,7 @@ public class Mat4 {
     }
     
     public Mat4 rotateRad(Vector3f axis, float angle) {
-        return this.mul(axis.rotation(angle));
+        return this.mul(axis.rotation((float) (angle % 2 * Math.PI)));
     }
     
     public Mat4 rotateDeg(Vector3f axis, float angle) {
