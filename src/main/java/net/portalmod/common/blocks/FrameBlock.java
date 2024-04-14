@@ -48,8 +48,8 @@ public class FrameBlock extends Block implements IWaterLoggable {
         builder.add(FACING, WATERLOGGED);
     }
 
-    private static final Map<Direction, VoxelShapeGroup> SHAPE = new HashMap<>();
-    private static final Map<Direction, VoxelShapeGroup> COLLISIONSHAPE = new HashMap<>();
+    private static final Map<Direction, VoxelShapeGroup> FILLED_SHAPE = new HashMap<>();
+    private static final Map<Direction, VoxelShapeGroup> EMPTY_SHAPE = new HashMap<>();
 
     private void initAABBs() {
         VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
@@ -76,26 +76,27 @@ public class FrameBlock extends Block implements IWaterLoggable {
 
             matrix.translate(new Vec3(-.5));
 
-            SHAPE.put(facing, shape.clone().transform(matrix));
-            COLLISIONSHAPE.put(facing, collisionShape.clone().transform(matrix));
+            FILLED_SHAPE.put(facing, shape.clone().transform(matrix));
+            EMPTY_SHAPE.put(facing, collisionShape.clone().transform(matrix));
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(FACING)).getShape();
+        Map<Direction, VoxelShapeGroup> group = this.isFilled ? FILLED_SHAPE : EMPTY_SHAPE;
+        return group.get(state.getValue(FACING)).getShape();
     }
 
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return isFilled ? this.getShape(state, level, pos, context) : COLLISIONSHAPE.get(state.getValue(FACING)).getShape();
-    }
+//    @Override
+//    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+//        return this.isFilled ? this.getShape(state, level, pos, context) : EMPTY_SHAPE.get(state.getValue(FACING)).getShape();
+//    }
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         Direction nearestLookingDirection = context.getNearestLookingDirection();
         return this.stateDefinition.any()
-                .setValue(FACING, context.getPlayer().isShiftKeyDown() ? nearestLookingDirection : nearestLookingDirection.getOpposite())
+                .setValue(FACING, context.getPlayer().isShiftKeyDown() ? nearestLookingDirection.getOpposite() : nearestLookingDirection)
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
