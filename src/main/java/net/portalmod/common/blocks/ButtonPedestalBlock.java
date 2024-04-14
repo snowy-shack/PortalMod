@@ -82,7 +82,10 @@ public class ButtonPedestalBlock extends DoubleBlock {
     }
 
     public boolean canActivate(BlockState blockState) {
-        return !blockState.getValue(PRESSED) || blockState.getValue(MODE) == ButtonMode.TOGGLE;
+//        if (blockState.getValue(MODE) == ButtonMode.PERSISTENT) {
+//            return !blockState.getValue(PRESSED) &&  !blockState.getValue(ACTIVE);
+//        }
+        return !blockState.getValue(PRESSED);
     }
 
     public void activate(BlockState blockState, World world, BlockPos pos) {
