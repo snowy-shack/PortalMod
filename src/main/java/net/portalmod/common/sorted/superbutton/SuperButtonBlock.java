@@ -248,7 +248,7 @@ public class SuperButtonBlock extends MultiBlock {
     }
     
     private VoxelShape getShape(BlockState state) {
-        return this.getShapeGroup(state).getVariant(state.getValue(ACTIVE) ? "pressed" : "normal");
+        return this.getShapeGroup(state).getVariant(state.getValue(PRESSED) ? "pressed" : "normal");
     }
 
     private boolean canSurvive(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing) {
@@ -293,6 +293,9 @@ public class SuperButtonBlock extends MultiBlock {
     
     private void checkPressed(BlockState state, World level, BlockPos pos) {
         List<BlockPos> blocks = this.getAllBlocks(pos, state.getValue(CORNER), state.getValue(FACING));
+        boolean wasPressed = state.getValue(PRESSED);
+        boolean wasActive = state.getValue(ACTIVE);
+        ButtonMode mode = state.getValue(MODE);
 
         boolean pressed = false;
         for(BlockPos block : blocks) {
@@ -301,16 +304,23 @@ public class SuperButtonBlock extends MultiBlock {
                 break;
             }
         }
-        
+
         if(pressed)
             level.getBlockTicks().scheduleTick(pos, this, 12);
         
-        if(state.getValue(ACTIVE) != pressed) {
-            for(BlockPos block : blocks) {
-                BlockState oldState = level.getBlockState(block);
-                level.setBlock(block, oldState.setValue(ACTIVE, pressed), BlockFlags.DEFAULT);
-            }
+        if(wasPressed != pressed) {
+            this.setBlockStateValue(PRESSED, pressed, state, level, pos);
             level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
+
+            if (mode == ButtonMode.NORMAL) {
+                this.setBlockStateValue(ACTIVE, pressed, state, level, pos);
+            }
+            else if (mode == ButtonMode.PERSISTENT && !wasActive) {
+                this.setBlockStateValue(ACTIVE, true, state, level, pos);
+            }
+            else if (mode == ButtonMode.TOGGLE && pressed) {
+                this.setBlockStateValue(ACTIVE, !wasActive, state, level, pos);
+            }
         }
     }
 

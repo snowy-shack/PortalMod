@@ -73,7 +73,7 @@ public class ButtonPedestalBlock extends DoubleBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(HALF)).getVariant(state.getValue(ACTIVE) ? "on" : "off");
+        return SHAPE.get(state.getValue(HALF)).getVariant(state.getValue(PRESSED) ? "on" : "off");
     }
 
     @Override
@@ -82,33 +82,37 @@ public class ButtonPedestalBlock extends DoubleBlock {
     }
 
     public boolean canActivate(BlockState blockState) {
-        return !blockState.getValue(ACTIVE) || blockState.getValue(MODE) == ButtonMode.TOGGLE;
+        return !blockState.getValue(PRESSED) || blockState.getValue(MODE) == ButtonMode.TOGGLE;
     }
 
     public void activate(BlockState blockState, World world, BlockPos pos) {
         ButtonMode mode = blockState.getValue(MODE);
-        Boolean isActive = blockState.getValue(ACTIVE);
-        if (mode == ButtonMode.TOGGLE) {
-            this.setBlockStateValue(ACTIVE, !isActive, blockState, world, pos);
-            world.updateNeighborsAt(pos, this);
-            this.playSound(world, pos, !isActive);
-        }
-        else if (!isActive) {
+        Boolean wasActive = blockState.getValue(ACTIVE);
+        this.setBlockStateValue(PRESSED, true, blockState, world, pos);
+        world.getBlockTicks().scheduleTick(pos, this, 30);
+        world.updateNeighborsAt(pos, this);
+        this.playSound(world, pos, true);
+
+        if (mode == ButtonMode.NORMAL) {
             this.setBlockStateValue(ACTIVE, true, blockState, world, pos);
-            world.updateNeighborsAt(pos, this);
-            this.playSound(world, pos, true);
-            if (mode == ButtonMode.NORMAL) {
-                world.getBlockTicks().scheduleTick(pos, this, 30);
-            }
+        }
+        else if (mode == ButtonMode.PERSISTENT && !wasActive) {
+            this.setBlockStateValue(ACTIVE, true, blockState, world, pos);
+        }
+        else if (mode == ButtonMode.TOGGLE) {
+            this.setBlockStateValue(ACTIVE, !wasActive, blockState, world, pos);
         }
     }
 
     @Override
     public void tick(BlockState blockState, ServerWorld world, BlockPos pos, Random random) {
-        if (blockState.getValue(MODE) == ButtonMode.NORMAL && blockState.getValue(ACTIVE)) {
-            this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+        if (blockState.getValue(PRESSED)) {
+            this.setBlockStateValue(PRESSED, false, blockState, world, pos);
             world.updateNeighborsAt(pos, this);
             this.playSound(world, pos, false);
+            if (blockState.getValue(MODE) == ButtonMode.NORMAL) {
+                this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+            }
         }
     }
 
