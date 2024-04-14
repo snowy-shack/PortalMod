@@ -287,7 +287,15 @@ public class SuperButtonBlock extends MultiBlock {
         if(level.isClientSide)
             return;
 
-        if(!level.getBlockTicks().hasScheduledTick(pos, this))
+        boolean hasScheduledTick = false;
+        for (BlockPos blockPos : this.getAllPositions(state, pos)) {
+            if (level.getBlockTicks().hasScheduledTick(blockPos, this)) {
+                hasScheduledTick = true;
+                break;
+            }
+        }
+
+        if(!hasScheduledTick)
             this.checkPressed(state, level, pos);
     }
     
