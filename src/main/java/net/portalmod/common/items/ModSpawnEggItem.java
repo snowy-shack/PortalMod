@@ -1,10 +1,7 @@
 package net.portalmod.common.items;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import net.minecraft.block.DispenserBlock;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.dispenser.IBlockSource;
 import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.dispenser.IPosition;
@@ -15,10 +12,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.portalmod.core.init.EntityInit;
+import net.portalmod.core.util.ModUtil;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ModSpawnEggItem extends SpawnEggItem {
     protected static final List<ModSpawnEggItem> UNADDED = new ArrayList<>();
@@ -45,6 +50,13 @@ public class ModSpawnEggItem extends SpawnEggItem {
     @Override
     public EntityType<?> getType(CompoundNBT p_208076_1_) {
         return supplier.get();
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+        if (this.supplier.get() == EntityInit.TURRET.get()) {
+            ModUtil.addTooltip("turret", list);
+        }
     }
     
     private static class ModDefaultDispenseItemBehavior implements IDispenseItemBehavior {
