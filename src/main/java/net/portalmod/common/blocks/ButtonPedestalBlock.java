@@ -35,6 +35,7 @@ import java.util.Random;
 
 public class ButtonPedestalBlock extends DoubleBlock {
 
+    public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
 
@@ -42,6 +43,7 @@ public class ButtonPedestalBlock extends DoubleBlock {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(PRESSED, false)
                 .setValue(ACTIVE, false)
                 .setValue(MODE, ButtonMode.NORMAL)
         );
@@ -76,7 +78,7 @@ public class ButtonPedestalBlock extends DoubleBlock {
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF, ACTIVE, MODE);
+        builder.add(HALF, PRESSED, ACTIVE, MODE);
     }
 
     public boolean canActivate(BlockState blockState) {

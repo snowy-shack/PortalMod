@@ -50,6 +50,7 @@ import java.util.function.Predicate;
 public class SuperButtonBlock extends MultiBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
+    public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
     
@@ -60,6 +61,7 @@ public class SuperButtonBlock extends MultiBlock {
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.UP)
                 .setValue(CORNER, QuadBlockCorner.UP_LEFT)
+                .setValue(PRESSED, false)
                 .setValue(ACTIVE, false)
                 .setValue(MODE, ButtonMode.NORMAL)
         );
@@ -111,7 +113,7 @@ public class SuperButtonBlock extends MultiBlock {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(FACING, CORNER, ACTIVE, MODE);
+        builder.add(FACING, CORNER, PRESSED, ACTIVE, MODE);
     }
     
     @Override
