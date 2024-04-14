@@ -2,6 +2,7 @@ package net.portalmod.common.blocks;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
@@ -11,6 +12,7 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +22,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.items.WrenchItem;
@@ -38,6 +42,7 @@ public class ButtonPedestalBlock extends DoubleBlock {
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
+    public static final int BUTTON_DELAY = 20;
 
     public ButtonPedestalBlock(Properties properties) {
         super(properties);
@@ -92,7 +97,7 @@ public class ButtonPedestalBlock extends DoubleBlock {
         ButtonMode mode = blockState.getValue(MODE);
         Boolean wasActive = blockState.getValue(ACTIVE);
         this.setBlockStateValue(PRESSED, true, blockState, world, pos);
-        world.getBlockTicks().scheduleTick(pos, this, 30);
+        world.getBlockTicks().scheduleTick(pos, this, BUTTON_DELAY);
         world.updateNeighborsAt(pos, this);
         this.playSound(world, pos, true);
 
@@ -160,6 +165,21 @@ public class ButtonPedestalBlock extends DoubleBlock {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean canSurvive(BlockState blockState, IWorldReader world, BlockPos pos) {
+        BlockPos belowPos = pos.below();
+        BlockState belowState = world.getBlockState(belowPos);
+        return blockState.getValue(HALF) == DoubleBlockHalf.LOWER ? belowState.isFaceSturdy(world, belowPos, Direction.UP) : belowState.is(this);
+    }
+
+    @Override
+    public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
+        if (blockState.canSurvive(world, pos)) {
+            return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
+        }
+        return Blocks.AIR.defaultBlockState();
     }
 
     @Override

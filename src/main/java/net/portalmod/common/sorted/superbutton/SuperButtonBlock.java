@@ -225,6 +225,7 @@ public class SuperButtonBlock extends MultiBlock {
             ButtonMode newMode = this.cycleMode(blockState, world, pos);
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+            this.checkPressed(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
         return ActionResultType.FAIL;
