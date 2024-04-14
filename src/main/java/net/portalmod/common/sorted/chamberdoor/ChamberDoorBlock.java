@@ -49,8 +49,8 @@ public class ChamberDoorBlock extends MultiBlock {
     private static final VoxelShapeGroup UPPER = new VoxelShapeGroup.Builder()
             .add(0, 0, 0, 2, 16, 16)
             .add(0, 14, 0, 16, 16, 16)
-            .addPart("closed", 0, 0, 2, 16, 16, 14)
-            .addPart("open", 0, 0, 2, 5, 16, 14)
+            .addPart("closed", 2, 0, 2, 16, 14, 14)
+            .addPart("open", 2, 0, 2, 5, 14, 14)
             .build();
 
     private static final VoxelShapeGroup LOWER = new VoxelShapeGroup.Builder()
