@@ -116,6 +116,7 @@
   "options.portalmod.title":        "PortalMod Options",
   "options.portalmod.crosshair":    "Portal 1 Crosshair",
   "options.portalmod.custom_gun":   "Portal Gun Skin",
+  "options.portalmod.tooltips":     "Tooltips",
   "options.portalmod.menu":         "Portal Themed Menu",
   "options.portalmod.recursion":    "Portal Render Depth",
 
