@@ -10,7 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.portalmod.common.blocks.StandingButtonBlock;
+import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.init.CriteriaTriggerInit;

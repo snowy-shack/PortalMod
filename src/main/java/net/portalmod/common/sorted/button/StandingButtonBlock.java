@@ -1,4 +1,4 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.button;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -26,6 +26,7 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.VoxelShapeGroup;

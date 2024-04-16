@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.superbutton;
+package net.portalmod.common.sorted.button;
 
 import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.util.Direction;

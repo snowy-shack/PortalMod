@@ -1,4 +1,4 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.button;
 
 
 import net.minecraft.util.IStringSerializable;

@@ -6,9 +6,14 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
-import net.portalmod.common.blocks.*;
+import net.portalmod.common.blocks.ChamberLightsBlock;
+import net.portalmod.common.blocks.ForestCakeBlock;
+import net.portalmod.common.blocks.FrameBlock;
+import net.portalmod.common.blocks.WireMeshBlock;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
+import net.portalmod.common.sorted.button.StandingButtonBlock;
+import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.common.sorted.chamberdoor.ChamberDoorBlock;
 import net.portalmod.common.sorted.cubedropper.CubeDropperBlock;
 import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
@@ -20,7 +25,6 @@ import net.portalmod.common.sorted.gel.RepulsionGelBlock;
 import net.portalmod.common.sorted.panel.LargePanelBlock;
 import net.portalmod.common.sorted.panel.SmallPanelBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
-import net.portalmod.common.sorted.superbutton.SuperButtonBlock;
 
 public class BlockInit {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortalMod.MODID);

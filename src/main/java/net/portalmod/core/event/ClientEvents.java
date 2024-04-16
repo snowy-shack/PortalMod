@@ -48,7 +48,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
-import net.portalmod.common.blocks.StandingButtonBlock;
+import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;

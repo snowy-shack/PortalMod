@@ -1,19 +1,10 @@
-package net.portalmod.common.sorted.superbutton;
-
-import java.util.List;
-import java.util.function.Function;
+package net.portalmod.common.sorted.button;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
-import net.minecraft.client.renderer.model.BlockPart;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.renderer.model.RenderMaterial;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.Direction;
@@ -23,6 +14,9 @@ import net.minecraftforge.client.model.IModelBuilder;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry.VanillaProxy;
+
+import java.util.List;
+import java.util.function.Function;
 
 public class SuperButtonGeometry extends VanillaProxy {
     public SuperButtonGeometry(List<BlockPart> list) {

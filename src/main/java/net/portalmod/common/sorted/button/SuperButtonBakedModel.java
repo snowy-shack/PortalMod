@@ -1,11 +1,4 @@
-package net.portalmod.common.sorted.superbutton;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+package net.portalmod.common.sorted.button;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -16,6 +9,12 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.portalmod.core.math.BiHashMap;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class SuperButtonBakedModel implements IDynamicBakedModel {
     private final BiHashMap<Direction, QuadBlockCorner, IBakedModel> variants = new BiHashMap<>();

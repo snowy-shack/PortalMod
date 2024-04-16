@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.superbutton;
+package net.portalmod.common.sorted.button;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -30,7 +30,6 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.BlockFlags;
-import net.portalmod.common.blocks.ButtonMode;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.SoundInit;

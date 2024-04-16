@@ -31,7 +31,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
-import net.portalmod.common.sorted.superbutton.QuadBlockCorner;
+import net.portalmod.common.sorted.button.QuadBlockCorner;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
