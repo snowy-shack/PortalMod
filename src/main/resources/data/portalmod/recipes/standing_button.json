@@ -6,7 +6,11 @@
         "b"
     ],
     "key": {
-        "r": { "item": "minecraft:red_dye" },
+        "r": [
+            { "item": "minecraft:red_dye" },
+            { "item": "minecraft:yellow_dye" },
+            { "item": "minecraft:cyan_dye" }
+        ],
         "i": { "item": "minecraft:iron_ingot" },
         "b": { "item": "minecraft:blackstone" }
     },

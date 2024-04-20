@@ -5,7 +5,11 @@
         "bab"
     ],
     "key": {
-        "r": { "item": "minecraft:red_dye" },
+        "r": [
+            { "item": "minecraft:red_dye" },
+            { "item": "minecraft:yellow_dye" },
+            { "item": "minecraft:cyan_dye" }
+        ],
         "i": { "item": "minecraft:iron_ingot" },
         "a": { "item": "portalmod:antline" },
         "b": { "item": "minecraft:blackstone" }
