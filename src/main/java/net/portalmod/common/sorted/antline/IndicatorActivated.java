@@ -7,12 +7,12 @@ import net.minecraft.world.World;
 import java.util.List;
 
 public interface IndicatorActivated {
-    List<BlockPos> getIndicatorPositions(BlockState blockState, BlockPos pos);
+    List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos);
 
     default IndicatorInfo checkIndicators(BlockState blockState, World world, BlockPos pos) {
         int totalIndicators = 0;
         int activeIndicators = 0;
-        for (BlockPos indicatorPos : this.getIndicatorPositions(blockState, pos)) {
+        for (BlockPos indicatorPos : this.getIndicatorPositions(blockState, world, pos)) {
             BlockState currentState = world.getBlockState(indicatorPos);
             if (currentState.getBlock() instanceof AntlineIndicatorBlock) {
                 totalIndicators++;

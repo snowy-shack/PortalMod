@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.common.entity.TestElementEntity;
@@ -131,7 +132,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
         List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
         possibleIndicatorPositions.addAll(getSurroundingPositions(pos));
         possibleIndicatorPositions.addAll(getSurroundingPositions(pos.below()));

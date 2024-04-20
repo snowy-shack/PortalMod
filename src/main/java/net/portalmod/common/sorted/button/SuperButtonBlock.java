@@ -111,6 +111,11 @@ public class SuperButtonBlock extends MultiBlock {
     }
 
     @Override
+    public boolean isMainBlock(BlockState blockState) {
+        return blockState.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
+    }
+
+    @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, CORNER, PRESSED, ACTIVE, MODE);
     }

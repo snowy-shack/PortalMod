@@ -28,6 +28,8 @@ public abstract class MultiBlock extends Block {
 
     public abstract void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos);
 
+    public abstract boolean isMainBlock(BlockState blockState);
+
     public List<BlockPos> getAllPositions(BlockState blockState, BlockPos pos) {
         BlockPos mainPos = this.getMainPosition(blockState, pos);
         List<BlockPos> connectedPositions = this.getConnectedPositions(blockState, mainPos);

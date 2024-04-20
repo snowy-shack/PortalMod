@@ -70,7 +70,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
         Direction facing = this.getBlockState().getValue(ChamberDoorBlock.FACING);
         List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
         possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockState(), pos));

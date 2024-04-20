@@ -2,13 +2,16 @@ package net.portalmod.common.sorted.fizzler;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -28,7 +31,6 @@ import net.portalmod.common.sorted.portal.PortalPair;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunAnimation;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
-import net.portalmod.core.HorizontalAxis;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -39,12 +41,12 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FizzlerFieldBlock extends DoubleBlock {
-    public static final EnumProperty<HorizontalAxis> AXIS = EnumProperty.create("axis", HorizontalAxis.class);
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
 
     public FizzlerFieldBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
-                .setValue(AXIS, HorizontalAxis.X)
+                .setValue(AXIS, Direction.Axis.X)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
         this.initAABBs();
     }
@@ -55,17 +57,17 @@ public class FizzlerFieldBlock extends DoubleBlock {
     }
 
 
-    private static final Map<HorizontalAxis, VoxelShapeGroup> SHAPE = new HashMap<>();
+    private static final Map<Direction.Axis, VoxelShapeGroup> SHAPE = new HashMap<>();
     private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
             .add(0,0,7,16,16,9)
             .build();
 
     private void initAABBs() {
-        for(HorizontalAxis axis : HorizontalAxis.values()) {
+        for(Direction.Axis axis : Direction.Axis.values()) {
             Mat4 matrix = Mat4.identity();
             matrix.translate(new Vec3(.5));
 
-            matrix.rotateDeg(Vector3f.YP, (axis == HorizontalAxis.X) ? 0 : 90);
+            matrix.rotateDeg(Vector3f.YP, (axis == Direction.Axis.X) ? 0 : 90);
             matrix.translate(new Vec3(-.5));
 
             SHAPE.put(axis, shape.clone().transform(matrix));
@@ -75,6 +77,7 @@ public class FizzlerFieldBlock extends DoubleBlock {
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         return VoxelShapes.empty();
+//        return getFieldShape(state);
     }
 
     public VoxelShape getFieldShape(BlockState state) {
@@ -84,6 +87,22 @@ public class FizzlerFieldBlock extends DoubleBlock {
     @Override
     public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         return VoxelShapes.empty();
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos pos1, boolean b) {
+        super.neighborChanged(state, world, pos, block, pos1, b);
+
+        Direction facing = Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
+        Block leftBlock = world.getBlockState(pos.relative(facing)).getBlock();
+        Block rightBlock = world.getBlockState(pos.relative(facing.getOpposite())).getBlock();
+
+        if ((leftBlock instanceof FizzlerFieldBlock || leftBlock instanceof FizzlerEmitterBlock) && (rightBlock instanceof FizzlerFieldBlock || rightBlock instanceof FizzlerEmitterBlock)) {
+            return;
+        }
+
+        world.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+        world.updateNeighborsAt(pos, this);
     }
 
     @Override

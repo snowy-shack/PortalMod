@@ -36,4 +36,9 @@ public class DoubleBlock extends MultiBlock {
         boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
         world.setBlockAndUpdate(pos.relative(isLower ? Direction.UP : Direction.DOWN), blockState.setValue(HALF, isLower ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER));
     }
+
+    @Override
+    public boolean isMainBlock(BlockState blockState) {
+        return blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
+    }
 }

@@ -160,6 +160,11 @@ public class CubeDropperBlock extends MultiBlock {
         world.setBlockAndUpdate(pos.relative(vertical).relative(upDown).relative(leftRight), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, diagonal));
     }
 
+    @Override
+    public boolean isMainBlock(BlockState state) {
+        return state.getValue(HALF) == DoubleBlockHalf.UPPER && state.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
@@ -325,19 +330,15 @@ public class CubeDropperBlock extends MultiBlock {
         builder.add(CORNER, HALF, POWERED, OPEN);
     }
 
-    public static boolean isMainBlock(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.UPPER && state.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
-    }
-
     @Override
     public boolean hasTileEntity(BlockState state) {
-        return isMainBlock(state);
+        return this.isMainBlock(state);
     }
 
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        return isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create() : null;
+        return this.isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create() : null;
     }
 
     @Override

@@ -13,6 +13,7 @@ import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.DoubleBlockHalf;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
@@ -22,6 +23,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -35,6 +37,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunAnimation;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -97,6 +100,27 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 //    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
 //        return SHAPE.get(state.getValue(FACING)).getVariant(state.getValue(ACTIVE) ? "activeCollision" : "");
 //    }
+
+    @Override
+    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        super.neighborChanged(blockState, world, pos, block, neighborPos, b);
+
+        if (blockState.getValue(ACTIVE)) {
+            Block adjacent = world.getBlockState(pos.relative(blockState.getValue(FACING))).getBlock();
+            if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
+                this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+            }
+        }
+    }
+
+    @Override
+    public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
+        Block adjacent = world.getBlockState(pos.relative(blockState.getValue(FACING))).getBlock();
+        if (adjacent instanceof FizzlerFieldBlock || adjacent instanceof FizzlerEmitterBlock) {
+            return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
+        }
+        return blockState.setValue(ACTIVE, false);
+    }
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
@@ -170,6 +194,17 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, ACTIVE, HALF);
+    }
+
+    @Override
+    public boolean hasTileEntity(BlockState state) {
+        return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE;
+    }
+
+    @Nullable
+    @Override
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+        return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
     }
 
     @Override

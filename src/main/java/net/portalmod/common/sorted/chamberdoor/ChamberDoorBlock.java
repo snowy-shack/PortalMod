@@ -111,6 +111,11 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
+    public boolean isMainBlock(BlockState state) {
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(SIDE) == Side.LEFT;
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(FACING, OPEN, HALF, SIDE, POWERED);
     }
@@ -238,10 +243,6 @@ public class ChamberDoorBlock extends MultiBlock {
         if (wasPowered != isPowered) {
             setPowered(isPowered, blockState, world, pos);
         }
-    }
-
-    public static boolean isMainBlock(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(SIDE) == Side.LEFT;
     }
 
     @Override

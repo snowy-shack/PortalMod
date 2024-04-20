@@ -9,6 +9,7 @@ import net.portalmod.common.sorted.antline.AntlineTileEntity;
 import net.portalmod.common.sorted.chamberdoor.ChamberDoorTileEntity;
 import net.portalmod.common.sorted.cubedropper.CubeDropperTileEntity;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
+import net.portalmod.common.sorted.fizzler.FizzlerEmitterTileEntity;
 import net.portalmod.common.sorted.radio.RadioBlockTileEntity;
 
 public class TileEntityTypeInit {
@@ -30,4 +31,7 @@ public class TileEntityTypeInit {
 
     public static final RegistryObject<TileEntityType<CubeDropperTileEntity>> CUBE_DROPPER = TILE_ENTITY_TYPES.register("cube_dropper",
             () -> TileEntityType.Builder.of(CubeDropperTileEntity::new, BlockInit.CUBE_DROPPER.get()).build(null));
+
+    public static final RegistryObject<TileEntityType<FizzlerEmitterTileEntity>> FIZZLER_EMITTER = TILE_ENTITY_TYPES.register("fizzler_emitter",
+            () -> TileEntityType.Builder.of(FizzlerEmitterTileEntity::new, BlockInit.FIZZLER_EMITTER.get()).build(null));
 }
