@@ -140,7 +140,7 @@ public abstract class TestElementEntity extends LivingEntity {
     }
 
     public int getFizzleLight(int packedLight) {
-        int fizzleAmount = (int) (this.getFizzleTicks() * 0.75);
+        int fizzleAmount = (int) (this.getFizzleTicks() * 0.2);
         return LightTexture.pack(
                 Math.max(0, LightTexture.block(packedLight) - fizzleAmount),
                 Math.max(0, LightTexture.sky(packedLight) - fizzleAmount)

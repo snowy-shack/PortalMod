@@ -116,10 +116,10 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     @Override
     public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
         Block adjacent = world.getBlockState(pos.relative(blockState.getValue(FACING))).getBlock();
-        if (adjacent instanceof FizzlerFieldBlock || adjacent instanceof FizzlerEmitterBlock) {
-            return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
+        if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
+            blockState = blockState.setValue(ACTIVE, false);
         }
-        return blockState.setValue(ACTIVE, false);
+        return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
     }
 
     @Override
