@@ -59,8 +59,16 @@
 
   "tooltip.portalmod.hold_control":      "Hold Ctrl for info",
   "tooltip.portalmod.wrench":            "Configures Testing Elements",
-  "tooltip.portalmod.cube_dropper":      "Spawns cubes and auto-respawns Cubes while active, activate with Antline Indicator",
-  "tooltip.portalmod.standing_button":   "Can be pressed by players to be powered, configure with wrench",
+  "tooltip.portalmod.cube_dropper_1":    "Auto-spawns Cubes while active",
+  "tooltip.portalmod.cube_dropper_2":    "- Interact with a Cube item to add it to the dropper",
+  "tooltip.portalmod.cube_dropper_3":    "- §6Wrench§r: Removes the current Cube",
+  "tooltip.portalmod.cube_dropper_4":    "- Activated by §bAntline Indicator",
+  "tooltip.portalmod.standing_button_1": "Can be pressed by players",
+  "tooltip.portalmod.standing_button_2": "- §6Wrench§r: Cycles through Button Modes:",
+  "tooltip.portalmod.standing_button_3": "  - Normal",
+  "tooltip.portalmod.standing_button_4": "  - Persistent",
+  "tooltip.portalmod.standing_button_5": "  - Toggle",
+  "tooltip.portalmod.standing_button_6": "- Activates §bAntlines",
   "tooltip.portalmod.super_button":      "Can be pressed by heavy entities to be powered, configure with wrench",
   "tooltip.portalmod.antline":           "Wires buttons to Antline Indicators, cannot power elements directly",
   "tooltip.portalmod.antline_indicator": "Powers certain testing elements",
@@ -75,13 +83,12 @@
   "actionbar.portalmod.indicator_mode.normal":   "Set Indicator Mode to Normal",
   "actionbar.portalmod.indicator_mode.reversed": "Set Indicator Mode to Reversed",
 
-  "subtitles.block.gel.fill": "Gel Container fills",
-
   "subtitles.block.generic.break": "Block broken",
   "subtitles.block.generic.footsteps": "Footsteps",
   "subtitles.block.generic.hit": "Block breaking",
   "subtitles.block.generic.place": "Block placed",
 
+  "subtitles.block.gel.fill":                "Gel Container fills",
   "subtitles.block.radio.loop":              "Radio plays",
   "subtitles.block.radio.transmission":      "Radio transmitting",
   "subtitles.block.faithplate.launch":       "Faith Plate launches",
@@ -124,7 +131,7 @@
   "debug.portalmod.reload_shaders.message": "PortalMod shaders reloaded",
   "debug.portalmod.reload_shaders.error":   "Error - Could not reload PortalMod shaders",
 
-  "key.category.portalmod": "PortalMod",
+  "key.category.portalmod":           "PortalMod",
   "key.portalmod.portalgun_interact": "Portal Gun Interaction",
 
   "advancements.portal.root.title":                      "PortalMod",

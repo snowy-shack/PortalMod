@@ -1,6 +1,7 @@
 package net.portalmod.core.util;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
@@ -41,10 +42,6 @@ public class ModUtil {
     }
 
     public static void addTooltip(String name, List<ITextComponent> list) {
-        addTooltip(name, 1, list);
-    }
-
-    public static void addTooltip(String name, int lines, List<ITextComponent> list) {
         if (!PortalModOptionsScreen.TOOLTIPS.get()) {
             return;
         }
@@ -54,13 +51,19 @@ public class ModUtil {
             return;
         }
 
-        if (lines == 1) {
+        // Single line
+        if (I18n.exists("tooltip.portalmod." + name)) {
             list.add(new TranslationTextComponent("tooltip.portalmod." + name).withStyle(TextFormatting.GRAY));
             return;
         }
 
-        for (int i = 1; i <= lines; i++) {
-            list.add(new TranslationTextComponent("tooltip.portalmod." + name + "_" + i).withStyle(TextFormatting.GRAY));
+        // Multi line
+        for (int i = 1; i < 100; i++) {
+            String key = "tooltip.portalmod." + name + "_" + i;
+            if (!I18n.exists(key)) {
+                break;
+            }
+            list.add(new TranslationTextComponent(key).withStyle(TextFormatting.GRAY));
         }
     }
 }
