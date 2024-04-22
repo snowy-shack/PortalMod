@@ -11,7 +11,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.client.screens.PortalModOptionsScreen;
@@ -47,13 +46,13 @@ public class ModUtil {
         }
 
         if (!Screen.hasControlDown()) {
-            list.add(new TranslationTextComponent("tooltip.portalmod.hold_control").withStyle(TextFormatting.GRAY));
+            list.add(new TranslationTextComponent("tooltip.portalmod.hold_control"));
             return;
         }
 
         // Single line
         if (I18n.exists("tooltip.portalmod." + name)) {
-            list.add(new TranslationTextComponent("tooltip.portalmod." + name).withStyle(TextFormatting.GRAY));
+            list.add(new TranslationTextComponent("tooltip.portalmod." + name));
             return;
         }
 
@@ -63,7 +62,7 @@ public class ModUtil {
             if (!I18n.exists(key)) {
                 break;
             }
-            list.add(new TranslationTextComponent(key).withStyle(TextFormatting.GRAY));
+            list.add(new TranslationTextComponent(key));
         }
     }
 }
