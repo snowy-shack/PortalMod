@@ -59,23 +59,40 @@
 
   "tooltip.portalmod.hold_control":      "Hold Ctrl for info",
   "tooltip.portalmod.wrench":            "Configures Testing Elements",
-  "tooltip.portalmod.cube_dropper_1":    "Auto-spawns Cubes while active",
-  "tooltip.portalmod.cube_dropper_2":    "- Interact with a Cube item to add it to the dropper",
+
+  "tooltip.portalmod.cube_dropper_1":    "Auto-spawns §3Cubes§r while active",
+  "tooltip.portalmod.cube_dropper_2":    "- Interact while holding a §3Cube item§r to add it to the Dropper",
   "tooltip.portalmod.cube_dropper_3":    "- §6Wrench§r: Removes the current Cube",
   "tooltip.portalmod.cube_dropper_4":    "- Activated by §bAntline Indicator",
+
   "tooltip.portalmod.standing_button_1": "Can be pressed by players",
   "tooltip.portalmod.standing_button_2": "- §6Wrench§r: Cycles through Button Modes:",
   "tooltip.portalmod.standing_button_3": "  - Normal",
   "tooltip.portalmod.standing_button_4": "  - Persistent",
   "tooltip.portalmod.standing_button_5": "  - Toggle",
   "tooltip.portalmod.standing_button_6": "- Activates §bAntlines",
-  "tooltip.portalmod.super_button":      "Can be pressed by heavy entities to be powered, configure with wrench",
-  "tooltip.portalmod.antline":           "Wires buttons to Antline Indicators, cannot power elements directly",
-  "tooltip.portalmod.antline_indicator": "Powers certain testing elements",
-  "tooltip.portalmod.chamber_door":      "Opens automatically, or when all adjacent Antline Indicators are powered",
-  "tooltip.portalmod.faithplate":        "Launches entities to a specified location, configure with wrench",
-  "tooltip.portalmod.fizzler_emitter":   "Fizzles cubes, turrets and Portals from Portal Guns in inventory",
-  "tooltip.portalmod.sentry_turret":     "Shoots visible players and mobs, right click to stock with Bullets",
+
+  "tooltip.portalmod.super_button_1": "Can be pressed by heavy entities",
+  "tooltip.portalmod.super_button_2": "- §6Wrench§r: Cycles through Button Modes:",
+  "tooltip.portalmod.super_button_3": "  - Normal",
+  "tooltip.portalmod.super_button_4": "  - Persistent",
+  "tooltip.portalmod.super_button_5": "  - Toggle",
+  "tooltip.portalmod.super_button_6": "- Activates §bAntlines",
+
+  "tooltip.portalmod.antline_indicator_1": "Can activate adjacent §cTesting Elements§r when active",
+  "tooltip.portalmod.antline_indicator_2": "- §6Wrench§r: Can be configured to reverse active mode",
+  "tooltip.portalmod.antline_indicator_3": "- Combine with other §bAntline Indicators§r to have multiple required inputs",
+
+  "tooltip.portalmod.antline_1": "Connects Buttons with §bAntline Indicators§r",
+  "tooltip.portalmod.antline_2": "- Cannot power §3Testing Elements§r directly",
+
+  "tooltip.portalmod.chamber_door_1": "Entrance and exit to §3Test Chambers§r",
+  "tooltip.portalmod.chamber_door_2": "- Opens when activated by one or all §bAntline Indicators§r",
+  "tooltip.portalmod.chamber_door_3": "- In the case of no adjacent §bAntline Indicators§r, opens when a player is nearby",
+
+  "tooltip.portalmod.faithplate_1":        "Launches entities to a specified location, configure with wrench",
+  "tooltip.portalmod.fizzler_emitter_1":   "Fizzles §3Cubes§r, §3Turrets§r and §3Portals§r from §3Portal Guns§r in inventory",
+  "tooltip.portalmod.sentry_turret_1":     "Shoots visible players and mobs, right click to stock with §3Bullets§r",
 
   "actionbar.portalmod.button_mode.normal":      "Set Button Mode to Normal",
   "actionbar.portalmod.button_mode.persistent":  "Set Button Mode to Persistent",
