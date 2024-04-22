@@ -19,6 +19,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.tileentity.TileEntity;
@@ -348,13 +349,23 @@ public class ClientEvents {
                 }
                 else {
                     try {
-                        Entity entity = Minecraft.getInstance().crosshairPickEntity;
+//                        Entity entity = Minecraft.getInstance().crosshairPickEntity;
 
-                        if(PortalGun.isHoldable(entity)) {
-                            entity.startRiding(player);
-                            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
+                        // Use collision shapes to target the entity instead of visual shapes
+                        // todo: this increases the throwing lag even more ugh
+                        RayTraceContext collisionRayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
+                        BlockRayTraceResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
 
-                            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+                        EntityRayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), PortalGun::isHoldable, rayLength * rayLength);
+                        if (entityRayTraceResult != null) {
+                            Entity entity = entityRayTraceResult.getEntity();
+
+                            if (entityRayTraceResult.distanceTo(player) < collisionRayHit.distanceTo(player)) {
+                                entity.startRiding(player);
+                                PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
+
+                                consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
