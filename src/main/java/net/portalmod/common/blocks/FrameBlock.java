@@ -49,13 +49,13 @@ public class FrameBlock extends Block implements IWaterLoggable {
     }
 
     private static final Map<Direction, VoxelShapeGroup> FILLED_SHAPE = new HashMap<>();
-    private static final Map<Direction, VoxelShapeGroup> EMPTY_SHAPE = new HashMap<>();
+    private static final Map<Direction, VoxelShapeGroup> HOLLOW_SHAPE = new HashMap<>();
 
     private void initAABBs() {
-        VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
+        VoxelShapeGroup filledShape = new VoxelShapeGroup.Builder()
                 .add(0, 0, 0, 2, 16, 16)
                 .build();
-        VoxelShapeGroup collisionShape = new VoxelShapeGroup.Builder()
+        VoxelShapeGroup hollowShape = new VoxelShapeGroup.Builder()
                 .add(0,0, 0, 2, 1,16)
                 .add(0,15,0, 2,16,16)
                 .add(0,1, 0, 2,15, 1)
@@ -76,21 +76,20 @@ public class FrameBlock extends Block implements IWaterLoggable {
 
             matrix.translate(new Vec3(-.5));
 
-            FILLED_SHAPE.put(facing, shape.clone().transform(matrix));
-            EMPTY_SHAPE.put(facing, collisionShape.clone().transform(matrix));
+            FILLED_SHAPE.put(facing, filledShape.clone().transform(matrix));
+            HOLLOW_SHAPE.put(facing, hollowShape.clone().transform(matrix));
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        Map<Direction, VoxelShapeGroup> group = this.isFilled ? FILLED_SHAPE : EMPTY_SHAPE;
-        return group.get(state.getValue(FACING)).getShape();
+        return FILLED_SHAPE.get(state.getValue(FACING)).getShape();
     }
 
-//    @Override
-//    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-//        return this.isFilled ? this.getShape(state, level, pos, context) : EMPTY_SHAPE.get(state.getValue(FACING)).getShape();
-//    }
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+        return this.isFilled ? this.getShape(state, level, pos, context) : HOLLOW_SHAPE.get(state.getValue(FACING)).getShape();
+    }
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
