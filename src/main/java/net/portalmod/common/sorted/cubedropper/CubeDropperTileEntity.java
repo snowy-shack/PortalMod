@@ -12,7 +12,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.portalmod.common.entity.TestElementEntity;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.antline.IndicatorActivated;
 import net.portalmod.common.sorted.antline.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;

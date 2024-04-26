@@ -1,4 +1,4 @@
-package net.portalmod.common.entity;
+package net.portalmod.common.entities;
 
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.entity.EntityType;

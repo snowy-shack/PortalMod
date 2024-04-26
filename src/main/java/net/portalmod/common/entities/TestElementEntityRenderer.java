@@ -1,4 +1,4 @@
-package net.portalmod.common.entity;
+package net.portalmod.common.entities;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;

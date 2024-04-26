@@ -3,7 +3,7 @@ package net.portalmod.common.sorted.cube;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.portalmod.common.entity.TestElementEntityRenderer;
+import net.portalmod.common.entities.TestElementEntityRenderer;
 
 public abstract class CubeRenderer extends TestElementEntityRenderer<Cube, CubeModel<Cube>> {
     public CubeRenderer(EntityRendererManager erm) {

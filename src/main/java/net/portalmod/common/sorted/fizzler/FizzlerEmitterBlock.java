@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.entity.TestElementEntity;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;

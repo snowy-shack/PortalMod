@@ -16,7 +16,7 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.PortalMod;
-import net.portalmod.common.entity.TestElementEntityRenderer;
+import net.portalmod.common.entities.TestElementEntityRenderer;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 

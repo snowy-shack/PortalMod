@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.entity.TestElementEntity;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.BlockInit;
