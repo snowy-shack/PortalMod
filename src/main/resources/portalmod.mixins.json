@@ -15,6 +15,7 @@
     "accessors.ServerLevelAccessor",
     "entity.AbstractMinecartMixin",
     "entity.EntityMixin",
+    "entity.EntityTypeMixin",
     "entity.LivingEntityMixin",
     "entity.PlayerEntityMixin",
     "entity.TrackedEntityMixin",

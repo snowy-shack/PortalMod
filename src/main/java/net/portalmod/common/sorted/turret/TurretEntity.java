@@ -10,6 +10,11 @@ import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
 import net.minecraft.util.math.MathHelper;
@@ -18,11 +23,16 @@ import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.EntityInit;
+import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.util.ModUtil;
 
 import java.util.Collections;
 
 public class TurretEntity extends TestElementEntity {
+
+    public static final DataParameter<Integer> AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.INT);
+    public static final DataParameter<Boolean> INFINITE_AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
+
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
     }
@@ -33,6 +43,14 @@ public class TurretEntity extends TestElementEntity {
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
         return MobEntity.createMobAttributes();
+    }
+
+    public void onSpawnedByPlayer(PlayerEntity player) {
+        if (player.isCreative()) {
+            this.setInfiniteAmmo(true);
+        }
+
+        this.yRot = player.isShiftKeyDown() ? player.yRot : Math.round(player.yRot / 45) * 45;
     }
 
     @Override
@@ -53,6 +71,23 @@ public class TurretEntity extends TestElementEntity {
     @Override
     public HandSide getMainArm() {
         return HandSide.RIGHT;
+    }
+
+    //todo make bullets drop
+
+    @Override
+    public ActionResultType interact(PlayerEntity player, Hand hand) {
+        ItemStack holdingItem = player.getItemInHand(hand);
+        if (holdingItem.getItem() == ItemInit.BULLETS.get()) {
+            // todo make the turret wiggle
+            this.setAmmo(this.getAmmo() + 1);
+            if (!player.isCreative()) {
+                holdingItem.shrink(1);
+            }
+            return ActionResultType.SUCCESS;
+        }
+
+        return ActionResultType.FAIL;
     }
 
     @Override
@@ -130,5 +165,42 @@ public class TurretEntity extends TestElementEntity {
 
         Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
         this.setDeltaMovement(momentum);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(AMMO_ID, 0);
+        this.entityData.define(INFINITE_AMMO_ID, false);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT nbt) {
+        super.addAdditionalSaveData(nbt);
+        nbt.putInt("Ammo", this.getAmmo());
+        nbt.putBoolean("InfiniteAmmo", this.getInfiniteAmmo());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT nbt) {
+        super.readAdditionalSaveData(nbt);
+        this.setAmmo(nbt.getInt("Ammo"));
+        this.setInfiniteAmmo(nbt.getBoolean("InfiniteAmmo"));
+    }
+
+    public int getAmmo() {
+        return this.entityData.get(AMMO_ID);
+    }
+
+    public void setAmmo(int ammo) {
+        this.entityData.set(AMMO_ID, ammo);
+    }
+
+    public boolean getInfiniteAmmo() {
+        return this.entityData.get(INFINITE_AMMO_ID);
+    }
+
+    public void setInfiniteAmmo(boolean infiniteAmmo) {
+        this.entityData.set(INFINITE_AMMO_ID, infiniteAmmo);
     }
 }

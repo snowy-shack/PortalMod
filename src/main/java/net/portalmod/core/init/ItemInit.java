@@ -39,9 +39,9 @@ public class ItemInit {
             () -> new WrenchItem(new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
 
     // Cubes
-    public static final RegistryObject<ModSpawnEggItem> COMPANION_CUBE = registerSpawnEgg("companion_cube", EntityInit.COMPANION_CUBE);
-    public static final RegistryObject<ModSpawnEggItem> STORAGE_CUBE = registerSpawnEgg("storage_cube", EntityInit.STORAGE_CUBE);
-    public static final RegistryObject<ModSpawnEggItem> VINTAGE_CUBE = registerSpawnEgg("vintage_cube", EntityInit.VINTAGE_CUBE);
+    public static final RegistryObject<ModSpawnEggItem> COMPANION_CUBE = registerSpawnEgg("companion_cube", EntityInit.COMPANION_CUBE, "cube");
+    public static final RegistryObject<ModSpawnEggItem> STORAGE_CUBE = registerSpawnEgg("storage_cube", EntityInit.STORAGE_CUBE, "cube");
+    public static final RegistryObject<ModSpawnEggItem> VINTAGE_CUBE = registerSpawnEgg("vintage_cube", EntityInit.VINTAGE_CUBE, "cube");
     public static final RegistryObject<BlockItem> CUBE_DROPPER = registerBlockItem("cube_dropper", BlockInit.CUBE_DROPPER);
 
     // Blocks
@@ -94,7 +94,7 @@ public class ItemInit {
     public static final RegistryObject<BlockItem> CONVERSION_GEL = ITEMS.register("conversion_gel",
             () -> new GelContainer(BlockInit.CONVERSION_GEL.get(), GEL_BASE, 0xF7F7F8));
 
-    public static final RegistryObject<ModSpawnEggItem> TURRET = registerSpawnEgg("turret", EntityInit.TURRET);
+    public static final RegistryObject<ModSpawnEggItem> TURRET = registerSpawnEgg("turret", EntityInit.TURRET, "turret");
 
     public static final RegistryObject<Item> BULLETS = ITEMS.register("bullets",
             () -> new Item(new Item.Properties().tab(PortalModTab.INSTANCE)));
@@ -123,8 +123,12 @@ public class ItemInit {
         return ItemInit.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
     }
 
+    public static RegistryObject<ModSpawnEggItem> registerSpawnEgg(String name, RegistryObject<? extends EntityType<?>> entity, String tooltip) {
+        return ITEMS.register(name, () -> new ModSpawnEggItem(entity,new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE), tooltip));
+    }
+
     public static RegistryObject<ModSpawnEggItem> registerSpawnEgg(String name, RegistryObject<? extends EntityType<?>> entity) {
-        return ITEMS.register(name, () -> new ModSpawnEggItem(entity, 0xFFFFFF, 0xFFFFFF, new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
+        return registerSpawnEgg(name, entity, null);
     }
 
 }
