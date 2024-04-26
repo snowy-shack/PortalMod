@@ -5,7 +5,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
@@ -149,23 +148,6 @@ public class StandingButtonBlock extends DoubleBlock {
         ButtonMode newMode = currentMode.cycle();
         this.setBlockStateValue(MODE, newMode, blockState, world, pos);
         return newMode;
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        World world = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-
-        if (world.getBlockState(pos.above()).canBeReplaced(context)) {
-            return this.defaultBlockState();
-        }
-
-        if (world.getBlockState(pos.below()).canBeReplaced(context)) {
-            return this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER);
-        }
-
-        return null;
     }
 
     @Override

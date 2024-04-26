@@ -24,6 +24,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -190,22 +191,10 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockPos clickedPos = context.getClickedPos();
-        World world = context.getLevel();
         Direction clickedFace = context.getClickedFace();
-
-        if (clickedFace.getAxis() == Direction.Axis.Y) {
-            return null;
-        }
-
-        if (world.getBlockState(clickedPos.above()).canBeReplaced(context)) {
-            return this.defaultBlockState()
-                    .setValue(FACING, clickedFace);
-        }
-        else if (world.getBlockState(clickedPos.below()).canBeReplaced(context)) {
-            return this.defaultBlockState()
-                    .setValue(FACING, clickedFace)
-                    .setValue(HALF, DoubleBlockHalf.UPPER);
+        BlockState half = super.getStateForPlacement(context);
+        if (half != null && clickedFace.getAxis() != Direction.Axis.Y) {
+            return half.setValue(FACING, clickedFace);
         }
         return null;
     }
@@ -213,6 +202,11 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, POWERED, ACTIVE, HALF);
+    }
+
+    @Override
+    public boolean canSurvive(BlockState state, IWorldReader worldReader, BlockPos pos) {
+        return super.canSurvive(state, worldReader, pos);
     }
 
     @Override

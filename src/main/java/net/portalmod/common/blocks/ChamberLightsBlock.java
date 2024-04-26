@@ -8,8 +8,6 @@ import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 
@@ -31,13 +29,9 @@ public class ChamberLightsBlock extends DoubleBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockPos clickedPos = context.getClickedPos();
-        World world = context.getLevel();
-        if (world.getBlockState(clickedPos.above()).canBeReplaced(context)) {
-            return this.defaultBlockState().setValue(AXIS, context.getHorizontalDirection().getAxis());
-        }
-        else if (world.getBlockState(clickedPos.below()).canBeReplaced(context)) {
-            return this.defaultBlockState().setValue(AXIS, context.getHorizontalDirection().getAxis()).setValue(HALF, DoubleBlockHalf.UPPER);
+        BlockState half = super.getStateForPlacement(context);
+        if (half != null) {
+            return half.setValue(AXIS, context.getHorizontalDirection().getAxis());
         }
         return null;
     }
