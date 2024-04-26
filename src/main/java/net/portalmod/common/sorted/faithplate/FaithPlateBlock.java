@@ -157,7 +157,7 @@ public class FaithPlateBlock extends Block {
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
-        ModUtil.addTooltip("faith_plate", list);
+        ModUtil.addTooltip("faithplate", list);
     }
     
     public static enum Face implements IStringSerializable {

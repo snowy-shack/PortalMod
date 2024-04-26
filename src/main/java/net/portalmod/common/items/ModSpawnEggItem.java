@@ -17,7 +17,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
@@ -28,11 +27,13 @@ import java.util.Map;
 public class ModSpawnEggItem extends SpawnEggItem {
     protected static final List<ModSpawnEggItem> UNADDED = new ArrayList<>();
     private final Lazy<? extends EntityType<?>> supplier;
+    public final String tooltipName;
     
-    public ModSpawnEggItem(RegistryObject<? extends EntityType<?>> supplier, int primary, int secondary, Properties properties) {
-        super(null, primary, secondary, properties);
+    public ModSpawnEggItem(RegistryObject<? extends EntityType<?>> supplier, Properties properties, String tooltipName) {
+        super(null, 0xFFFFFF, 0xFFFFFF, properties);
         this.supplier = Lazy.of(supplier::get);
         UNADDED.add(this);
+        this.tooltipName = tooltipName;
     }
     
     public static void register() {
@@ -54,8 +55,8 @@ public class ModSpawnEggItem extends SpawnEggItem {
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
-        if (this.supplier.get() == EntityInit.TURRET.get()) {
-            ModUtil.addTooltip("turret", list);
+        if (this.tooltipName != null) {
+            ModUtil.addTooltip(this.tooltipName, list);
         }
     }
     
