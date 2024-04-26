@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.fizzler;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer.Builder;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -49,13 +49,15 @@ import java.util.List;
 import java.util.UUID;
 
 public class FizzlerEmitterBlock extends DoubleBlock {
-    public static final DirectionProperty FACING = HorizontalBlock.FACING;
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     public FizzlerEmitterBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
+                .setValue(POWERED, false)
                 .setValue(ACTIVE, false)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
         this.initAABBs();
@@ -111,6 +113,22 @@ public class FizzlerEmitterBlock extends DoubleBlock {
                 this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             }
         }
+
+        if (world.isClientSide) {
+            return;
+        }
+
+        boolean wasPowered = blockState.getValue(POWERED);
+        boolean isPowered = false;
+        for (BlockPos checkingPos : getAllPositions(blockState, pos)) {
+            if (world.hasNeighborSignal(checkingPos)) {
+                isPowered = true;
+            }
+        }
+
+        if (wasPowered != isPowered) {
+            this.setBlockStateValue(POWERED, isPowered, blockState, world, pos);
+        }
     }
 
     @Override
@@ -119,6 +137,7 @@ public class FizzlerEmitterBlock extends DoubleBlock {
         if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
             blockState = blockState.setValue(ACTIVE, false);
         }
+
         return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
     }
 
@@ -193,7 +212,7 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(FACING, ACTIVE, HALF);
+        builder.add(FACING, POWERED, ACTIVE, HALF);
     }
 
     @Override

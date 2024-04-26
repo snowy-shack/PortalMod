@@ -26,14 +26,20 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
     public void tick() {
         boolean activated = this.getBlockState().getValue(FizzlerEmitterBlock.ACTIVE);
 
-        IndicatorInfo indicatorInfo = this.checkIndicators(this.getBlockState(), this.level, this.getBlockPos());
-        if (indicatorInfo.hasIndicators) {
-            if (indicatorInfo.allIndicatorsActivated != activated) {
-                this.setField(indicatorInfo.allIndicatorsActivated);
+        if (this.getBlockState().getValue(FizzlerEmitterBlock.POWERED)) {
+            if (activated) {
+                this.setField(false);
             }
         } else {
-            if (!activated) {
-                this.setField(true);
+            IndicatorInfo indicatorInfo = this.checkIndicators(this.getBlockState(), this.level, this.getBlockPos());
+            if (indicatorInfo.hasIndicators) {
+                if (indicatorInfo.allIndicatorsActivated != activated) {
+                    this.setField(indicatorInfo.allIndicatorsActivated);
+                }
+            } else {
+                if (!activated) {
+                    this.setField(true);
+                }
             }
         }
     }
