@@ -102,7 +102,7 @@
 
   "tooltip.portalmod.turret_1": "§7Shoots visible Players and Mobs",
   "tooltip.portalmod.turret_2": "§7- Right click to stock with §3Bullets",
-  "tooltip.portalmod.turret_3": "§7- Has infinite §3Bullets§7 when placed in creative",
+  "tooltip.portalmod.turret_3": "§7- Has infinite ammo when placed in creative",
   "tooltip.portalmod.turret_4": "§7- Crouch while placing for finer control over the rotation of the turret",
   "tooltip.portalmod.turret_5": "§7- Can be broken with a §6Wrench",
 

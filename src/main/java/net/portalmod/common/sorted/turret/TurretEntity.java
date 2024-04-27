@@ -1,9 +1,6 @@
 package net.portalmod.common.sorted.turret;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.MoverType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
@@ -14,9 +11,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
+import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -32,6 +27,7 @@ public class TurretEntity extends TestElementEntity {
 
     public static final DataParameter<Integer> AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.INT);
     public static final DataParameter<Boolean> INFINITE_AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
+    public static final int AMMO_PER_BULLET = 20;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -73,17 +69,35 @@ public class TurretEntity extends TestElementEntity {
         return HandSide.RIGHT;
     }
 
-    //todo make bullets drop
+    @Override
+    protected void dropCustomDeathLoot(DamageSource source, int p_213333_2_, boolean p_213333_3_) {
+        Entity entity = source.getEntity();
+        if (entity instanceof PlayerEntity && ((PlayerEntity) entity).isCreative()) {
+            return;
+        }
+        this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get(), this.getAmmo() / AMMO_PER_BULLET));
+    }
 
     @Override
     public ActionResultType interact(PlayerEntity player, Hand hand) {
         ItemStack holdingItem = player.getItemInHand(hand);
         if (holdingItem.getItem() == ItemInit.BULLETS.get()) {
-            // todo make the turret wiggle
-            this.setAmmo(this.getAmmo() + 1);
+
+            if (this.getAmmo() >= 64 * AMMO_PER_BULLET) {
+                return ActionResultType.PASS;
+            }
+
+            this.setAmmo(this.getAmmo() + AMMO_PER_BULLET);
             if (!player.isCreative()) {
                 holdingItem.shrink(1);
             }
+
+            if (!this.level.isClientSide) {
+                this.setWiggle(10);
+                this.setHurtDir(-this.getHurtDir());
+                this.playSound(SoundEvents.ARMOR_EQUIP_CHAIN, 1, 1);
+            }
+
             return ActionResultType.SUCCESS;
         }
 
