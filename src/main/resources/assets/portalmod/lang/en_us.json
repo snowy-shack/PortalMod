@@ -111,6 +111,8 @@
   "actionbar.portalmod.button_mode.toggle":      "Set Button Mode to Toggle",
   "actionbar.portalmod.indicator_mode.normal":   "Set Indicator Mode to Normal",
   "actionbar.portalmod.indicator_mode.reversed": "Set Indicator Mode to Reversed",
+  "actionbar.portalmod.turret.full":             "This turret is filled to the brim!",
+  "actionbar.portalmod.turret.infinite_ammo":    "This turret has infinite ammo",
 
   "subtitles.block.generic.break": "Block broken",
   "subtitles.block.generic.footsteps": "Footsteps",

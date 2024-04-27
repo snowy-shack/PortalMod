@@ -14,6 +14,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.*;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portalgun.PortalGun;
@@ -28,6 +29,7 @@ public class TurretEntity extends TestElementEntity {
     public static final DataParameter<Integer> AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.INT);
     public static final DataParameter<Boolean> INFINITE_AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
     public static final int AMMO_PER_BULLET = 20;
+    public static final int MAX_BULLETS = 64;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -83,13 +85,20 @@ public class TurretEntity extends TestElementEntity {
         ItemStack holdingItem = player.getItemInHand(hand);
         if (holdingItem.getItem() == ItemInit.BULLETS.get()) {
 
-            if (this.getAmmo() >= 64 * AMMO_PER_BULLET) {
+            if (this.getAmmo() >= MAX_BULLETS * AMMO_PER_BULLET) {
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.turret.full"), true);
                 return ActionResultType.PASS;
             }
 
-            this.setAmmo(this.getAmmo() + AMMO_PER_BULLET);
+            if (this.getInfiniteAmmo()) {
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.turret.infinite_ammo"), true);
+                return ActionResultType.PASS;
+            }
+
+            int bulletStoreAmount = player.isShiftKeyDown() ? Math.min(holdingItem.getCount(), MAX_BULLETS - (this.getAmmo() / AMMO_PER_BULLET)) : 1;
+            this.setAmmo(this.getAmmo() + bulletStoreAmount * AMMO_PER_BULLET);
             if (!player.isCreative()) {
-                holdingItem.shrink(1);
+                holdingItem.shrink(bulletStoreAmount);
             }
 
             if (!this.level.isClientSide) {
