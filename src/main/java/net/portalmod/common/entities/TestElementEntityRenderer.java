@@ -24,6 +24,11 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
             matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(MathHelper.sin(f5) * f5 * f6 / 10.0F * (float)entity.getHurtDir()));
         }
 
+        float wiggle = entity.getWiggle() - p_225623_3_;
+        if (wiggle > 0.0F) {
+            matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(MathHelper.sin(wiggle * 1.5f) * wiggle * 0.5f * (float)entity.getHurtDir()));
+        }
+
         super.render(entity, p_225623_2_, p_225623_3_, matrixStack, p_225623_5_, entity.getFizzleLight(light));
     }
 

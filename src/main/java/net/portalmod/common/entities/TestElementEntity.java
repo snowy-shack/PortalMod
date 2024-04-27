@@ -29,6 +29,7 @@ public abstract class TestElementEntity extends LivingEntity {
 
     public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     public static final DataParameter<Boolean> FROM_DROPPER_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Integer> WIGGLE_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_ID_HURT = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_ID_HURTDIR = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     private static final DataParameter<Float> DATA_ID_DAMAGE = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.FLOAT);
@@ -45,6 +46,10 @@ public abstract class TestElementEntity extends LivingEntity {
 
     @Override
     public void tick() {
+        if (this.getWiggle() > 0) {
+            this.setWiggle(this.getWiggle() - 1);
+        }
+
         if (this.getHurtTime() > 0) {
             this.setHurtTime(this.getHurtTime() - 1);
         }
@@ -91,6 +96,10 @@ public abstract class TestElementEntity extends LivingEntity {
         boolean isCreative = source instanceof EntityDamageSource && source.getEntity() instanceof PlayerEntity && ((PlayerEntity) source.getEntity()).isCreative();
 
         boolean shouldHurt = holdingWrench || inGoo || outOfWorld || isCreative;
+
+        if (holdingWrench) {
+            damage *= 1.5f;
+        }
 
         if (inGoo) {
             damage *= 0.1f;
@@ -152,6 +161,7 @@ public abstract class TestElementEntity extends LivingEntity {
         super.defineSynchedData();
         this.entityData.define(FIZZLE_TICKS_ID, 0);
         this.entityData.define(FROM_DROPPER_ID, false);
+        this.entityData.define(WIGGLE_ID, 0);
         this.entityData.define(DATA_ID_HURT, 0);
         this.entityData.define(DATA_ID_HURTDIR, 1);
         this.entityData.define(DATA_ID_DAMAGE, 0.0F);
@@ -183,6 +193,14 @@ public abstract class TestElementEntity extends LivingEntity {
 
     public void setFromDropper(boolean fromDropper) {
         this.entityData.set(FROM_DROPPER_ID, fromDropper);
+    }
+
+    public int getWiggle() {
+        return this.entityData.get(WIGGLE_ID);
+    }
+
+    public void setWiggle(int wiggle) {
+        this.entityData.set(WIGGLE_ID, wiggle);
     }
 
     public void setDamage(float damage) {
