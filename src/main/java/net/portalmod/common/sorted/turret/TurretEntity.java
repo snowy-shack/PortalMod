@@ -17,6 +17,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
@@ -100,6 +101,29 @@ public class TurretEntity extends TestElementEntity {
             if (!player.isCreative()) {
                 holdingItem.shrink(bulletStoreAmount);
             }
+
+            if (!this.level.isClientSide) {
+                this.setWiggle(10);
+                this.setHurtDir(-this.getHurtDir());
+                this.playSound(SoundEvents.ARMOR_EQUIP_CHAIN, 1, 1);
+            }
+
+            return ActionResultType.SUCCESS;
+        }
+        else if (holdingItem.getItem() instanceof WrenchItem) {
+
+            if (this.getAmmo() == 0) {
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.turret.empty"), true);
+                return ActionResultType.CONSUME;
+            }
+
+            if (this.getAmmo() >= AMMO_PER_BULLET) {
+                this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get(), this.getAmmo() / AMMO_PER_BULLET));
+            } else {
+                this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get()));
+            }
+
+            this.setAmmo(0);
 
             if (!this.level.isClientSide) {
                 this.setWiggle(10);
