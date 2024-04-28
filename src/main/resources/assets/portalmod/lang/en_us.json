@@ -113,6 +113,7 @@
   "actionbar.portalmod.indicator_mode.reversed": "Set Indicator Mode to Reversed",
   "actionbar.portalmod.turret.full":             "This turret is filled to the brim!",
   "actionbar.portalmod.turret.infinite_ammo":    "This turret has infinite ammo",
+  "actionbar.portalmod.turret.empty":            "This turret is already empty",
 
   "subtitles.block.generic.break": "Block broken",
   "subtitles.block.generic.footsteps": "Footsteps",
