@@ -7,14 +7,14 @@
   "item.portalmod.wrench":  "ilo ante",
   "item.portalmod.bullets": "sike lili pi ilo utala",
 
-  "item.portalmod.container":       "poki telo taki",
+  "item.portalmod.container":       "poki telo ko",
   "block.portalmod.repulsion_gel":  "telo jasima",
   "block.portalmod.propulsion_gel": "telo tawa kepeken tenpo lili",
   "block.portalmod.conversion_gel": "telo lupa",
 
   "item.portalmod.storage_cube":   "leko wawa",
   "item.portalmod.companion_cube": "leko pona",
-  "item.portalmod.vintage_cube":   "leko tan tenpo pini",
+  "item.portalmod.vintage_cube":   "leko tan majuna",
   "item.portalmod.turret":         "ilo pakala awen",
   "item.portalmod.goo_bucket":     "poki pi telo jaki moli",
 
@@ -31,8 +31,8 @@
   "block.portalmod.arbored_blackplate":   "supa pimeja kasi",
   "block.portalmod.fractured_lunecast":   "kiwen mun pakala suli",
   "block.portalmod.fractured_blackplate": "supa pimeja pakala suli",
-  "block.portalmod.vintage_lunecast":     "kiwen mun tan tenpo pini",
-  "block.portalmod.vintage_blackplate":   "supa pimeja tan tenpo pini",
+  "block.portalmod.vintage_lunecast":     "kiwen mun tan majuna",
+  "block.portalmod.vintage_blackplate":   "supa pimeja tan majuna",
   "block.portalmod.wire_mesh":            "palisa mute",
   "block.portalmod.wire_mesh_block":      "leko pi palisa mute",
   "block.portalmod.iron_frame":           "selo pi kiwen walo",
@@ -49,7 +49,7 @@
 
   "entity.portalmod.storage_cube":   "leko wawa",
   "entity.portalmod.companion_cube": "leko pona",
-  "entity.portalmod.vintage_cube":   "leko tan tenpo pini",
+  "entity.portalmod.vintage_cube":   "leko tan majuna",
   "entity.portalmod.portal":         "lupa",
   "entity.portalmod.turret":         "ilo pakala awen",
 
@@ -86,7 +86,7 @@
   "tooltip.portalmod.antline_indicator_2": "§7- §6ilo ante§7 li jasima e ni",
   "tooltip.portalmod.antline_indicator_3": "§7- kepeken §bsona pi linja wawa§7 mute la §cilo pi alasa sona§7 wile pana mute",
 
-  "tooltip.portalmod.antline_1": "§7Connects Buttons with §bAntline Indicators",
+  "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
   "tooltip.portalmod.antline_2": "§7- Cannot power §3Testing Elements§7 directly",
 
   "tooltip.portalmod.chamber_door_1": "§7Entrance and exit to Test Chambers",
@@ -125,7 +125,7 @@
   "subtitles.block.generic.hit": "Block breaking",
   "subtitles.block.generic.place": "Block placed",
 
-  "subtitles.block.gel.fill":                "poki telo taki li jo",
+  "subtitles.block.gel.fill":                "poki telo ko li jo",
   "subtitles.block.radio.loop":              "ilo li kalama pona",
   "subtitles.block.radio.transmission":      "ilo li kalama sona",
   "subtitles.block.faithplate.launch":       "ilo pi tawa sewi li tawa",
@@ -151,7 +151,7 @@
   "subtitles.item.portalgun.activate": "ilo pi lupa nasa li lon",
 
   "death.attack.cube":           "%2$s li toki e moli tawa %1$s",
-  "death.attack.launchIntoWall": "%1$s li tawa e pake",
+  "death.attack.launchIntoWall": "%1$s li tawa e sinpin",
   "death.attack.turret":         "%1$s li jo e lupa lili mute tan %2$s",
   "death.attack.goo":            "%1$s li weka lon telo jaki moli",
   "death.attack.goo.player":     "%1$s li weka lon telo jaki moli li utala e %2$s",

@@ -86,7 +86,7 @@
   "tooltip.portalmod.antline_indicator_2": "§7- §6Wrench§7: Can be configured to reverse active mode",
   "tooltip.portalmod.antline_indicator_3": "§7- Combine with other §bAntline Indicators§7 to have multiple required inputs",
 
-  "tooltip.portalmod.antline_1": "§7Connects Buttons with §bAntline Indicators",
+  "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
   "tooltip.portalmod.antline_2": "§7- Cannot power §3Testing Elements§7 directly",
 
   "tooltip.portalmod.chamber_door_1": "§7Entrance and exit to Test Chambers",
