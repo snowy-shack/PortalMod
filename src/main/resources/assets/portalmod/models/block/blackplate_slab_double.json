@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "portalmod:block/blackplate_tiles",
+    "top": "portalmod:block/blackplate_top",
+    "bottom": "portalmod:block/blackplate_bottom"
+  }
+}
