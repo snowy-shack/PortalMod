@@ -47,15 +47,25 @@ public class ItemInit {
 
     // Blocks
     public static final RegistryObject<Item> LUNECAST = registerBlockItem("lunecast", BlockInit.LUNECAST);
+    public static final RegistryObject<Item> LUNECAST_SLAB = registerBlockItem("lunecast_slab", BlockInit.LUNECAST_SLAB);
+    public static final RegistryObject<Item> LUNECAST_STAIRS = registerBlockItem("lunecast_stairs", BlockInit.LUNECAST_STAIRS);
     public static final RegistryObject<Item> ARBORED_LUNECAST = registerBlockItem("arbored_lunecast", BlockInit.ARBORED_LUNECAST);
     public static final RegistryObject<Item> ERODED_LUNECAST = registerBlockItem("eroded_lunecast", BlockInit.ERODED_LUNECAST);
     public static final RegistryObject<Item> FRACTURED_LUNECAST = registerBlockItem("fractured_lunecast", BlockInit.FRACTURED_LUNECAST);
     public static final RegistryObject<Item> VINTAGE_LUNECAST = registerBlockItem("vintage_lunecast", BlockInit.VINTAGE_LUNECAST);
     public static final RegistryObject<Item> BLACKPLATE = registerBlockItem("blackplate", BlockInit.BLACKPLATE);
+    public static final RegistryObject<Item> BLACKPLATE_SLAB = registerBlockItem("blackplate_slab", BlockInit.BLACKPLATE_SLAB);
+    public static final RegistryObject<Item> BLACKPLATE_STAIRS = registerBlockItem("blackplate_stairs", BlockInit.BLACKPLATE_STAIRS);
     public static final RegistryObject<Item> ARBORED_BLACKPLATE = registerBlockItem("arbored_blackplate", BlockInit.ARBORED_BLACKPLATE);
     public static final RegistryObject<Item> ERODED_BLACKPLATE = registerBlockItem("eroded_blackplate", BlockInit.ERODED_BLACKPLATE);
     public static final RegistryObject<Item> FRACTURED_BLACKPLATE = registerBlockItem("fractured_blackplate", BlockInit.FRACTURED_BLACKPLATE);
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE = registerBlockItem("vintage_blackplate", BlockInit.VINTAGE_BLACKPLATE);
+
+    public static final RegistryObject<Item> LUNECAST_STEP = registerBlockItem("lunecast_step", BlockInit.LUNECAST_STEP);
+    public static final RegistryObject<Item> ERODED_LUNECAST_STEP = registerBlockItem("eroded_lunecast_step", BlockInit.ERODED_LUNECAST_STEP);
+    public static final RegistryObject<Item> BLACKPLATE_STEP = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_STEP);
+    public static final RegistryObject<Item> ERODED_BLACKPLATE_STEP = registerBlockItem("eroded_blackplate_step", BlockInit.ERODED_BLACKPLATE_STEP);
+
     public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
     public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);
     public static final RegistryObject<Item> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);

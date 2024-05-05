@@ -6,10 +6,7 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
-import net.portalmod.common.blocks.ChamberLightsBlock;
-import net.portalmod.common.blocks.ForestCakeBlock;
-import net.portalmod.common.blocks.FrameBlock;
-import net.portalmod.common.blocks.WireMeshBlock;
+import net.portalmod.common.blocks.*;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
@@ -42,6 +39,30 @@ public class BlockInit {
     public static final RegistryObject<Block> VINTAGE_LUNECAST = registerLunecast("vintage_");
     public static final RegistryObject<Block> VINTAGE_BLACKPLATE = registerBlackplate("vintage_");
     
+    public static final RegistryObject<Block> LUNECAST_STEP = BLOCKS.register("lunecast_step",
+            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> ERODED_LUNECAST_STEP = BLOCKS.register("eroded_lunecast_step",
+            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> BLACKPLATE_STEP = BLOCKS.register("blackplate_step",
+            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> ERODED_BLACKPLATE_STEP = BLOCKS.register("eroded_blackplate_step",
+            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> LUNECAST_SLAB = BLOCKS.register("lunecast_slab",
+            () -> new SlabBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> BLACKPLATE_SLAB = BLOCKS.register("blackplate_slab",
+            () -> new SlabBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> LUNECAST_STAIRS = BLOCKS.register("lunecast_stairs",
+            () -> new StairsBlock(() -> LUNECAST.get().defaultBlockState(), AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
+    public static final RegistryObject<Block> BLACKPLATE_STAIRS = BLOCKS.register("blackplate_stairs",
+            () -> new StairsBlock(() -> BLACKPLATE.get().defaultBlockState(), AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
     public static final RegistryObject<Block> IRON_FRAME = BLOCKS.register("iron_frame",
             () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), false));
 
