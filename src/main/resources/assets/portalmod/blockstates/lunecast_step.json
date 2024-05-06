@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "half=top": {"model": "portalmod:block/lunecast_step_top"},
+    "half=bottom": {"model": "portalmod:block/lunecast_step_bottom"}
+  }
+}

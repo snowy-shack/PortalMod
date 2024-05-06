@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "half=top": {"model": "portalmod:block/blackplate_step_top"},
+    "half=bottom": {"model": "portalmod:block/blackplate_step_bottom"}
+  }
+}
