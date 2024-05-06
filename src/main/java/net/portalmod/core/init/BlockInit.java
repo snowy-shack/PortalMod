@@ -28,40 +28,50 @@ public class BlockInit {
     
     private BlockInit() {}
     
-    public static final RegistryObject<Block> LUNECAST = registerLunecast("");
-    public static final RegistryObject<Block> BLACKPLATE = registerBlackplate("");
-    public static final RegistryObject<Block> ARBORED_LUNECAST = registerLunecast("arbored_");
-    public static final RegistryObject<Block> ARBORED_BLACKPLATE = registerBlackplate("arbored_");
-    public static final RegistryObject<Block> ERODED_LUNECAST = registerLunecast("eroded_");
-    public static final RegistryObject<Block> ERODED_BLACKPLATE = registerBlackplate("eroded_");
-    public static final RegistryObject<Block> FRACTURED_LUNECAST = registerLunecast("fractured_");
-    public static final RegistryObject<Block> FRACTURED_BLACKPLATE = registerBlackplate("fractured_");
-    public static final RegistryObject<Block> VINTAGE_LUNECAST = registerLunecast("vintage_");
-    public static final RegistryObject<Block> VINTAGE_BLACKPLATE = registerBlackplate("vintage_");
+    public static final RegistryObject<Block> LUNECAST = registerLunecast("lunecast");
+    public static final RegistryObject<Block> BLACKPLATE = registerBlackplate("blackplate");
+    public static final RegistryObject<Block> ARBORED_LUNECAST = registerLunecast("arbored_lunecast");
+    public static final RegistryObject<Block> ARBORED_BLACKPLATE = registerBlackplate("arbored_blackplate");
+    public static final RegistryObject<Block> ERODED_LUNECAST = registerLunecast("eroded_lunecast");
+    public static final RegistryObject<Block> ERODED_BLACKPLATE = registerBlackplate("eroded_blackplate");
+    public static final RegistryObject<Block> FRACTURED_LUNECAST = registerLunecast("fractured_lunecast");
+    public static final RegistryObject<Block> FRACTURED_BLACKPLATE = registerBlackplate("fractured_blackplate");
+    public static final RegistryObject<Block> VINTAGE_LUNECAST = registerLunecast("vintage_lunecast");
+    public static final RegistryObject<Block> VINTAGE_BLACKPLATE = registerBlackplate("vintage_blackplate");
+
+    public static final RegistryObject<Block> LUNECAST_SLAB = registerSlab("lunecast");
+    public static final RegistryObject<Block> BLACKPLATE_SLAB = registerSlab("blackplate");
+    public static final RegistryObject<Block> ARBORED_LUNECAST_SLAB = registerSlab("arbored_lunecast");
+    public static final RegistryObject<Block> ARBORED_BLACKPLATE_SLAB = registerSlab("arbored_blackplate");
+    public static final RegistryObject<Block> ERODED_LUNECAST_SLAB = registerSlab("eroded_lunecast");
+    public static final RegistryObject<Block> ERODED_BLACKPLATE_SLAB = registerSlab("eroded_blackplate");
+    public static final RegistryObject<Block> FRACTURED_LUNECAST_SLAB = registerSlab("fractured_lunecast");
+    public static final RegistryObject<Block> FRACTURED_BLACKPLATE_SLAB = registerSlab("fractured_blackplate");
+    public static final RegistryObject<Block> VINTAGE_LUNECAST_SLAB = registerSlab("vintage_lunecast");
+    public static final RegistryObject<Block> VINTAGE_BLACKPLATE_SLAB = registerSlab("vintage_blackplate");
+
+    public static final RegistryObject<Block> LUNECAST_STAIRS = registerStairs("lunecast");
+    public static final RegistryObject<Block> BLACKPLATE_STAIRS = registerStairs("blackplate");
+    public static final RegistryObject<Block> ARBORED_LUNECAST_STAIRS = registerStairs("arbored_lunecast");
+    public static final RegistryObject<Block> ARBORED_BLACKPLATE_STAIRS = registerStairs("arbored_blackplate");
+    public static final RegistryObject<Block> ERODED_LUNECAST_STAIRS = registerStairs("eroded_lunecast");
+    public static final RegistryObject<Block> ERODED_BLACKPLATE_STAIRS = registerStairs("eroded_blackplate");
+    public static final RegistryObject<Block> FRACTURED_LUNECAST_STAIRS = registerStairs("fractured_lunecast");
+    public static final RegistryObject<Block> FRACTURED_BLACKPLATE_STAIRS = registerStairs("fractured_blackplate");
+    public static final RegistryObject<Block> VINTAGE_LUNECAST_STAIRS = registerStairs("vintage_lunecast");
+    public static final RegistryObject<Block> VINTAGE_BLACKPLATE_STAIRS = registerStairs("vintage_blackplate");
     
     public static final RegistryObject<Block> LUNECAST_STEP = BLOCKS.register("lunecast_step",
-            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
     public static final RegistryObject<Block> ERODED_LUNECAST_STEP = BLOCKS.register("eroded_lunecast_step",
-            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
     public static final RegistryObject<Block> BLACKPLATE_STEP = BLOCKS.register("blackplate_step",
-            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
     public static final RegistryObject<Block> ERODED_BLACKPLATE_STEP = BLOCKS.register("eroded_blackplate_step",
-            () -> new HalfBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-
-    public static final RegistryObject<Block> LUNECAST_SLAB = BLOCKS.register("lunecast_slab",
-            () -> new SlabBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-
-    public static final RegistryObject<Block> BLACKPLATE_SLAB = BLOCKS.register("blackplate_slab",
-            () -> new SlabBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-
-    public static final RegistryObject<Block> LUNECAST_STAIRS = BLOCKS.register("lunecast_stairs",
-            () -> new StairsBlock(() -> LUNECAST.get().defaultBlockState(), AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-
-    public static final RegistryObject<Block> BLACKPLATE_STAIRS = BLOCKS.register("blackplate_stairs",
-            () -> new StairsBlock(() -> BLACKPLATE.get().defaultBlockState(), AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
     public static final RegistryObject<Block> IRON_FRAME = BLOCKS.register("iron_frame",
             () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), false));
@@ -143,10 +153,18 @@ public class BlockInit {
     public static final RegistryObject<Block> CONVERSION_GEL = BLOCKS.register("conversion_gel", () -> new ConversionGelBlock(GEL_BASE));
 
     public static RegistryObject<Block> registerLunecast(String name) {
-        return BLOCKS.register(name + "lunecast", () -> new SmallPanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+        return BLOCKS.register(name, () -> new SmallPanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerBlackplate(String name) {
         return BLOCKS.register(name + "blackplate", () -> new LargePanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    }
+
+    public static RegistryObject<Block> registerSlab(String name) {
+        return BLOCKS.register(name + "_slab", () -> new SlabBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    }
+
+    public static RegistryObject<Block> registerStairs(String name) {
+        return BLOCKS.register(name + "_stairs", () -> new StairsBlock(() -> LUNECAST.get().defaultBlockState(), AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 }
