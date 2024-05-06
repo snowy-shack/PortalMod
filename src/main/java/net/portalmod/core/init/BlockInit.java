@@ -157,7 +157,7 @@ public class BlockInit {
     }
 
     public static RegistryObject<Block> registerBlackplate(String name) {
-        return BLOCKS.register(name + "blackplate", () -> new LargePanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+        return BLOCKS.register(name, () -> new LargePanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerSlab(String name) {
