@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=top": {
+      "model": "portalmod:block/lunecast_slab_top"
+    },
+    "type=bottom": {
+      "model": "portalmod:block/lunecast_slab"
+    },
+    "type=double": {
+      "model": "portalmod:block/lunecast_tiles"
+    }
+  }
+}

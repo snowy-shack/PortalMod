@@ -13,3 +13,4 @@ build
 # other
 run
 logs
+/src/generated/resources/.cache/

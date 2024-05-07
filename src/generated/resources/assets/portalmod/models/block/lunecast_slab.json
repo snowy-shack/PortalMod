@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/slab",
   "textures": {
+    "side": "portalmod:block/lunecast_tiles",
     "bottom": "portalmod:block/lunecast_bottom",
-    "top": "portalmod:block/lunecast_top",
-    "side": "portalmod:block/lunecast_tiles"
+    "top": "portalmod:block/lunecast_top"
   }
 }
