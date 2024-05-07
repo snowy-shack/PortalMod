@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
@@ -21,6 +22,7 @@ import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemInit;
+import net.portalmod.core.init.ItemTagInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -58,6 +60,8 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Shadow protected abstract boolean isAffectedByFluids();
 
     @Shadow public abstract boolean canStandOnFluid(Fluid p_230285_1_);
+
+    @Shadow public abstract Iterable<ItemStack> getArmorSlots();
 
     @Inject(
             remap = false,
@@ -360,7 +364,16 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         boolean isInGoo = !this.firstTick && this.fluidHeight.getDouble(FluidTagInit.GOO) > 0;
         if (isInGoo) {
             this.fallDistance = 0;
-            this.hurt(FluidInit.GOO_DAMAGE, 4.0F);
+
+            float damage = 4;
+            for (ItemStack itemStack: this.getArmorSlots()) {
+                if (itemStack.getItem().is(ItemTagInit.GOO_PROTECTION)) {
+                    damage = 0.2f;
+                    break;
+                }
+            }
+
+            this.hurt(FluidInit.GOO_DAMAGE, damage);
         }
     }
 

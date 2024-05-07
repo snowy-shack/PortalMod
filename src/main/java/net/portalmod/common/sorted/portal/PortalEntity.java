@@ -1,15 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
-
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -23,16 +15,19 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.*;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -40,13 +35,18 @@ import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.interfaces.IDragCancelable;
+import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
 import net.portalmod.core.util.BlockIterator;
-import net.portalmod.core.interfaces.ITeleportLerpable;
-import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import net.portalmod.mixins.accessors.EntityAccessor;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     private final float WIDTH = 1;
@@ -1108,8 +1108,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         .and(b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
         .and(up, b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
         .move(this.direction.getOpposite())
-        .and(b -> b.is(BlockTagInit.PORTALABLE))
-        .and(up, b -> b.is(BlockTagInit.PORTALABLE))
+        .and(BlockTagInit::isPortalable)
+        .and(up, BlockTagInit::isPortalable)
         .getResult();
     }
     
@@ -1171,7 +1171,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public boolean adjustShot(BlockRayTraceResult ray) {
         // todo use blocks behind and ahead instead
         BlockIterator interactor = new BlockIterator(this.level, this.blockPosition(), true)
-        .and(direction.getOpposite(), b -> b.is(BlockTagInit.PORTALABLE));
+        .and(direction.getOpposite(), BlockTagInit::isPortalable);
         
         if(!interactor.getResult())
             return false;
@@ -1246,7 +1246,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 //        .or(b -> b != Blocks.AIR)
         .or(b -> !b.is(BlockTagInit.PORTAL_NONBLOCKING))
         .move(direction.getOpposite())
-        .or(b -> !b.is(BlockTagInit.PORTALABLE));
+        .or(b -> !BlockTagInit.isPortalable(b));
         
         if(blockPush.getResult()) {
             blockPush
@@ -1265,8 +1265,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         .and(b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
         .and(up, b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
         .move(direction.getOpposite())
-        .and(b -> b.is(BlockTagInit.PORTALABLE))
-        .and(up, b -> b.is(BlockTagInit.PORTALABLE))
+        .and(BlockTagInit::isPortalable)
+        .and(up, BlockTagInit::isPortalable)
         .and((pos, state, block) -> {
             for(PortalEntity portal : portals)
                 if(this.getIntersection(portal, null, false) == Intersection.BOTH

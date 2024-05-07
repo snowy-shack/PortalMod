@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.portalgun;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -22,7 +21,6 @@ import net.minecraft.world.World;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalManager;
-import net.portalmod.common.sorted.portal.PortalPairCache;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.util.Colour;
 
@@ -66,7 +64,7 @@ public class PortalGunCrosshairRenderer {
 
 
 
-            boolean b = Minecraft.getInstance().level.getBlockState(rayTrace.getBlockPos()).getBlock().is(BlockTagInit.PORTALABLE);
+            boolean b = BlockTagInit.isPortalable(Minecraft.getInstance().level.getBlockState(rayTrace.getBlockPos()).getBlock());
             
             // TODO only where placeable
             if(style == 1)

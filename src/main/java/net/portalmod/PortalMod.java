@@ -33,6 +33,7 @@ public class PortalMod {
         SoundInit.SOUNDS.register(bus);
         PacketInit.init();
         StatsInit.init();
+        ItemTagInit.init();
         BlockTagInit.init();
         FluidTagInit.init();
         createConfigs();

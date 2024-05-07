@@ -1,0 +1,10 @@
+{
+  "replace": true,
+  "values": [
+    "portalmod:blackplate",
+    "portalmod:eroded_blackplate",
+    "portalmod:arbored_blackplate",
+    "portalmod:fractured_blackplate",
+    "portalmod:vintage_blackplate"
+  ]
+}
