@@ -37,13 +37,7 @@ public class PortalMod {
         FluidTagInit.init();
         createConfigs();
 
-        generateData(bus);
-
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    private void generateData(IEventBus bus) {
-
     }
 
     private void setup(final FMLCommonSetupEvent event) {
