@@ -67,13 +67,13 @@ public class BlockInit {
     public static final RegistryObject<Block> LUNECAST_STEP = BLOCKS.register("lunecast_step",
             () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
-    public static final RegistryObject<Block> ERODED_LUNECAST_STEP = BLOCKS.register("eroded_lunecast_step",
+    public static final RegistryObject<Block> RUSTY_LUNECAST_STEP = BLOCKS.register("rusty_lunecast_step",
             () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
     public static final RegistryObject<Block> BLACKPLATE_STEP = BLOCKS.register("blackplate_step",
             () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
-    public static final RegistryObject<Block> ERODED_BLACKPLATE_STEP = BLOCKS.register("eroded_blackplate_step",
+    public static final RegistryObject<Block> RUSTY_BLACKPLATE_STEP = BLOCKS.register("rusty_blackplate_step",
             () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
     public static final RegistryObject<Block> IRON_FRAME = BLOCKS.register("iron_frame",
@@ -83,6 +83,15 @@ public class BlockInit {
             () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), true));
 
     public static final RegistryObject<Block> MESHED_IRON_FRAME = BLOCKS.register("meshed_iron_frame",
+            () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), true));
+
+    public static final RegistryObject<Block> RUSTY_IRON_FRAME = BLOCKS.register("rusty_iron_frame",
+            () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), false));
+
+    public static final RegistryObject<Block> RUSTY_BARRED_IRON_FRAME = BLOCKS.register("rusty_barred_iron_frame",
+            () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), true));
+
+    public static final RegistryObject<Block> RUSTY_MESHED_IRON_FRAME = BLOCKS.register("rusty_meshed_iron_frame",
             () -> new FrameBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK).noOcclusion(), true));
     public static final RegistryObject<Block> RADIO = BLOCKS.register("radio",
             () -> new RadioBlock(AbstractBlock.Properties.of(Material.DECORATION).strength(1.0F)));

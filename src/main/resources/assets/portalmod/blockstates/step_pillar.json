@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "portalmod:block/step_pillar"
+    }
+  }
+}

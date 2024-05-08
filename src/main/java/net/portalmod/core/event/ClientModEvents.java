@@ -63,25 +63,28 @@ public class ClientModEvents {
         File modFolder = new File(gameFolder.getAbsolutePath() + PortalMod.MODID);
         System.out.println(modFolder.mkdir());
 
-        RenderTypeLookup.setRenderLayer(BlockInit.ANTLINE.get(),            RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),      RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_CATCHER.get(),      RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH_BLOCK.get(),    RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH.get(),          RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.IRON_FRAME.get(),         RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.BARRED_IRON_FRAME.get(),  RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.MESHED_IRON_FRAME.get(),  RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.ANTLINE.get(),                 RenderType.cutout());
+//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),           RenderType.cutout());
+//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_CATCHER.get(),           RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH_BLOCK.get(),         RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH.get(),               RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.IRON_FRAME.get(),              RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.BARRED_IRON_FRAME.get(),       RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.MESHED_IRON_FRAME.get(),       RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_IRON_FRAME.get(),        RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_BARRED_IRON_FRAME.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_MESHED_IRON_FRAME.get(), RenderType.cutout());
 
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),        RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),     RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.CUBE_DROPPER.get(),       RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(),    RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_FIELD.get(),      RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.STANDING_BUTTON.get(),    RenderType.cutout());
+//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),     RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),  RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.CUBE_DROPPER.get(),    RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(), RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_FIELD.get(),   RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
 
-        RenderTypeLookup.setRenderLayer(BlockInit.GOO.get(),                RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLUID.get(),          RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLOWING.get(),        RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(BlockInit.GOO.get(),         RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLUID.get(),   RenderType.translucent());
+        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLOWING.get(), RenderType.translucent());
 
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);

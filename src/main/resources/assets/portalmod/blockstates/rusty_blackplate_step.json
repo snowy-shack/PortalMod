@@ -1,0 +1,20 @@
+{
+  "multipart": [
+    {
+      "apply": {"model": "portalmod:block/rusty_blackplate_step_top"},
+      "when": {"half": "top"}
+    },
+    {
+      "apply": {"model": "portalmod:block/rusty_blackplate_step_bottom"},
+      "when": {"half": "bottom"}
+    },
+    {
+      "apply": {"model": "portalmod:block/step_pillar_top"},
+      "when": {"half": "top", "pillar": "true"}
+    },
+    {
+      "apply": {"model": "portalmod:block/step_pillar_bottom"},
+      "when": {"half": "bottom", "pillar": "true"}
+    }
+  ]
+}

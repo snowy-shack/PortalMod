@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "portalmod:block/eroded_lunecast_tiles",
+    "top": "portalmod:block/eroded_lunecast_top",
+    "bottom": "portalmod:block/eroded_lunecast_bottom"
+  }
+}

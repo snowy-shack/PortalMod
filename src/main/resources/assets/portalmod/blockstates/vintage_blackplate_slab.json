@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=top": {
+      "model": "portalmod:block/vintage_blackplate_slab_top"
+    },
+    "type=bottom": {
+      "model": "portalmod:block/vintage_blackplate_slab"
+    },
+    "type=double": {
+      "model": "portalmod:block/vintage_blackplate_tiles"
+    }
+  }
+}

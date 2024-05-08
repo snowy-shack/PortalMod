@@ -1,0 +1,7 @@
+{
+    "parent": "portalmod:block/frame_block",
+    "textures": {
+        "base": "portalmod:block/rusty_iron_frame",
+        "inner": "portalmod:block/rusty_barred_iron_frame"
+    }
+}

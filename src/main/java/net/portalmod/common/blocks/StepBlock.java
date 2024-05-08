@@ -31,8 +31,7 @@ public class StepBlock extends Block implements IWaterLoggable {
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HALF, Half.BOTTOM)
                 .setValue(PILLAR, false)
-                .setValue(WATERLOGGED, false)
-        );
+                .setValue(WATERLOGGED, false));
     }
 
     @Override

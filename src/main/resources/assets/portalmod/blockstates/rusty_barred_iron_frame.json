@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down":  {"model": "portalmod:block/rusty_barred_iron_frame"},
+    "facing=west":  {"model": "portalmod:block/rusty_barred_iron_frame", "x": 90, "y": 90},
+    "facing=north": {"model": "portalmod:block/rusty_barred_iron_frame", "x": 90, "y": 180},
+    "facing=east":  {"model": "portalmod:block/rusty_barred_iron_frame", "x": 90, "y": 270},
+    "facing=south": {"model": "portalmod:block/rusty_barred_iron_frame", "x": 90},
+    "facing=up":    {"model": "portalmod:block/rusty_barred_iron_frame", "x": 180}
+  }
+}

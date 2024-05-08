@@ -1,0 +1,8 @@
+{
+  "parent": "portalmod:block/template_step_top",
+  "textures": {
+    "top": "portalmod:block/eroded_lunecast_top",
+    "side": "portalmod:block/rusty_lunecast_step",
+    "bottom": "portalmod:block/rusty_step_bottom"
+  }
+}

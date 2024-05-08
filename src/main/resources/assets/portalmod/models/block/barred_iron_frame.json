@@ -1,8 +1,7 @@
 {
     "parent": "portalmod:block/frame_block",
     "textures": {
-        "particle": "portalmod:block/iron_frame",
-        "texture": "portalmod:block/iron_frame",
+        "base": "portalmod:block/iron_frame",
         "inner": "portalmod:block/barred_iron_frame"
     }
 }

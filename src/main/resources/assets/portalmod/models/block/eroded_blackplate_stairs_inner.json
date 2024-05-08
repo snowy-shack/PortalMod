@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "side": "portalmod:block/eroded_blackplate_tiles",
+    "bottom": "portalmod:block/eroded_blackplate_bottom",
+    "top": "portalmod:block/eroded_blackplate_top"
+  }
+}

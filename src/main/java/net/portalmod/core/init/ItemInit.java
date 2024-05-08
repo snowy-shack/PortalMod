@@ -88,15 +88,18 @@ public class ItemInit {
 
     public static final RegistryObject<Item> STEP_PILLAR = registerBlockItem("step_pillar", BlockInit.STEP_PILLAR);
     public static final RegistryObject<Item> LUNECAST_STEP = registerBlockItem("lunecast_step", BlockInit.LUNECAST_STEP);
-    public static final RegistryObject<Item> ERODED_LUNECAST_STEP = registerBlockItem("eroded_lunecast_step", BlockInit.ERODED_LUNECAST_STEP);
+    public static final RegistryObject<Item> RUSTY_LUNECAST_STEP = registerBlockItem("rusty_lunecast_step", BlockInit.RUSTY_LUNECAST_STEP);
     public static final RegistryObject<Item> BLACKPLATE_STEP = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_STEP);
-    public static final RegistryObject<Item> ERODED_BLACKPLATE_STEP = registerBlockItem("eroded_blackplate_step", BlockInit.ERODED_BLACKPLATE_STEP);
+    public static final RegistryObject<Item> RUSTY_BLACKPLATE_STEP = registerBlockItem("rusty_blackplate_step", BlockInit.RUSTY_BLACKPLATE_STEP);
 
     public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
     public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);
     public static final RegistryObject<Item> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);
     public static final RegistryObject<Item> BARRED_IRON_FRAME = registerBlockItem("barred_iron_frame", BlockInit.BARRED_IRON_FRAME);
     public static final RegistryObject<Item> MESHED_IRON_FRAME = registerBlockItem("meshed_iron_frame", BlockInit.MESHED_IRON_FRAME);
+    public static final RegistryObject<Item> RUSTY_IRON_FRAME = registerBlockItem("rusty_iron_frame", BlockInit.RUSTY_IRON_FRAME);
+    public static final RegistryObject<Item> RUSTY_BARRED_IRON_FRAME = registerBlockItem("rusty_barred_iron_frame", BlockInit.RUSTY_BARRED_IRON_FRAME);
+    public static final RegistryObject<Item> RUSTY_MESHED_IRON_FRAME = registerBlockItem("rusty_meshed_iron_frame", BlockInit.RUSTY_MESHED_IRON_FRAME);
 
     public static final RegistryObject<Item> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
             () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),
