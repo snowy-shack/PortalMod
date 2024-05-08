@@ -86,6 +86,7 @@ public class ItemInit {
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_SLAB = registerBlockItem("vintage_blackplate_slab", BlockInit.VINTAGE_BLACKPLATE_SLAB);
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_STAIRS = registerBlockItem("vintage_blackplate_stairs", BlockInit.VINTAGE_BLACKPLATE_STAIRS);
 
+    public static final RegistryObject<Item> STEP_PILLAR = registerBlockItem("step_pillar", BlockInit.STEP_PILLAR);
     public static final RegistryObject<Item> LUNECAST_STEP = registerBlockItem("lunecast_step", BlockInit.LUNECAST_STEP);
     public static final RegistryObject<Item> ERODED_LUNECAST_STEP = registerBlockItem("eroded_lunecast_step", BlockInit.ERODED_LUNECAST_STEP);
     public static final RegistryObject<Item> BLACKPLATE_STEP = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_STEP);

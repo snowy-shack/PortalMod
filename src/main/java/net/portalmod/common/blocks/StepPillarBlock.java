@@ -7,10 +7,8 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.Half;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -20,46 +18,29 @@ import net.minecraft.world.IWorld;
 
 import javax.annotation.Nullable;
 
-public class StepBlock extends Block implements IWaterLoggable {
+public class StepPillarBlock extends Block implements IWaterLoggable {
 
-    public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
-    public static final BooleanProperty PILLAR = BooleanProperty.create("pillar");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public StepBlock(Properties properties) {
+    public StepPillarBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any()
-                .setValue(HALF, Half.BOTTOM)
-                .setValue(PILLAR, false)
-                .setValue(WATERLOGGED, false)
-        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF, PILLAR, WATERLOGGED);
+        builder.add(WATERLOGGED);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
-        return state.getValue(HALF) == Half.BOTTOM ? Block.box(0, 3, 0, 16, 8, 16) : Block.box(0, 11, 0, 16, 16, 16);
+        return Block.box(5, 0, 5, 11, 16, 11);
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        Direction clickedFace = context.getClickedFace();
-        boolean waterlogged = context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
-        boolean pillar = context.getLevel().getBlockState(context.getClickedPos().below()).getBlock() instanceof StepPillarBlock;
-
-        BlockState state = this.defaultBlockState().setValue(WATERLOGGED, waterlogged).setValue(PILLAR, pillar);
-
-        if (clickedFace.getAxis() == Direction.Axis.Y) {
-            return state.setValue(HALF, clickedFace.getAxisDirection() == Direction.AxisDirection.POSITIVE ? Half.BOTTOM : Half.TOP);
-        } else {
-            boolean placedOnLowerSide = context.getClickLocation().y - context.getClickedPos().getY() < 0.5;
-            return state.setValue(HALF, placedOnLowerSide ? Half.BOTTOM : Half.TOP);
-        }
+        return this.defaultBlockState().setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
     @Override
@@ -67,9 +48,7 @@ public class StepBlock extends Block implements IWaterLoggable {
         if (blockState.getValue(WATERLOGGED)) {
             world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
-
-        boolean hasPillar = world.getBlockState(pos.below()).getBlock() instanceof StepPillarBlock;
-        return blockState.setValue(PILLAR, hasPillar);
+        return blockState;
     }
 
     @Override

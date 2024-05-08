@@ -61,6 +61,9 @@ public class BlockInit {
     public static final RegistryObject<Block> VINTAGE_LUNECAST_STAIRS = registerStairs("vintage_lunecast");
     public static final RegistryObject<Block> VINTAGE_BLACKPLATE_STAIRS = registerStairs("vintage_blackplate");
     
+    public static final RegistryObject<Block> STEP_PILLAR = BLOCKS.register("step_pillar",
+            () -> new StepPillarBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+
     public static final RegistryObject<Block> LUNECAST_STEP = BLOCKS.register("lunecast_step",
             () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
