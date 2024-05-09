@@ -15,6 +15,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 
@@ -40,8 +41,12 @@ public class StepBlock extends Block implements IWaterLoggable {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
-        return state.getValue(HALF) == Half.BOTTOM ? Block.box(0, 3, 0, 16, 8, 16) : Block.box(0, 11, 0, 16, 16, 16);
+    public VoxelShape getShape(BlockState blockState, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+        final double raise = blockState.getValue(HALF) == Half.BOTTOM ? 0 : 8;
+        final VoxelShape SHAPE_PLATFORM = Block.box(0, 3 + raise, 0, 16, 8 + raise, 16);
+        final VoxelShape SHAPE_PILLAR = Block.box(5, 0, 5, 11, 3 + raise, 11);
+
+        return blockState.getValue(PILLAR) ? VoxelShapes.or(SHAPE_PLATFORM, SHAPE_PILLAR) : SHAPE_PLATFORM;
     }
 
     @Nullable
