@@ -270,16 +270,13 @@ public class ClientEvents {
         }
     }
 
-    // R: 55
-    // G: 46
-    // B: 33
     @SubscribeEvent
     public static void fogColor(final EntityViewRenderEvent.FogColors event) {
         FluidState fluidInCamera = event.getInfo().getFluidInCamera();
         if (fluidInCamera.is(FluidTagInit.GOO)) {
-            event.setRed(0.215f);
-            event.setGreen(0.180f);
-            event.setBlue(0.129f);
+            event.setRed(70 / 256f);
+            event.setGreen(53 / 256f);
+            event.setBlue(29 / 256f);
         }
     }
     
