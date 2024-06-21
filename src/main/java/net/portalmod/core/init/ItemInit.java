@@ -119,6 +119,7 @@ public class ItemInit {
 //
 //    public static final RegistryObject<BlockItem> LASER_RELAY = ITEMS.register("laser_relay",
 //            () -> new BlockItem(BlockInit.LASER_RELAY.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
+
     // Blocks
     public static final RegistryObject<Item> LUNECAST = registerBlockItem("lunecast", BlockInit.LUNECAST);
     public static final RegistryObject<Item> LUNECAST_SLAB = registerBlockItem("lunecast_slab", BlockInit.LUNECAST_SLAB);
