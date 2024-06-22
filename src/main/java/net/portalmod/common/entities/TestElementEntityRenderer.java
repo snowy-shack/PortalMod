@@ -20,6 +20,8 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
         float f5 = (float)entity.getHurtTime() - p_225623_3_;
         float f6 = Math.max(0, entity.getDamage() - p_225623_3_);
 
+        matrixStack.pushPose();
+
         if (f5 > 0.0F) {
             matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(MathHelper.sin(f5) * f5 * f6 / 10.0F * (float)entity.getHurtDir()));
         }
@@ -30,6 +32,8 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
         }
 
         super.render(entity, p_225623_2_, p_225623_3_, matrixStack, p_225623_5_, entity.getFizzleLight(light));
+
+        matrixStack.popPose();
     }
 
     @Override
