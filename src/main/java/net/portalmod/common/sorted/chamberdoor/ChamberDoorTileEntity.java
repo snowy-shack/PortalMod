@@ -54,10 +54,10 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
                 if (player.isSpectator()) {
                     continue;
                 }
-                Vector3d middlePos = Vector3d.atBottomCenterOf(pos).add(new Vec3(facing.getCounterClockWise().getNormal()).mul(0.5).add(0, 1, 0).to3d());
+                Vector3d middlePos = ChamberDoorBlock.getExactMiddlePos(blockState, pos);
                 boolean inFront = player.position().subtract(middlePos).multiply(1, 0, 1).dot(new Vec3(facing.getNormal()).to3d()) > 0;
                 double playerDistance = player.position().distanceTo((middlePos));
-                int changeProximity = isOpen ? 5 : 3;  // Open in 3 blocks, close in 5
+                int changeProximity = isOpen ? 4 : 3;  // Open in 3 blocks, close in 4
                 if (playerDistance < changeProximity && inFront || playerDistance < 1.5 && isOpen) {
                     hasNearbyPlayer = true;
                     break;
