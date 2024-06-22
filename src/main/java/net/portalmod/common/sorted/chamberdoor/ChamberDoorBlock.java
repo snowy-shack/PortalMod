@@ -215,15 +215,21 @@ public class ChamberDoorBlock extends MultiBlock {
 
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
-        playSound(open, world, pos);
+        playSound(open, blockState, world, pos);
     }
 
     public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(POWERED, powered, blockState, world, pos);
     }
 
-    public static void playSound(boolean open, World world, BlockPos pos) {
-        world.playSound(null, pos, open ? SoundInit.CHAMBER_DOOR_OPEN.get() : SoundInit.CHAMBER_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, 1);
+    public static void playSound(boolean open, BlockState blockState, World world, BlockPos pos) {
+        Vector3d middlePos = getExactMiddlePos(blockState, pos);
+        world.playSound(null, middlePos.x, middlePos.y, middlePos.z, open ? SoundInit.CHAMBER_DOOR_OPEN.get() : SoundInit.CHAMBER_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, 1);
+    }
+
+    public static Vector3d getExactMiddlePos(BlockState state, BlockPos pos) {
+        Direction facing = state.getValue(FACING);
+        return Vector3d.atBottomCenterOf(pos).add(new Vec3(facing.getCounterClockWise().getNormal()).mul(0.5).add(0, 1, 0).to3d());
     }
 
     @Override

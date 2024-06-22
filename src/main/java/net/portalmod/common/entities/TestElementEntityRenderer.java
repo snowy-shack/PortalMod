@@ -16,7 +16,6 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
 
     @Override
     public void render(T entity, float p_225623_2_, float p_225623_3_, MatrixStack matrixStack, IRenderTypeBuffer p_225623_5_, int light) {
-        //todo fix shadow
         float f5 = (float)entity.getHurtTime() - p_225623_3_;
         float f6 = Math.max(0, entity.getDamage() - p_225623_3_);
 
