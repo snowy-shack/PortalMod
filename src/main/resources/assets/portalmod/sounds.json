@@ -194,5 +194,15 @@
             "portalmod:portal/teleport"
         ],
         "subtitle": "subtitles.portal.teleport"
+    },
+
+
+
+
+    "entity.fizzle": {
+        "sounds": [
+            "portalmod:block/fizzler/fizzle"
+        ],
+        "subtitle": "subtitles.entity.fizzle"
     }
 }
