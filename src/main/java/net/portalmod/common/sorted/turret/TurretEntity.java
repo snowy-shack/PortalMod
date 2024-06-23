@@ -47,6 +47,8 @@ public class TurretEntity extends TestElementEntity {
     public void onSpawnedByPlayer(PlayerEntity player) {
         if (player.isCreative()) {
             this.setInfiniteAmmo(true);
+            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.turret.infinite_ammo"), true);
+            //TODO: add particles (happy_villager probably)
         }
 
         this.yRot = player.isShiftKeyDown() ? player.yRot : Math.round(player.yRot / 45) * 45;
