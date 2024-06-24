@@ -34,7 +34,7 @@ public abstract class TestElementEntity extends LivingEntity {
     private static final DataParameter<Integer> DATA_ID_HURTDIR = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     private static final DataParameter<Float> DATA_ID_DAMAGE = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.FLOAT);
 
-    public int maxFizzleTime = 30;
+    public int maxFizzleTime = 35;
     public boolean canFizzle;
 
     public TestElementEntity(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
@@ -149,7 +149,7 @@ public abstract class TestElementEntity extends LivingEntity {
     }
 
     public int getFizzleLight(int packedLight) {
-        int fizzleAmount = (int) (this.getFizzleTicks() * 1.2);
+        int fizzleAmount = (int) (this.getFizzleTicks() * 0.6);
         return LightTexture.pack(
                 Math.max(0, LightTexture.block(packedLight) - fizzleAmount),
                 Math.max(0, LightTexture.sky(packedLight) - fizzleAmount)
