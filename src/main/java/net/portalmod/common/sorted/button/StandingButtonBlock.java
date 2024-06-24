@@ -43,6 +43,7 @@ public class StandingButtonBlock extends DoubleBlock {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
     public static final int BUTTON_DELAY = 20;
+    public static final double REACH = 2;
 
     public StandingButtonBlock(Properties properties) {
         super(properties);
@@ -136,10 +137,13 @@ public class StandingButtonBlock extends DoubleBlock {
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
-        else if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState)) {
+
+        double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < REACH) {
             this.activate(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
+
         return ActionResultType.FAIL;
     }
 

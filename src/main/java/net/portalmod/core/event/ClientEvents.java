@@ -340,7 +340,7 @@ public class ClientEvents {
 
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 }
-                else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock) {
+                else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < StandingButtonBlock.REACH) {
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 }
