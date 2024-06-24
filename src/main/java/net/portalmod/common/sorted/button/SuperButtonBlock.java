@@ -304,13 +304,7 @@ public class SuperButtonBlock extends MultiBlock {
         if(level.isClientSide)
             return;
 
-        boolean hasScheduledTick = false;
-        for (BlockPos blockPos : this.getAllPositions(state, pos)) {
-            if (level.getBlockTicks().hasScheduledTick(blockPos, this)) {
-                hasScheduledTick = true;
-                break;
-            }
-        }
+        boolean hasScheduledTick = this.getAllPositions(state, pos).stream().anyMatch(pos1 -> level.getBlockTicks().hasScheduledTick(pos1, this));
 
         if(!hasScheduledTick)
             this.checkPressed(state, level, pos);
@@ -322,13 +316,7 @@ public class SuperButtonBlock extends MultiBlock {
         boolean wasActive = state.getValue(ACTIVE);
         ButtonMode mode = state.getValue(MODE);
 
-        boolean pressed = false;
-        for(BlockPos block : blocks) {
-            if(isBeingPressed(state, level, block)) {
-                pressed = true;
-                break;
-            }
-        }
+        boolean pressed = blocks.stream().anyMatch(pos1 -> isBeingPressed(state, level, pos1));
 
         if(pressed)
             level.getBlockTicks().scheduleTick(pos, this, 12);
