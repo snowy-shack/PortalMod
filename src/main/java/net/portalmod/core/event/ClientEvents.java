@@ -599,7 +599,7 @@ public class ClientEvents {
         if(event.getType() == ElementType.TEXT && !minecraft.options.renderDebug) {
             String fps = Minecraft.getInstance().fpsString.split("fps")[0];
             String pos = String.format(Locale.ROOT, "pos: %.2f %.2f %.2f", entity.getX(), entity.getY(), entity.getZ());
-            String ang = String.format(Locale.ROOT, "ang: %.2f %.2f", camera.getXRot(), camera.getYRot());
+            String ang = String.format(Locale.ROOT, "ang: %.2f %.2f", camera.getXRot(), camera.getYRot() % 360);
             String vel = String.format(Locale.ROOT, "vel: %.2f %.2f %.2f", velocity.x, velocity.y, velocity.z);
             fontRenderer.draw(new MatrixStack(), fps + "fps", 2, 2, 14737632);
             fontRenderer.draw(new MatrixStack(), pos, 2, 2 + 10 * 1, 14737632);
