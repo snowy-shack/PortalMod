@@ -20,6 +20,7 @@ import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
@@ -27,8 +28,9 @@ import java.util.List;
 
 public class Cube extends TestElementEntity {
 
-    private double oldDeltaY = 0;
-    private boolean oldActive = true;
+    public double oldDeltaY = 0;
+    public boolean oldActive = true;
+    public boolean wasOnGround = true;
 
     public Cube(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -100,6 +102,12 @@ public class Cube extends TestElementEntity {
                 if (y1 < x && y1 < z && getDeltaMovement().y > -.1 && oldDeltaY < -0.5f)
                     entity.hurt(cube(this), (float) oldDeltaY * -3);
             }
+
+            if (this.isOnGround() && !this.wasOnGround) {
+                this.level.playSound(null, this, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 1, 1);
+            }
+
+            this.wasOnGround = this.isOnGround();
 
             // push when entity near (copied from BoatEntity)
             this.checkInsideBlocks();

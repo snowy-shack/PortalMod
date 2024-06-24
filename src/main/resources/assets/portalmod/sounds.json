@@ -187,6 +187,11 @@
         "sounds": [ "portalmod:entity/fizzle" ],
         "subtitle": "subtitles.entity.fizzle" },
     "entity.cube.hit": {
-        "sounds": [ "portalmod:entity/cube/hit" ],
+        "sounds": [
+            "portalmod:entity/cube/hit1",
+            "portalmod:entity/cube/hit2",
+            "portalmod:entity/cube/hit3",
+            "portalmod:entity/cube/hit4"
+        ],
         "subtitle": "subtitles.entity.cube.hit" }
 }

@@ -37,6 +37,8 @@ public class SoundInit {
 
     public static final RegistryObject<SoundEvent> ENTITY_FIZZLE = register("entity.fizzle");
 
+    public static final RegistryObject<SoundEvent> CUBE_HIT = register("entity.cube.hit");
+
     private static RegistryObject<SoundEvent> register(String id) {
         return SOUNDS.register(id, () -> new SoundEvent(new ResourceLocation(PortalMod.MODID, id)));
     }
