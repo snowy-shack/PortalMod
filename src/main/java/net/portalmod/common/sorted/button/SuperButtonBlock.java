@@ -335,7 +335,6 @@ public class SuperButtonBlock extends MultiBlock {
         
         if(wasPressed != pressed) {
             this.setBlockStateValue(PRESSED, pressed, state, level, pos);
-            level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
 
             if (mode == ButtonMode.NORMAL) {
                 this.setBlockStateValue(ACTIVE, pressed, state, level, pos);
@@ -346,7 +345,14 @@ public class SuperButtonBlock extends MultiBlock {
             else if (mode == ButtonMode.TOGGLE && pressed) {
                 this.setBlockStateValue(ACTIVE, !wasActive, state, level, pos);
             }
+
+            playSound(level, pos, pressed, level.getBlockState(pos).getValue(ACTIVE));
         }
+    }
+
+    private static void playSound(World level, BlockPos pos, boolean pressed, boolean activated) {
+        level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_PRESS.get() : SoundInit.SUPER_BUTTON_RELEASE.get(), SoundCategory.BLOCKS, 1, 1);
+        level.playSound(null, pos, activated ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
     }
 
     public AxisAlignedBB getTrigger(BlockState state, BlockPos pos) {
