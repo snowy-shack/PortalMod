@@ -149,30 +149,6 @@
         ],
         "subtitle": "subtitles.block.faithplate.launch"
     },
-    "block.super_button.activate": {
-        "sounds": [
-              "portalmod:block/super_button/activate"
-        ],
-        "subtitle": "subtitles.block.super_button.activate"
-    },
-    "block.super_button.deactivate": {
-        "sounds": [
-              "portalmod:block/super_button/deactivate"
-        ],
-        "subtitle": "subtitles.block.super_button.deactivate"
-    },
-    "block.chamber_door.open": {
-        "sounds": [
-              "portalmod:block/super_button/activate"
-        ],
-        "subtitle": "subtitles.block.chamber_door.open"
-    },
-    "block.chamber_door.close": {
-        "sounds": [
-              "portalmod:block/super_button/deactivate"
-        ],
-        "subtitle": "subtitles.block.chamber_door.close"
-    },
     "item.bucket.empty_goo": {
       "sounds": [
         "item/bucket/empty_lava1",
@@ -200,9 +176,22 @@
 
 
     "entity.fizzle": {
-        "sounds": [
-            "portalmod:block/fizzler/fizzle"
-        ],
-        "subtitle": "subtitles.entity.fizzle"
-    }
+        "sounds": [ "portalmod:entity/fizzle" ],
+        "subtitle": "subtitles.entity.fizzle" },
+    "block.chamber_door.open": {
+        "sounds": [ "portalmod:block/chamber_door/open" ],
+        "subtitle": "subtitles.block.chamber_door.open" },
+    "block.chamber_door.close": {
+        "sounds": [ "portalmod:block/chamber_door/close" ],
+        "subtitle": "subtitles.block.chamber_door.close" },
+    "block.super_button.press": {
+        "sounds": [ "portalmod:block/super_button/press" ]},
+    "block.super_button.release": {
+        "sounds": [ "portalmod:block/super_button/release" ]},
+    "block.super_button.activate": {
+        "sounds": [ "portalmod:block/super_button/activate" ],
+        "subtitle": "subtitles.block.super_button.activate" },
+    "block.super_button.deactivate": {
+        "sounds": [ "portalmod:block/super_button/deactivate" ],
+        "subtitle": "subtitles.block.super_button.deactivate" }
 }

@@ -11,7 +11,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -19,6 +18,7 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.SoundInit;
 
 import java.util.Random;
 
@@ -144,7 +144,7 @@ public abstract class TestElementEntity extends LivingEntity {
         if (canFizzle && !this.isFizzling()) {
             this.setFizzleTicks(this.getFizzleTicks() + 1);
             this.setNoGravity(true);
-            this.level.playSound(null, this, SoundEvents.HORSE_DEATH, SoundCategory.BLOCKS, 1, 1);
+            this.level.playSound(null, this, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.BLOCKS, 1, 1);
         }
     }
 
