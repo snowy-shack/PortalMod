@@ -167,7 +167,6 @@
   "subtitles.entity.turret.voice.fire":   "Turret burns",
   "subtitles.entity.turret.voice.pickup": "Turret protests",
   "subtitles.entity.turret.voice.target": "Turret found target",
-  "subtitles.entity.cube.impact":         "Cube lands",
 
   "subtitles.item.portalgun.fire":     "Portal Gun shoots",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
@@ -177,12 +176,13 @@
 
 
   "subtitles.entity.fizzle": "Entity fizzles",
-  "subtitles.block.chamber_door.open":       "Chamber Door opens",
-  "subtitles.block.chamber_door.close":      "Chamber Door closes",
-  "subtitles.block.super_button.activate":   "Super Button activates",
+  "subtitles.block.chamber_door.open": "Chamber Door opens",
+  "subtitles.block.chamber_door.close": "Chamber Door closes",
+  "subtitles.block.super_button.activate": "Super Button activates",
   "subtitles.block.super_button.deactivate": "Super Button deactivates",
-  "subtitles.block.super_button.press":   "Super Button presses",
+  "subtitles.block.super_button.press": "Super Button presses",
   "subtitles.block.super_button.release": "Super Button releases",
+  "subtitles.entity.cube.hit": "Cube lands",
 
 
 

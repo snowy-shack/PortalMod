@@ -1,19 +1,19 @@
 package net.portalmod.core.init;
 
-import java.util.function.Supplier;
-
 import net.minecraft.block.SoundType;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+
+import java.util.function.Supplier;
 
 public class SoundTypeInit {
     private SoundTypeInit() {}
     
     public static final Entry GEL = new Entry(1, 1,
             () -> SoundInit.GEL_BLOCK_BREAK.get(),
-            () -> SoundEvents.SLIME_BLOCK_STEP,
+            () -> SoundInit.GEL_BLOCK_STEP.get(),
             () -> SoundInit.GEL_BLOCK_PLACE.get(),
-            () -> SoundEvents.SLIME_BLOCK_HIT,
+            () -> SoundEvents.SLIME_BLOCK_HIT, // whata theeeese
             () -> SoundEvents.SLIME_BLOCK_FALL);
     
     public static class Entry extends SoundType {
