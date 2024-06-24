@@ -169,7 +169,6 @@
   "subtitles.entity.turret.voice.sleep":  "Turret shuts off",
   "subtitles.entity.turret.voice.fall":   "Turret tips over",
   "subtitles.entity.turret.voice.fire":   "Turret burns",
-  "subtitles.entity.turret.voice.fizzle": "Turret fizzles",
   "subtitles.entity.turret.voice.pickup": "Turret protests",
   "subtitles.entity.turret.voice.target": "Turret found target",
   "subtitles.entity.cube.impact":         "Cube lands",
@@ -177,6 +176,15 @@
   "subtitles.item.portalgun.fire":     "Portal Gun shoots",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
   "subtitles.item.portalgun.activate": "Portal Gun activates",
+
+
+
+
+  "subtitles.entity.fizzle": "Entity fizzles",
+
+
+
+
 
   "death.attack.cube":           "%2$s threatened to stab %1$s",
   "death.attack.launchIntoWall": "%1$s got launched into a wall",
