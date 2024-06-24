@@ -31,6 +31,7 @@ public class Cube extends TestElementEntity {
     public double oldDeltaY = 0;
     public boolean oldActive = true;
     public boolean wasOnGround = true;
+    public float wasVerticalSpeed = 0;
 
     public Cube(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -103,7 +104,8 @@ public class Cube extends TestElementEntity {
                     entity.hurt(cube(this), (float) oldDeltaY * -3);
             }
 
-            if (this.isOnGround() && !this.wasOnGround) {
+            if (this.isOnGround() && !this.wasOnGround && oldDeltaY < -0.3) {
+                System.out.println(oldDeltaY);
                 this.level.playSound(null, this, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 1, 1);
             }
 

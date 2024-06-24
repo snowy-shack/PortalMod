@@ -179,9 +179,11 @@
         "sounds": [ "portalmod:block/super_button/deactivate" ],
         "subtitle": "subtitles.block.super_button.deactivate" },
     "block.gel.place": {
-        "sounds": [ "portalmod:block/gel/place1",
-                    "portalmod:block/gel/place2",
-                    "portalmod:block/gel/place3" ],
+        "sounds": [
+            "portalmod:block/gel/place1",
+            "portalmod:block/gel/place2",
+            "portalmod:block/gel/place3"
+        ],
         "subtitle": "subtitles.block.generic.place" },
     "entity.fizzle": {
         "sounds": [ "portalmod:entity/fizzle" ],

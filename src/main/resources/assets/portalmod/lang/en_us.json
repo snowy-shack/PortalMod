@@ -88,13 +88,13 @@
   "tooltip.portalmod.hold_control": "§7Hold Ctrl for info",
   "tooltip.portalmod.wrench":       "§7Configures Testing Elements",
 
-  "tooltip.portalmod.cube_1": "§7Activates §3Buttons",
-  "tooltip.portalmod.cube_2": "§7- Can be broken with a §6Wrench",
+  "tooltip.portalmod.cube_1": "§7Activates §3Super Buttons",
+  "tooltip.portalmod.cube_2": "§7- Can be picked up with a §6Wrench",
 
   "tooltip.portalmod.cube_dropper_1": "§7Auto-spawns §3Cubes§7 while active",
   "tooltip.portalmod.cube_dropper_2": "§7- Interact while holding a §3Cube item§7 to add it to the Dropper",
   "tooltip.portalmod.cube_dropper_3": "§7- §6Wrench§7: Removes the current Cube",
-  "tooltip.portalmod.cube_dropper_4": "§7- Activated by §bAntline Indicator",
+  "tooltip.portalmod.cube_dropper_4": "§7- Activated by adjacent §bAntline Indicators",
 
   "tooltip.portalmod.standing_button_1": "§7Can be pressed by Players",
   "tooltip.portalmod.standing_button_2": "§7- §6Wrench§7: Cycles through Button Modes:",
@@ -108,22 +108,22 @@
   "tooltip.portalmod.super_button_3": "§7  - Normal",
   "tooltip.portalmod.super_button_4": "§7  - Persistent",
   "tooltip.portalmod.super_button_5": "§7  - Toggle",
-  "tooltip.portalmod.super_button_6": "§7- Activates §bAntlines",
+  "tooltip.portalmod.super_button_6": "§7- Activates §bAntlines §7when pressed",
 
-  "tooltip.portalmod.antline_indicator_1": "§7Can activate adjacent §cTesting Elements§7 when active",
-  "tooltip.portalmod.antline_indicator_2": "§7- §6Wrench§7: Can be configured to reverse active mode",
-  "tooltip.portalmod.antline_indicator_3": "§7- Combine with other §bAntline Indicators§7 to have multiple required inputs",
+  "tooltip.portalmod.antline_indicator_1": "§7Can activate adjacent §cTesting Elements §7when activated",
+  "tooltip.portalmod.antline_indicator_2": "§7- §6Wrench§7: Can be configured to reverse output",
+  "tooltip.portalmod.antline_indicator_3": "§7- Combine with other §bAntline Indicators §7to have multiple required inputs",
 
   "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
-  "tooltip.portalmod.antline_2": "§7- Cannot power §3Testing Elements§7 directly",
+  "tooltip.portalmod.antline_2": "§7- Cannot power §cTesting Elements§7 directly",
 
   "tooltip.portalmod.chamber_door_1": "§7Entrance and exit to Test Chambers",
-  "tooltip.portalmod.chamber_door_2": "§7- Opens when activated by one or all §bAntline Indicators",
+  "tooltip.portalmod.chamber_door_2": "§7- Opens when activated by all adjacent §bAntline Indicators",
   "tooltip.portalmod.chamber_door_3": "§7- Acts as an automatic one-way door if there are no §bAntline Indicators",
 
   "tooltip.portalmod.fizzler_emitter_1": "§7Removes unwanted §cTesting Elements",
   "tooltip.portalmod.fizzler_emitter_2": "§7- Fizzles §3Cubes§7 and §3Turrets",
-  "tooltip.portalmod.fizzler_emitter_3": "§7- Closes §9Portals§7 from §9Portal Guns§7 in inventory",
+  "tooltip.portalmod.fizzler_emitter_3": "§7- Closes §9Portals§7 from all §9Portal Guns§7 in inventory",
 
   "tooltip.portalmod.faithplate_1": "§7Launches entities to a specified location",
   "tooltip.portalmod.faithplate_2": "§7- §6Wrench§7: Configure the Faithplate",
@@ -132,7 +132,7 @@
   "tooltip.portalmod.turret_2": "§7- Right click to stock with §3Bullets",
   "tooltip.portalmod.turret_3": "§7- Has infinite ammo when placed in creative",
   "tooltip.portalmod.turret_4": "§7- Crouch while placing for finer control over the rotation of the turret",
-  "tooltip.portalmod.turret_5": "§7- Can be broken with a §6Wrench",
+  "tooltip.portalmod.turret_5": "§7- Can be picked up with a §6Wrench",
 
   "tooltip.portalmod.bullets_1": "§7Provides a Turret with ammo",
   "tooltip.portalmod.bullets_2": "§7- Allows a Turret to shoot 20 times",
@@ -167,7 +167,6 @@
   "subtitles.entity.turret.voice.fire":   "Turret burns",
   "subtitles.entity.turret.voice.pickup": "Turret protests",
   "subtitles.entity.turret.voice.target": "Turret found target",
-  "subtitles.entity.cube.impact":         "Cube lands",
 
   "subtitles.item.portalgun.fire":     "Portal Gun shoots",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
@@ -177,12 +176,13 @@
 
 
   "subtitles.entity.fizzle": "Entity fizzles",
-  "subtitles.block.chamber_door.open":       "Chamber Door opens",
-  "subtitles.block.chamber_door.close":      "Chamber Door closes",
-  "subtitles.block.super_button.activate":   "Super Button activates",
+  "subtitles.block.chamber_door.open": "Chamber Door opens",
+  "subtitles.block.chamber_door.close": "Chamber Door closes",
+  "subtitles.block.super_button.activate": "Super Button activates",
   "subtitles.block.super_button.deactivate": "Super Button deactivates",
-  "subtitles.block.super_button.press":   "Super Button presses",
+  "subtitles.block.super_button.press": "Super Button presses",
   "subtitles.block.super_button.release": "Super Button releases",
+  "subtitles.entity.cube.hit": "Cube lands",
 
 
 
