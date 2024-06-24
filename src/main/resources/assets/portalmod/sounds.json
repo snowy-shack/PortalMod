@@ -84,12 +84,6 @@
         ],
         "subtitle": "subtitles.entity.turret.voice.target"
     },
-    "entity.cube.impact": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.cube.impact"
-    },
     "entity.player.hurt_goo": {
         "sounds": [
             "portalmod:error"
@@ -175,9 +169,7 @@
 
 
 
-    "entity.fizzle": {
-        "sounds": [ "portalmod:entity/fizzle" ],
-        "subtitle": "subtitles.entity.fizzle" },
+
     "block.chamber_door.open": {
         "sounds": [ "portalmod:block/chamber_door/open" ],
         "subtitle": "subtitles.block.chamber_door.open" },
@@ -193,5 +185,11 @@
         "subtitle": "subtitles.block.super_button.activate" },
     "block.super_button.deactivate": {
         "sounds": [ "portalmod:block/super_button/deactivate" ],
-        "subtitle": "subtitles.block.super_button.deactivate" }
+        "subtitle": "subtitles.block.super_button.deactivate" },
+    "entity.fizzle": {
+        "sounds": [ "portalmod:entity/fizzle" ],
+        "subtitle": "subtitles.entity.fizzle" },
+    "entity.cube.hit": {
+        "sounds": [ "portalmod:entity/cube/hit" ],
+        "subtitle": "subtitles.entity.cube.hit" }
 }
