@@ -335,23 +335,28 @@ public class SuperButtonBlock extends MultiBlock {
         
         if(wasPressed != pressed) {
             this.setBlockStateValue(PRESSED, pressed, state, level, pos);
+            playPressSound(level, pos, pressed);
 
             if (mode == ButtonMode.NORMAL) {
                 this.setBlockStateValue(ACTIVE, pressed, state, level, pos);
+                playActivationSound(level, pos, pressed);
             }
             else if (mode == ButtonMode.PERSISTENT && !wasActive) {
                 this.setBlockStateValue(ACTIVE, true, state, level, pos);
+                playActivationSound(level, pos, true);
             }
             else if (mode == ButtonMode.TOGGLE && pressed) {
                 this.setBlockStateValue(ACTIVE, !wasActive, state, level, pos);
+                playActivationSound(level, pos, !wasActive);
             }
-
-            playSound(level, pos, pressed, level.getBlockState(pos).getValue(ACTIVE));
         }
     }
 
-    private static void playSound(World level, BlockPos pos, boolean pressed, boolean activated) {
+    public static void playPressSound(World level, BlockPos pos, boolean pressed) {
         level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_PRESS.get() : SoundInit.SUPER_BUTTON_RELEASE.get(), SoundCategory.BLOCKS, 1, 1);
+    }
+
+    public static void playActivationSound(World level, BlockPos pos, boolean activated) {
         level.playSound(null, pos, activated ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
     }
 
