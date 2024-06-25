@@ -106,7 +106,8 @@ public class Cube extends TestElementEntity {
 
             if (this.isOnGround() && !this.wasOnGround && oldDeltaY < -0.3) {
                 System.out.println(oldDeltaY);
-                this.level.playSound(null, this, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 1, 1);
+                float volume = MathHelper.clamp((float) -this.oldDeltaY, 0, 1);
+                this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, volume, 1);
             }
 
             this.wasOnGround = this.isOnGround();
@@ -124,6 +125,10 @@ public class Cube extends TestElementEntity {
         oldDeltaY = getDeltaMovement().y;
 
         this.yHeadRot = this.yBodyRot;
+    }
+
+    public void onSpawnedByPlayer() {
+        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 0.5f, 1);
     }
 
     @Override

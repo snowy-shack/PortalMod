@@ -192,8 +192,7 @@
         "sounds": [
             "portalmod:entity/cube/hit1",
             "portalmod:entity/cube/hit2",
-            "portalmod:entity/cube/hit3",
-            "portalmod:entity/cube/hit4"
+            "portalmod:entity/cube/hit3"
         ],
         "subtitle": "subtitles.entity.cube.hit" }
 }
