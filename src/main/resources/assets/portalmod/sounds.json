@@ -187,7 +187,7 @@
         "subtitle": "subtitles.block.generic.place" },
     "block.gel.bounce": {
         "sounds": [ "portalmod:block/super_button/deactivate" ],
-        "subtitle": "subtitles.block.generic.bounce" },
+        "subtitle": "subtitles.block.gel.bounce" },
     "entity.fizzle": {
         "sounds": [ "portalmod:entity/fizzle" ],
         "subtitle": "subtitles.entity.fizzle" },
