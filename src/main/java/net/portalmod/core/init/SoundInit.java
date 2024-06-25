@@ -18,7 +18,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> GEL_BLOCK_BREAK = register("block.gel.break");
     public static final RegistryObject<SoundEvent> GEL_BLOCK_COLLECT = register("block.gel.collect");
     public static final RegistryObject<SoundEvent> GEL_BLOCK_PLACE = register("block.gel.place");
-    public static final RegistryObject<SoundEvent> GEL_BLOCK_STEP = register("block.gel.step");
+    public static final RegistryObject<SoundEvent> GEL_BLOCK_STEP = register("block.gel.step");;
+    public static final RegistryObject<SoundEvent> GEL_BLOCK_BOUNCE = register("block.gel.bounce");
 
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_OPEN = register("block.chamber_door.open");
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_CLOSE = register("block.chamber_door.close");

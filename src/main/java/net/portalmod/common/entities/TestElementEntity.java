@@ -144,7 +144,7 @@ public abstract class TestElementEntity extends LivingEntity {
         if (canFizzle && !this.isFizzling()) {
             this.setFizzleTicks(this.getFizzleTicks() + 1);
             this.setNoGravity(true);
-            this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.BLOCKS, 1, 1);
+            this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
         }
     }
 
