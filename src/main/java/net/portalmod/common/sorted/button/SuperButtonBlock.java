@@ -319,7 +319,7 @@ public class SuperButtonBlock extends MultiBlock {
         boolean pressed = blocks.stream().anyMatch(pos1 -> isBeingPressed(state, level, pos1));
 
         if(pressed)
-            level.getBlockTicks().scheduleTick(pos, this, 20);
+            level.getBlockTicks().scheduleTick(pos, this, 10);
         
         if(wasPressed != pressed) {
             this.setBlockStateValue(PRESSED, pressed, state, level, pos);
