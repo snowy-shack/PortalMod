@@ -311,9 +311,10 @@ public class ClientEvents {
 //        World level = Minecraft.getInstance().level;
         PlayerEntity player = Minecraft.getInstance().player;
 
-        if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_J)) {
-            ChunkViewer.getInstance().setVisible(true);
-        }
+        // STIK ER IN
+//        if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_J)) {
+//            ChunkViewer.getInstance().setVisible(true);
+//        }
 
         if(KeyInit.PORTALGUN_INTERACT.isDown()) {
             if(player.getMainHandItem().getItem() instanceof PortalGun && !wasPressed) {
