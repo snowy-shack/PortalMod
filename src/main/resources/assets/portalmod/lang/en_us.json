@@ -175,13 +175,14 @@
 
 
 
-  "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.block.chamber_door.open": "Chamber Door opens",
   "subtitles.block.chamber_door.close": "Chamber Door closes",
   "subtitles.block.super_button.activate": "Super Button activates",
   "subtitles.block.super_button.deactivate": "Super Button deactivates",
   "subtitles.block.super_button.press": "Super Button presses",
   "subtitles.block.super_button.release": "Super Button releases",
+  "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
+  "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",
 
 
