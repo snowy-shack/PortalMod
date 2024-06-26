@@ -114,27 +114,6 @@
         ],
         "subtitle": "subtitles.item.gun.activate"
     },
-    "block.gel.grab": {
-        "sounds": [
-              "portalmod:block/gel/collect1",
-              "portalmod:block/gel/collect2"
-        ],
-        "subtitle": "subtitles.block.gel.fill"
-    },
-    "block.gel.step": {
-        "sounds": [
-            "portalmod:block/gel/step1",
-            "portalmod:block/gel/step2",
-            "portalmod:block/gel/step3"
-        ],
-        "subtitle": "subtitles.block.generic.footsteps"
-    },
-    "block.faithplate.launch": {
-        "sounds": [
-              "portalmod:block/faithplate/temp_launch"
-        ],
-        "subtitle": "subtitles.block.faithplate.launch"
-    },
     "item.bucket.empty_goo": {
       "sounds": [
         "item/bucket/empty_lava1",
@@ -185,9 +164,45 @@
             "portalmod:block/gel/place3"
         ],
         "subtitle": "subtitles.block.generic.place" },
+    "block.gel.break": {
+        "sounds": [
+            "portalmod:block/gel/break1",
+            "portalmod:block/gel/break2",
+            "portalmod:block/gel/break3"
+        ],
+        "subtitle": "subtitles.block.generic.break" },
+    "block.gel.step": {
+        "sounds": [
+            "portalmod:block/gel/step1",
+            "portalmod:block/gel/step2",
+            "portalmod:block/gel/step3"
+        ],
+        "subtitle": "subtitles.block.generic.footsteps"
+    },
+    "block.gel.collect": {
+        "sounds": [
+            "portalmod:block/gel/collect1",
+            "portalmod:block/gel/collect2"
+        ],
+        "subtitle": "subtitles.block.gel.collect"
+    },
     "block.gel.bounce": {
-        "sounds": [ "portalmod:block/gel/bounce" ],
+        "sounds": [
+            { "name": "portalmod:block/gel/bounce",
+              "pitch": 0.9 },
+            { "name": "portalmod:block/gel/bounce",
+              "pitch": 1.1 },
+            { "name": "portalmod:block/gel/bounce",
+              "pitch": 0.95 },
+            { "name": "portalmod:block/gel/bounce",
+              "pitch": 1.05 },
+            { "name": "portalmod:block/gel/bounce" }
+        ],
         "subtitle": "subtitles.block.gel.bounce" },
+    "block.faithplate.launch": {
+        "sounds": [ "portalmod:block/faithplate/launch" ],
+        "subtitle": "subtitles.block.faithplate.launch"
+    },
     "entity.fizzle": {
         "sounds": [ "portalmod:entity/fizzle" ],
         "subtitle": "subtitles.entity.fizzle" },

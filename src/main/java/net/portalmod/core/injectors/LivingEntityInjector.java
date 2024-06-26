@@ -22,7 +22,7 @@ public class LivingEntityInjector {
 
     public static void onPreTick(LivingEntity entity) {
         if(entity instanceof PlayerEntity && entity.level.isClientSide)
-            System.out.println(entity.position());
+//            System.out.println(entity.position());
         fallDistance = (float)Math.ceil(entity.fallDistance + 1) + .1f; // why
 
 //        if (entity.isOnGround()) {((IFaithPlateLaunchable)entity).setLaunched(false);}

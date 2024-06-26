@@ -24,7 +24,7 @@ public class FaithPlateClient {
         ((FaithPlatePlateModel)ter.getPlateModel()).startAnimation(be, "launch");
         level.playSound(Minecraft.getInstance().player,
                 packet.pos.getX() + .5, packet.pos.getY() + .5, packet.pos.getZ() + .5,
-                SoundInit.FAITHPLATE_LAUNCH.get(), SoundCategory.BLOCKS, .1f, 1);
+                SoundInit.FAITHPLATE_LAUNCH.get(), SoundCategory.BLOCKS, 1, 1);
     }
 
     protected static void setScreen(BlockPos pos) {
