@@ -191,9 +191,9 @@
             { "name": "portalmod:block/gel/bounce",
               "pitch": 0.9 },
             { "name": "portalmod:block/gel/bounce",
-              "pitch": 1.1 },
-            { "name": "portalmod:block/gel/bounce",
               "pitch": 0.95 },
+            { "name": "portalmod:block/gel/bounce",
+              "pitch": 1.1 },
             { "name": "portalmod:block/gel/bounce",
               "pitch": 1.05 },
             { "name": "portalmod:block/gel/bounce" }

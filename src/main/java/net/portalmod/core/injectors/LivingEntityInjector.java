@@ -18,14 +18,12 @@ import net.portalmod.core.init.SoundInit;
 
 public class LivingEntityInjector {
     public static float fallDistance;
-    public static double previousfallDistance = 0;
+    public static float minBounceHeight = 5;
 
     public static void onPreTick(LivingEntity entity) {
-        if(entity instanceof PlayerEntity && entity.level.isClientSide)
+//        if(entity instanceof PlayerEntity && entity.level.isClientSide)
 //            System.out.println(entity.position());
-        fallDistance = (float)Math.ceil(entity.fallDistance + 1) + .1f; // why
-
-//        if (entity.isOnGround()) {((IFaithPlateLaunchable)entity).setLaunched(false);}
+        fallDistance = (float)entity.fallDistance + 1 + .1f; // why
     }
 
     public static void onPostTick(LivingEntity entity) {
@@ -40,20 +38,18 @@ public class LivingEntityInjector {
 //        if(entity instanceof PlayerEntity)
 //            System.out.println(((IFaithPlateLaunchable)entity).isLaunched());
 
-        if(state.getBlock() == BlockInit.REPULSION_GEL.get() && entity.isOnGround() && !entity.isShiftKeyDown() && fallDistance > 0) {
+        System.out.println("test");
+        if(state.getBlock() == BlockInit.REPULSION_GEL.get() && (entity.isOnGround() && !entity.isShiftKeyDown() && fallDistance > 1.2)) {
+
+            if (entity instanceof PlayerEntity && !entity.level.isClientSide && fallDistance >= 100) {
+                CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayerEntity) entity);
+            }
+            ((IFaithPlateLaunchable) entity).setLaunched(true);
 
             entity.level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.GEL_BLOCK_BOUNCE.get(), SoundCategory.BLOCKS, 1, 1);
-
-            if(entity instanceof PlayerEntity && !entity.level.isClientSide && previousfallDistance >= 1) {
-                CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayerEntity)entity);
-            }
-//            System.out.println(fallDistance);
-            ((IFaithPlateLaunchable)entity).setLaunched(true);
-            float velocity = (float)Math.sqrt(Math.max(fallDistance < 11 ? fallDistance - 1 : fallDistance, 5) * 1.8 * 0.08);
+            float velocity = (float) Math.sqrt(Math.max(fallDistance < 11 ? fallDistance - 1 : fallDistance, minBounceHeight) * 1.8 * 0.08); // for some reason it's broken if fallDistance >= 11.1, this is a bad temporary fix sorry
             entity.setDeltaMovement(entity.getDeltaMovement().x, velocity, entity.getDeltaMovement().z);
             entity.fallDistance = 0;
         }
-
-        previousfallDistance = fallDistance;
     }
 }

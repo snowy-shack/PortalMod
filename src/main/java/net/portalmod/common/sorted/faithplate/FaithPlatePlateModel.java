@@ -2,10 +2,7 @@ package net.portalmod.common.sorted.faithplate;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-
-import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
 import net.portalmod.client.animation.AnimatedModel;
 import net.portalmod.core.init.AnimationInit;
 
@@ -17,7 +14,7 @@ public class FaithPlatePlateModel extends AnimatedModel {
         super(64, 64);
         
         bone = new ModelRenderer(this);
-        bone.setPos(-2.0F, 29.5F, -1.5F);
+        bone.setPos(-2.5F, 29.5F, -1.5F);
         setRotationAngle(bone, -0.2182F, 0.0F, 0.0F);
 
         attachAnimation("launch", bone, XROT, AnimationInit.FAITHPLATE_BONE);

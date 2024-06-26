@@ -30,6 +30,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_DEACTIVATE = register("block.super_button.deactivate");
 
     public static final RegistryObject<SoundEvent> FAITHPLATE_LAUNCH = register("block.faithplate.launch");
+    public static final RegistryObject<SoundEvent> FAITHPLATE_RESET = register("block.faithplate.reset");
 
     public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
     public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
