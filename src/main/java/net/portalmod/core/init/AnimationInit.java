@@ -51,6 +51,6 @@ public class AnimationInit {
 
     public static final Animation FAITHPLATE_LOCK = new Animation.Builder(0)
     .keyframe(Curve.QUADRATIC, -1.2f, 150)
-    .keyframe(Curve.QUADRATIC, 0, 600)
+    .keyframe(Curve.QUADRATIC, -0.1309f, 600)
     .build();
 }

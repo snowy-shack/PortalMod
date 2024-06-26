@@ -4,17 +4,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.BlockFlags;
@@ -75,8 +67,10 @@ public class GelContainer extends BlockItem {
                     emptyState = false;
             if(emptyState)
                 newState = Blocks.AIR.defaultBlockState();
-            
-            level.levelEvent(player, 2001, pos, Block.getId(state));
+
+            level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundInit.GEL_BLOCK_COLLECT.get(), SoundCategory.BLOCKS, 1, 1);
+
+//            level.levelEvent(player, 2001, pos, Block.getId(state)); // What is this for??
             level.setBlock(pos, newState, BlockFlags.DEFAULT);
             
         } else {

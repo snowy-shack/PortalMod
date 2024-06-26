@@ -167,22 +167,27 @@
     "block.gel.break": {
         "sounds": [
             "portalmod:block/gel/break1",
-            "portalmod:block/gel/break2",
-            "portalmod:block/gel/break3"
+            "portalmod:block/gel/break2"
         ],
         "subtitle": "subtitles.block.generic.break" },
     "block.gel.step": {
         "sounds": [
             "portalmod:block/gel/step1",
-            "portalmod:block/gel/step2",
-            "portalmod:block/gel/step3"
+            "portalmod:block/gel/step2"
         ],
         "subtitle": "subtitles.block.generic.footsteps"
     },
     "block.gel.collect": {
         "sounds": [
-            "portalmod:block/gel/collect1",
-            "portalmod:block/gel/collect2"
+            { "name": "portalmod:block/gel/collect",
+                "pitch": 0.9 },
+            { "name": "portalmod:block/gel/collect",
+                "pitch": 0.95 },
+            { "name": "portalmod:block/gel/collect",
+                "pitch": 1.1 },
+            { "name": "portalmod:block/gel/collect",
+                "pitch": 1.05 },
+            { "name": "portalmod:block/gel/collect" }
         ],
         "subtitle": "subtitles.block.gel.collect"
     },

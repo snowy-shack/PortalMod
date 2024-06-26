@@ -21,13 +21,13 @@ public class FaithPlatePlateModel extends AnimatedModel {
 
         {
             ModelRenderer handles_r1 = new ModelRenderer(this);
-            handles_r1.setPos(2.5F, 1.7359F, -3.6806F);
+            handles_r1.setPos(3.5F, 1.1778F, -2.9707F);
             bone.addChild(handles_r1);
-            setRotationAngle(handles_r1, 0.4363F, 0.0F, 0.0F);
-            handles_r1.texOffs(10, 0).addBox(-4.0F, -3.2395F, -1.5228F, 8.0F, 7.0F, 18.0F, 0.0F, false);
+            setRotationAngle(handles_r1, 0.2182F, 0.0F, 0.0F);
+            handles_r1.texOffs(10, 0).addBox(-5.0F, -4.6778F, -3.0293F, 8.0F, 7.0F, 18.0F, 0.0F, false);
 
             ModelRenderer arm = new ModelRenderer(this);
-            arm.setPos(0.0F, -3.5869F, 8.2684F);
+            arm.setPos(2.5F, -2.4837F, 8.3688F);
             bone.addChild(arm);
             setRotationAngle(arm, 0.3491F, 0.0F, 0.0F);
 
@@ -35,27 +35,29 @@ public class FaithPlatePlateModel extends AnimatedModel {
 
             {
                 ModelRenderer weight_r1 = new ModelRenderer(this);
-                weight_r1.setPos(2.5F, -0.0237F, -0.0239F);
+                weight_r1.setPos(0.0F, -0.1033F, 0.1286F);
                 arm.addChild(weight_r1);
-                setRotationAngle(weight_r1, -0.3054F, 0.0F, 0.0F);
-                weight_r1.texOffs(0, 0).addBox(-3.0F, -4.0F, -4.0F, 6.0F, 8.0F, 8.0F, 0.0F, false);
+                setRotationAngle(weight_r1, -0.1309F, 0.0F, 0.0F);
+                weight_r1.texOffs(0, 0).addBox(-3.0F, -3.8809F, -4.114F, 6.0F, 8.0F, 8.0F, 0.0F, false);
 
                 ModelRenderer lock = new ModelRenderer(this);
-                lock.setPos(0.0F, 0.0039F, -0.0716F);
+                lock.setPos(-2.5F, -1.0671F, 0.2114F);
                 arm.addChild(lock);
+                setRotationAngle(lock, -0.1309F, 0.0F, 0.0F);
+                lock.texOffs(44, 0).addBox(0.0F, -5.3019F, -0.2783F, 5.0F, 2.0F, 4.0F, 0.0F, false);
 
                 attachAnimation("launch", lock, XROT, AnimationInit.FAITHPLATE_LOCK);
 
-                {
-                    ModelRenderer lock_r1 = new ModelRenderer(this);
-                    lock_r1.setPos(2.5F, -3.7885F, 4.2513F);
-                    lock.addChild(lock_r1);
-                    setRotationAngle(lock_r1, -0.6545F, 0.0F, 0.0F);
-                    lock_r1.texOffs(44, 0).addBox(-2.5F, 0.3497F, -3.3566F, 5.0F, 2.0F, 4.0F, 0.0F, false);
-                }
+//                {
+//                    ModelRenderer lock_r1 = new ModelRenderer(this);
+//                    lock_r1.setPos(2.5F, -3.7885F, 4.2513F);
+//                    lock.addChild(lock_r1);
+//                    setRotationAngle(lock_r1, -0.1309F, 0.0F, 0.0F); // -0.6545F x
+//                    lock_r1.texOffs(44, 0).addBox(-2.5F, 0.3497F, -3.3566F, 5.0F, 2.0F, 4.0F, 0.0F, false);
+//                }
 
                 ModelRenderer plate = new ModelRenderer(this);
-                plate.setPos(0.5F, -1.9303F, 2.0063F);
+                plate.setPos(-2.0F, -3.0013F, 2.2893F);
                 arm.addChild(plate);
                 setRotationAngle(plate, 0.2618F, 0.0F, 0.0F);
 
@@ -63,7 +65,7 @@ public class FaithPlatePlateModel extends AnimatedModel {
 
                 {
                     ModelRenderer plate_beam_r1 = new ModelRenderer(this);
-                    plate_beam_r1.setPos(2.5F, -4.9017F, -2.3923F);
+                    plate_beam_r1.setPos(2.5F, -5.3087F, -3.081F);
                     plate.addChild(plate_beam_r1);
                     setRotationAngle(plate_beam_r1, -0.3927F, 0.0F, 0.0F);
                     plate_beam_r1.texOffs(0, 25).addBox(-2.0F, 3.0F, -10.0F, 3.0F, 3.0F, 9.0F, 0.0F, false);

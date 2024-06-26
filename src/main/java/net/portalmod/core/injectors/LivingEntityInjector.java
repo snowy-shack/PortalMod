@@ -38,7 +38,6 @@ public class LivingEntityInjector {
 //        if(entity instanceof PlayerEntity)
 //            System.out.println(((IFaithPlateLaunchable)entity).isLaunched());
 
-        System.out.println("test");
         if(state.getBlock() == BlockInit.REPULSION_GEL.get() && (entity.isOnGround() && !entity.isShiftKeyDown() && fallDistance > 1.2)) {
 
             if (entity instanceof PlayerEntity && !entity.level.isClientSide && fallDistance >= 100) {

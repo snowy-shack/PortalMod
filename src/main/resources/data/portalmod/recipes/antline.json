@@ -1,14 +1,11 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "ro"
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "minecraft:glowstone_dust" },
+        { "item": "minecraft:light_blue_dye" }
     ],
-    "key": {
-        "r": { "item": "minecraft:redstone" },
-        "o": { "item": "minecraft:slime_ball" }
-    },
     "result": {
-        "item": "portalmod:antline",
-        "count": 2
+        "item": "portalmod:bullets",
+        "count": 4
     }
 }

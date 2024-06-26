@@ -153,7 +153,6 @@
   "subtitles.block.generic.hit": "Block breaking",
   "subtitles.block.generic.place": "Block placed",
 
-  "subtitles.block.gel.fill":                "Gel Container fills",
   "subtitles.block.radio.loop":              "Radio plays",
   "subtitles.block.radio.transmission":      "Radio transmitting",
   "subtitles.block.faithplate.launch":       "Faith Plate launches",
@@ -182,6 +181,7 @@
   "subtitles.block.super_button.press": "Super Button presses",
   "subtitles.block.super_button.release": "Super Button releases",
   "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
+  "subtitles.block.gel.collect": "Gel Container fills",
   "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",
 
