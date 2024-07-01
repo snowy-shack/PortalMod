@@ -58,6 +58,10 @@ public class PortalGun extends Item {
             Entity cube = cubes.get(0);
             if(isHoldable(cube)) {
                 cube.stopRiding();
+                float maxSpeed = 0.5f;
+//                System.out.println(cube.getDeltaMovement().length());
+                boolean exceedsLimit = cube.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
+                if (exceedsLimit) cube.setDeltaMovement(cube.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
                 if(toBeThrown) {
                     float strength = .2f;
                     cube.setDeltaMovement(cube.getDeltaMovement().add(player.getViewVector(0)
