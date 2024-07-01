@@ -223,6 +223,11 @@ public class PortalGun extends Item {
             nbt.putBoolean("blue", hasBlue);
         if(!nbt.contains("orange") || nbt.getBoolean("orange") != hasOrange)
             nbt.putBoolean("orange", hasOrange);
+
+        if (!nbt.contains("LeftColor"))   nbt.putString("LeftColor", "blue");
+        if (!nbt.contains("RightColor"))  nbt.putString("RightColor", "orange");
+        if (!nbt.contains("AccentColor")) nbt.putString("AccentColor", "white");
+        if (!nbt.contains("Locked"))      nbt.putBoolean("Locked", false);
     }
     
     public static UUID getUUID(ItemStack itemStack) {
