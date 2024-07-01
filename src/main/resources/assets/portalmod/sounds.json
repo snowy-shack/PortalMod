@@ -90,30 +90,6 @@
         ],
         "subtitle": "subtitles.entity.player.hurt"
     },
-    "item.portalgun.fire_blue": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.item.gun.fire"
-    },
-    "item.portalgun.fire_orange": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.item.gun.fire"
-    },
-    "item.portalgun.fizzle": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.item.gun.fizzle"
-    },
-    "item.portalgun.activate": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.item.gun.activate"
-    },
     "item.bucket.empty_goo": {
       "sounds": [
         "item/bucket/empty_lava1",
@@ -217,5 +193,17 @@
             "portalmod:entity/cube/hit2",
             "portalmod:entity/cube/hit3"
         ],
-        "subtitle": "subtitles.entity.cube.hit" }
+        "subtitle": "subtitles.entity.cube.hit" },
+    "item.portalgun.fire_primary": {
+        "sounds": [ "portalmod:error" ],
+        "subtitle": "subtitles.item.portalgun.fire"
+    },
+    "item.portalgun.fire_secondary": {
+        "sounds": [ "portalmod:error" ],
+        "subtitle": "subtitles.item.portalgun.fire"
+    },
+    "item.portalgun.fizzle": {
+        "sounds": [ "portalmod:error" ],
+        "subtitle": "subtitles.item.portalgun.fizzle"
+    }
 }

@@ -15,6 +15,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -38,6 +39,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunAnimation;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
@@ -183,9 +185,11 @@ public class FizzlerEmitterBlock extends DoubleBlock {
                 }
             }
 
-            if (didFizzleAny)
+            if (didFizzleAny) {
                 PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity),
                         new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
+                level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
+            }
         }
     }
 

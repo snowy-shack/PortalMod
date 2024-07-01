@@ -35,6 +35,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
     public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
 
+    public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_PRIMARY = register("item.portalgun.fire_primary");
+    public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_SECONDARY = register("item.portalgun.fire_secondary");
     public static final RegistryObject<SoundEvent> PORTALGUN_FIZZLE = register("item.portalgun.fizzle");
 
     public static final RegistryObject<SoundEvent> GOO_DAMAGE = register("entity.player.hurt_goo");

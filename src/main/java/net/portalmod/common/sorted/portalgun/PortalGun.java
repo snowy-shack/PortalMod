@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
@@ -30,6 +31,7 @@ import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PortalGun extends Item {
@@ -99,8 +101,11 @@ public class PortalGun extends Item {
             double angle = (timeOfDay - (int)timeOfDay) * 2f * Math.PI;
             Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
             double dot = player.getLookAngle().dot(moonVector);
-            if(dot <= -0.997)
-                CriteriaTriggerInit.SHOOT_MOON.get().trigger((ServerPlayerEntity)player);
+            if(dot <= -0.997) {
+                PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                        new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
+                CriteriaTriggerInit.SHOOT_MOON.get().trigger((ServerPlayerEntity) player);
+            }
         }
         
         Direction face = ray.getDirection();
@@ -147,6 +152,8 @@ public class PortalGun extends Item {
         player.awardStat(StatsInit.PORTALS_SHOT);
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player),
                 new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
+        level.playSound(null, player.position().x, player.position().y, player.position().z,
+                (Objects.equals(end.getSerializedName(), "blue") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
 //        PortalPairCache.SERVER.put(getUUID(gun), end, portal);
         level.addFreshEntity(portal);
         PortalManager.put(getUUID(gun), end, portal);

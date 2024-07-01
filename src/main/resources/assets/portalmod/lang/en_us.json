@@ -174,9 +174,6 @@
   "subtitles.entity.turret.voice.pickup": "Turret protests",
   "subtitles.entity.turret.voice.target": "Turret found target",
 
-  "subtitles.item.portalgun.fire":     "Portal Gun shoots",
-  "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
-  "subtitles.item.portalgun.activate": "Portal Gun activates",
 
 
 
@@ -189,9 +186,13 @@
   "subtitles.block.super_button.release": "Super Button releases",
   "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
   "subtitles.block.gel.collect": "Gel Container fills",
+
   "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",
 
+  "subtitles.item.portalgun.fire":     "Portal Gun fires",
+  "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
+  "subtitles.item.portalgun.activate": "Portal Gun activates",
 
 
 
