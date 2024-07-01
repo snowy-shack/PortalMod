@@ -31,6 +31,7 @@ public class PortalMod {
         FluidInit.FLUIDS.register(bus);
         ParticleInit.PARTICLE_TYPES.register(bus);
         SoundInit.SOUNDS.register(bus);
+        RecipeInit.RECIPES.register(bus);
         PacketInit.init();
         StatsInit.init();
         ItemTagInit.init();
