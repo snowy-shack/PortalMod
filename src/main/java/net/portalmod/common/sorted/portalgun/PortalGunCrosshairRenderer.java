@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -82,11 +81,13 @@ public class PortalGunCrosshairRenderer {
 //            Colour oppositeColour = Colour.fromHSV((int)(System.currentTimeMillis() / 10 + 180) % 360, .8f, 1);
 //            Colour colour = new Colour(Color.HSBtoRGB((int)(System.currentTimeMillis() / 10 % 360) / 360f, .8f, 1));
 //            Colour oppositeColour = new Colour(Color.HSBtoRGB((int)((System.currentTimeMillis() / 10 + 180) % 360) / 360f, .8f, 1));
-            Colour leftColour = new Colour(0f, 0f, 1f, 1f);
-            Colour rightColour = new Colour(1f, 1f, 0f, 1f);
 
             CompoundNBT nbt = itemStack.getOrCreateTag();
-            if(nbt.contains("portalHue")) {
+
+            Colour leftColour = PortalGun.getLeftColour(nbt);
+            Colour rightColour = PortalGun.getRightColour(nbt);
+
+//            if(nbt.contains("portalHue")) {
 //                float hue = (nbt.getInt("portalHue") % 360) / 360.0f;
 //                colour = new Colour(Color.HSBtoRGB(hue, .8f, 1));
 //                oppositeColour = new Colour(Color.HSBtoRGB(hue + .5f, .8f, 1));
@@ -96,13 +97,7 @@ public class PortalGunCrosshairRenderer {
 //                Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
 //                leftColour = new Colour(Color.HSBtoRGB(hsv[0], .8f, 1));
 //                rightColour = new Colour(Color.HSBtoRGB(hsv[0] + .5f, .8f, 1));
-            }
-
-            float[] leftColors = DyeColor.byName(nbt.getString("LeftColor"), DyeColor.BLUE).getTextureDiffuseColors();
-            float[] rightColors = DyeColor.byName(nbt.getString("RightColor"), DyeColor.ORANGE).getTextureDiffuseColors();
-
-            leftColour = new Colour(leftColors);
-            rightColour = new Colour(rightColors);
+//            }
 
             // blit(stack, x, y, z, u, v, uWidth, uHeight, texwidth, texheight)
             RenderSystem.disableBlend();

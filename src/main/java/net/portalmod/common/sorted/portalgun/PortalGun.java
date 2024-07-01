@@ -6,6 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FluidState;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -29,6 +30,7 @@ import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.Colour;
 
 import java.util.List;
 import java.util.Objects;
@@ -254,5 +256,32 @@ public class PortalGun extends Item {
         }
 
         return uuid;
+    }
+
+    public static Colour getLeftColour(CompoundNBT nbt) {
+        DyeColor color = DyeColor.BLUE;
+        if (nbt.contains("LeftColor")) {
+            color = DyeColor.byName(nbt.getString("LeftColor"), color);
+        }
+        return new Colour(color.getTextureDiffuseColors());
+    }
+
+    public static Colour getRightColour(CompoundNBT nbt) {
+        DyeColor color = DyeColor.ORANGE;
+        if (nbt.contains("RightColor")) {
+            color = DyeColor.byName(nbt.getString("RightColor"), color);
+        }
+        return new Colour(color.getTextureDiffuseColors());
+    }
+
+    public static Colour getAccentColour(CompoundNBT nbt) {
+        Colour colour = new Colour(1f, 1, 1, 0);
+        if (nbt.contains("AccentColor")) {
+            String accentColor = nbt.getString("AccentColor");
+            if (!accentColor.equals("none")) {
+                colour = new Colour(DyeColor.byName(accentColor, DyeColor.RED).getTextureDiffuseColors());
+            }
+        }
+        return colour;
     }
 }

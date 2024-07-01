@@ -166,9 +166,9 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             int lastPortal = nbt.getInt("LastPortal");
             if (lastPortal != 0) gunLightOn = true;
             switch (lastPortal) {
-                case -1 : lastPortalColor = new Colour(DyeColor.byName(nbt.getString("LeftColor"), DyeColor.BLUE).getTextureDiffuseColors());
+                case -1 : lastPortalColor = PortalGun.getLeftColour(nbt);
                 break;
-                case 1 : lastPortalColor = new Colour(DyeColor.byName(nbt.getString("RightColor"), DyeColor.ORANGE).getTextureDiffuseColors());
+                case 1 : lastPortalColor = PortalGun.getRightColour(nbt);
             }
         }
 
