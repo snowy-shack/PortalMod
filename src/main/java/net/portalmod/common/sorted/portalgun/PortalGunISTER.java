@@ -31,7 +31,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
     public static RenderMaterial MISSINGNO_MATERIAL;
     public static PortalGunModel PORTALGUN_MODEL;
     public final AnimatedTexture TEX = new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS,
-            new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim"), 3, 1);
+            new ResourceLocation(PortalMod.MODID, "gun/portalgun"), 1 /*3*/, 1); //FIXME
     
     public PortalGunISTER() {
         PORTALGUN_MODEL = new PortalGunModel();
