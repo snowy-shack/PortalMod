@@ -73,6 +73,7 @@ public class PortalGunRecipe extends SpecialRecipe {
         }
 
         newNBT.putBoolean("Locked", !chain.isEmpty());
+        newNBT.putInt("LastPortal", 0);
 
         return newGun;
     }

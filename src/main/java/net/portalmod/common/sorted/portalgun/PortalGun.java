@@ -20,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -27,6 +28,7 @@ import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
+import net.portalmod.common.sorted.portal.PortalPair;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
@@ -95,6 +97,9 @@ public class PortalGun extends Item {
     }
     
     public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
+
+        gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.BLUE ? -1 : 1);
+
         Vector3d rayPath = player.getViewVector(0).scale(200);
         Vector3d from = player.getEyePosition(0);
         Vector3d to = from.add(rayPath);
@@ -283,5 +288,41 @@ public class PortalGun extends Item {
             }
         }
         return colour;
+    }
+
+    public static void fizzleGun(World level, PlayerEntity entity) {
+        boolean didFizzleAny = false;
+
+        for (ItemStack itemStack : entity.inventory.items) {
+            if (!(itemStack.getItem() instanceof PortalGun))
+                continue;
+
+            UUID gunUUID = PortalGun.getUUID(itemStack);
+            PortalPair pair = PortalManager.getPair(gunUUID);
+
+            if (pair == null)
+                continue;
+
+            if (pair.has(PortalEnd.BLUE)) {
+                PortalEntity blue = pair.get(PortalEnd.BLUE);
+                ((ServerWorld) blue.level).removeEntity(blue, false);
+                PortalManager.remove(gunUUID, blue);
+                didFizzleAny = true;
+            }
+            if (pair.has(PortalEnd.ORANGE)) {
+                PortalEntity orange = pair.get(PortalEnd.ORANGE);
+                ((ServerWorld) orange.level).removeEntity(orange, false);
+                PortalManager.remove(gunUUID, orange);
+                didFizzleAny = true;
+            }
+
+            itemStack.getOrCreateTag().putInt("LastPortal", 0);
+        }
+
+        if (didFizzleAny) {
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity),
+                    new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
+            level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
+        }
     }
 }
