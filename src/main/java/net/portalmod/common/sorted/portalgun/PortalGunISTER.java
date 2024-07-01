@@ -118,8 +118,8 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
         
-        int min = 130;
-        int max = 200;
+        int min = 200;
+        int max = 255;
         int light = (int)((Math.sin((System.currentTimeMillis() / 10 % 360) * Math.PI / 180) + 1) / 2 * (max - min) + min);
 //        int light = 200;
         
