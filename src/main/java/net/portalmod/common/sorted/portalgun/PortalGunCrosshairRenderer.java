@@ -24,8 +24,6 @@ import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.util.Colour;
 
-import java.awt.*;
-
 public class PortalGunCrosshairRenderer {
 //    public static final ResourceLocation CROSSHAIRS = new ResourceLocation(PortalMod.MODID, "textures/crosshairs.png");
     public static final ResourceLocation CROSSHAIRS =
@@ -84,8 +82,8 @@ public class PortalGunCrosshairRenderer {
 //            Colour oppositeColour = Colour.fromHSV((int)(System.currentTimeMillis() / 10 + 180) % 360, .8f, 1);
 //            Colour colour = new Colour(Color.HSBtoRGB((int)(System.currentTimeMillis() / 10 % 360) / 360f, .8f, 1));
 //            Colour oppositeColour = new Colour(Color.HSBtoRGB((int)((System.currentTimeMillis() / 10 + 180) % 360) / 360f, .8f, 1));
-            Colour colour = new Colour(0f, 0f, 1f, 1f);
-            Colour oppositeColour = new Colour(1f, 1f, 0f, 1f);
+            Colour leftColour = new Colour(0f, 0f, 1f, 1f);
+            Colour rightColour = new Colour(1f, 1f, 0f, 1f);
 
             CompoundNBT nbt = itemStack.getOrCreateTag();
             if(nbt.contains("portalHue")) {
@@ -93,13 +91,18 @@ public class PortalGunCrosshairRenderer {
 //                colour = new Colour(Color.HSBtoRGB(hue, .8f, 1));
 //                oppositeColour = new Colour(Color.HSBtoRGB(hue + .5f, .8f, 1));
 
-                int color = DyeColor.valueOf(nbt.getString("portalHue").toUpperCase()).getColorValue();
-                float[] hsv = new float[3];
-                Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
-
-                colour = new Colour(Color.HSBtoRGB(hsv[0], .8f, 1));
-                oppositeColour = new Colour(Color.HSBtoRGB(hsv[0] + .5f, .8f, 1));
+//                int color = DyeColor.valueOf(nbt.getString("leftColor").toUpperCase()).getColorValue();
+//                float[] hsv = new float[3];
+//                Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
+//                leftColour = new Colour(Color.HSBtoRGB(hsv[0], .8f, 1));
+//                rightColour = new Colour(Color.HSBtoRGB(hsv[0] + .5f, .8f, 1));
             }
+
+            float[] leftColors = DyeColor.byName(nbt.getString("LeftColor"), DyeColor.BLUE).getTextureDiffuseColors();
+            float[] rightColors = DyeColor.byName(nbt.getString("RightColor"), DyeColor.ORANGE).getTextureDiffuseColors();
+
+            leftColour = new Colour(leftColors);
+            rightColour = new Colour(rightColors);
 
             // blit(stack, x, y, z, u, v, uWidth, uHeight, texwidth, texheight)
             RenderSystem.disableBlend();
@@ -108,7 +111,7 @@ public class PortalGunCrosshairRenderer {
                     Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 17,
                     Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2 - 16,
                     0,
-                    colour,
+                    leftColour,
                     u, v, 33, 33, 66, 66);
             RenderSystem.enableBlend();
             
@@ -129,7 +132,7 @@ public class PortalGunCrosshairRenderer {
                     Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 17,
                     Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2 - 16,
                     0,
-                    oppositeColour,
+                    rightColour,
                     u, v, 33, 33, 66, 66);
             RenderSystem.enableBlend();
             

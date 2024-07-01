@@ -69,7 +69,7 @@ public class PortalGunRecipe extends SpecialRecipe {
             newNBT.putString("LeftColor", ((DyeItem) leftDye.getItem()).getDyeColor().getName());
         }
         if (!rightDye.isEmpty()) {
-            newNBT.putString("LeftColor", ((DyeItem) rightDye.getItem()).getDyeColor().getName());
+            newNBT.putString("RightColor", ((DyeItem) rightDye.getItem()).getDyeColor().getName());
         }
 
         newNBT.putBoolean("Locked", !chain.isEmpty());

@@ -18,6 +18,10 @@ public class Colour {
     public Colour(float r, float g, float b, float a) {
         this((int)(r * 255), (int)(g * 255), (int)(b * 255), (int)(a * 255));
     }
+
+    public Colour(float[] rgb) {
+        this(rgb[0], rgb[1], rgb[2], 1);
+    }
     
     public Colour(int argb) {
         this.a = (argb >> 24) & 0xFF;
