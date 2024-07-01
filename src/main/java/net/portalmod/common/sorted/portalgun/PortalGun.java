@@ -233,7 +233,8 @@ public class PortalGun extends Item {
 
         if (!nbt.contains("LeftColor"))   nbt.putString("LeftColor", "blue");
         if (!nbt.contains("RightColor"))  nbt.putString("RightColor", "orange");
-        if (!nbt.contains("AccentColor")) nbt.putString("AccentColor", "white");
+        if (!nbt.contains("LastPortal"))  nbt.putInt("LastPortal", 0);
+        if (!nbt.contains("AccentColor")) nbt.putString("AccentColor", "none");
         if (!nbt.contains("Locked"))      nbt.putBoolean("Locked", false);
     }
     

@@ -19,7 +19,6 @@ import net.portalmod.client.animation.AnimatedTexture;
 import net.portalmod.core.init.AnimationInit;
 import net.portalmod.core.util.Colour;
 
-import java.awt.*;
 import java.util.UUID;
 
 public class PortalGunISTER extends ItemStackTileEntityRenderer {
@@ -121,8 +120,8 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         
         int min = 130;
         int max = 200;
-//        int light = (int)((Math.sin((System.currentTimeMillis() / 10 % 360) * Math.PI / 180) + 1) / 2 * (max - min) + min);
-        int light = 200;
+        int light = (int)((Math.sin((System.currentTimeMillis() / 10 % 360) * Math.PI / 180) + 1) / 2 * (max - min) + min);
+//        int light = 200;
         
 //        Colour colour = new Colour(Color.HSBtoRGB((int)(System.currentTimeMillis() / 10 % 360) / 360f, .8f, 1));
         
@@ -136,37 +135,51 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
 
         Colour colour = new Colour(255, 0, 0, 255);
         Colour oppositeColour = new Colour(255, 0, 0, 255);
-        Colour currentColour = new Colour(255, 0, 0, 255);
-        Colour stripeColour = new Colour(255, 0, 0, 255);
+        Colour lastPortalColor = new Colour(64, 59, 75, 255);
+        Colour stripeColour = new Colour(255, 255, 255, 0);
+
+        boolean gunLightOn = false;
 
         CompoundNBT nbt = itemStack.getOrCreateTag();
-        if(nbt.contains("portalHue")) {
-            int color = DyeColor.valueOf(nbt.getString("portalHue").toUpperCase()).getColorValue();
-            float[] hsv = new float[3];
-            Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
-
-            colour = new Colour(Color.HSBtoRGB(hsv[0], .8f, 1));
-            oppositeColour = new Colour(Color.HSBtoRGB(hsv[0] + .5f, .8f, 1));
+//        if(nbt.contains("portalHue")) {
+//            int color = DyeColor.valueOf(nbt.getString("portalHue").toUpperCase()).getColorValue();
+//            float[] hsv = new float[3];
+//            Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
+//
+//            colour = new Colour(Color.HSBtoRGB(hsv[0], .8f, 1));
+//            oppositeColour = new Colour(Color.HSBtoRGB(hsv[0] + .5f, .8f, 1));
+//        }
+//        if(nbt.contains("color")) {
+//            lastPortalColor = nbt.getByte("color") == 1 ? colour : oppositeColour;
+//        }
+//        if(nbt.contains("gunHue")) {
+//            int color = DyeColor.valueOf(nbt.getString("gunHue").toUpperCase()).getColorValue();
+//            float[] hsv = new float[3];
+//            Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
+//        }
+        if(nbt.contains("AccentColor")) {
+            if (nbt.getString("AccentColor").equals("none")) {
+                stripeColour = new Colour(255, 255, 255, 0);
+            } else stripeColour = new Colour(DyeColor.byName(nbt.getString("AccentColor"), DyeColor.RED).getTextureDiffuseColors());
         }
-        if(nbt.contains("color")) {
-            currentColour = nbt.getByte("color") == 1 ? colour : oppositeColour;
-        }
-        if(nbt.contains("gunHue")) {
-            int color = DyeColor.valueOf(nbt.getString("gunHue").toUpperCase()).getColorValue();
-            float[] hsv = new float[3];
-            Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
-
-            stripeColour = new Colour(255, 255, 255, 0); // Colour(Color.HSBtoRGB(hsv[0], .8f, 1))
+        if(nbt.contains("LastPortal")) {
+            int lastPortal = nbt.getInt("LastPortal");
+            if (lastPortal != 0) gunLightOn = true;
+            switch (lastPortal) {
+                case -1 : lastPortalColor = new Colour(DyeColor.byName(nbt.getString("LeftColor"), DyeColor.BLUE).getTextureDiffuseColors());
+                break;
+                case 1 : lastPortalColor = new Colour(DyeColor.byName(nbt.getString("RightColor"), DyeColor.ORANGE).getTextureDiffuseColors());
+            }
         }
 
         TEX.setupAnimation();
         PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 0), !animate);
+        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
         irendertypebuffer$impl.endBatch();
         TEX.endAnimation();
 
         ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, light, packedOverlay, new Colour(0x48, 0x48, 0x48, 255), !animate);
+        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, gunLightOn ? light : packedOverlay, packedOverlay, lastPortalColor, !animate);
 
 //        ivertexbuilder = PORTALGUN_MATERIAL.buffer(renderTypeBuffer, RenderType::entityTranslucent);
 //        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, currentColour, !animate);
