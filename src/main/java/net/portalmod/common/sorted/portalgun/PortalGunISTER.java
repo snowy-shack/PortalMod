@@ -156,17 +156,17 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             float[] hsv = new float[3];
             Color.RGBtoHSB((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, hsv);
 
-            stripeColour = new Colour(Color.HSBtoRGB(hsv[0], .8f, 1));
+            stripeColour = new Colour(255, 255, 255, 0); // Colour(Color.HSBtoRGB(hsv[0], .8f, 1))
         }
 
         TEX.setupAnimation();
         PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
+        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 0), !animate);
         irendertypebuffer$impl.endBatch();
         TEX.endAnimation();
 
         ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, light, packedOverlay, new Colour(0x24, 0x24, 0x24, 255), !animate);
+        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, light, packedOverlay, new Colour(0x48, 0x48, 0x48, 255), !animate);
 
 //        ivertexbuilder = PORTALGUN_MATERIAL.buffer(renderTypeBuffer, RenderType::entityTranslucent);
 //        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, currentColour, !animate);
