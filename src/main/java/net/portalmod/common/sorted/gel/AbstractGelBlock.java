@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.gel;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BreakableBlock;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
@@ -30,7 +31,7 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.HashMap;
 
-public class AbstractGelBlock extends Block {
+public class AbstractGelBlock extends BreakableBlock {
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST =  BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
