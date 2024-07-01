@@ -129,7 +129,7 @@
   "tooltip.portalmod.faithplate_2": "§7- §6Wrench§7: Configure the Faithplate",
 
   "tooltip.portalmod.turret_1": "§7Shoots visible Players and Mobs",
-  "tooltip.portalmod.turret_2": "§7- Right click to stock with §3Bullets",
+  "tooltip.portalmod.turret_2": "§7- Right click to stock with §aBullets",
   "tooltip.portalmod.turret_3": "§7- Has infinite ammo when placed in creative",
   "tooltip.portalmod.turret_4": "§7- Crouch while placing for finer control over the rotation of the turret",
   "tooltip.portalmod.turret_5": "§7- Can be picked up with a §6Wrench",
@@ -137,7 +137,14 @@
   "tooltip.portalmod.bullets_1": "§7Provides a Turret with ammo",
   "tooltip.portalmod.bullets_2": "§7- Allows a Turret to shoot 20 times",
   "tooltip.portalmod.bullets_3": "§7- Hold shift to add a whole stack",
-  "tooltip.portalmod.bullets_4": "§7- Click with a §6Wrench§7 to take all bullets from a Turret",
+  "tooltip.portalmod.bullets_4": "§7- Click with a §6Wrench§7 to take all §aBullets§7 from a Turret",
+
+  "tooltip.portalmod.portalgun_1": "§7Shoots §9Portals§7",
+  "tooltip.portalmod.portalgun_2": "§7- Can pick up §3Cubes and §3Turrets",
+  "tooltip.portalmod.portalgun_3": "§7- Crafting: ",
+  "tooltip.portalmod.portalgun_4": "§7  - §aDye§7 above the §9Portal Gun§7 to changes accent color",
+  "tooltip.portalmod.portalgun_5": "§7  - §aDyes§7 to the left or right to change §9Portal§7 colors",
+  "tooltip.portalmod.portalgun_6": "§7  - §aChain§7 below the §9Portal Gun§7 to make it §9single-Portaled§7",
 
   "actionbar.portalmod.button_mode.normal":      "Set Button Mode to Normal",
   "actionbar.portalmod.button_mode.persistent":  "Set Button Mode to Persistent",
