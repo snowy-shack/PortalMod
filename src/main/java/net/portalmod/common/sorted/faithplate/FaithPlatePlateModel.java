@@ -65,7 +65,7 @@ public class FaithPlatePlateModel extends AnimatedModel {
 
                 {
                     ModelRenderer plate_beam_r1 = new ModelRenderer(this);
-                    plate_beam_r1.setPos(2.5F, -5.3087F, -3.081F);
+                    plate_beam_r1.setPos(2.5F, -5.3086F, -3.081F);
                     plate.addChild(plate_beam_r1);
                     setRotationAngle(plate_beam_r1, -0.3927F, 0.0F, 0.0F);
                     plate_beam_r1.texOffs(0, 25).addBox(-2.0F, 3.0F, -10.0F, 3.0F, 3.0F, 9.0F, 0.0F, false);
