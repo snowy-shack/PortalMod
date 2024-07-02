@@ -111,17 +111,17 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
 //            RenderUtil.bindTexture("texture", "textures/portal/" + (open ? "open_" : "closed_")
 //                    + portal.getEnd().getSerializedName() + ".png", 0);
         
-            ShaderInit.PORTAL_FRAME.get().bind()
+        ShaderInit.PORTAL_FRAME.get().bind()
             .setInt("frameCount", frameCount)
             .setFloat("frameIndex", frameIndex)
             .setMatrix("modelViewProjection", modelViewProjection);
             
-            RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/" + (open ? "open_" : "closed_")
-                    + portal.getEnd().getSerializedName() + ".png", 0);
+        RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/" + (open ? "open_" : "closed_")
+                + portal.getColor() + ".png", 0);
             
-            RenderSystem.depthMask(false);
-            RenderSystem.drawArrays(7, 0, 4);
-            RenderSystem.depthMask(true);
+        RenderSystem.depthMask(false);
+        RenderSystem.drawArrays(7, 0, 4);
+        RenderSystem.depthMask(true);
 
         RenderSystem.bindTexture(0);
         RenderSystem.disableBlend();
@@ -432,7 +432,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
                 .setMatrix("modelViewProjection", modelViewProjection);
 
         RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/portal_" + (open ? "open_" : "closed_")
-                + portal.getHue() + ".png", 0);
+                + portal.getColor() + ".png", 0);
 
         RenderSystem.depthMask(false);
         RenderSystem.drawArrays(7, 0, 4);
@@ -1091,7 +1091,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
                         .setMatrix("modelViewProjection", getModelViewProjectionMatrix(portal, null, OFFSET * 3));
                     
                     RenderUtil.bindTexture(ShaderInit.PORTAL_HIGHLIGHT.get(), "texture",
-                            "textures/portal/highlight_" + portal.getEnd().getSerializedName() + ".png", 0);
+                            "textures/portal/highlight_" + portal.getColor() + ".png", 0);
 //                    Shader.uniform1f("intensity", (float)portal.position().distanceTo(cameraPos));
                     ShaderInit.PORTAL_HIGHLIGHT.get().setFloat("intensity", (float)portal.position().distanceTo(cameraPos));
                     

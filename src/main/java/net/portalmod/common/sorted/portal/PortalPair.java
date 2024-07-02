@@ -17,9 +17,9 @@ public class PortalPair {
     }
 
     public PortalEntity get(PortalEnd end) {
-        if(end == PortalEnd.BLUE)
+        if(end == PortalEnd.PRIMARY)
             return blue;
-        if(end == PortalEnd.ORANGE)
+        if(end == PortalEnd.SECONDARY)
             return orange;
         return null;
     }
@@ -38,9 +38,9 @@ public class PortalPair {
     }
     
     public void set(PortalEnd end, PortalEntity portal) {
-        if(end == PortalEnd.BLUE)
+        if(end == PortalEnd.PRIMARY)
             this.blue = portal;
-        if(end == PortalEnd.ORANGE)
+        if(end == PortalEnd.SECONDARY)
             this.orange = portal;
     }
     

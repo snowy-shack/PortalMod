@@ -1,11 +1,11 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.util.*;
+import net.minecraft.util.IStringSerializable;
 
 public enum PortalEnd implements IStringSerializable {
     NONE("none"),
-    BLUE("blue"),
-    ORANGE("orange");
+    PRIMARY("primary"),
+    SECONDARY("secondary");
 
     private final String name;
 
@@ -19,10 +19,10 @@ public enum PortalEnd implements IStringSerializable {
         return name;
     }
     public PortalEnd other() {
-        if(this == BLUE)
-            return ORANGE;
-        if(this == ORANGE)
-            return BLUE;
+        if(this == PRIMARY)
+            return SECONDARY;
+        if(this == SECONDARY)
+            return PRIMARY;
         return NONE;
     }
 }

@@ -48,7 +48,7 @@ public class PortalGun extends Item {
     }
     
     public static void handleRightClick() {
-        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.ORANGE).build());
+        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
     }
 
     public static boolean isHoldable(Entity entity) {
@@ -98,7 +98,7 @@ public class PortalGun extends Item {
     
     public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
 
-        gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.BLUE ? -1 : 1);
+        gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
 
         Vector3d rayPath = player.getViewVector(0).scale(200);
         Vector3d from = player.getEyePosition(0);
@@ -137,8 +137,10 @@ public class PortalGun extends Item {
         portal.setGunUUID(getUUID(gun));
 
         CompoundNBT nbt = gun.getOrCreateTag();
-        if(nbt.contains("portalHue"))
-            portal.setHue(nbt.getString("portalHue"));
+        boolean isPrimary = end == PortalEnd.PRIMARY;
+        if(nbt.contains(isPrimary ? "LeftColor" : "RightColor")) {
+            portal.setHue(nbt.getString(isPrimary ? "LeftColor" : "RightColor"));
+        }
 
 //        portal.setOtherPortalPos();
         if(!portal.adjustShot(ray))
@@ -164,7 +166,7 @@ public class PortalGun extends Item {
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player),
                 new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
         level.playSound(null, player.position().x, player.position().y, player.position().z,
-                (Objects.equals(end.getSerializedName(), "blue") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
+                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
 //        PortalPairCache.SERVER.put(getUUID(gun), end, portal);
         level.addFreshEntity(portal);
         PortalManager.put(getUUID(gun), end, portal);
@@ -214,13 +216,13 @@ public class PortalGun extends Item {
 //    public void appendHoverText(ItemStack stack, World level, List<ITextComponent> tooltip, ITooltipFlag flag) {
 //        super.appendHoverText(stack, level, tooltip, flag);
 //
-//        if(hasPortal(stack, PortalEnd.BLUE, true)) {
-//            BlockPos pos = getPortalPosition(stack, PortalEnd.BLUE, true);
+//        if(hasPortal(stack, PortalEnd.PRIMARY, true)) {
+//            BlockPos pos = getPortalPosition(stack, PortalEnd.PRIMARY, true);
 //            tooltip.add(new StringTextComponent(TextFormatting.BLUE + "1st portal: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
 //        }
 //
-//        if(hasPortal(stack, PortalEnd.ORANGE, true)) {
-//            BlockPos pos = getPortalPosition(stack, PortalEnd.ORANGE, true);
+//        if(hasPortal(stack, PortalEnd.SECONDARY, true)) {
+//            BlockPos pos = getPortalPosition(stack, PortalEnd.SECONDARY, true);
 //            tooltip.add(new StringTextComponent(TextFormatting.GOLD + "2nd portal: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
 //        }
 //    }
@@ -235,12 +237,12 @@ public class PortalGun extends Item {
         UUID uuid = getUUID(itemStack);
         CompoundNBT nbt = itemStack.getOrCreateTag();
 
-        boolean hasBlue = PortalManager.has(uuid, PortalEnd.BLUE);
-        boolean hasOrange = PortalManager.has(uuid, PortalEnd.ORANGE);
-        if(!nbt.contains("blue") || nbt.getBoolean("blue") != hasBlue)
-            nbt.putBoolean("blue", hasBlue);
-        if(!nbt.contains("orange") || nbt.getBoolean("orange") != hasOrange)
-            nbt.putBoolean("orange", hasOrange);
+        boolean hasBlue = PortalManager.has(uuid, PortalEnd.PRIMARY);
+        boolean hasOrange = PortalManager.has(uuid, PortalEnd.SECONDARY);
+        if(!nbt.contains("primary") || nbt.getBoolean("primary") != hasBlue)
+            nbt.putBoolean("primary", hasBlue);
+        if(!nbt.contains("secondary") || nbt.getBoolean("secondary") != hasOrange)
+            nbt.putBoolean("secondary", hasOrange);
 
         if (!nbt.contains("LeftColor"))   nbt.putString("LeftColor", "blue");
         if (!nbt.contains("RightColor"))  nbt.putString("RightColor", "orange");
@@ -303,14 +305,14 @@ public class PortalGun extends Item {
             if (pair == null)
                 continue;
 
-            if (pair.has(PortalEnd.BLUE)) {
-                PortalEntity blue = pair.get(PortalEnd.BLUE);
+            if (pair.has(PortalEnd.PRIMARY)) {
+                PortalEntity blue = pair.get(PortalEnd.PRIMARY);
                 ((ServerWorld) blue.level).removeEntity(blue, false);
                 PortalManager.remove(gunUUID, blue);
                 didFizzleAny = true;
             }
-            if (pair.has(PortalEnd.ORANGE)) {
-                PortalEntity orange = pair.get(PortalEnd.ORANGE);
+            if (pair.has(PortalEnd.SECONDARY)) {
+                PortalEntity orange = pair.get(PortalEnd.SECONDARY);
                 ((ServerWorld) orange.level).removeEntity(orange, false);
                 PortalManager.remove(gunUUID, orange);
                 didFizzleAny = true;

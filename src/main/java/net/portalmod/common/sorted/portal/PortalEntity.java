@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.portal;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
@@ -59,7 +58,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     private UUID gunUUID;
     @Nullable private BlockPos otherPortalPos;
 
-    private String hue = "red";
+    private String hue = "blue";
+    private String primary_color = "blue";
+    private String secondary_color = "orange";
 
     public PortalEntity(EntityType<? extends PortalEntity> type, World level) {
         super(type, level);
@@ -1413,30 +1414,14 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void setHue(String hue) {
         this.hue = hue;
     }
+    public void setColor(String color, boolean isPrimary) {
+        if (isPrimary) { this.primary_color = color;
+        } else this.secondary_color = color;
+        System.out.println("test");
+    }
 
-    public String getHue() {
-        Int2IntFunction opposite = x -> {
-            switch(x) {
-                case 0:  return 15;
-                case 1:  return 11;
-                case 2:  return 5;
-                case 3:  return 12;
-                case 4:  return 10;
-                case 5:  return 2;
-                case 6:  return 13;
-                case 7:  return 8;
-                case 8:  return 7;
-                case 9:  return 14;
-                case 10: return 4;
-                case 11: return 1;
-                case 12: return 3;
-                case 13: return 6;
-                case 14: return 9;
-                default: return 0;
-            }
-        };
-
-        return this.end == PortalEnd.BLUE ? this.hue : DyeColor.byId(opposite.get(DyeColor.valueOf(this.hue.toUpperCase()).getId())).getName();
+    public String getColor() {
+        return this.hue;
     }
 
     @Override
@@ -1498,6 +1483,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         this.up = Direction.valueOf(nbt.getString("up"));
         this.setDirection(Direction.valueOf(nbt.getString("facing")));
-//        this.hue = nbt.getString("hue");
+        this.hue = nbt.getString("hue");
     }
 }

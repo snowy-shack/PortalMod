@@ -41,9 +41,9 @@ public class PortalGunCrosshairRenderer {
             int u = 0;
             int v = 0;
             
-//            if(!PortalGun.hasPortal(itemStack, PortalEnd.BLUE, true))
+//            if(!PortalGun.hasPortal(itemStack, PortalEnd.PRIMARY, true))
 //                u = 33;
-//            if(!PortalGun.hasPortal(itemStack, PortalEnd.ORANGE, true))
+//            if(!PortalGun.hasPortal(itemStack, PortalEnd.SECONDARY, true))
 //                v = 33;
             
 //            BlockRayTraceResult rayTrace = ModUtil.rayTraceBlock(Minecraft.getInstance().player, Minecraft.getInstance().level, 100);
@@ -68,13 +68,13 @@ public class PortalGunCrosshairRenderer {
                 u = b ? 33 : 0;
 
             if(style == 2)
-//                u = PortalManager.has(PortalGun.getUUID(itemStack), PortalEnd.BLUE) ? 33 : 0;
-                u = PortalManager.clientHas(PortalGun.getUUID(itemStack), PortalEnd.BLUE) ? 33 : 0;
+//                u = PortalManager.has(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY) ? 33 : 0;
+                u = PortalManager.clientHas(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY) ? 33 : 0;
 
 //            if(style == 2)
-//                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.BLUE) ? 33 : 0;
+//                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY) ? 33 : 0;
             
-//            u = PortalGun.hasPortal(itemStack, PortalEnd.BLUE, true) ? 33 : 0;
+//            u = PortalGun.hasPortal(itemStack, PortalEnd.PRIMARY, true) ? 33 : 0;
             v = 0;
             
 //            Colour colour = Colour.fromHSV((int)System.currentTimeMillis() / 10 % 360, .8f, 1);
@@ -110,16 +110,16 @@ public class PortalGunCrosshairRenderer {
                     u, v, 33, 33, 66, 66);
             RenderSystem.enableBlend();
             
-//            u = PortalGun.hasPortal(itemStack, PortalEnd.ORANGE, true) ? 33 : 0;
+//            u = PortalGun.hasPortal(itemStack, PortalEnd.SECONDARY, true) ? 33 : 0;
             v = 33;
 
 
             if(style == 2)
-//                u = PortalManager.has(PortalGun.getUUID(itemStack), PortalEnd.ORANGE) ? 33 : 0;
-                u = PortalManager.clientHas(PortalGun.getUUID(itemStack), PortalEnd.ORANGE) ? 33 : 0;
+//                u = PortalManager.has(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
+                u = PortalManager.clientHas(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
 
 //            if(style == 2)
-//                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.ORANGE) ? 33 : 0;
+//                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
             
             RenderSystem.disableBlend();
             Minecraft.getInstance().getTextureManager().bind(CROSSHAIRS);
@@ -145,7 +145,7 @@ public class PortalGunCrosshairRenderer {
                 v = 0;
                 u = 0;
 
-//                if(PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.BLUE)) {
+//                if(PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY)) {
 //                    // blit(stack, x, y, z, u, v, uWidth, uHeight, texwidth, texheight)
 //                    RenderSystem.disableBlend();
 //                    Minecraft.getInstance().getTextureManager().bind(CROSSHAIRS_P1);
@@ -158,10 +158,10 @@ public class PortalGunCrosshairRenderer {
 //                    RenderSystem.enableBlend();
 //                }
 
-//            u = PortalGun.hasPortal(itemStack, PortalEnd.ORANGE, true) ? 33 : 0;
+//            u = PortalGun.hasPortal(itemStack, PortalEnd.SECONDARY, true) ? 33 : 0;
                 u = 33;
 
-//                if(PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.ORANGE)) {
+//                if(PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY)) {
 //                    RenderSystem.disableBlend();
 //                    Minecraft.getInstance().getTextureManager().bind(CROSSHAIRS_P1);
 //                    blit(matrixStack,

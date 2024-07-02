@@ -6,7 +6,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.DimensionType;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
@@ -39,32 +38,32 @@ public class PortalManager extends WorldSavedData {
         for(String key : nbt.getAllKeys()) {
             CompoundNBT pair = nbt.getCompound(key);
             PortalPair portalPair = new PortalPair();
-            if(pair.contains("blue")) {
+            if(pair.contains("primary")) {
                 PortalEntity blue = new PortalEntity(ow);
-                blue.load(pair.getCompound("blue"));
+                blue.load(pair.getCompound("primary"));
                 blue.inChunk = true;
 
-                RegistryKey<World> levelKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(pair.getCompound("blue").getString("level")));
+                RegistryKey<World> levelKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(pair.getCompound("primary").getString("level")));
                 ServerWorld level = ServerLifecycleHooks.getCurrentServer().getLevel(levelKey);
                 if(level != null) {
                     ((ServerLevelAccessor)level).pmForceAddPortal(blue);
-                    portalPair.set(PortalEnd.BLUE, blue);
+                    portalPair.set(PortalEnd.PRIMARY, blue);
                     ChunkPos chunkPos = new ChunkPos(MathHelper.floor(blue.getX()) >> 4, MathHelper.floor(blue.getZ()) >> 4);
                     List<PortalEntity> portals = PORTALS_PER_CHUNK.getOrDefault(chunkPos, new ArrayList<>());
                     portals.add(blue);
                     PORTALS_PER_CHUNK.put(chunkPos, portals);
                 }
             }
-            if(pair.contains("orange")) {
+            if(pair.contains("secondary")) {
                 PortalEntity orange = new PortalEntity(ow);
-                orange.load(pair.getCompound("orange"));
+                orange.load(pair.getCompound("secondary"));
                 orange.inChunk = true;
 
-                RegistryKey<World> levelKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(pair.getCompound("orange").getString("level")));
+                RegistryKey<World> levelKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(pair.getCompound("secondary").getString("level")));
                 ServerWorld level = ServerLifecycleHooks.getCurrentServer().getLevel(levelKey);
                 if(level != null) {
                     ((ServerLevelAccessor)level).pmForceAddPortal(orange);
-                    portalPair.set(PortalEnd.ORANGE, orange);
+                    portalPair.set(PortalEnd.SECONDARY, orange);
                     ChunkPos chunkPos = new ChunkPos(MathHelper.floor(orange.getX()) >> 4, MathHelper.floor(orange.getZ()) >> 4);
                     List<PortalEntity> portals = PORTALS_PER_CHUNK.getOrDefault(chunkPos, new ArrayList<>());
                     portals.add(orange);
@@ -79,17 +78,17 @@ public class PortalManager extends WorldSavedData {
     public CompoundNBT save(CompoundNBT nbt) {
         PORTAL_MAP.forEach((uuid, pair) -> {
             CompoundNBT pairNbt = new CompoundNBT();
-            if(pair.has(PortalEnd.BLUE)) {
+            if(pair.has(PortalEnd.PRIMARY)) {
                 CompoundNBT blueNbt = new CompoundNBT();
-                pair.get(PortalEnd.BLUE).saveGlobal(blueNbt);
-                blueNbt.putString("level", pair.get(PortalEnd.BLUE).level.dimension().location().toString());
-                pairNbt.put("blue", blueNbt);
+                pair.get(PortalEnd.PRIMARY).saveGlobal(blueNbt);
+                blueNbt.putString("level", pair.get(PortalEnd.PRIMARY).level.dimension().location().toString());
+                pairNbt.put("primary", blueNbt);
             }
-            if(pair.has(PortalEnd.ORANGE)) {
+            if(pair.has(PortalEnd.SECONDARY)) {
                 CompoundNBT orangeNbt = new CompoundNBT();
-                pair.get(PortalEnd.ORANGE).saveGlobal(orangeNbt);
-                orangeNbt.putString("level", pair.get(PortalEnd.ORANGE).level.dimension().location().toString());
-                pairNbt.put("orange", orangeNbt);
+                pair.get(PortalEnd.SECONDARY).saveGlobal(orangeNbt);
+                orangeNbt.putString("level", pair.get(PortalEnd.SECONDARY).level.dimension().location().toString());
+                pairNbt.put("secondary", orangeNbt);
             }
             nbt.put(uuid.toString(), pairNbt);
         });
