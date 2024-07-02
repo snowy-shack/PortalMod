@@ -195,11 +195,11 @@
         ],
         "subtitle": "subtitles.entity.cube.hit" },
     "item.portalgun.fire_primary": {
-        "sounds": [ "portalmod:error" ],
+        "sounds": [ "portalmod:item/portalgun/fire_primary" ],
         "subtitle": "subtitles.item.portalgun.fire"
     },
     "item.portalgun.fire_secondary": {
-        "sounds": [ "portalmod:error" ],
+        "sounds": [ "portalmod:item/portalgun/fire_secondary" ],
         "subtitle": "subtitles.item.portalgun.fire"
     },
     "item.portalgun.fizzle": {
