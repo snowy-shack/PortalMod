@@ -431,7 +431,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
                 .setFloat("frameIndex", frameIndex)
                 .setMatrix("modelViewProjection", modelViewProjection);
 
-        RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/portal_" + (open ? "open_" : "closed_")
+        RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", "textures/portal/" + (open ? "open_" : "closed_")
                 + portal.getColor() + ".png", 0);
 
         RenderSystem.depthMask(false);
