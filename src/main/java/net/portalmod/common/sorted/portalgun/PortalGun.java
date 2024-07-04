@@ -1,6 +1,7 @@
 package net.portalmod.common.sorted.portalgun;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -33,7 +35,9 @@ import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
+import net.portalmod.core.util.ModUtil;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -100,6 +104,12 @@ public class PortalGun extends Item {
 
         gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
 
+        // Play shooting animation
+        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
+        level.playSound(null, player.position().x, player.position().y, player.position().z,
+                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
+
         Vector3d rayPath = player.getViewVector(0).scale(200);
         Vector3d from = player.getEyePosition(0);
         Vector3d to = from.add(rayPath);
@@ -113,8 +123,6 @@ public class PortalGun extends Item {
             Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
             double dot = player.getLookAngle().dot(moonVector);
             if(dot <= -0.997) {
-                PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                        new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
                 CriteriaTriggerInit.SHOOT_MOON.get().trigger((ServerPlayerEntity) player);
             }
         }
@@ -163,10 +171,10 @@ public class PortalGun extends Item {
 
         CriteriaTriggerInit.PLACE_PORTALS.get().trigger((ServerPlayerEntity)player);
         player.awardStat(StatsInit.PORTALS_SHOT);
-        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player),
-                new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
-        level.playSound(null, player.position().x, player.position().y, player.position().z,
-                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
+//        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player),
+//                new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
+//        level.playSound(null, player.position().x, player.position().y, player.position().z,
+//                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
 //        PortalPairCache.SERVER.put(getUUID(gun), end, portal);
         level.addFreshEntity(portal);
         PortalManager.put(getUUID(gun), end, portal);
@@ -326,5 +334,10 @@ public class PortalGun extends Item {
                     new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
             level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
         }
+    }
+
+    @Override
+    public void appendHoverText(ItemStack p_77624_1_, @Nullable World p_77624_2_, List<ITextComponent> list, ITooltipFlag p_77624_4_) {
+        ModUtil.addTooltip("portalgun", list);
     }
 }

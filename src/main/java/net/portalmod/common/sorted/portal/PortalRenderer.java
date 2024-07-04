@@ -75,8 +75,8 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
         }
         
         final boolean open = portal.isOpen() && recursion < PortalModOptionsScreen.RECURSION.get();
-        final int frameCount = open ? 1 : 8;
-        final int frameTime = 10;
+        final int frameCount = open ? 1 : 32; // TODO get closed portal texture height / 2xwidth to get frame count
+        final int frameTime = 5;
         final float frameIndex = open ? 0 : (((portal.tickCount / frameTime) % frameCount)
                 + ((portal.tickCount % frameTime) + partialTicks) / frameTime);
         
@@ -396,8 +396,8 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
         int ticks = Minecraft.getInstance().player.tickCount;
 
         final boolean open = portal.isOpen() && recursion < PortalModOptionsScreen.RECURSION.get();
-        final int frameCount = open ? 1 : 8;
-        final int frameTime = 10;
+        final int frameCount = open ? 1 : 32; // TODO ???
+        final int frameTime = 5;
         final float frameIndex = open ? 0 : (((ticks / frameTime) % frameCount)
                 + ((ticks % frameTime) + partialTicks) / frameTime);
 
