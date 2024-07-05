@@ -43,7 +43,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> WRENCH_USE = register("item.wrench.use");
 
     // ENTITY
-    public static final RegistryObject<SoundEvent> PORTAL_OPEN = register("entity.portal_open");
+    public static final RegistryObject<SoundEvent> PORTAL_OPEN = register("entity.portal.open");
     public static final RegistryObject<SoundEvent> GOO_DAMAGE = register("entity.player.hurt_goo");
 
     public static final RegistryObject<SoundEvent> ENTITY_FIZZLE = register("entity.fizzle");

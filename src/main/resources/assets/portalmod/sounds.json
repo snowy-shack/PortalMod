@@ -184,6 +184,13 @@
         "sounds": [ "portalmod:block/faithplate/launch" ],
         "subtitle": "subtitles.block.faithplate.launch"
     },
+    "block.cube_dropper.open": {
+        "sounds": [ "portalmod:block/cube_dropper/open" ],
+        "subtitle": "subtitles.block.cube_dropper.activate"
+    },
+    "block.cube_dropper.close": {
+        "sounds": [ "portalmod:block/cube_dropper/close" ]
+    },
     "entity.fizzle": {
         "sounds": [ "portalmod:entity/fizzle" ],
         "subtitle": "subtitles.entity.fizzle" },
@@ -198,7 +205,7 @@
         "sounds": [ "portalmod:entity/portal/open" ],
         "subtitle": "subtitles.entity.portal.open" },
     "item.portalgun.fire_primary": {
-        "sounds": [ "portalmod:error" ],
+        "sounds": [ "portalmod:item/portalgun/fire_primary" ],
         "subtitle": "subtitles.item.portalgun.fire"
     },
     "item.portalgun.fire_secondary": {
