@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
@@ -32,6 +33,7 @@ import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
@@ -288,6 +290,7 @@ public class CubeDropperBlock extends MultiBlock {
 
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
+        world.playSound(null, pos, open ? SoundInit.CUBE_DROPPER_OPEN.get() : SoundInit.CUBE_DROPPER_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {

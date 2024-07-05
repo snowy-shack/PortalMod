@@ -27,6 +27,7 @@ import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ModUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -381,7 +382,7 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;broadcastEntityEvent(Lnet/minecraft/entity/Entity;B)V"))
     public void pmHandleGooDamage(World instance, Entity entity, byte p_72960_2_, DamageSource p_70097_1_) {
         if (p_70097_1_ == FluidInit.GOO_DAMAGE && p_72960_2_ == 2 && entity instanceof LivingEntity) {
-            this.level.playSound(null, entity, ((LivingEntity) entity).getHurtSound(p_70097_1_), SoundCategory.PLAYERS, 0, 0);
+            this.level.playSound(null, entity, ((LivingEntity) entity).getHurtSound(p_70097_1_), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
         } else {
             this.level.broadcastEntityEvent(this, p_72960_2_);
         }

@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.function.Supplier;
 
@@ -24,7 +25,7 @@ public class FaithPlateClient {
         ((FaithPlatePlateModel)ter.getPlateModel()).startAnimation(be, "launch");
         level.playSound(Minecraft.getInstance().player,
                 packet.pos.getX() + .5, packet.pos.getY() + .5, packet.pos.getZ() + .5,
-                SoundInit.FAITHPLATE_LAUNCH.get(), SoundCategory.BLOCKS, 1, 1);
+                SoundInit.FAITHPLATE_LAUNCH.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
 
     protected static void setScreen(BlockPos pos) {

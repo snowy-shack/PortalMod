@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 
 import java.util.List;
+import java.util.Random;
 
 public class ModUtil {
     public static VoxelShape moveVoxelShape(VoxelShape shape, Direction direction, int multiplier) {
@@ -64,5 +65,17 @@ public class ModUtil {
             }
             list.add(new TranslationTextComponent(key));
         }
+    }
+
+    public static float randomSoundPitch(float width) {
+        return 1 + new Random().nextFloat() * width * 2 - width;
+    }
+
+    public static float randomSoundPitch() {
+        return randomSoundPitch(0.15f);
+    }
+
+    public static float randomSlightSoundPitch() {
+        return randomSoundPitch(0.075f);
     }
 }

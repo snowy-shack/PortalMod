@@ -224,7 +224,7 @@ public class ChamberDoorBlock extends MultiBlock {
 
     public static void playSound(boolean open, BlockState blockState, World world, BlockPos pos) {
         Vector3d middlePos = getExactMiddlePos(blockState, pos);
-        world.playSound(null, middlePos.x, middlePos.y, middlePos.z, open ? SoundInit.CHAMBER_DOOR_OPEN.get() : SoundInit.CHAMBER_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, 1);
+        world.playSound(null, middlePos.x, middlePos.y, middlePos.z, open ? SoundInit.CHAMBER_DOOR_OPEN.get() : SoundInit.CHAMBER_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
 
     public static Vector3d getExactMiddlePos(BlockState state, BlockPos pos) {

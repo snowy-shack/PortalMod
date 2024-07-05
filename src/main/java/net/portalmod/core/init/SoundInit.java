@@ -25,6 +25,9 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_OPEN = register("block.chamber_door.open");
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_CLOSE = register("block.chamber_door.close");
 
+    public static final RegistryObject<SoundEvent> CUBE_DROPPER_OPEN = register("block.cube_dropper.open");
+    public static final RegistryObject<SoundEvent> CUBE_DROPPER_CLOSE = register("block.cube_dropper.close");
+
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_PRESS = register("block.super_button.press");
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_RELEASE = register("block.super_button.release");
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_ACTIVATE = register("block.super_button.activate");

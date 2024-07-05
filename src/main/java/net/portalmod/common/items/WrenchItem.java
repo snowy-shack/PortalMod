@@ -30,7 +30,7 @@ public class WrenchItem extends Item {
     }
 
     public static void playUseSound(World level, PlayerEntity player) {
-        level.playSound(null, player, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, 1);
+        level.playSound(null, player, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
     @Override

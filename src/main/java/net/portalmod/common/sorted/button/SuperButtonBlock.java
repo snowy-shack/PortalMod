@@ -226,9 +226,16 @@ public class SuperButtonBlock extends MultiBlock {
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
-            ButtonMode newMode = this.cycleMode(blockState, world, pos);
+
+            // Don't cycle when persistent and active
+            boolean shouldCycle = blockState.getValue(MODE) != ButtonMode.PERSISTENT || !blockState.getValue(ACTIVE);
+
+            if (shouldCycle) {
+                ButtonMode newMode = this.cycleMode(blockState, world, pos);
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+            }
+
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
-            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             this.checkPressed(blockState, world, pos);
 
             WrenchItem.playUseSound(world, player);
@@ -344,11 +351,11 @@ public class SuperButtonBlock extends MultiBlock {
     }
 
     public static void playPressSound(World level, BlockPos pos, boolean pressed) {
-        level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_PRESS.get() : SoundInit.SUPER_BUTTON_RELEASE.get(), SoundCategory.BLOCKS, 1, 1);
+        level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_PRESS.get() : SoundInit.SUPER_BUTTON_RELEASE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     public static void playActivationSound(World level, BlockPos pos, boolean activated) {
-        level.playSound(null, pos, activated ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
+        level.playSound(null, pos, activated ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     public AxisAlignedBB getTrigger(BlockState state, BlockPos pos) {

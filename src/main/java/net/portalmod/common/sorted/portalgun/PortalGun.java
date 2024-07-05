@@ -108,7 +108,7 @@ public class PortalGun extends Item {
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                 new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
         level.playSound(null, player.position().x, player.position().y, player.position().z,
-                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
+                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
 
         Vector3d rayPath = player.getViewVector(0).scale(200);
         Vector3d from = player.getEyePosition(0);
