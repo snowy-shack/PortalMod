@@ -9,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
@@ -17,6 +18,7 @@ import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
@@ -25,6 +27,10 @@ import java.util.List;
 public class WrenchItem extends Item {
     public WrenchItem(Properties properties) {
         super(properties);
+    }
+
+    public static void playUseSound(World level, PlayerEntity player) {
+        level.playSound(null, player, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, 1);
     }
 
     @Override

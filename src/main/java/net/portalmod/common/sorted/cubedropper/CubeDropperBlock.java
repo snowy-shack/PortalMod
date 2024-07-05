@@ -269,6 +269,8 @@ public class CubeDropperBlock extends MultiBlock {
                     dropperEntity.entityType = spawnEggType;
                     return ActionResultType.SUCCESS;
                 }
+                WrenchItem.playUseSound(world, player);
+
                 return ActionResultType.PASS;
             }
 

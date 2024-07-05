@@ -194,8 +194,11 @@
             "portalmod:entity/cube/hit3"
         ],
         "subtitle": "subtitles.entity.cube.hit" },
+    "entity.portal.open": {
+        "sounds": [ "portalmod:entity/portal/open" ],
+        "subtitle": "subtitles.entity.portal.open" },
     "item.portalgun.fire_primary": {
-        "sounds": [ "portalmod:item/portalgun/fire_primary" ],
+        "sounds": [ "portalmod:error" ],
         "subtitle": "subtitles.item.portalgun.fire"
     },
     "item.portalgun.fire_secondary": {
@@ -205,5 +208,13 @@
     "item.portalgun.fizzle": {
         "sounds": [ "portalmod:error" ],
         "subtitle": "subtitles.item.portalgun.fizzle"
+    },
+    "item.wrench.use": {
+        "sounds": [
+            "portalmod:item/wrench/use1",
+            "portalmod:item/wrench/use2",
+            "portalmod:item/wrench/use3"
+        ],
+        "subtitle": "subtitles.item.wrench.use"
     }
 }

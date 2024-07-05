@@ -189,10 +189,12 @@
 
   "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",
+  "subtitles.entity.portal.open": "Portal Opens",
 
   "subtitles.item.portalgun.fire":     "Portal Gun fires",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
   "subtitles.item.portalgun.activate": "Portal Gun activates",
+  "subtitles.item.wrench.use": "Wrench Clicks",
 
 
 

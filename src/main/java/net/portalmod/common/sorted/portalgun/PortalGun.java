@@ -177,7 +177,7 @@ public class PortalGun extends Item {
 //                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
 //        PortalPairCache.SERVER.put(getUUID(gun), end, portal);
         level.addFreshEntity(portal);
-        PortalManager.put(getUUID(gun), end, portal);
+        PortalManager.put(getUUID(gun), end, portal, level);
 
         // todo convert to string
         player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());

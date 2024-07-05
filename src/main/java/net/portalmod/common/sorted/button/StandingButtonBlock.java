@@ -135,6 +135,9 @@ public class StandingButtonBlock extends DoubleBlock {
             ButtonMode newMode = cycleMode(blockState, world, pos);
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+
+            WrenchItem.playUseSound(world, player);
+
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
 

@@ -59,6 +59,8 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
             world.setBlockAndUpdate(pos, blockState.setValue(REVERSED, !reversed));
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
+
+            WrenchItem.playUseSound(world, player);
         } else {
             // temporary
             setActive(!blockState.getValue(ACTIVE), world, pos);

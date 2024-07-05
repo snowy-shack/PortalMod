@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.portal;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
@@ -11,6 +12,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.mixins.accessors.ServerLevelAccessor;
 
 import javax.annotation.Nullable;
@@ -153,7 +155,11 @@ public class PortalManager extends WorldSavedData {
         });
     }
 
-    public static void put(UUID gunUUID, PortalEnd end, PortalEntity portal) {
+    public static void put(UUID gunUUID, PortalEnd end, PortalEntity portal, World level) {
+
+        level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
+                SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, 1);
+
         PortalPair pair = PORTAL_MAP.getOrDefault(gunUUID, new PortalPair());
         pair.computeIfPresent(end, PortalEntity::onReplaced);
         pair.set(end, portal);

@@ -230,6 +230,9 @@ public class SuperButtonBlock extends MultiBlock {
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             this.checkPressed(blockState, world, pos);
+
+            WrenchItem.playUseSound(world, player);
+
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
         return ActionResultType.FAIL;
