@@ -3,10 +3,10 @@ package net.portalmod.core.util;
 import net.minecraft.util.math.MathHelper;
 
 public class Colour {
-    private final int r;
-    private final int g;
-    private final int b;
-    private final int a;
+    private int r;
+    private int g;
+    private int b;
+    private int a;
     
     public Colour(int r, int g, int b, int a) {
         this.r = r;
@@ -28,6 +28,12 @@ public class Colour {
         this.r = (argb >> 16) & 0xFF;
         this.g = (argb >> 8)  & 0xFF;
         this.b = argb & 0xFF;
+    }
+
+    public void lighten(float amount) {
+        this.r = (int) MathHelper.clamp(this.r + amount * 255, 0, 255);
+        this.g = (int) MathHelper.clamp(this.g + amount * 255, 0, 255);
+        this.b = (int) MathHelper.clamp(this.b + amount * 255, 0, 255);
     }
     
     public static Colour fromHSV(int h, float s, float v) {

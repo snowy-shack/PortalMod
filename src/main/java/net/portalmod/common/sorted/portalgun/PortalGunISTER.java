@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.RenderMaterial;
@@ -118,11 +119,6 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
         
-        int min = 200;
-        int max = 255;
-        int light = (int)((Math.sin((System.currentTimeMillis() / 10 % 360) * Math.PI / 180) + 1) / 2 * (max - min) + min);
-//        int light = 200;
-        
 //        Colour colour = new Colour(Color.HSBtoRGB((int)(System.currentTimeMillis() / 10 % 360) / 360f, .8f, 1));
         
         IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
@@ -170,6 +166,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
                 break;
                 case 1 : lastPortalColor = PortalGun.getRightColour(nbt);
             }
+            lastPortalColor.lighten(0.1f + 0.2f * (float) Math.sin((System.currentTimeMillis() / 10.0 % 360) * Math.PI / 180));
         }
 
         TEX.setupAnimation();
@@ -179,7 +176,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         TEX.endAnimation();
 
         ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, gunLightOn ? light : packedOverlay, packedOverlay, lastPortalColor, !animate);
+        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);
 
 //        ivertexbuilder = PORTALGUN_MATERIAL.buffer(renderTypeBuffer, RenderType::entityTranslucent);
 //        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, currentColour, !animate);
