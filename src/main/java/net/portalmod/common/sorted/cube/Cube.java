@@ -100,8 +100,12 @@ public class Cube extends TestElementEntity {
                 double x = Math.min(x0, x1);
                 double z = Math.min(z0, z1);
 
-                if (y1 < x && y1 < z && getDeltaMovement().y > -.1 && oldDeltaY < -0.5f)
-                    entity.hurt(cube(this), (float) oldDeltaY * -3);
+                if (y1 < x && y1 < z && getDeltaMovement().y > -.1 && oldDeltaY < -0.5f && entity instanceof LivingEntity) {
+                    DamageSource damageSource = cube(this);
+                    float damage = (float) oldDeltaY * -3;
+                    ((LivingEntity) entity).getCombatTracker().recordDamage(damageSource, ((LivingEntity) entity).getHealth(), damage);
+                    entity.hurt(damageSource, damage);
+                }
             }
 
             if (this.isOnGround() && !this.wasOnGround && oldDeltaY < -0.3) {

@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
@@ -145,6 +146,10 @@ public abstract class TestElementEntity extends LivingEntity {
             this.setFizzleTicks(this.getFizzleTicks() + 1);
             this.setNoGravity(true);
             this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
+
+            if (this.isPassenger() && this.getVehicle() instanceof PlayerEntity) {
+                ((PlayerEntity) this.getVehicle()).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
+            }
         }
     }
 

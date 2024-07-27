@@ -41,6 +41,7 @@ public class WrenchItem extends Item {
         TileEntity blockEntity = level.getBlockEntity(selected);
         ItemStack itemStack = player.getItemInHand(hand);
 
+        // my bad this was naive, we need to detect if you are choosing a target at the moment and idk how yet :)
         if (!(blockEntity instanceof FaithPlateTileEntity)) {
             return ActionResult.fail(itemStack);
         }
