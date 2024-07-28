@@ -70,6 +70,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Vector3d from = turretEyePos.to3d();
         Vector3d to = from.add(rayPath);
 
+        //TODO: check for wire mesh
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null);
         RayTraceResult rayResult = turret.level.clip(rayCtx);
 
