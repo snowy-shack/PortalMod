@@ -68,7 +68,7 @@ public class GelContainer extends BlockItem {
             if(emptyState)
                 newState = Blocks.AIR.defaultBlockState();
 
-            level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundInit.GEL_BLOCK_COLLECT.get(), SoundCategory.BLOCKS, 1, 1);
+            level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundInit.GEL_COLLECT.get(), SoundCategory.BLOCKS, 1, 1);
 
 //            level.levelEvent(player, 2001, pos, Block.getId(state)); // What is this for??
             level.setBlock(pos, newState, BlockFlags.DEFAULT);
@@ -111,7 +111,7 @@ public class GelContainer extends BlockItem {
     
     @Override
     protected SoundEvent getPlaceSound(BlockState state, World world, BlockPos pos, PlayerEntity entity) {
-        return SoundInit.GEL_BLOCK_PLACE.get();
+        return SoundInit.GEL_PLACE.get();
     }
     
     @Override

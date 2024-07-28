@@ -126,7 +126,7 @@ public class StandingButtonBlock extends DoubleBlock {
     }
 
     public void playSound(World world, BlockPos pos, boolean activated) {
-        world.playSound(null, pos, activated ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
+        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
     }
 
     @Override

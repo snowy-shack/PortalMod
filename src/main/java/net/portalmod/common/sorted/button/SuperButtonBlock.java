@@ -355,7 +355,7 @@ public class SuperButtonBlock extends MultiBlock {
     }
 
     public static void playActivationSound(World level, BlockPos pos, boolean activated) {
-        level.playSound(null, pos, activated ? SoundInit.SUPER_BUTTON_ACTIVATE.get() : SoundInit.SUPER_BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+        level.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     public AxisAlignedBB getTrigger(BlockState state, BlockPos pos) {

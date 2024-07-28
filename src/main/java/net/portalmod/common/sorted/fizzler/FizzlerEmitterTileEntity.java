@@ -6,12 +6,16 @@ import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.antline.IndicatorActivated;
 import net.portalmod.common.sorted.antline.IndicatorInfo;
 import net.portalmod.core.init.BlockInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.init.TileEntityTypeInit;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +38,7 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
 
         if (blockState.getValue(FizzlerEmitterBlock.POWERED)) {
             if (activated) {
-                this.setField(false, distance, facing);
+                this.setActive(false, distance, facing);
             }
         } else {
             BlockPos otherFizzlerPos = pos.relative(facing, distance);
@@ -43,35 +47,45 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
             IndicatorInfo indicatorInfo = this.checkPositions(world, indicatorPositions);
             if (indicatorInfo.hasIndicators) {
                 if (indicatorInfo.allIndicatorsActivated != activated) {
-                    this.setField(indicatorInfo.allIndicatorsActivated, distance, facing);
+                    this.setActive(indicatorInfo.allIndicatorsActivated, distance, facing);
                 }
             } else {
                 if (!activated) {
-                    this.setField(true, distance, facing);
+                    this.setActive(true, distance, facing);
                 }
             }
         }
     }
 
-    // Place fields and activate both emitters
-    public void setField(boolean active, int distance, Direction facing) {
+    // Activate both emitters and change field
+    public void setActive(boolean active, int distance, Direction facing) {
         if (distance > 0) {
-            for (int i = 1; i < distance; i++) {
-                if (active) {
-                    BlockState fizzlerField = BlockInit.FIZZLER_FIELD.get().defaultBlockState().setValue(FizzlerFieldBlock.AXIS, facing.getAxis());
-                    this.level.setBlock(this.getBlockPos().relative(facing, i), fizzlerField, 2);
-                    this.level.setBlock(this.getBlockPos().relative(facing, i).above(), fizzlerField.setValue(FizzlerFieldBlock.HALF, DoubleBlockHalf.UPPER), 2);
-                } else {
-                    this.level.setBlock(this.getBlockPos().relative(facing, i), Blocks.AIR.defaultBlockState(), 2);
-                    this.level.setBlock(this.getBlockPos().relative(facing, i).above(), Blocks.AIR.defaultBlockState(), 2);
-                }
-            }
+            setField(active, distance, facing);
 
             BlockPos oppositeEmitterPos = this.getBlockPos().relative(facing, distance);
             BlockState oppositeEmitterState = this.level.getBlockState(oppositeEmitterPos);
+
+            SoundEvent soundEvent = active ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get();
+            float pitch = ModUtil.randomSoundPitch();
+            this.level.playSound(null, this.getBlockPos(), soundEvent, SoundCategory.BLOCKS, 2, pitch);
+            this.level.playSound(null, oppositeEmitterPos, soundEvent, SoundCategory.BLOCKS, 2, pitch);
+
             ((FizzlerEmitterBlock) oppositeEmitterState.getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, oppositeEmitterState, this.level, oppositeEmitterPos);
 
             ((FizzlerEmitterBlock) this.getBlockState().getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, this.getBlockState(), this.level, this.getBlockPos());
+        }
+    }
+
+    public void setField(boolean active, int distance, Direction facing) {
+        for (int i = 1; i < distance; i++) {
+            if (active) {
+                BlockState fizzlerField = BlockInit.FIZZLER_FIELD.get().defaultBlockState().setValue(FizzlerFieldBlock.AXIS, facing.getAxis());
+                this.level.setBlock(this.getBlockPos().relative(facing, i), fizzlerField, 2);
+                this.level.setBlock(this.getBlockPos().relative(facing, i).above(), fizzlerField.setValue(FizzlerFieldBlock.HALF, DoubleBlockHalf.UPPER), 2);
+            } else {
+                this.level.setBlock(this.getBlockPos().relative(facing, i), Blocks.AIR.defaultBlockState(), 2);
+                this.level.setBlock(this.getBlockPos().relative(facing, i).above(), Blocks.AIR.defaultBlockState(), 2);
+            }
         }
     }
 

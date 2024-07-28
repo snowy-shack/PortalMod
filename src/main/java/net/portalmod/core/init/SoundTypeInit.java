@@ -10,9 +10,9 @@ public class SoundTypeInit {
     private SoundTypeInit() {}
     
     public static final Entry GEL = new Entry(1, 1,
-            () -> SoundInit.GEL_BLOCK_BREAK.get(),
-            () -> SoundInit.GEL_BLOCK_STEP.get(),
-            () -> SoundInit.GEL_BLOCK_PLACE.get(),
+            () -> SoundInit.GEL_BREAK.get(),
+            () -> SoundInit.GEL_STEP.get(),
+            () -> SoundInit.GEL_PLACE.get(),
             () -> SoundEvents.SLIME_BLOCK_HIT, // whata theeeese
             () -> SoundEvents.SLIME_BLOCK_FALL);
     

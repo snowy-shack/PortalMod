@@ -46,7 +46,7 @@ public class LivingEntityInjector {
             }
             ((IFaithPlateLaunchable) entity).setLaunched(true);
 
-            entity.level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.GEL_BLOCK_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
+            entity.level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.REPULSION_GEL_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
             float velocity = (float) Math.sqrt(Math.max(fallDistance < 11 ? fallDistance - 1 : fallDistance, minBounceHeight) * 1.8 * 0.08); // for some reason it's broken if fallDistance >= 11.1, this is a bad temporary fix sorry
             entity.setDeltaMovement(entity.getDeltaMovement().x, velocity, entity.getDeltaMovement().z);
             entity.fallDistance = 0;
