@@ -132,9 +132,16 @@ public class StandingButtonBlock extends DoubleBlock {
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
-            ButtonMode newMode = cycleMode(blockState, world, pos);
+
+            // Don't cycle when persistent and active
+            boolean shouldCycle = blockState.getValue(MODE) != ButtonMode.PERSISTENT || !blockState.getValue(ACTIVE);
+
+            if (shouldCycle) {
+                ButtonMode newMode = cycleMode(blockState, world, pos);
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+            }
+
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
-            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
 
             WrenchItem.playUseSound(world, player);
 
