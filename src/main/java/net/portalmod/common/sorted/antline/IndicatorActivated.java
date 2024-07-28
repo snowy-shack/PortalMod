@@ -9,10 +9,10 @@ import java.util.List;
 public interface IndicatorActivated {
     List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos);
 
-    default IndicatorInfo checkIndicators(BlockState blockState, World world, BlockPos pos) {
+    default IndicatorInfo checkPositions(World world, List<BlockPos> positions) {
         int totalIndicators = 0;
         int activeIndicators = 0;
-        for (BlockPos indicatorPos : this.getIndicatorPositions(blockState, world, pos)) {
+        for (BlockPos indicatorPos : positions) {
             BlockState currentState = world.getBlockState(indicatorPos);
             if (currentState.getBlock() instanceof AntlineIndicatorBlock) {
                 totalIndicators++;
@@ -22,6 +22,10 @@ public interface IndicatorActivated {
             }
         }
         return new IndicatorInfo(totalIndicators, activeIndicators);
+    }
+
+    default IndicatorInfo checkIndicators(BlockState blockState, World world, BlockPos pos) {
+        return checkPositions(world, this.getIndicatorPositions(blockState, world, pos));
     }
 }
 
