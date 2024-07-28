@@ -22,7 +22,7 @@ public class BlockStateGen extends BlockStateProvider {
         genPanelSlab(BlockInit.ARBORED_LUNECAST_SLAB.get(), "arbored_lunecast");
         genPanelSlab(BlockInit.ERODED_LUNECAST_SLAB.get(), "eroded_lunecast");
         genPanelSlab(BlockInit.FRACTURED_LUNECAST_SLAB.get(), "fractured_lunecast");
-        genPanelSlab(BlockInit.VINTAGE_LUNECAST_SLAB.get(), "vintage_lunecast");
+//        genPanelSlab(BlockInit.VINTAGE_LUNECAST_SLAB.get(), "vintage_lunecast");
 
         genPanelSlab(BlockInit.BLACKPLATE_SLAB.get(), "blackplate");
         genPanelSlab(BlockInit.ARBORED_BLACKPLATE_SLAB.get(), "arbored_blackplate");
@@ -34,7 +34,7 @@ public class BlockStateGen extends BlockStateProvider {
         genPanelStairs(BlockInit.ARBORED_LUNECAST_STAIRS.get(), "arbored_lunecast");
         genPanelStairs(BlockInit.ERODED_LUNECAST_STAIRS.get(), "eroded_lunecast");
         genPanelStairs(BlockInit.FRACTURED_LUNECAST_STAIRS.get(), "fractured_lunecast");
-        genPanelStairs(BlockInit.VINTAGE_LUNECAST_STAIRS.get(), "vintage_lunecast");
+//        genPanelStairs(BlockInit.VINTAGE_LUNECAST_STAIRS.get(), "vintage_lunecast");
 
         genPanelStairs(BlockInit.BLACKPLATE_STAIRS.get(), "blackplate");
         genPanelStairs(BlockInit.ARBORED_BLACKPLATE_STAIRS.get(), "arbored_blackplate");

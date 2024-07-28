@@ -2,7 +2,7 @@
   "parent": "minecraft:block/outer_stairs",
   "textures": {
     "side": "portalmod:block/vintage_lunecast_tiles",
-    "bottom": "portalmod:block/vintage_lunecast_bottom",
-    "top": "portalmod:block/vintage_lunecast_top"
+    "bottom": "portalmod:block/vintage_lunecast_tiles",
+    "top": "portalmod:block/vintage_lunecast_tiles"
   }
 }
