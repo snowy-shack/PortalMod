@@ -24,30 +24,37 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
 
     @Override
     public void tick() {
-        boolean activated = this.getBlockState().getValue(FizzlerEmitterBlock.ACTIVE);
+        World world = this.level;
+        BlockState blockState = this.getBlockState();
+        BlockPos pos = this.getBlockPos();
 
-        if (this.getBlockState().getValue(FizzlerEmitterBlock.POWERED)) {
+        boolean activated = blockState.getValue(FizzlerEmitterBlock.ACTIVE);
+        Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
+        int distance = this.distanceToOtherSide(facing);
+
+        if (blockState.getValue(FizzlerEmitterBlock.POWERED)) {
             if (activated) {
-                this.setField(false);
+                this.setField(false, distance, facing);
             }
         } else {
-            IndicatorInfo indicatorInfo = this.checkIndicators(this.getBlockState(), this.level, this.getBlockPos());
+            BlockPos otherFizzlerPos = pos.relative(facing, distance);
+            List<BlockPos> indicatorPositions = getIndicatorPositions(blockState, world, pos);
+            indicatorPositions.addAll(getIndicatorPositions(world.getBlockState(otherFizzlerPos), world, otherFizzlerPos));
+            IndicatorInfo indicatorInfo = this.checkPositions(world, indicatorPositions);
             if (indicatorInfo.hasIndicators) {
                 if (indicatorInfo.allIndicatorsActivated != activated) {
-                    this.setField(indicatorInfo.allIndicatorsActivated);
+                    this.setField(indicatorInfo.allIndicatorsActivated, distance, facing);
                 }
             } else {
                 if (!activated) {
-                    this.setField(true);
+                    this.setField(true, distance, facing);
                 }
             }
         }
     }
 
     // Place fields and activate both emitters
-    public void setField(boolean active) {
-        Direction facing = this.getBlockState().getValue(FizzlerEmitterBlock.FACING);
-        int distance = this.distanceToOtherSide(facing);
+    public void setField(boolean active, int distance, Direction facing) {
         if (distance > 0) {
             for (int i = 1; i < distance; i++) {
                 if (active) {
