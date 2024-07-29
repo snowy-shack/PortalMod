@@ -166,7 +166,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
                 break;
                 case 1 : lastPortalColor = PortalGun.getRightColour(nbt);
             }
-            lastPortalColor.lighten(0.1f + 0.2f * (float) Math.sin((System.currentTimeMillis() / 10.0 % 360) * Math.PI / 180));
+            lastPortalColor.lighten(0.05f + 0.1f * (float) Math.sin((System.currentTimeMillis() / 10.0 % 360) * Math.PI / 180));
         }
 
         TEX.setupAnimation();
