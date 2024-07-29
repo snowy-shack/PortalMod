@@ -149,11 +149,14 @@ public abstract class TestElementEntity extends LivingEntity {
 
             if (this.isPassenger() && this.getVehicle() instanceof PlayerEntity) {
                 ((PlayerEntity) this.getVehicle()).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
-//                CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
-//                    (ServerPlayerEntity) this.getVehicle(),
-//                    this,
-//                    DamageSource.playerAttack((PlayerEntity) this.getVehicle())
-//                );
+
+                if (this.getVehicle() instanceof ServerPlayerEntity) {
+                    CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
+                            (ServerPlayerEntity) this.getVehicle(),
+                            this,
+                            DamageSource.playerAttack((PlayerEntity) this.getVehicle())
+                    );
+                }
             }
         }
     }
