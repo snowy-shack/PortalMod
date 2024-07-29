@@ -36,6 +36,7 @@ public class PortalMod {
         StatsInit.init();
         ItemTagInit.init();
         BlockTagInit.init();
+        EntityTagInit.init();
         FluidTagInit.init();
         createConfigs();
 

@@ -25,6 +25,7 @@ import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
+import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.SoundInit;
 
@@ -112,7 +113,7 @@ public abstract class TestElementEntity extends LivingEntity {
         FizzleFlakeParticle.createFlakeParticles(level, this);
 
         if (this.getFizzleTicks() > this.maxFizzleTime && !this.level.isClientSide && this.isAlive()) {
-            if (!this.isFromDropper()) {
+            if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS)) {
                 this.dropAllDeathLoot(new DamageSource("fizzle"));
             }
             this.remove();
