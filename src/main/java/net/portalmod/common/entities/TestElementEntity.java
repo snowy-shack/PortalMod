@@ -1,9 +1,11 @@
 package net.portalmod.common.entities;
 
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -77,6 +79,9 @@ public abstract class TestElementEntity extends LivingEntity {
             FizzleFlakeParticle.createFlakeParticles(level, this);
 
             if (this.getFizzleTicks() > this.maxFizzleTime && !this.level.isClientSide && this.isAlive()) {
+                if (!this.getFromDropper()) {
+                    this.dropAllDeathLoot(new DamageSource("fizzle"));
+                }
                 this.remove();
             }
 
