@@ -1,9 +1,13 @@
 package net.portalmod.common.entities;
 
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MoverType;
+import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -13,20 +17,30 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
+import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
+import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
+import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.Random;
+import java.util.stream.Stream;
 
 /**
- * Entity which can be fizzled and broken with a wrench.
+ * Entity which can be fizzled, picked up using a portal gun and broken with a wrench.
  */
 public abstract class TestElementEntity extends LivingEntity {
 
@@ -39,6 +53,7 @@ public abstract class TestElementEntity extends LivingEntity {
 
     public int maxFizzleTime = 35;
     public boolean canFizzle;
+    public Vector3d lastPos;
 
     public TestElementEntity(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
         super(p_i48577_1_, p_i48577_2_);
@@ -49,6 +64,10 @@ public abstract class TestElementEntity extends LivingEntity {
 
     @Override
     public void tick() {
+        if (this.lastPos == null) {
+            this.lastPos = this.position().scale(1);
+        }
+
         if (this.getWiggle() > 0) {
             this.setWiggle(this.getWiggle() - 1);
         }
@@ -63,30 +82,120 @@ public abstract class TestElementEntity extends LivingEntity {
 
         super.tick();
 
-        if (isFizzling()) {
-            double minSpeed = 0.08;
-            Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
-
-            // If no horizontal movement, choose randomly
-            if (xzMovement.length() == 0) {
-                xzMovement = new Vector3d(new Random().nextFloat() * 0.1 - 0.05, 0, new Random().nextFloat() * 0.1 - 0.05);
-            }
-
-            Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
-            this.setDeltaMovement(newMovement);
-
-            FizzleGlowParticle.createGlowParticles(level, this);
-            FizzleFlakeParticle.createFlakeParticles(level, this);
-
-            if (this.getFizzleTicks() > this.maxFizzleTime && !this.level.isClientSide && this.isAlive()) {
-                if (!this.getFromDropper()) {
-                    this.dropAllDeathLoot(new DamageSource("fizzle"));
-                }
-                this.remove();
-            }
-
-            this.setFizzleTicks(this.getFizzleTicks() + 1);
+        if (this.isFizzling()) {
+            this.handleFizzling();
+        } else {
+            this.checkTraversedBlocks();
         }
+
+        this.lastPos = this.position().scale(1);
+    }
+
+    public void checkTraversedBlocks() {
+        AxisAlignedBB movementBox = new AxisAlignedBB(this.lastPos, this.position());
+        Stream<BlockPos> collidedPositions = BlockPos.betweenClosedStream(movementBox);
+        collidedPositions.forEach(pos -> {
+            BlockState state = this.level.getBlockState(pos);
+            if (state.getBlock() instanceof FizzlerFieldBlock && FizzlerFieldBlock.getFieldShape(state).bounds().move(pos).intersects(movementBox)
+                    || state.getBlock() instanceof FizzlerEmitterBlock && FizzlerEmitterBlock.getFieldShape(state).bounds().move(pos).intersects(movementBox)) {
+                this.startFizzling();
+                this.handleFizzling();
+            }
+        });
+    }
+
+    public void handleFizzling() {
+        double minSpeed = 0.08;
+        Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
+
+        // If no horizontal movement, choose randomly
+        if (xzMovement.length() == 0) {
+            xzMovement = new Vector3d(new Random().nextFloat() * 0.1 - 0.05, 0, new Random().nextFloat() * 0.1 - 0.05);
+        }
+
+        Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
+        this.setDeltaMovement(newMovement);
+
+        FizzleGlowParticle.createGlowParticles(level, this);
+        FizzleFlakeParticle.createFlakeParticles(level, this);
+
+        if (this.getFizzleTicks() > this.maxFizzleTime && !this.level.isClientSide && this.isAlive()) {
+            if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS)) {
+                this.dropAllDeathLoot(new DamageSource("fizzle"));
+            }
+            this.remove();
+        }
+
+        this.setFizzleTicks(this.getFizzleTicks() + 1);
+    }
+
+    @Override
+    public void rideTick() {
+        this.setDeltaMovement(Vector3d.ZERO);
+        this.tick();
+
+        if(this.getVehicle() instanceof PlayerEntity) {
+            this.yRot = this.getVehicle().getYHeadRot();
+            this.yBodyRot = this.yRot;
+        } else {
+            if(!(this.getVehicle() instanceof AbstractMinecartEntity
+                    || this.getVehicle() instanceof BoatEntity))
+                this.stopRiding();
+            return;
+        }
+
+        PlayerEntity player = (PlayerEntity)getVehicle();
+        if(!(player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof PortalGun)
+                && !(player.getItemInHand(Hand.OFF_HAND).getItem() instanceof PortalGun)) {
+            this.stopRiding();
+            return;
+        }
+
+        final float factor = 2;
+        Vector3d eyePos = player.getEyePosition(1).add(0, -.4, 0);
+
+        float xRot = player.getViewXRot(1);
+        float yRot = player.getViewYRot(1);
+
+        xRot *= (float)Math.PI / 180f;
+        yRot *= -(float)Math.PI / 180f;
+        float cosy = MathHelper.cos(yRot);
+        float siny = MathHelper.sin(yRot);
+        float cosx = MathHelper.cos(xRot);
+        float sinx = MathHelper.sin(xRot);
+        float x = siny * cosx;
+        float y = -sinx;
+        float z = cosy * cosx;
+
+        this.xo = this.getX();
+        this.yo = this.getY();
+        this.zo = this.getZ();
+
+        Vector3d ridingPos = new Vector3d(
+                eyePos.x + x * factor,
+                eyePos.y + y * factor,
+                eyePos.z + z * factor);
+
+        this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
+
+        if(this.position().distanceTo(ridingPos) > 1.5) {
+            this.stopRiding();
+        }
+
+        this.fallDistance = 0;
+
+        if (this.isFizzling()) {
+            this.stopRiding();
+        }
+    }
+
+    @Override
+    public void stopRiding() {
+        this.removeVehicle();
+        this.boardingCooldown = 0;
+
+        Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
+        this.setDeltaMovement(momentum);
     }
 
     @Override
@@ -129,7 +238,7 @@ public abstract class TestElementEntity extends LivingEntity {
         this.setDamage(this.getDamage() + damage * 10.0F);
         if (creative || this.getDamage() > 40.0F) {
             this.remove();
-            if (!creative && !this.getFromDropper() && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            if (!creative && !this.isFromDropper() && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                 this.dropAllDeathLoot(source);
             }
         }
@@ -205,7 +314,7 @@ public abstract class TestElementEntity extends LivingEntity {
         this.entityData.set(FIZZLE_TICKS_ID, fizzleTicks);
     }
 
-    public boolean getFromDropper() {
+    public boolean isFromDropper() {
         return this.entityData.get(FROM_DROPPER_ID);
     }
 

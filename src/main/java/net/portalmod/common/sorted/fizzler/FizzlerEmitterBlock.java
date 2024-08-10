@@ -84,7 +84,7 @@ public class FizzlerEmitterBlock extends DoubleBlock {
         return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(ACTIVE) ? "active" : "");
     }
 
-    public VoxelShape getFieldShape(BlockState state) {
+    public static VoxelShape getFieldShape(BlockState state) {
         return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant("field");
     }
 
