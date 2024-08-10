@@ -28,6 +28,7 @@ import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
+import net.portalmod.common.particles.PortalGunSparkParticle;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.portalgun.PortalGun;
@@ -183,6 +184,8 @@ public abstract class TestElementEntity extends LivingEntity {
         }
 
         this.fallDistance = 0;
+
+        PortalGunSparkParticle.createParticles(this.level, player);
 
         if (this.isFizzling()) {
             this.stopRiding();
