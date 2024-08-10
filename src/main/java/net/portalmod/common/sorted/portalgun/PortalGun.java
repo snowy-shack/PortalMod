@@ -281,12 +281,28 @@ public class PortalGun extends Item {
         return new Colour(color.getTextureDiffuseColors());
     }
 
+    public static DyeColor getLeftDyeColour(CompoundNBT nbt) {
+        DyeColor color = DyeColor.BLUE;
+        if (nbt.contains("LeftColor")) {
+            color = DyeColor.byName(nbt.getString("LeftColor"), color);
+        }
+        return color;
+    }
+
     public static Colour getRightColour(CompoundNBT nbt) {
         DyeColor color = DyeColor.ORANGE;
         if (nbt.contains("RightColor")) {
             color = DyeColor.byName(nbt.getString("RightColor"), color);
         }
         return new Colour(color.getTextureDiffuseColors());
+    }
+
+    public static DyeColor getRightDyeColour(CompoundNBT nbt) {
+        DyeColor color = DyeColor.BLUE;
+        if (nbt.contains("RightColor")) {
+            color = DyeColor.byName(nbt.getString("RightColor"), color);
+        }
+        return color;
     }
 
     public static Colour getAccentColour(CompoundNBT nbt) {

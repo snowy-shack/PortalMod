@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
@@ -25,10 +26,10 @@ import net.portalmod.core.util.Colour;
 
 public class PortalGunCrosshairRenderer {
 //    public static final ResourceLocation CROSSHAIRS = new ResourceLocation(PortalMod.MODID, "textures/crosshairs.png");
-    public static final ResourceLocation CROSSHAIRS =
-            new ResourceLocation(PortalMod.MODID, "textures/gui/crosshair/crosshair_normal.png");
-    public static final ResourceLocation CROSSHAIRS_P1 =
-            new ResourceLocation(PortalMod.MODID, "textures/gui/crosshair/crosshair_p1.png");
+//    public static final ResourceLocation CROSSHAIRS =
+//            new ResourceLocation(PortalMod.MODID, "textures/gui/crosshair/crosshair_normal.png");
+//    public static final ResourceLocation CROSSHAIRS_P1 =
+//            new ResourceLocation(PortalMod.MODID, "textures/gui/crosshair/crosshair_p1.png");
     
     public static void render(MatrixStack matrixStack) {
         ItemStack itemStack = Minecraft.getInstance().player.getMainHandItem();
@@ -84,8 +85,11 @@ public class PortalGunCrosshairRenderer {
 
             CompoundNBT nbt = itemStack.getOrCreateTag();
 
-            Colour leftColour = PortalGun.getLeftColour(nbt);
-            Colour rightColour = PortalGun.getRightColour(nbt);
+            DyeColor leftColour = PortalGun.getLeftDyeColour(nbt);
+            DyeColor rightColour = PortalGun.getRightDyeColour(nbt);
+
+            ResourceLocation leftTexture = new ResourceLocation(PortalMod.MODID, "textures/gui/crosshair/portalgun_crosshair_" + leftColour.getName() + ".png");
+            ResourceLocation rightTexture = new ResourceLocation(PortalMod.MODID, "textures/gui/crosshair/portalgun_crosshair_" + rightColour.getName() + ".png");
 
 //            if(nbt.contains("portalHue")) {
 //                float hue = (nbt.getInt("portalHue") % 360) / 360.0f;
@@ -101,12 +105,12 @@ public class PortalGunCrosshairRenderer {
 
             // blit(stack, x, y, z, u, v, uWidth, uHeight, texwidth, texheight)
             RenderSystem.disableBlend();
-            Minecraft.getInstance().getTextureManager().bind(CROSSHAIRS);
+            Minecraft.getInstance().getTextureManager().bind(leftTexture);
             blit(matrixStack,
                     Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 17,
                     Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2 - 16,
                     0,
-                    leftColour,
+                    Colour.WHITE, // placeholder, please remove the colour parameter for me snipy :3
                     u, v, 33, 33, 66, 66);
             RenderSystem.enableBlend();
             
@@ -122,12 +126,12 @@ public class PortalGunCrosshairRenderer {
 //                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
             
             RenderSystem.disableBlend();
-            Minecraft.getInstance().getTextureManager().bind(CROSSHAIRS);
+            Minecraft.getInstance().getTextureManager().bind(rightTexture);
             blit(matrixStack,
                     Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 17,
                     Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2 - 16,
                     0,
-                    rightColour,
+                    Colour.WHITE, // placeholder, please remove the colour parameter for me snipy :3
                     u, v, 33, 33, 66, 66);
             RenderSystem.enableBlend();
             

@@ -3,6 +3,9 @@ package net.portalmod.core.util;
 import net.minecraft.util.math.MathHelper;
 
 public class Colour {
+
+    public static final Colour WHITE = new Colour(1f, 1f, 1f, 1f);
+
     private int r;
     private int g;
     private int b;
