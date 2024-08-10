@@ -154,31 +154,11 @@
         "subtitle": "subtitles.block.generic.footsteps"
     },
     "block.gel.collect": {
-        "sounds": [
-            { "name": "portalmod:block/gel/collect",
-                "pitch": 0.9 },
-            { "name": "portalmod:block/gel/collect",
-                "pitch": 0.95 },
-            { "name": "portalmod:block/gel/collect",
-                "pitch": 1.1 },
-            { "name": "portalmod:block/gel/collect",
-                "pitch": 1.05 },
-            { "name": "portalmod:block/gel/collect" }
-        ],
+        "sounds": [ "portalmod:block/gel/collect" ],
         "subtitle": "subtitles.block.gel.collect"
     },
     "block.gel.bounce": {
-        "sounds": [
-            { "name": "portalmod:block/gel/bounce",
-              "pitch": 0.9 },
-            { "name": "portalmod:block/gel/bounce",
-              "pitch": 0.95 },
-            { "name": "portalmod:block/gel/bounce",
-              "pitch": 1.1 },
-            { "name": "portalmod:block/gel/bounce",
-              "pitch": 1.05 },
-            { "name": "portalmod:block/gel/bounce" }
-        ],
+        "sounds": [ "portalmod:block/gel/bounce" ],
         "subtitle": "subtitles.block.gel.bounce" },
     "block.faithplate.launch": {
         "sounds": [ "portalmod:block/faithplate/launch" ],

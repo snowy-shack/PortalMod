@@ -235,7 +235,7 @@
   "advancements.portal.cube_on_button.title":            "Cubic Companion",
   "advancements.portal.cube_on_button.description":      "Weigh down a Super Button using a Storage Cube",
   "advancements.portal.fizzle_cubes.title":              "Reduced to Pixels",
-  "advancements.portal.fizzle_cubes.description":        "Disintegrate 5 Weighted Cubes",
+  "advancements.portal.fizzle_cubes.description":        "Disintegrate all Weighted Cube types",
   "advancements.portal.ender_pearl_portals.title":       "Triple Teleportation",
   "advancements.portal.ender_pearl_portals.description": "Land an ender pearl by throwing it through two portals",
   "advancements.portal.shoot_portal_far.title":          "Sharpshooter",
