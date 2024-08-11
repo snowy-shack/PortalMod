@@ -17,7 +17,7 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
 
     protected PortalGunSparkParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
         super(world, x, y, z, dx, dy, dz);
-        this.lifetime = 1;
+        this.lifetime = 2;
         this.gravity = 0;
         this.yd -= 0.1;
 
@@ -56,10 +56,10 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
     }
 
     public static void createParticles(World world, PlayerEntity player) {
-        Vector3d viewLocation = player.getEyePosition(1).add(player.getViewVector(1));
+        Vector3d viewLocation = player.getEyePosition(1).add(player.getViewVector(1).multiply(1.5, 1.5, 1.5));
 
-        for (int i = 0; i < 3; i++) {
-            Vector3d offset = new Vector3d(random(0.2), random(0.2), random(0.2));
+        for (int i = 0; i < 2; i++) {
+            Vector3d offset = new Vector3d(random(0.3), random(0.3), random(0.3));
             Vector3d particlePos = viewLocation.add(offset);
 
             world.addParticle(ParticleInit.PORTALGUN_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, random(0.5), random(0.5), random(0.5));
