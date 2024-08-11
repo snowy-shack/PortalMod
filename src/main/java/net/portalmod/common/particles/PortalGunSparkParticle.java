@@ -12,6 +12,8 @@ import java.util.Random;
 
 public class PortalGunSparkParticle extends SpriteTexturedParticle {
 
+    public static final Random RANDOM = new Random();
+
     public int u;
     public int v;
 
@@ -21,8 +23,8 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         this.gravity = 0;
         this.yd -= 0.1;
 
-        this.u = new Random().nextInt(4);
-        this.v = new Random().nextInt(4);
+        this.u = RANDOM.nextInt(4);
+        this.v = RANDOM.nextInt(4);
     }
 
     @Override
@@ -56,18 +58,21 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
     }
 
     public static void createParticles(World world, PlayerEntity player) {
-        Vector3d viewLocation = player.getEyePosition(1).add(player.getViewVector(1).multiply(1.5, 1.5, 1.5));
+        Vector3d viewLocation = player.getEyePosition(1).add(player.getViewVector(1).scale(1.5));
 
-        for (int i = 0; i < 2; i++) {
-            Vector3d offset = new Vector3d(random(0.3), random(0.3), random(0.3));
+        // 1 - 3
+        int amount = RANDOM.nextInt(3) + 1;
+
+        for (int i = 0; i < amount; i++) {
+            Vector3d offset = new Vector3d(symmetricRandom(0.3), symmetricRandom(0.3), symmetricRandom(0.3));
             Vector3d particlePos = viewLocation.add(offset);
 
-            world.addParticle(ParticleInit.PORTALGUN_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, random(0.5), random(0.5), random(0.5));
+            world.addParticle(ParticleInit.PORTALGUN_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, symmetricRandom(0.5), symmetricRandom(0.5), symmetricRandom(0.5));
         }
     }
 
-    public static double random(double i) {
-        return (new Random().nextFloat() - 0.5) * 2 * i;
+    public static double symmetricRandom(double i) {
+        return (RANDOM.nextFloat() - 0.5) * 2 * i;
     }
 
     public static class Factory implements IParticleFactory<BasicParticleType> {
