@@ -9,9 +9,11 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -43,8 +45,21 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class PortalGun extends Item {
+
+    public String defaultLeftColor;
+    public String defaultRightColor;
+    public String defaultAccentColor;
+
     public PortalGun(Properties properties) {
+        this(properties, "blue", "orange", "none");
+    }
+
+    // Use for custom portal guns
+    public PortalGun(Properties properties, String defaultLeftColor, String defaultRightColor, String defaultAccentColor) {
         super(properties);
+        this.defaultLeftColor = defaultLeftColor;
+        this.defaultRightColor = defaultRightColor;
+        this.defaultAccentColor = defaultAccentColor;
     }
 
     public static void handleLeftClick() {
@@ -252,13 +267,35 @@ public class PortalGun extends Item {
         if(!nbt.contains("secondary") || nbt.getBoolean("secondary") != hasOrange)
             nbt.putBoolean("secondary", hasOrange);
 
-        if (!nbt.contains("LeftColor"))   nbt.putString("LeftColor", "blue");
-        if (!nbt.contains("RightColor"))  nbt.putString("RightColor", "orange");
+        this.addDefaultNbt(nbt);
+    }
+
+    public void addDefaultNbt(CompoundNBT nbt) {
+        addDefaultNbt(nbt, this.defaultLeftColor, this.defaultRightColor, this.defaultAccentColor);
+    }
+
+    public static void addDefaultNbt(CompoundNBT nbt, String leftColor, String rightColor, String accentColor) {
+        if (!nbt.contains("LeftColor"))   nbt.putString("LeftColor", leftColor);
+        if (!nbt.contains("RightColor"))  nbt.putString("RightColor", rightColor);
         if (!nbt.contains("LastPortal"))  nbt.putInt("LastPortal", 0);
-        if (!nbt.contains("AccentColor")) nbt.putString("AccentColor", "none");
+        if (!nbt.contains("AccentColor")) nbt.putString("AccentColor", accentColor);
         if (!nbt.contains("Locked"))      nbt.putBoolean("Locked", false);
     }
-    
+
+    @Override
+    public void fillItemCategory(ItemGroup itemGroup, NonNullList<ItemStack> itemStacks) {
+        if (this.allowdedIn(itemGroup)) {
+            itemStacks.add(new ItemStack(this));
+            itemStacks.add(modifyColors(new ItemStack(this), "light_blue", "blue", "light_blue"));
+            itemStacks.add(modifyColors(new ItemStack(this), "yellow", "red", "orange"));
+        }
+    }
+
+    public static ItemStack modifyColors(ItemStack itemStack, String leftColor, String rightColor, String accentColor) {
+        addDefaultNbt(itemStack.getOrCreateTag(), leftColor, rightColor, accentColor);
+        return itemStack;
+    }
+
     public static UUID getUUID(ItemStack itemStack) {
         CompoundNBT nbt = itemStack.getOrCreateTag();
         UUID uuid;
