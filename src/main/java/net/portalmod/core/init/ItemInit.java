@@ -45,31 +45,6 @@ public class ItemInit {
     public static final RegistryObject<Item> VINTAGE_CUBE = registerSpawnEgg("vintage_cube", EntityInit.VINTAGE_CUBE, "cube");
     public static final RegistryObject<Item> CUBE_DROPPER = registerBlockItem("cube_dropper", BlockInit.CUBE_DROPPER);
 
-    // Decoration blocks
-
-    public static final RegistryObject<Item> STEP_PILLAR = registerBlockItem("step_pillar", BlockInit.STEP_PILLAR);
-    public static final RegistryObject<Item> LUNECAST_STEP = registerBlockItem("lunecast_step", BlockInit.LUNECAST_STEP);
-    public static final RegistryObject<Item> RUSTY_LUNECAST_STEP = registerBlockItem("rusty_lunecast_step", BlockInit.RUSTY_LUNECAST_STEP);
-    public static final RegistryObject<Item> BLACKPLATE_STEP = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_STEP);
-    public static final RegistryObject<Item> RUSTY_BLACKPLATE_STEP = registerBlockItem("rusty_blackplate_step", BlockInit.RUSTY_BLACKPLATE_STEP);
-
-    public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
-    public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);
-    public static final RegistryObject<Item> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);
-    public static final RegistryObject<Item> BARRED_IRON_FRAME = registerBlockItem("barred_iron_frame", BlockInit.BARRED_IRON_FRAME);
-    public static final RegistryObject<Item> MESHED_IRON_FRAME = registerBlockItem("meshed_iron_frame", BlockInit.MESHED_IRON_FRAME);
-    public static final RegistryObject<Item> RUSTY_IRON_FRAME = registerBlockItem("rusty_iron_frame", BlockInit.RUSTY_IRON_FRAME);
-    public static final RegistryObject<Item> RUSTY_BARRED_IRON_FRAME = registerBlockItem("rusty_barred_iron_frame", BlockInit.RUSTY_BARRED_IRON_FRAME);
-    public static final RegistryObject<Item> RUSTY_MESHED_IRON_FRAME = registerBlockItem("rusty_meshed_iron_frame", BlockInit.RUSTY_MESHED_IRON_FRAME);
-
-    public static final RegistryObject<Item> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
-            () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),
-                    new Item.Properties().tab(PortalModTab.INSTANCE)
-                            .setISTER(() -> ISTERWrapper::new))); // todo remove ister
-
-    public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
-            () -> new BucketItem(() -> FluidInit.GOO_FLUID.get(), new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
-
     // Test Elements
     public static final RegistryObject<Item> SUPER_BUTTON = registerBlockItem("super_button", BlockInit.SUPER_BUTTON);
     public static final RegistryObject<Item> STANDING_BUTTON = registerBlockItem("standing_button", BlockInit.STANDING_BUTTON);
@@ -79,9 +54,16 @@ public class ItemInit {
 
     public static final RegistryObject<Item> ANTLINE_INDICATOR = registerBlockItem("antline_indicator", BlockInit.ANTLINE_INDICATOR);
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
-    public static final RegistryObject<Item> RADIO = registerBlockItem("radio", BlockInit.RADIO);
-    public static final RegistryObject<Item> FAITHPLATE = registerBlockItem("faithplate", BlockInit.FAITHPLATE);
     public static final RegistryObject<Item> FIZZLER_EMITTER = registerBlockItem("fizzler_emitter", BlockInit.FIZZLER_EMITTER);
+    public static final RegistryObject<Item> FAITHPLATE = registerBlockItem("faithplate", BlockInit.FAITHPLATE);
+
+    public static final RegistryObject<Item> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
+            () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),
+                    new Item.Properties().tab(PortalModTab.INSTANCE)
+                            .setISTER(() -> ISTERWrapper::new))); // todo remove ister
+
+    public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
+            () -> new BucketItem(() -> FluidInit.GOO_FLUID.get(), new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
 
     public static final RegistryObject<Item> CONTAINER = ITEMS.register("container",
             () -> new EmptyGelContainer(new Item.Properties().stacksTo(16).tab(PortalModTab.INSTANCE)));
@@ -100,13 +82,10 @@ public class ItemInit {
     public static final RegistryObject<Item> BULLETS = ITEMS.register("bullets",
             () -> new TooltipItem(new Item.Properties().tab(PortalModTab.INSTANCE), "bullets"));
 
+    public static final RegistryObject<Item> RADIO = registerBlockItem("radio", BlockInit.RADIO);
+
     public static final RegistryObject<Item> FOREST_CAKE = ITEMS.register("forest_cake",
             () -> new BlockItem(BlockInit.FOREST_CAKE.get(), new Item.Properties().stacksTo(1).tab(PortalModTab.INSTANCE)));
-
-    // Test Items, remove later
-    public static final RegistryObject<Item> TEST_BLOCK = registerBlockItem("test_block", BlockInit.TEST_BLOCK);
-    public static final RegistryObject<Item> GABE = registerSpawnEgg("gabe", EntityInit.GABE);
-    public static final RegistryObject<Item> FIZZLER_FIELD = registerBlockItem("fizzler_field", BlockInit.FIZZLER_FIELD);
 
     // Potential Future Items
 //    public static final RegistryObject<BlockItem> ADHESION_GEL = ITEMS.register("adhesion_gel",
@@ -160,6 +139,27 @@ public class ItemInit {
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE = registerBlockItem("vintage_blackplate", BlockInit.VINTAGE_BLACKPLATE);
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_SLAB = registerBlockItem("vintage_blackplate_slab", BlockInit.VINTAGE_BLACKPLATE_SLAB);
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_STAIRS = registerBlockItem("vintage_blackplate_stairs", BlockInit.VINTAGE_BLACKPLATE_STAIRS);
+
+    // Decoration blocks
+    public static final RegistryObject<Item> STEP_PILLAR = registerBlockItem("step_pillar", BlockInit.STEP_PILLAR);
+    public static final RegistryObject<Item> LUNECAST_STEP = registerBlockItem("lunecast_step", BlockInit.LUNECAST_STEP);
+    public static final RegistryObject<Item> RUSTY_LUNECAST_STEP = registerBlockItem("rusty_lunecast_step", BlockInit.RUSTY_LUNECAST_STEP);
+    public static final RegistryObject<Item> BLACKPLATE_STEP = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_STEP);
+    public static final RegistryObject<Item> RUSTY_BLACKPLATE_STEP = registerBlockItem("rusty_blackplate_step", BlockInit.RUSTY_BLACKPLATE_STEP);
+
+    public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
+    public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);
+    public static final RegistryObject<Item> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);
+    public static final RegistryObject<Item> BARRED_IRON_FRAME = registerBlockItem("barred_iron_frame", BlockInit.BARRED_IRON_FRAME);
+    public static final RegistryObject<Item> MESHED_IRON_FRAME = registerBlockItem("meshed_iron_frame", BlockInit.MESHED_IRON_FRAME);
+    public static final RegistryObject<Item> RUSTY_IRON_FRAME = registerBlockItem("rusty_iron_frame", BlockInit.RUSTY_IRON_FRAME);
+    public static final RegistryObject<Item> RUSTY_BARRED_IRON_FRAME = registerBlockItem("rusty_barred_iron_frame", BlockInit.RUSTY_BARRED_IRON_FRAME);
+    public static final RegistryObject<Item> RUSTY_MESHED_IRON_FRAME = registerBlockItem("rusty_meshed_iron_frame", BlockInit.RUSTY_MESHED_IRON_FRAME);
+
+    // Test Items, remove later
+    public static final RegistryObject<Item> TEST_BLOCK = registerBlockItem("test_block", BlockInit.TEST_BLOCK);
+    public static final RegistryObject<Item> GABE = registerSpawnEgg("gabe", EntityInit.GABE);
+    public static final RegistryObject<Item> FIZZLER_FIELD = registerBlockItem("fizzler_field", BlockInit.FIZZLER_FIELD);
 
     public static RegistryObject<Item> registerBlockItem(String name, RegistryObject<Block> block) {
         return ItemInit.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties().tab(PortalModTab.INSTANCE)));
