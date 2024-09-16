@@ -11,6 +11,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.client.screens.PortalModOptionsScreen;
@@ -77,5 +78,9 @@ public class ModUtil {
 
     public static float randomSlightSoundPitch() {
         return randomSoundPitch(0.075f);
+    }
+
+    public static void sendChatMessage(World level, String text) {
+        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent(text), false));
     }
 }

@@ -20,6 +20,7 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
+import net.portalmod.core.init.SoundInit;
 
 import java.util.*;
 
@@ -29,11 +30,11 @@ public class TurretEntity extends TestElementEntity {
     public static final DataParameter<Boolean> INFINITE_AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
-    public static final DamageSource TURRET_DAMAGE = new DamageSource("turret");
+    public static final DamageSource TURRET_DAMAGE_SOURCE = new DamageSource("turret");
+    public static final float TURRET_DAMAGE = 1f;
 
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
-    public boolean animationDone = false;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -53,42 +54,44 @@ public class TurretEntity extends TestElementEntity {
             this.shoot();
         }
 
+//        ModUtil.sendChatMessage(level, this.state.name());
+
         this.yBodyRot = this.yRot;
     }
 
     public void shoot() {
-        if (this.targetEntity == null || this.targetEntity instanceof PlayerEntity && ((PlayerEntity) this.targetEntity).isCreative() || this.targetEntity.isSpectator()) {
+        if (this.targetEntity == null || this.getAmmo() == 0 && !this.getInfiniteAmmo()) {
             return;
         }
 
-        if (/*this.level.getGameTime() % 2 == 0 || */this.getAmmo() == 0 && !this.getInfiniteAmmo()) {
+        // Shoot every 5 ticks (4 times per second)
+        if (this.level.getGameTime() % 5 != 0) {
             return;
         }
-
 
         // Do damage
         if (new Random().nextFloat() < 0.8f) {
-            boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE, 1f);
+            boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, TURRET_DAMAGE);
             if (hurt) {
                 Vector3d knockback = this.position().subtract(this.targetEntity.position());
                 this.targetEntity.knockback(0.4f, knockback.x, knockback.z);
             }
         }
 
-        this.playSound(SoundEvents.BONE_BLOCK_PLACE, 4.5f, 1);
+        this.playSound(SoundInit.TURRET_FIRE.get(), 4.5f, 1);
 
         this.setAmmo(this.getAmmo() - 1);
     }
 
     public void updateTargetEntity() {
+        // Map players to their distances
         Map<PlayerEntity, Double> playerDistances = new HashMap<>();
-
         for (PlayerEntity player : this.level.players()) {
             Vector3d ray = player.position().subtract(this.position());
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();
             // In range and in front of turret (cone shape)
-            if (distanceSqr < 2500 && cosine > 0.7) {
+            if (distanceSqr < 2500 && cosine > 0.7 && !player.isCreative() && !player.isSpectator()) {
                 playerDistances.put(player, distanceSqr);
             }
         }
@@ -119,6 +122,7 @@ public class TurretEntity extends TestElementEntity {
         if (this.state == TurretState.RESTING || this.state == TurretState.SHOOTING) {
 //            this.state = TurretState.TARGETING;
             this.state = TurretState.SHOOTING;
+            this.playSound(SoundInit.TURRET_DEPLOY.get(), 4.5f, 1);
         }
     }
 
@@ -128,6 +132,7 @@ public class TurretEntity extends TestElementEntity {
         if (this.state == TurretState.SHOOTING) {
 //            this.state = TurretState.LOST_TARGET;
             this.state = TurretState.RESTING;
+            this.playSound(SoundInit.TURRET_RETRACT.get(), 4.5f, 1);
         }
     }
 
