@@ -13,6 +13,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.*;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
@@ -20,7 +21,7 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
 
-import java.util.Collections;
+import java.util.*;
 
 public class TurretEntity extends TestElementEntity {
 
@@ -28,8 +29,11 @@ public class TurretEntity extends TestElementEntity {
     public static final DataParameter<Boolean> INFINITE_AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
+    public static final DamageSource TURRET_DAMAGE = new DamageSource("turret");
 
     public TurretState state = TurretState.RESTING;
+    public LivingEntity targetEntity = null;
+    public boolean animationDone = false;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -37,6 +41,111 @@ public class TurretEntity extends TestElementEntity {
 
     public TurretEntity(World level) {
         super(EntityInit.TURRET.get(), level);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        this.updateTargetEntity();
+
+        if (this.state == TurretState.SHOOTING) {
+            this.shoot();
+        }
+
+        this.yBodyRot = this.yRot;
+    }
+
+    public void shoot() {
+        if (this.targetEntity == null || this.targetEntity instanceof PlayerEntity && ((PlayerEntity) this.targetEntity).isCreative() || this.targetEntity.isSpectator()) {
+            return;
+        }
+
+        if (/*this.level.getGameTime() % 2 == 0 || */this.getAmmo() == 0 && !this.getInfiniteAmmo()) {
+            return;
+        }
+
+
+        // Do damage
+        if (new Random().nextFloat() < 0.8f) {
+            boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE, 1f);
+            if (hurt) {
+                Vector3d knockback = this.position().subtract(this.targetEntity.position());
+                this.targetEntity.knockback(0.4f, knockback.x, knockback.z);
+            }
+        }
+
+        this.playSound(SoundEvents.BONE_BLOCK_PLACE, 4.5f, 1);
+
+        this.setAmmo(this.getAmmo() - 1);
+    }
+
+    public void updateTargetEntity() {
+        Map<PlayerEntity, Double> playerDistances = new HashMap<>();
+
+        for (PlayerEntity player : this.level.players()) {
+            Vector3d ray = player.position().subtract(this.position());
+            double cosine = ray.normalize().dot(this.getLookAngle());
+            double distanceSqr = ray.lengthSqr();
+            // In range and in front of turret (cone shape)
+            if (distanceSqr < 2500 && cosine > 0.7) {
+                playerDistances.put(player, distanceSqr);
+            }
+        }
+
+        // Sort players
+        List<PlayerEntity> orderedPlayers = new ArrayList<>();
+        playerDistances.entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).forEach(
+                entry -> orderedPlayers.add(entry.getKey())
+        );
+
+        for (PlayerEntity player : orderedPlayers) {
+            if (this.canSee(player)) {
+                if (player != this.targetEntity) {
+                    this.targetAcquired(player);   // Update if not already target
+                }
+                return;
+            }
+        }
+
+        if (this.targetEntity != null) {
+            this.targetLost();   // Update if not already null
+        }
+    }
+
+    public void targetAcquired(LivingEntity entity) {
+        this.targetEntity = entity;
+
+        if (this.state == TurretState.RESTING || this.state == TurretState.SHOOTING) {
+//            this.state = TurretState.TARGETING;
+            this.state = TurretState.SHOOTING;
+        }
+    }
+
+    public void targetLost() {
+        this.targetEntity = null;
+
+        if (this.state == TurretState.SHOOTING) {
+//            this.state = TurretState.LOST_TARGET;
+            this.state = TurretState.RESTING;
+        }
+    }
+
+    public void animationFinished() {
+        switch (this.state) {
+            case TARGETING:
+                this.state = this.targetEntity == null ? TurretState.LOST_TARGET : TurretState.OPENING;
+                break;
+            case OPENING:
+                this.state = this.targetEntity == null ? TurretState.LOST_TARGET : TurretState.SHOOTING;
+                break;
+            case LOST_TARGET:
+                this.state = this.targetEntity == null ? TurretState.CLOSING : TurretState.TARGETING;
+                break;
+            case CLOSING:
+                this.state = this.targetEntity == null ? TurretState.RESTING : TurretState.TARGETING;
+                break;
+        }
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
@@ -119,9 +228,9 @@ public class TurretEntity extends TestElementEntity {
             }
 
             if (this.getAmmo() >= AMMO_PER_BULLET) {
-                this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get(), this.getAmmo() / AMMO_PER_BULLET));
+                this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get(), this.getAmmo() / AMMO_PER_BULLET), 0.8f);
             } else {
-                this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get()));
+                this.spawnAtLocation(new ItemStack(ItemInit.BULLETS.get()), 0.8f);
             }
 
             this.setAmmo(0);
@@ -136,13 +245,6 @@ public class TurretEntity extends TestElementEntity {
         }
 
         return ActionResultType.FAIL;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-
-        this.yBodyRot = this.yRot;
     }
 
     @Override
