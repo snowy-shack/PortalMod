@@ -91,7 +91,7 @@ public class TurretEntity extends TestElementEntity {
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();
             // In range and in front of turret (cone shape)
-            if (distanceSqr < 2500 && cosine > 0.7 && !player.isCreative() && !player.isSpectator()) {
+            if (distanceSqr < 500 && cosine > 0.6 && !player.isCreative() && !player.isSpectator()) {
                 playerDistances.put(player, distanceSqr);
             }
         }

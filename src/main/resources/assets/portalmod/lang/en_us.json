@@ -184,6 +184,8 @@
   "subtitles.block.super_button.deactivate": "Super Button deactivates",
   "subtitles.block.super_button.press": "Super Button presses",
   "subtitles.block.super_button.release": "Super Button releases",
+  "subtitles.block.cube_dropper.activate": "Cube Dropper activates",
+  "subtitles.block.cube_dropper.deactivate": "Cube Dropper deactivates",
   "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
   "subtitles.block.gel.collect": "Gel Container fills",
 
