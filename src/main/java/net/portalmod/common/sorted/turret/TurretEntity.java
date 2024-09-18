@@ -35,6 +35,7 @@ public class TurretEntity extends TestElementEntity {
 
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
+    public Vector3d lastLaserPos = Vector3d.ZERO;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
