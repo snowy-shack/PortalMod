@@ -49,12 +49,16 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         float z = MathHelper.cos(rotation);
         float x = MathHelper.sin(rotation);
 
-        Vec3 turretEyePos = new Vec3(turret.getPosition(partialTicks).add(0, eyeHeight, 0));
+        // Eye position at eye height and 2.5 pixels to the direction it is looking in
+        Vector3d localEyePos = new Vector3d(x * 2.5 / 16, eyeHeight, z * 2.5 / 16);
+        Vec3 turretEyePos = new Vec3(turret.getPosition(partialTicks).add(localEyePos));
         Vec3 turretEyeToCamera = new Vec3(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition())
                 .sub(turretEyePos)
                 .normalize();
 
-        Vec3 laserForward = new Vec3(x, 0, z);
+        Vector3d turretToTarget = turret.hasTarget() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0).subtract(turretEyePos.to3d()) : new Vector3d(x, 0, z);
+
+        Vec3 laserForward = new Vec3(turretToTarget).normalize();
         Vec3 projectedTurretEyeToCamera = turretEyeToCamera.sub(laserForward.clone().mul(turretEyeToCamera.dot(laserForward)));
         Vec3 laserUp = projectedTurretEyeToCamera.clone().normalize();
         Vec3 laserRight = laserUp.clone().cross(laserForward).normalize();
@@ -66,7 +70,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
                            0,         0,               0, 1
         );
 
-        Vector3d rayPath = new Vector3d(x, 0, z).scale(Minecraft.getInstance().gameRenderer.getRenderDistance() * 2);
+        Vector3d rayPath = turretToTarget.scale(Minecraft.getInstance().gameRenderer.getRenderDistance() * 2);
         Vector3d from = turretEyePos.to3d();
         Vector3d to = from.add(rayPath);
 
@@ -78,7 +82,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         float opacity = 1f - ((float)Math.sin((double)System.currentTimeMillis() / 1000d) + 1f) / 2f * 0.3f;
 
         matrixStack.pushPose();
-        matrixStack.translate(0, eyeHeight, 0);
+        matrixStack.translate(localEyePos.x, localEyePos.y, localEyePos.z);
         matrixStack.last().pose().multiply(laserMatrix.to4f());
 
         BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();

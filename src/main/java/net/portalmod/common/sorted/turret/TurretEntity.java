@@ -31,7 +31,7 @@ public class TurretEntity extends TestElementEntity {
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
     public static final DamageSource TURRET_DAMAGE_SOURCE = new DamageSource("turret");
-    public static final float TURRET_DAMAGE = 1f;
+    public static final float TURRET_DAMAGE = 0.01f;
 
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
@@ -91,7 +91,7 @@ public class TurretEntity extends TestElementEntity {
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();
             // In range and in front of turret (cone shape)
-            if (distanceSqr < 500 && cosine > 0.6 && !player.isCreative() && !player.isSpectator()) {
+            if (distanceSqr < 1225 && cosine > 0.6 && !player.isCreative() && !player.isSpectator()) {
                 playerDistances.put(player, distanceSqr);
             }
         }
@@ -151,6 +151,10 @@ public class TurretEntity extends TestElementEntity {
                 this.state = this.targetEntity == null ? TurretState.RESTING : TurretState.TARGETING;
                 break;
         }
+    }
+
+    public boolean hasTarget() {
+        return this.targetEntity != null;
     }
 
     public static AttributeModifierMap.MutableAttribute createAttributes() {
