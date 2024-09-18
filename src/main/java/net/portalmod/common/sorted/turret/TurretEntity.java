@@ -21,6 +21,7 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 
@@ -36,6 +37,7 @@ public class TurretEntity extends TestElementEntity {
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
     public Vector3d lastLaserPos = Vector3d.ZERO;
+    public int animationTick = 0;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
@@ -51,13 +53,31 @@ public class TurretEntity extends TestElementEntity {
 
         this.updateTargetEntity();
 
+        this.animate();
+
         if (this.state == TurretState.SHOOTING) {
             this.shoot();
         }
 
-//        ModUtil.sendChatMessage(level, this.state.name());
+        ModUtil.sendChatMessage(level, this.state.name());
 
         this.yBodyRot = this.yRot;
+    }
+
+    public void animate() {
+        if (this.state == TurretState.OPENING && this.animationTick >= 10
+                || this.state == TurretState.LOST_TARGET && this.animationTick >= 20
+                || this.state == TurretState.CLOSING && this.animationTick >= 10
+        ) {
+            this.animationFinished();
+            this.animationTick = 0;
+        }
+
+        if (this.state == TurretState.RESTING || this.state == TurretState.SHOOTING) {
+            this.animationTick = 0;
+        }
+
+        this.animationTick++;
     }
 
     public void shoot() {
@@ -120,9 +140,8 @@ public class TurretEntity extends TestElementEntity {
     public void targetAcquired(LivingEntity entity) {
         this.targetEntity = entity;
 
-        if (this.state == TurretState.RESTING || this.state == TurretState.SHOOTING) {
-//            this.state = TurretState.TARGETING;
-            this.state = TurretState.SHOOTING;
+        if (this.state == TurretState.RESTING) {
+            this.state = TurretState.OPENING;
             this.playSound(SoundInit.TURRET_DEPLOY.get(), 4.5f, 1);
         }
     }
@@ -131,25 +150,19 @@ public class TurretEntity extends TestElementEntity {
         this.targetEntity = null;
 
         if (this.state == TurretState.SHOOTING) {
-//            this.state = TurretState.LOST_TARGET;
-            this.state = TurretState.RESTING;
+            this.state = TurretState.LOST_TARGET;
             this.playSound(SoundInit.TURRET_RETRACT.get(), 4.5f, 1);
         }
     }
 
     public void animationFinished() {
         switch (this.state) {
-            case TARGETING:
-                this.state = this.targetEntity == null ? TurretState.LOST_TARGET : TurretState.OPENING;
-                break;
             case OPENING:
-                this.state = this.targetEntity == null ? TurretState.LOST_TARGET : TurretState.SHOOTING;
-                break;
             case LOST_TARGET:
-                this.state = this.targetEntity == null ? TurretState.CLOSING : TurretState.TARGETING;
+                this.state = this.targetEntity == null ? TurretState.CLOSING : TurretState.SHOOTING;
                 break;
             case CLOSING:
-                this.state = this.targetEntity == null ? TurretState.RESTING : TurretState.TARGETING;
+                this.state = this.targetEntity == null ? TurretState.RESTING : TurretState.OPENING;
                 break;
         }
     }
