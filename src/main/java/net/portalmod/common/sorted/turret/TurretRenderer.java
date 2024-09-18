@@ -56,7 +56,15 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
                 .sub(turretEyePos)
                 .normalize();
 
-        Vector3d turretToTarget = turret.hasTarget() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0).subtract(turretEyePos.to3d()) : new Vector3d(x, 0, z);
+        if (turret.lastLaserPos == Vector3d.ZERO) {
+            turret.lastLaserPos = turretEyePos.to3d().add(new Vector3d(x, 0, z));
+        }
+
+        Vector3d targetPos = turret.hasTarget() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0) : turretEyePos.to3d().add(new Vector3d(x, 0, z));
+
+        targetPos = turret.lastLaserPos.add(targetPos.subtract(turret.lastLaserPos).scale(0.1));
+
+        Vector3d turretToTarget = targetPos.subtract(turretEyePos.to3d());
 
         Vec3 laserForward = new Vec3(turretToTarget).normalize();
         Vec3 projectedTurretEyeToCamera = turretEyeToCamera.sub(laserForward.clone().mul(turretEyeToCamera.dot(laserForward)));
@@ -108,6 +116,8 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         DefaultVertexFormats.POSITION_TEX_COLOR.clearBufferState();
 
         matrixStack.popPose();
+
+        turret.lastLaserPos = targetPos;
     }
 
     @Override
