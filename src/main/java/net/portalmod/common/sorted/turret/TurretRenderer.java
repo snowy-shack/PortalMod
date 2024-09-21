@@ -60,9 +60,11 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             turret.lastLaserPos = turretEyePos.to3d().add(new Vector3d(x, 0, z));
         }
 
-        Vector3d targetPos = turret.hasTarget() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0) : turretEyePos.to3d().add(new Vector3d(x, 0, z));
+        Vector3d targetPos = turret.hasTarget() && turret.shouldLaserMove() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0) : turretEyePos.to3d().add(new Vector3d(x, 0, z));
 
-        targetPos = turret.lastLaserPos.add(targetPos.subtract(turret.lastLaserPos).scale(0.1));
+        if (turret.shouldLaserEase()) {
+            targetPos = turret.lastLaserPos.add(targetPos.subtract(turret.lastLaserPos).scale(0.1));
+        }
 
         Vector3d turretToTarget = targetPos.subtract(turretEyePos.to3d());
 
@@ -83,7 +85,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Vector3d to = from.add(rayPath);
 
         //TODO: check for wire mesh
-        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null);
+        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
         RayTraceResult rayResult = turret.level.clip(rayCtx);
 
         float laserLen = (float)rayResult.getLocation().subtract(from).length();

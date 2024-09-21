@@ -59,15 +59,13 @@ public class TurretEntity extends TestElementEntity {
             this.shoot();
         }
 
-        ModUtil.sendChatMessage(level, this.state.name());
-
         this.yBodyRot = this.yRot;
     }
 
     public void animate() {
         if (this.state == TurretState.OPENING && this.animationTick >= 10
                 || this.state == TurretState.LOST_TARGET && this.animationTick >= 20
-                || this.state == TurretState.CLOSING && this.animationTick >= 10
+                || this.state == TurretState.CLOSING && this.animationTick >= 15
         ) {
             this.animationFinished();
             this.animationTick = 0;
@@ -141,8 +139,7 @@ public class TurretEntity extends TestElementEntity {
         this.targetEntity = entity;
 
         if (this.state == TurretState.RESTING) {
-            this.state = TurretState.OPENING;
-            this.playSound(SoundInit.TURRET_DEPLOY.get(), 4.5f, 1);
+            this.setState(TurretState.OPENING);
         }
     }
 
@@ -150,8 +147,7 @@ public class TurretEntity extends TestElementEntity {
         this.targetEntity = null;
 
         if (this.state == TurretState.SHOOTING) {
-            this.state = TurretState.LOST_TARGET;
-            this.playSound(SoundInit.TURRET_RETRACT.get(), 4.5f, 1);
+            this.setState(TurretState.LOST_TARGET);
         }
     }
 
@@ -159,10 +155,10 @@ public class TurretEntity extends TestElementEntity {
         switch (this.state) {
             case OPENING:
             case LOST_TARGET:
-                this.state = this.targetEntity == null ? TurretState.CLOSING : TurretState.SHOOTING;
+                this.setState(this.targetEntity == null ? TurretState.CLOSING : TurretState.SHOOTING);
                 break;
             case CLOSING:
-                this.state = this.targetEntity == null ? TurretState.RESTING : TurretState.OPENING;
+                this.setState(this.targetEntity == null ? TurretState.RESTING : TurretState.OPENING);
                 break;
         }
     }
@@ -305,5 +301,29 @@ public class TurretEntity extends TestElementEntity {
 
     public void setInfiniteAmmo(boolean infiniteAmmo) {
         this.entityData.set(INFINITE_AMMO_ID, infiniteAmmo);
+    }
+
+    public void setState(TurretState state) {
+        if (this.state != state) {
+            this.state = state;
+
+            if (state == TurretState.OPENING) {
+                this.playSound(SoundInit.TURRET_DEPLOY.get(), 3.5f, 1);
+            } else if (state == TurretState.CLOSING) {
+                this.playSound(SoundInit.TURRET_RETRACT.get(), 3.5f, 1);
+            }
+
+            if (this.level.isClientSide()) {
+                ModUtil.sendChatMessage(level, this.state.name());
+            }
+        }
+    }
+
+    public boolean shouldLaserMove() {
+        return this.state == TurretState.SHOOTING;
+    }
+
+    public boolean shouldLaserEase() {
+        return this.state == TurretState.SHOOTING || this.state == TurretState.LOST_TARGET;
     }
 }
