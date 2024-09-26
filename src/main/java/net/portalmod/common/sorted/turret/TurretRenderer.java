@@ -62,8 +62,10 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
 
         Vector3d targetPos = turret.hasTarget() && turret.shouldLaserMove() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0) : turretEyePos.to3d().add(new Vector3d(x, 0, z));
 
+        // Exponential smoothing - https://lisyarus.github.io/blog/posts/exponential-smoothing.html
         if (turret.shouldLaserEase()) {
-            targetPos = turret.lastLaserPos.add(targetPos.subtract(turret.lastLaserPos).scale(0.1));
+            double deltaTime = Minecraft.getInstance().getDeltaFrameTime();
+            targetPos = turret.lastLaserPos.add(targetPos.subtract(turret.lastLaserPos).scale(1 - Math.exp(- 0.5 * deltaTime)));
         }
 
         Vector3d turretToTarget = targetPos.subtract(turretEyePos.to3d());
