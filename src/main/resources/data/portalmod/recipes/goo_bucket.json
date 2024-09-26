@@ -1,15 +1,9 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "a",
-        "b",
-        "u"
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "minecraft:soul_sand" },
+        { "item": "minecraft:dirt" },
+        { "item": "minecraft:bucket" }
     ],
-    "key": {
-        "a": { "item": "minecraft:soul_sand" },
-        "b": { "item": "minecraft:dirt" },
-        "u": { "item": "minecraft:bucket" }
-    },
-    "result": { "item": "portalmod:goo_bucket" },
-    "group": "goo_bucket"
+    "result": { "item": "portalmod:goo_bucket" }
 }
