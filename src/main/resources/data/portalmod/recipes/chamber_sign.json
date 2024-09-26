@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "l",
+    "l"
+  ],
+  "key": {
+    "i": { "item": "minecraft:sea_lantern" }
+  },
+  "result": { "item": "portalmod:chamber_sign" }
+}

@@ -16,6 +16,7 @@
   "item.portalmod.companion_cube": "Companion Cube",
   "item.portalmod.vintage_cube":   "Vintage Cube",
   "item.portalmod.turret":         "Sentry Turret",
+  "item.portalmod.chamber_sign":   "Chamber Sign",
   "item.portalmod.goo_bucket":     "Goo Bucket",
 
   "block.portalmod.radio":          "Radio",
@@ -80,6 +81,7 @@
   "entity.portalmod.vintage_cube":   "Vintage Cube",
   "entity.portalmod.portal":         "Portal",
   "entity.portalmod.turret":         "Sentry Turret",
+  "entity.portalmod.chamber_sign":   "Chamber Sign",
 
   "container.faithplate":        "Aperture Science Aerial Faith Plate",
   "container.faithplate.height": "Height:",
