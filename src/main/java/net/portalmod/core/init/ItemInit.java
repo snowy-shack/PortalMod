@@ -20,6 +20,7 @@ import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
+import net.portalmod.common.sorted.sign.ChamberSignItem;
 import net.portalmod.core.PortalModTab;
 
 public class ItemInit {
@@ -56,6 +57,8 @@ public class ItemInit {
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
     public static final RegistryObject<Item> FIZZLER_EMITTER = registerBlockItem("fizzler_emitter", BlockInit.FIZZLER_EMITTER);
     public static final RegistryObject<Item> FAITHPLATE = registerBlockItem("faithplate", BlockInit.FAITHPLATE);
+
+    public static final RegistryObject<Item> CHAMBER_SIGN = ITEMS.register("chamber_sign", () -> new ChamberSignItem(new Item.Properties().tab(PortalModTab.INSTANCE)));
 
     public static final RegistryObject<Item> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
             () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),

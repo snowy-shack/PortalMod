@@ -9,6 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.portal.PortalEntity;
+import net.portalmod.common.sorted.sign.ChamberSignEntity;
 import net.portalmod.common.sorted.turret.TurretEntity;
 
 public class EntityInit {
@@ -40,6 +41,12 @@ public class EntityInit {
             () -> EntityType.Builder.<TurretEntity>of(TurretEntity::new, EntityClassification.CREATURE)
                     .sized(.8f, 1.3f)
                     .build(new ResourceLocation(PortalMod.MODID, "turret").toString()));
+
+    public static final RegistryObject<EntityType<ChamberSignEntity>> CHAMBER_SIGN = ENTITIES.register("chamber_sign",
+            () -> EntityType.Builder.<ChamberSignEntity>of(ChamberSignEntity::new, EntityClassification.MISC)
+                    .sized(.5f, .5f)
+                    .updateInterval(Integer.MAX_VALUE)
+                    .build(new ResourceLocation(PortalMod.MODID, "chamber_sign").toString()));
     
 //    public static final RegistryObject<EntityType<CreeperEntity>> CREER = ENTITIES.register("creer",
 //            () -> EntityType.Builder.of(CreeperEntity::new, EntityClassification.MONSTER)

@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.chamberdoor;
+package net.portalmod.common.sorted.door;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
