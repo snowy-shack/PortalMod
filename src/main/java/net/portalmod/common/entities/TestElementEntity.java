@@ -41,7 +41,7 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 /**
- * Entity which can be fizzled, picked up using a portal gun and broken with a wrench.
+ * Entity which can be fizzled, dropped by a cube dropper, picked up using a portal gun and broken with a wrench.
  */
 public abstract class TestElementEntity extends LivingEntity {
 
@@ -301,12 +301,14 @@ public abstract class TestElementEntity extends LivingEntity {
     public void addAdditionalSaveData(CompoundNBT nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putInt("FizzleTicks", this.getFizzleTicks());
+        nbt.putBoolean("FromDropper", this.isFromDropper());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
         this.setFizzleTicks(nbt.getInt("FizzleTicks"));
+        this.setFromDropper(nbt.getBoolean("FromDropper"));
     }
 
     public int getFizzleTicks() {
