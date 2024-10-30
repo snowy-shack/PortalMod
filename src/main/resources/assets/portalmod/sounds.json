@@ -181,6 +181,11 @@
             "portalmod:entity/cube/hit3"
         ],
         "subtitle": "subtitles.entity.cube.hit" },
+    "entity.cube.gabe": {
+        "sounds": [
+            "portalmod:entity/cube/gabe"
+        ],
+        "subtitle": "subtitles.entity.cube.gabe" },
     "entity.portal.open": {
         "sounds": [ "portalmod:entity/portal/open" ],
         "subtitle": "subtitles.entity.portal.open" },
