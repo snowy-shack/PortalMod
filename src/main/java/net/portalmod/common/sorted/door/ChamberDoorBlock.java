@@ -47,16 +47,16 @@ public class ChamberDoorBlock extends MultiBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     private static final VoxelShapeGroup UPPER = new VoxelShapeGroup.Builder()
-            .add(0, 0, 0, 2, 16, 16)
-            .add(0, 14, 0, 16, 16, 16)
-            .addPart("closed", 2, 0, 2, 16, 14, 14)
-            .addPart("open", 2, 0, 2, 5, 14, 14)
+            .add(0, 0, 3, 2, 16, 13)
+            .add(0, 14, 3, 16, 16, 13)
+            .addPart("closed", 2, 0, 5, 16, 14, 11)
+            .addPart("open", 2, 0, 5, 5, 14, 11)
             .build();
 
     private static final VoxelShapeGroup LOWER = new VoxelShapeGroup.Builder()
-            .add(0, 0, 0, 2, 16, 16)
-            .addPart("closed", 0, 0, 2, 16, 16, 14)
-            .addPart("open", 0, 0, 2, 5, 16, 14)
+            .add(0, 0, 3, 2, 16, 13)
+            .addPart("closed", 0, 0, 5, 16, 16, 11)
+            .addPart("open", 0, 0, 5, 5, 16, 11)
             .build();
 
     public ChamberDoorBlock(AbstractBlock.Properties properties) {

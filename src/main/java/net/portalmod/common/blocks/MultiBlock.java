@@ -3,6 +3,7 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.BreakableBlock;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -16,7 +17,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class MultiBlock extends Block {
+public abstract class MultiBlock extends BreakableBlock {
 
     public MultiBlock(Properties properties) {
         super(properties);
