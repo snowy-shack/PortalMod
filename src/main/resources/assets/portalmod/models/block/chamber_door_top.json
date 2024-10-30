@@ -6,12 +6,12 @@
 	},
 	"elements": [
 		{
-			"from": [ 0,  0,  2],
-			"to":   [14, 14, 14],
+			"from": [ 0,  0,  5],
+			"to":   [14, 14, 11],
 			"faces": {
 				"north": {"uv": [ 2,  2, 16, 16], "texture": "#side"},
 				"south": {"uv": [16,  2,  2, 16], "texture": "#side"},
-				"west":  {"uv": [ 2,  2, 14, 16], "texture": "#middle", "cullface": "west"}
+				"west":  {"uv": [ 5,  2, 11, 16], "texture": "#middle", "cullface": "west"}
 			}
 		}
 	]
