@@ -89,6 +89,7 @@ public class TurretEntity extends TestElementEntity {
 
         // Do damage
         if (new Random().nextFloat() < 0.8f) {
+            this.targetEntity.invulnerableTime = 0; // No mercy
             boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, TURRET_DAMAGE);
             if (hurt) {
                 Vector3d knockback = this.position().subtract(this.targetEntity.position());
