@@ -9,11 +9,10 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
@@ -44,6 +43,60 @@ public class ChamberSignEntity extends HangingEntity {
     public ChamberSignEntity(World world, BlockPos pos, Direction direction) {
         super(EntityInit.CHAMBER_SIGN.get(), world, pos);
         this.setDirection(direction);
+    }
+
+    @Override
+    public ActionResultType interactAt(PlayerEntity player, Vector3d pos, Hand hand) {
+        if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
+
+            int inverted = this.direction == Direction.NORTH || this.direction == Direction.EAST ? -1 : 1;
+            double pixelXCoordinate = pos.get(this.direction.getClockWise().getAxis()) * 16 * inverted + 12;
+            double pixelYCoordinate = pos.y * 16 + 24;
+
+            // Digits
+            if (pixelYCoordinate > 21.5) {
+                int increment = player.isShiftKeyDown() ? -1 : 1;
+                if (pixelXCoordinate < 11) {
+                    this.setLeftDigit(Math.floorMod((this.getLeftDigit() + increment), 10));
+                } else {
+                    this.setRightDigit(Math.floorMod((this.getRightDigit() + increment), 10));
+                }
+            }
+            // Progress
+            else if (pixelYCoordinate > 15.5) {
+                this.setProgress((int) (pixelXCoordinate / 2 - 1));
+            }
+            // Upper Icons
+            else {
+                int x = pixelXCoordinate < 7.5 ? 0 : pixelXCoordinate < 12 ? 1 : pixelXCoordinate < 16.5 ? 2 : 3;
+                int y = pixelYCoordinate > 9.5 ? 0 : 1;
+                this.toggleIcon(x + y * 4);
+            }
+
+            WrenchItem.playUseSound(this.level, this.position().x + pos.x, this.position().y + pos.y, this.position().z + pos.z);
+            return ActionResultType.SUCCESS;
+        }
+        return ActionResultType.PASS;
+    }
+
+    public void toggleIcon(int index) {
+        if (index == 0) {
+            this.setIcon1(!this.getIcon1());
+        } else if (index == 1) {
+            this.setIcon2(!this.getIcon2());
+        } else if (index == 2) {
+            this.setIcon3(!this.getIcon3());
+        } else if (index == 3) {
+            this.setIcon4(!this.getIcon4());
+        } else if (index == 4) {
+            this.setIcon5(!this.getIcon5());
+        } else if (index == 5) {
+            this.setIcon6(!this.getIcon6());
+        } else if (index == 6) {
+            this.setIcon7(!this.getIcon7());
+        } else if (index == 7) {
+            this.setIcon8(!this.getIcon8());
+        }
     }
 
     @Override
@@ -132,7 +185,7 @@ public class ChamberSignEntity extends HangingEntity {
             return;
         }
 
-        this.spawnAtLocation(ItemInit.CHAMBER_SIGN.get());;
+        this.spawnAtLocation(ItemInit.CHAMBER_SIGN.get());
     }
 
     @Override
@@ -152,14 +205,14 @@ public class ChamberSignEntity extends HangingEntity {
         nbt.putInt("LeftDigit", this.getLeftDigit());
         nbt.putInt("RightDigit", this.getRightDigit());
         nbt.putInt("Progress", this.getProgress());
-        nbt.putBoolean("Icon1", this.isIcon1());
-        nbt.putBoolean("Icon2", this.isIcon2());
-        nbt.putBoolean("Icon3", this.isIcon3());
-        nbt.putBoolean("Icon4", this.isIcon4());
-        nbt.putBoolean("Icon5", this.isIcon5());
-        nbt.putBoolean("Icon6", this.isIcon6());
-        nbt.putBoolean("Icon7", this.isIcon7());
-        nbt.putBoolean("Icon8", this.isIcon8());
+        nbt.putBoolean("Icon1", this.getIcon1());
+        nbt.putBoolean("Icon2", this.getIcon2());
+        nbt.putBoolean("Icon3", this.getIcon3());
+        nbt.putBoolean("Icon4", this.getIcon4());
+        nbt.putBoolean("Icon5", this.getIcon5());
+        nbt.putBoolean("Icon6", this.getIcon6());
+        nbt.putBoolean("Icon7", this.getIcon7());
+        nbt.putBoolean("Icon8", this.getIcon8());
     }
 
     @Override
@@ -204,7 +257,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_PROGRESS, progress);
     }
 
-    public boolean isIcon1() {
+    public boolean getIcon1() {
         return this.getEntityData().get(DATA_ICON_1);
     }
 
@@ -212,7 +265,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_1, icon1);
     }
 
-    public boolean isIcon2() {
+    public boolean getIcon2() {
         return this.getEntityData().get(DATA_ICON_2);
     }
 
@@ -220,7 +273,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_2, icon2);
     }
 
-    public boolean isIcon3() {
+    public boolean getIcon3() {
         return this.getEntityData().get(DATA_ICON_3);
     }
 
@@ -228,7 +281,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_3, icon3);
     }
 
-    public boolean isIcon4() {
+    public boolean getIcon4() {
         return this.getEntityData().get(DATA_ICON_4);
     }
 
@@ -236,7 +289,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_4, icon4);
     }
 
-    public boolean isIcon5() {
+    public boolean getIcon5() {
         return this.getEntityData().get(DATA_ICON_5);
     }
 
@@ -244,7 +297,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_5, icon5);
     }
 
-    public boolean isIcon6() {
+    public boolean getIcon6() {
         return this.getEntityData().get(DATA_ICON_6);
     }
 
@@ -252,7 +305,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_6, icon6);
     }
 
-    public boolean isIcon7() {
+    public boolean getIcon7() {
         return this.getEntityData().get(DATA_ICON_7);
     }
 
@@ -260,7 +313,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().set(DATA_ICON_7, icon7);
     }
 
-    public boolean isIcon8() {
+    public boolean getIcon8() {
         return this.getEntityData().get(DATA_ICON_8);
     }
 

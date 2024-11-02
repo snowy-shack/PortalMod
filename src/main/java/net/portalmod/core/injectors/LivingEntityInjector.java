@@ -18,7 +18,7 @@ import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
 public class LivingEntityInjector {
-    public static float fallDistance;
+    public static float fallDistance;   // TODO PHANTY THAT IS NOT SUPPOSED TO BE STATIC
     public static float minBounceHeight = 5;
 
     public static void onPreTick(LivingEntity entity) {
@@ -39,7 +39,7 @@ public class LivingEntityInjector {
 //        if(entity instanceof PlayerEntity)
 //            System.out.println(((IFaithPlateLaunchable)entity).isLaunched());
 
-        if(state.getBlock() == BlockInit.REPULSION_GEL.get() && (entity.isOnGround() && !entity.isShiftKeyDown() && fallDistance > 1.2)) {
+        if(state.getBlock() == BlockInit.REPULSION_GEL.get() && (entity.isOnGround() && !entity.isShiftKeyDown() && (fallDistance > 1.2 || entity.getDeltaMovement().length() > 0.2))) {
 
             if (entity instanceof PlayerEntity && !entity.level.isClientSide && fallDistance >= 100) {
                 CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayerEntity) entity);

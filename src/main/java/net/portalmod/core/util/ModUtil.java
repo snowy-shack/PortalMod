@@ -80,7 +80,11 @@ public class ModUtil {
         return randomSoundPitch(0.075f);
     }
 
-    public static void sendChatMessage(World level, String text) {
+    public static void sendChat(World level, String text) {
         level.players().forEach(player -> player.displayClientMessage(new StringTextComponent(text), false));
+    }
+
+    public static void sendChat(World level, Object text) {
+        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent(text.toString()), false));
     }
 }

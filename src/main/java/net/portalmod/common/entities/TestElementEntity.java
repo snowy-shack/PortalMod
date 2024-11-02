@@ -61,8 +61,6 @@ public abstract class TestElementEntity extends LivingEntity {
         this.canFizzle = true;
     }
 
-    //todo track all intersected blocks between ticks
-
     @Override
     public void tick() {
         if (this.lastPos == null) {

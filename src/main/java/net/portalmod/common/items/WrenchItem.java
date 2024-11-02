@@ -1,6 +1,7 @@
 package net.portalmod.common.items;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,8 +30,12 @@ public class WrenchItem extends Item {
         super(properties);
     }
 
-    public static void playUseSound(World level, PlayerEntity player) {
-        level.playSound(null, player, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    public static void playUseSound(World level, Entity entity) {
+        playUseSound(level, entity.getX(), entity.getY(), entity.getZ());
+    }
+
+    public static void playUseSound(World level, double x, double y, double z) {
+        level.playSound(null, x, y, z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
     @Override

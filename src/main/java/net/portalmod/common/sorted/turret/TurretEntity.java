@@ -21,7 +21,6 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
-import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 
@@ -313,9 +312,9 @@ public class TurretEntity extends TestElementEntity {
                 this.playSound(SoundInit.TURRET_RETRACT.get(), 3.5f, 1);
             }
 
-            if (this.level.isClientSide()) {
-                ModUtil.sendChatMessage(level, this.state.name());
-            }
+//            if (this.level.isClientSide()) {
+//                ModUtil.sendChat(level, this.state.name());
+//            }
         }
     }
 
