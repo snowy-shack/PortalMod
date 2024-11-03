@@ -16,6 +16,7 @@
   "item.portalmod.companion_cube": "leko pona",
   "item.portalmod.vintage_cube":   "leko tan majuna",
   "item.portalmod.turret":         "ilo pakala awen",
+  "item.portalmod.chamber_sign":   "Chamber Sign",
   "item.portalmod.goo_bucket":     "poki pi telo jaki moli",
 
   "block.portalmod.radio":          "ilo pi kalama pona",
@@ -80,6 +81,7 @@
   "entity.portalmod.vintage_cube":   "leko tan majuna",
   "entity.portalmod.portal":         "lupa",
   "entity.portalmod.turret":         "ilo pakala awen",
+  "entity.portalmod.chamber_sign":   "Chamber Sign",
 
   "container.faithplate":        "ilo pi tawa sewi",
   "container.faithplate.height": "sewi:",
@@ -128,6 +130,9 @@
   "tooltip.portalmod.faithplate_1": "§7ni li tawa e jan tawa ma lili",
   "tooltip.portalmod.faithplate_2": "§7- §6ilo ante§7 li ante e ni",
 
+  "tooltip.portalmod.chamber_sign_1": "§7Displays chamber information",
+  "tooltip.portalmod.chamber_sign_2": "§7- §6Wrench§7: Modify individual elements of the display",
+
   "tooltip.portalmod.turret_1": "§7alasa e jan lukin",
   "tooltip.portalmod.turret_2": "§7- o pana e §3",
   "tooltip.portalmod.turret_3": "§7- Has infinite ammo when placed in creative",
@@ -138,6 +143,13 @@
   "tooltip.portalmod.bullets_2": "§7- Allows a Turret to shoot 20 times",
   "tooltip.portalmod.bullets_3": "§7- Hold shift to add a whole stack",
   "tooltip.portalmod.bullets_4": "§7- Click with a §6Wrench§7 to take all bullets from a Turret",
+
+  "tooltip.portalmod.portalgun_1": "§7Shoots §9Portals§7",
+  "tooltip.portalmod.portalgun_2": "§7- Can pick up §3Cubes and §3Turrets",
+  "tooltip.portalmod.portalgun_3": "§7- Crafting: ",
+  "tooltip.portalmod.portalgun_4": "§7  - §aDye§7 above the §9Portal Gun§7 to changes accent color",
+  "tooltip.portalmod.portalgun_5": "§7  - §aDyes§7 to the left or right to change §9Portal§7 colors",
+  "tooltip.portalmod.portalgun_6": "§7  - §aChain§7 below the §9Portal Gun§7 to make it §9single-Portaled§7",
 
   "actionbar.portalmod.button_mode.normal":      "nena li nasin",
   "actionbar.portalmod.button_mode.persistent":  "nena li awen",
@@ -162,10 +174,14 @@
   "subtitles.block.super_button.deactivate": "ijo li pilin ala e nena ilo suli",
   "subtitles.block.super_button.press":      "Super Button presses",
   "subtitles.block.super_button.release":    "Super Button releases",
+  "subtitles.block.cube_dropper.activate":   "Cube Dropper activates",
+  "subtitles.block.cube_dropper.deactivate": "Cube Dropper deactivates",
   "subtitles.block.gel.bounce":              "Repulsion Gel wobbles",
   "subtitles.block.gel.collect":             "Gel Container fills",
-  "subtitles.entity.fizzle":                 "Entity fizzles",
-  "subtitles.entity.cube.hit":               "Cube lands",
+
+  "subtitles.entity.fizzle":      "Entity fizzles",
+  "subtitles.entity.cube.hit":    "Cube lands",
+  "subtitles.entity.portal.open": "Portal Opens",
 
   "subtitles.entity.turret.fire":         "Turret fires",
   "subtitles.entity.turret.deploy":       "Turret activates",
@@ -174,13 +190,13 @@
   "subtitles.entity.turret.voice.sleep":  "Turret shuts off",
   "subtitles.entity.turret.voice.fall":   "Turret tips over",
   "subtitles.entity.turret.voice.fire":   "Turret burns",
-  "subtitles.entity.turret.voice.fizzle": "Turret fizzles",
   "subtitles.entity.turret.voice.pickup": "Turret protests",
   "subtitles.entity.turret.voice.target": "Turret found target",
 
   "subtitles.item.portalgun.fire":     "ilo pi lupa nasa li alasa",
   "subtitles.item.portalgun.fizzle":   "supa nasa li ante e ilo pi lupa nasa",
   "subtitles.item.portalgun.activate": "ilo pi lupa nasa li lon",
+  "subtitles.item.wrench.use":         "Wrench Clicks",
 
   "death.attack.cube":           "%2$s li toki e moli tawa %1$s",
   "death.attack.launchIntoWall": "%1$s li tawa e sinpin",

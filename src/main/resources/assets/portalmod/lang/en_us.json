@@ -130,6 +130,9 @@
   "tooltip.portalmod.faithplate_1": "§7Launches entities to a specified location",
   "tooltip.portalmod.faithplate_2": "§7- §6Wrench§7: Configure the Faithplate",
 
+  "tooltip.portalmod.chamber_sign_1": "§7Displays chamber information",
+  "tooltip.portalmod.chamber_sign_2": "§7- §6Wrench§7: Modify individual elements of the display",
+
   "tooltip.portalmod.turret_1": "§7Shoots visible Players and Mobs",
   "tooltip.portalmod.turret_2": "§7- Right click to stock with §aBullets",
   "tooltip.portalmod.turret_3": "§7- Has infinite ammo when placed in creative",
