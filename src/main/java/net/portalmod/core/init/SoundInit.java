@@ -65,6 +65,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> ENTITY_FIZZLE = register("entity.fizzle");
 
     public static final RegistryObject<SoundEvent> CUBE_HIT = register("entity.cube.hit");
+    public static final RegistryObject<SoundEvent> CUBE_GABE = register("entity.cube.gabe");
 
     public static final RegistryObject<SoundEvent> TURRET_DEPLOY = register("entity.turret.deploy");
     public static final RegistryObject<SoundEvent> TURRET_RETRACT = register("entity.turret.retract");

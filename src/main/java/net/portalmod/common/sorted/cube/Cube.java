@@ -19,6 +19,7 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
+import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
@@ -67,6 +68,10 @@ public class Cube extends TestElementEntity {
     @Override
     public void tick() {
         super.tick();
+
+        if (this.getType() == EntityInit.GABE.get() && this.random.nextDouble() < 0.005) {
+            this.playSound(SoundInit.CUBE_GABE.get(), 3, ModUtil.randomSlightSoundPitch());
+        }
 
         if (!this.isFizzling()) {
 

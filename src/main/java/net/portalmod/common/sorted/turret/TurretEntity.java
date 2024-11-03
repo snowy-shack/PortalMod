@@ -31,7 +31,8 @@ public class TurretEntity extends TestElementEntity {
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
     public static final DamageSource TURRET_DAMAGE_SOURCE = new DamageSource("turret");
-    public static final float TURRET_DAMAGE = 0.01f;
+    public static final float BULLET_DAMAGE = 3f;
+    public static final float BULLET_KNOCKBACK = 0.2f;
 
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
@@ -90,10 +91,10 @@ public class TurretEntity extends TestElementEntity {
         // Do damage
         if (new Random().nextFloat() < 0.8f) {
             this.targetEntity.invulnerableTime = 0; // No mercy
-            boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, TURRET_DAMAGE);
+            boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, this.targetEntity.getMainHandItem().getItem() instanceof WrenchItem ? 0.01f : BULLET_DAMAGE);
             if (hurt) {
-                Vector3d knockback = this.position().subtract(this.targetEntity.position());
-                this.targetEntity.knockback(0.4f, knockback.x, knockback.z);
+                Vector3d knockbackDirection = this.position().subtract(this.targetEntity.position());
+                this.targetEntity.knockback(BULLET_KNOCKBACK, knockbackDirection.x, knockbackDirection.z);
             }
         }
 

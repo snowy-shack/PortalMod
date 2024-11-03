@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.sign;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -9,7 +10,12 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.portalmod.core.util.ModUtil;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class ChamberSignItem extends Item {
 
@@ -52,5 +58,10 @@ public class ChamberSignItem extends Item {
 
     protected boolean mayPlace(PlayerEntity player, Direction direction, ItemStack itemStack, BlockPos pos) {
         return !direction.getAxis().isVertical() && player.mayUseItemAt(pos, direction, itemStack);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip("chamber_sign", list);
     }
 }
