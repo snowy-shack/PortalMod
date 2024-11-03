@@ -69,6 +69,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         }
 
         Vector3d turretToTarget = targetPos.subtract(turretEyePos.to3d());
+        turret.turretToTarget = turretToTarget;
 
         Vec3 laserForward = new Vec3(turretToTarget).normalize();
         Vec3 projectedTurretEyeToCamera = turretEyeToCamera.sub(laserForward.clone().mul(turretEyeToCamera.dot(laserForward)));
@@ -86,7 +87,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Vector3d from = turretEyePos.to3d();
         Vector3d to = from.add(rayPath);
 
-        //TODO: check for wire mesh
+        //TODO: check for wire mesh (and glass?)
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
         RayTraceResult rayResult = turret.level.clip(rayCtx);
 

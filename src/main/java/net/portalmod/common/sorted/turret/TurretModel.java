@@ -4,18 +4,14 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
-import net.portalmod.common.sorted.cube.Cube;
+import net.minecraft.util.math.vector.Vector3d;
 
 public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 	private final ModelRenderer head;
 	private final ModelRenderer wing_left;
 	private final ModelRenderer wing_right;
 	private final ModelRenderer leg_back;
-	private final ModelRenderer cube_r1;
-	private final ModelRenderer cube_r2;
-	private final ModelRenderer cube_r3;
-	private final ModelRenderer leg_left;
+    private final ModelRenderer leg_left;
 	private final ModelRenderer leg_right;
 
 	public TurretModel() {
@@ -29,13 +25,11 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 		head.texOffs(0, 1).addBox(1.75F, -12.5F, 0.0F, 0.0F, 3.0F, 1.0F, 0.0F, false);
 
 		wing_left = new ModelRenderer(this);
-		wing_left.setPos(0.5F, 12.0F, 0.0F);
 		wing_left.texOffs(20, 0).addBox(1.25F, -5.0F, -2.0F, 2.0F, 10.0F, 4.0F, 0.0F, false);
 		wing_left.texOffs(24, 14).addBox(1.25F, -1.5F, -1.5F, 1.0F, 4.0F, 3.0F, 0.0F, false);
 		wing_left.texOffs(8, 16).addBox(-0.85F, -0.5F, -0.5F, 3.0F, 1.0F, 1.0F, 0.0F, false);
 
 		wing_right = new ModelRenderer(this);
-		wing_right.setPos(-0.5F, 12.0F, 0.0F);
 		wing_right.texOffs(20, 0).addBox(-3.25F, -5.0F, -2.0F, 2.0F, 10.0F, 4.0F, 0.0F, true);
 		wing_right.texOffs(24, 14).addBox(-2.25F, -1.5F, -1.5F, 1.0F, 4.0F, 3.0F, 0.0F, true);
 		wing_right.texOffs(8, 16).addBox(-2.15F, -0.5F, -0.5F, 3.0F, 1.0F, 1.0F, 0.0F, true);
@@ -43,21 +37,20 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 		leg_back = new ModelRenderer(this);
 		leg_back.setPos(0.0F, 16.0F, 6.0F);
 		setRotationAngle(leg_back, 0.3927F, 0.0F, 0.0F);
-		
 
-		cube_r1 = new ModelRenderer(this);
+        ModelRenderer cube_r1 = new ModelRenderer(this);
 		cube_r1.setPos(0.0F, 0.4807F, -4.9875F);
 		leg_back.addChild(cube_r1);
 		setRotationAngle(cube_r1, -1.6581F, 0.0F, 0.0F);
 		cube_r1.texOffs(26, 20).addBox(0.0F, -4.7059F, -3.0196F, 0.0F, 5.0F, 3.0F, 0.0F, false);
 
-		cube_r2 = new ModelRenderer(this);
+        ModelRenderer cube_r2 = new ModelRenderer(this);
 		cube_r2.setPos(0.5F, 1.75F, -0.5F);
 		leg_back.addChild(cube_r2);
 		setRotationAngle(cube_r2, -0.2618F, 0.0F, 0.0F);
 		cube_r2.texOffs(20, 14).addBox(-1.0F, -1.7741F, -0.1173F, 1.0F, 8.0F, 1.0F, 0.0F, false);
 
-		cube_r3 = new ModelRenderer(this);
+        ModelRenderer cube_r3 = new ModelRenderer(this);
 		cube_r3.setPos(1.0F, 1.0F, -1.0F);
 		leg_back.addChild(cube_r3);
 		setRotationAngle(cube_r3, -0.2618F, 0.0F, 0.0F);
@@ -80,7 +73,28 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
-		//previously the render function, render code was moved to a method below
+		float wingOffset, yaw, pitch;
+		Vector3d wingAngle;
+
+		float yRod = -(float) Math.toRadians(entity.yRot);
+
+		Vector3d laserDir = entity.turretToTarget.normalize();
+
+		float rotatedX = (float) laserDir.x * (float) Math.cos(yRod) - (float) laserDir.z * (float) Math.sin(yRod);
+		float rotatedZ = (float) laserDir.x * (float) Math.sin(yRod) + (float) laserDir.z * (float) Math.cos(yRod);
+
+		Vector3d laserDirR = new Vector3d(rotatedX, laserDir.y, rotatedZ);
+
+		yaw = -(float) Math.atan2(laserDirR.x, laserDirR.z);
+		pitch = -(float) Math.asin(laserDirR.y);
+
+		wingOffset = (entity.state == TurretState.OPENING || entity.state == TurretState.SHOOTING || entity.state == TurretState.LOST_TARGET) ? 2.0F : 0.0F;
+
+		setRotationAngle(wing_left, pitch, yaw, 0);
+		setRotationAngle(wing_right, pitch, yaw, 0);
+
+		wing_left.setPos(0.5F + wingOffset, 12.0F, 0.0F);
+		wing_right.setPos(-0.5F - wingOffset, 12.0F, 0.0F);
 	}
 
 	@Override

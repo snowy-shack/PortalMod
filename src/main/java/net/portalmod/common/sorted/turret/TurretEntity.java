@@ -18,6 +18,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.particles.TurretSparkParticle;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
@@ -37,6 +38,7 @@ public class TurretEntity extends TestElementEntity {
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
     public Vector3d lastLaserPos = Vector3d.ZERO;
+    public Vector3d turretToTarget = Vector3d.ZERO;
     public int animationTick = 0;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
@@ -83,13 +85,17 @@ public class TurretEntity extends TestElementEntity {
             return;
         }
 
-        // Shoot every 5 ticks (4 times per second)
-        if (this.level.getGameTime() % 5 != 0) {
+        if (this.level.getGameTime() % 4 == 0) {
+            this.playSound(SoundInit.TURRET_FIRE.get(), 4.5f, 1);
+        }
+
+        // Shoot every 4 ticks (5 times per second)
+        if (this.level.getGameTime() % 2 != 0) {
             return;
         }
 
         // Do damage
-        if (new Random().nextFloat() < 0.8f) {
+        if (new Random().nextFloat() < 0.3f) {
             this.targetEntity.invulnerableTime = 0; // No mercy
             boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, this.targetEntity.getMainHandItem().getItem() instanceof WrenchItem ? 0.01f : BULLET_DAMAGE);
             if (hurt) {
@@ -98,8 +104,7 @@ public class TurretEntity extends TestElementEntity {
             }
         }
 
-        this.playSound(SoundInit.TURRET_FIRE.get(), 4.5f, 1);
-
+        TurretSparkParticle.createParticles(this.level, this);
         this.setAmmo(this.getAmmo() - 1);
     }
 
