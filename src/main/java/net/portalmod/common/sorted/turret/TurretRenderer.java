@@ -15,31 +15,70 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
 import net.portalmod.common.entities.TestElementEntityRenderer;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
 public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, TurretModel<TurretEntity>> {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png");
+//    private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png");
+    private static final ResourceLocation[] TEXTURE = new ResourceLocation[] {
+            new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png"),
+            new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret_off.png"),
+    };
     private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR);
-
+    private TurretState state = TurretState.RESTING;
+    private boolean tipToLeft;
     public TurretRenderer(EntityRendererManager erm) {
         super(erm, new TurretModel<>(), 0.5f);
     }
 
     @Override
     public ResourceLocation getTextureLocation(TurretEntity turret) {
-        return TEXTURE;
+        return TEXTURE[(this.state == TurretState.DEAD) ? 1 : 0];
     }
 
     @Override
     public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int light) {
 //        if(super.shouldRender(turret, ))
+        this.state = turret.state;
 
+        float yRod = -(float) Math.toRadians(turret.yRot);
+        float rotSin = (float) Math.sin(yRod);
+        float rotCos = (float) Math.cos(yRod);
+
+        float tipSide = (float) turret.tipDirection.x * rotCos - (float) turret.tipDirection.z * rotSin;
+        tipToLeft = (tipSide > 0);
+
+        float fallAnimTick = Math.min(turret.animationTick + partialTicks, turret.fallDuration);
+        float fallAmount = 90F * (fallAnimTick * fallAnimTick) / (turret.fallDuration * turret.fallDuration);
+        int tipDir = tipToLeft ? -1 : 1;
+        fallAmount *= tipDir;
+        float tipOffset = 0.2F;
+        float halfModelHeight = 0.8F;
+
+        if (this.state == TurretState.DEAD) fallAmount = 90F * tipDir;
+
+        if (this.state == TurretState.FALLING || this.state == TurretState.DEAD) {
+            Vector3f lookAngle = new Vector3f(turret.getLookAngle().multiply(1, 0, 1).normalize());
+
+            matrixStack.pushPose();
+            float progress = (this.state == TurretState.FALLING ? fallAnimTick / turret.fallDuration : 1);
+            matrixStack.translate(
+                    lookAngle.z() * halfModelHeight * tipDir * progress,
+                    0,
+                    -lookAngle.x() * halfModelHeight * tipDir * progress
+            );
+
+            matrixStack.translate(-lookAngle.z() * tipOffset * tipDir, 0, lookAngle.x() * tipOffset * tipDir);
+            matrixStack.mulPose(lookAngle.rotationDegrees(fallAmount));
+            matrixStack.translate(lookAngle.z() * tipOffset * tipDir, 0, -lookAngle.x() * tipOffset * tipDir);
+        }
         // todo dont render turret if clipped
         super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, light);
 
+        if (this.state == TurretState.FALLING || this.state == TurretState.DEAD) matrixStack.popPose();
         if (turret.isFizzling()) {
             return;
         }
@@ -116,7 +155,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
         LASER_BUFFER.bind();
         DefaultVertexFormats.POSITION_TEX_COLOR.setupBufferState(0L);
-        LASER_BUFFER.draw(matrixStack.last().pose(), 7);
+        if (this.state != TurretState.FALLING && this.state != TurretState.DEAD) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
         VertexBuffer.unbind();
         DefaultVertexFormats.POSITION_TEX_COLOR.clearBufferState();
 

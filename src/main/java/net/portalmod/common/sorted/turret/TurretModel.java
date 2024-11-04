@@ -88,7 +88,10 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 		yaw = -(float) Math.atan2(laserDirR.x, laserDirR.z);
 		pitch = -(float) Math.asin(laserDirR.y);
 
-		wingOffset = (entity.state == TurretState.OPENING || entity.state == TurretState.SHOOTING || entity.state == TurretState.LOST_TARGET) ? 2.0F : 0.0F;
+		wingOffset = (entity.state == TurretState.OPENING
+				   || entity.state == TurretState.SHOOTING
+				   || entity.state == TurretState.LOST_TARGET
+		           || entity.state == TurretState.FALLING) ? 2.0F : 0.0F;
 
 		setRotationAngle(wing_left, pitch, yaw, 0);
 		setRotationAngle(wing_right, pitch, yaw, 0);

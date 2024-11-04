@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.TurretSparkParticle;
+import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
@@ -34,11 +35,13 @@ public class TurretEntity extends TestElementEntity {
     public static final DamageSource TURRET_DAMAGE_SOURCE = new DamageSource("turret");
     public static final float BULLET_DAMAGE = 3f;
     public static final float BULLET_KNOCKBACK = 0.2f;
+    public int fallDuration = 10;
 
     public TurretState state = TurretState.RESTING;
     public LivingEntity targetEntity = null;
     public Vector3d lastLaserPos = Vector3d.ZERO;
     public Vector3d turretToTarget = Vector3d.ZERO;
+    public Vector3d tipDirection = Vector3d.ZERO;
     public int animationTick = 0;
 
     public TurretEntity(EntityType<? extends LivingEntity> entityType, World level) {
@@ -52,16 +55,30 @@ public class TurretEntity extends TestElementEntity {
     @Override
     public void tick() {
         super.tick();
+        this.yBodyRot = this.yRot;
 
-        this.updateTargetEntity();
+        if (this.getVehicle() instanceof PlayerEntity) { // If it's being held with a Portal Gun
+            this.state = TurretState.RESTING;
+            return;
+        }
 
         this.animate();
 
-        if (this.state == TurretState.SHOOTING) {
-            this.shoot();
+        Vector3d motionXZ = new Vector3d(getDeltaMovement().x, 0, getDeltaMovement().z);
+        if (motionXZ.length() > 0.1
+                && this.state != TurretState.FALLING
+                && this.state != TurretState.DEAD) { // If it's being pushed
+            this.animationTick = 0;
+            this.state = TurretState.FALLING;
+            this.tipDirection = motionXZ.normalize();
+            return;
         }
 
-        this.yBodyRot = this.yRot;
+        this.updateTargetEntity();
+
+        if (this.state == TurretState.SHOOTING || this.state == TurretState.FALLING) {
+            this.shoot();
+        }
     }
 
     public void animate() {
@@ -70,6 +87,12 @@ public class TurretEntity extends TestElementEntity {
                 || this.state == TurretState.CLOSING && this.animationTick >= 15
         ) {
             this.animationFinished();
+            this.animationTick = 0;
+        }
+
+        if (this.state == TurretState.FALLING && this.animationTick >= this.fallDuration) {
+            this.state = TurretState.DEAD; // I don't hate you.
+            this.playSound(SoundInit.TURRET_RETRACT.get(), 3.5f, 1);
             this.animationTick = 0;
         }
 
@@ -96,11 +119,16 @@ public class TurretEntity extends TestElementEntity {
 
         // Do damage
         if (new Random().nextFloat() < 0.3f) {
-            this.targetEntity.invulnerableTime = 0; // No mercy
-            boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, this.targetEntity.getMainHandItem().getItem() instanceof WrenchItem ? 0.01f : BULLET_DAMAGE);
-            if (hurt) {
-                Vector3d knockbackDirection = this.position().subtract(this.targetEntity.position());
-                this.targetEntity.knockback(BULLET_KNOCKBACK, knockbackDirection.x, knockbackDirection.z);
+            if (targetEntity.getPassengers() instanceof Cube) {
+                // Check for cubes blocking the hit
+            }
+            if (!targetEntity.isBlocking()) {
+                this.targetEntity.invulnerableTime = 0; // No mercy
+                boolean hurt = this.targetEntity.hurt(TURRET_DAMAGE_SOURCE, this.targetEntity.getMainHandItem().getItem() instanceof WrenchItem ? 0.01f : BULLET_DAMAGE);
+                if (hurt) {
+                    Vector3d knockbackDirection = this.position().subtract(this.targetEntity.position());
+                    this.targetEntity.knockback(BULLET_KNOCKBACK, knockbackDirection.x, knockbackDirection.z);
+                }
             }
         }
 
@@ -288,6 +316,7 @@ public class TurretEntity extends TestElementEntity {
         super.addAdditionalSaveData(nbt);
         nbt.putInt("Ammo", this.getAmmo());
         nbt.putBoolean("InfiniteAmmo", this.getInfiniteAmmo());
+        nbt.putBoolean("Dead", this.state == TurretState.DEAD);
     }
 
     @Override
@@ -295,6 +324,7 @@ public class TurretEntity extends TestElementEntity {
         super.readAdditionalSaveData(nbt);
         this.setAmmo(nbt.getInt("Ammo"));
         this.setInfiniteAmmo(nbt.getBoolean("InfiniteAmmo"));
+        this.setState(TurretState.DEAD); //nbt.getBoolean("Dead") ? TurretState.DEAD : this.state
     }
 
     public int getAmmo() {

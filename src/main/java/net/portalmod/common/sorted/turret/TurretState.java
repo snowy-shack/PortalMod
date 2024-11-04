@@ -6,5 +6,6 @@ public enum TurretState {
     SHOOTING,       // Pew pew
     LOST_TARGET,    // Aiming laser back to the middle
     CLOSING,        // Closing wings
-    KILLED          // Fallen over
+    FALLING,        // Falling over
+    DEAD,           // Completely deactivated
 }
