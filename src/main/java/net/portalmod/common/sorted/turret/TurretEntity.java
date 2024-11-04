@@ -81,16 +81,16 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void shoot() {
-        if (this.targetEntity == null || this.getAmmo() == 0 && !this.getInfiniteAmmo()) {
+        if (this.targetEntity == null) {
             return;
         }
 
         if (this.level.getGameTime() % 4 == 0) {
-            this.playSound(SoundInit.TURRET_FIRE.get(), 4.5f, 1);
+            this.playSound(this.canShoot() ? SoundInit.TURRET_FIRE.get() : SoundEvents.CHAIN_HIT, 4.5f, 1);
         }
 
         // Shoot every 4 ticks (5 times per second)
-        if (this.level.getGameTime() % 2 != 0) {
+        if (this.level.getGameTime() % 2 != 0 || !canShoot()) {
             return;
         }
 
@@ -106,6 +106,10 @@ public class TurretEntity extends TestElementEntity {
 
         TurretSparkParticle.createParticles(this.level, this);
         this.setAmmo(this.getAmmo() - 1);
+    }
+
+    public boolean canShoot() {
+        return this.getAmmo() > 0 || this.getInfiniteAmmo();
     }
 
     public void updateTargetEntity() {
