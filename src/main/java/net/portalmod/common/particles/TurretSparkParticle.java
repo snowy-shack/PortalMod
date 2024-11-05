@@ -2,89 +2,93 @@ package net.portalmod.common.particles;
 
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.ParticleInit;
+import net.portalmod.core.interfaces.IParticleRT;
 
 import java.util.Random;
 
 public class TurretSparkParticle extends SpriteTexturedParticle {
 
-    public static final Random RANDOM = new Random();
-
     public int u;
     public int v;
 
     protected TurretSparkParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
-        super(world, x, y, z, dx, dy, dz);
-        this.lifetime = 2;
+        super(world, x, y, z, 0, 0, 0);
+        this.lifetime = 3;
         this.gravity = 0;
-        this.yd -= 0.1;
-
-        this.u = RANDOM.nextInt(4);
-        this.v = RANDOM.nextInt(4);
     }
 
     @Override
     public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return IParticleRT.PARTICLE_SHEET_TRANSLUCENT_LIT;
     }
 
     @Override
     public void tick() {
-        super.tick();
+        // super.tick(); // That's what you fucking deserve
+        if (this.age++ >= this.lifetime) this.remove();
+
+        this.u = this.age % 2;
+        this.v = (int) Math.floor((double) this.age / 2);
     }
 
     @Override
     protected float getU0() {
-        return this.sprite.getU(this.u * 4);
+        return this.sprite.getU(this.u * 8);
     }
-
     @Override
     protected float getU1() {
-        return this.sprite.getU((this.u + 1) * 4);
+        return this.sprite.getU((this.u + 1) * 8);
     }
-
     @Override
     protected float getV0() {
-        return this.sprite.getV(this.v * 4);
+        return this.sprite.getV(this.v * 8);
+    }
+    @Override
+    protected float getV1() {
+        return this.sprite.getV((this.v + 1) * 8);
     }
 
     @Override
-    protected float getV1() {
-        return this.sprite.getV((this.v + 1) * 4);
+    protected int getLightColor(float idk) {
+        return 255;
     }
 
-    public static void createParticles(World world, TurretEntity turret) {
-        Vector3d aimDirection = turret.turretToTarget;
+    public static void createGlowParticles(World world, LivingEntity entity, Vector3d direction) {
+        double heightMid = entity.getBbHeight() * 0.5;
+        double widthMid = entity.getBbWidth() * 0.5;
+        Vector3d middle = entity.position().add(0, heightMid, 0);
 
-        // 1 - 3
-        int amount = RANDOM.nextInt(3) + 1;
+        Vector3d front = middle.add(direction.normalize().multiply(0.3F, 0F, 0.3F));
 
-        for (int i = 0; i < amount; i++) {
-            Vector3d offset = new Vector3d(symmetricRandom(0.3), symmetricRandom(0.3), symmetricRandom(0.3));
-            Vector3d particlePos = aimDirection.add(offset);
+        Vector3d side = new Vector3d(-direction.normalize().z, 0, direction.normalize().x);
+        boolean leftSide = world.getGameTime() % 8 < 4;
+        float verticalOffset = (world.getGameTime() % 4 < 2) ? -0.1F : 0.1F;
+        side = side.multiply(leftSide ? -0.25F : 0.25F, 0, leftSide ? -0.25F : 0.25F);
 
-            world.addParticle(ParticleInit.TURRET_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, symmetricRandom(0.5), symmetricRandom(0.5), symmetricRandom(0.5));
-        }
+        Vector3d particlePos = front.add(0F, 0.2F, 0F);
+
+        world.addParticle(ParticleInit.TURRET_SPARK.get(),
+                particlePos.x + side.x, particlePos.y + verticalOffset, particlePos.z + side.z,
+                0, 0, 0);
     }
 
-    public static double symmetricRandom(double i) {
-        return (RANDOM.nextFloat() - 0.5) * 2 * i;
+    public static double random(double i) {
+        return (new Random().nextFloat() - 0.5) * 2 * i;
     }
 
     public static class Factory implements IParticleFactory<BasicParticleType> {
         private final IAnimatedSprite sprite;
 
-        public Factory(IAnimatedSprite p_i50823_1_) {
-            this.sprite = p_i50823_1_;
-        }
+        public Factory(IAnimatedSprite p_i50823_1_) { this.sprite = p_i50823_1_; }
 
         public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
-            TurretSparkParticle particle = new TurretSparkParticle(world, x, y, z, dx, dy, dz);
-            particle.pickSprite(this.sprite);
+            TurretSparkParticle particle = new TurretSparkParticle(world, x, y, z, 0, 0, 0);
+            particle.setSpriteFromAge(this.sprite);
             return particle;
         }
     }

@@ -42,7 +42,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
     @Override
     public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int light) {
 //        if(super.shouldRender(turret, ))
-        this.state = turret.state;
+        this.state = turret.getState();
 
         float yRod = -(float) Math.toRadians(turret.yRot);
         float rotSin = (float) Math.sin(yRod);

@@ -57,6 +57,11 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         return this.sprite.getV((this.v + 1) * 4);
     }
 
+    @Override
+    protected int getLightColor(float idk) {
+        return 255;
+    }
+
     public static void createParticles(World world, PlayerEntity player) {
         Vector3d viewLocation = player.getEyePosition(1).add(player.getViewVector(1).scale(1.5));
 

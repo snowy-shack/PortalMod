@@ -67,9 +67,11 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CUBE_HIT = register("entity.cube.hit");
     public static final RegistryObject<SoundEvent> CUBE_GABE = register("entity.cube.gabe");
 
-    public static final RegistryObject<SoundEvent> TURRET_DEPLOY = register("entity.turret.deploy");
-    public static final RegistryObject<SoundEvent> TURRET_RETRACT = register("entity.turret.retract");
+    public static final RegistryObject<SoundEvent> TURRET_OPEN = register("entity.turret.open");
+    public static final RegistryObject<SoundEvent> TURRET_CLOSE = register("entity.turret.close");
     public static final RegistryObject<SoundEvent> TURRET_FIRE = register("entity.turret.fire");
+    public static final RegistryObject<SoundEvent> TURRET_FIRE_FAIL = register("entity.turret.fire_fail");
+    public static final RegistryObject<SoundEvent> TURRET_STOCK = register("entity.turret.stock");
 
     private static RegistryObject<SoundEvent> register(String id) {
         return SOUNDS.register(id, () -> new SoundEvent(new ResourceLocation(PortalMod.MODID, id)));

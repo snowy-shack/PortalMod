@@ -170,18 +170,10 @@
   "subtitles.block.faithplate.launch":       "Faith Plate launches",
 
   "subtitles.entity.turret.fire":         "Turret fires",
-  "subtitles.entity.turret.deploy":       "Turret activates",
-  "subtitles.entity.turret.retract":      "Turret deactivates",
-  "subtitles.entity.turret.voice.search": "Turret searches",
-  "subtitles.entity.turret.voice.sleep":  "Turret shuts off",
-  "subtitles.entity.turret.voice.fall":   "Turret tips over",
-  "subtitles.entity.turret.voice.fire":   "Turret burns",
-  "subtitles.entity.turret.voice.pickup": "Turret protests",
-  "subtitles.entity.turret.voice.target": "Turret found target",
-
-
-
-
+  "subtitles.entity.turret.fire_fail":    "Turret fire fails",
+  "subtitles.entity.turret.open":         "Turret activates",
+  "subtitles.entity.turret.close":        "Turret deactivates",
+  "subtitles.entity.turret.stock":        "Turret fills",
 
   "subtitles.block.chamber_door.open": "Chamber Door opens",
   "subtitles.block.chamber_door.close": "Chamber Door closes",
@@ -202,7 +194,7 @@
   "subtitles.item.portalgun.fire":     "Portal Gun fires",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
   "subtitles.item.portalgun.activate": "Portal Gun activates",
-  "subtitles.item.wrench.use": "Wrench Clicks",
+  "subtitles.item.wrench.use":         "Wrench Clicks",
 
 
 
@@ -216,7 +208,7 @@
   "options.portalmod.button":     "PortalMod Options...",
   "options.portalmod.title":      "PortalMod Options",
   "options.portalmod.crosshair":  "Portal 1 Crosshair",
-  "options.portalmod.custom_gun": "Portal Gun Skin",
+  "options.portalmod.skins":      "Portal Gun Skin",
   "options.portalmod.tooltips":   "Tooltips",
   "options.portalmod.menu":       "Portal Themed Menu",
   "options.portalmod.recursion":  "Portal Render Depth",
