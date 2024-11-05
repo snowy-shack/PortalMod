@@ -147,10 +147,10 @@ public class BlockInit {
 //            () -> new LaserRelayBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> FIZZLER_EMITTER = BLOCKS.register("fizzler_emitter",
-            () -> new FizzlerEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
+            () -> new FizzlerEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion().lightLevel(blockState -> blockState.getValue(FizzlerEmitterBlock.ACTIVE) ? 10 : 0)));
 
     public static final RegistryObject<Block> FIZZLER_FIELD = BLOCKS.register("fizzler_field",
-            () -> new FizzlerFieldBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion().strength(-1.0F,3600000.0F).noDrops()));
+            () -> new FizzlerFieldBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion().strength(-1.0F,3600000.0F).noDrops().lightLevel(blockState -> 10)));
 
     public static final RegistryObject<FlowingFluidBlock> GOO = BLOCKS.register("goo",
             () -> new FlowingFluidBlock(() -> FluidInit.GOO_FLUID.get(), AbstractBlock.Properties.of(Material.WATER)));
