@@ -28,9 +28,9 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
+    public IParticleRenderType getRenderType() { return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
+    @Override
+    protected int getLightColor(float idk) { return 15728880; } // See WorldRenderer:2714
 
     @Override
     public void tick() {
@@ -55,11 +55,6 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
     @Override
     protected float getV1() {
         return this.sprite.getV((this.v + 1) * 4);
-    }
-
-    @Override
-    protected int getLightColor(float idk) {
-        return 255;
     }
 
     public static void createParticles(World world, PlayerEntity player) {

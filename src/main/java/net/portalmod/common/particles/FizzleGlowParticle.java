@@ -19,9 +19,9 @@ public class FizzleGlowParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
-    }
+    public IParticleRenderType getRenderType() { return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
+    @Override
+    protected int getLightColor(float idk) { return 15728880; } // See WorldRenderer:2714
 
     @Override
     public void tick() {

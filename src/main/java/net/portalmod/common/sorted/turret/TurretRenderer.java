@@ -12,8 +12,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
@@ -30,8 +28,10 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
     private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR);
     private TurretState state = TurretState.RESTING;
     private boolean tipToLeft;
+
     public TurretRenderer(EntityRendererManager erm) {
         super(erm, new TurretModel<>(), 0.5f);
+        this.addLayer(new TurretEyeLayer<>(this));
     }
 
     @Override
@@ -75,6 +75,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             matrixStack.mulPose(lookAngle.rotationDegrees(fallAmount));
             matrixStack.translate(lookAngle.z() * tipOffset * tipDir, 0, -lookAngle.x() * tipOffset * tipDir);
         }
+
         // todo dont render turret if clipped
         super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, light);
 
@@ -83,7 +84,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             return;
         }
 
-        final float eyeHeight = 12f/16f;
+        final float eyeHeight = turret.getEyeHeight();
         float rotation = -MathHelper.lerp(partialTicks, turret.yBodyRotO, turret.yBodyRot) * ((float)Math.PI / 180f);
         float z = MathHelper.cos(rotation);
         float x = MathHelper.sin(rotation);
@@ -126,11 +127,11 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Vector3d from = turretEyePos.to3d();
         Vector3d to = from.add(rayPath);
 
-        //TODO: check for wire mesh (and glass?)
-        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
-        RayTraceResult rayResult = turret.level.clip(rayCtx);
+//        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
+//        RayTraceResult rayResult = turret.level.clip(rayCtx);
 
-        float laserLen = (float)rayResult.getLocation().subtract(from).length();
+//        float laserLen = (float)rayResult.getLocation().subtract(from).length();
+        float laserLen = (float) turret.traceAsFarAsPossible(from, to).getSecond().subtract(from).length();
         float opacity = 1f - ((float)Math.sin((double)System.currentTimeMillis() / 1000d) + 1f) / 2f * 0.3f;
 
         matrixStack.pushPose();

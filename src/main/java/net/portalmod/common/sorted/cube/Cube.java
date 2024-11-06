@@ -113,7 +113,6 @@ public class Cube extends TestElementEntity {
             }
 
             if (this.isOnGround() && !this.wasOnGround && oldDeltaY < -0.3) {
-                System.out.println(oldDeltaY);
                 float volume = MathHelper.clamp((float) -this.oldDeltaY, 0, 1);
                 this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, volume, ModUtil.randomSoundPitch());
             }

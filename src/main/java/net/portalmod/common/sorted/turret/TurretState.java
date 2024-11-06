@@ -8,8 +8,8 @@ public enum TurretState implements IStringSerializable {
     LOST_TARGET,    // Aiming laser back to the middle
     CLOSING,        // Closing wings
     FALLING,        // Falling over
-    DEAD,
-    ;           // Completely deactivated
+    DEAD,           // Completely deactivated
+    ;
 
     @Override
     public String getSerializedName() {

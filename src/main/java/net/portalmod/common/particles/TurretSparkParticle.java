@@ -7,7 +7,6 @@ import net.minecraft.particles.BasicParticleType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
-import net.portalmod.core.interfaces.IParticleRT;
 
 import java.util.Random;
 
@@ -23,13 +22,13 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRT.PARTICLE_SHEET_TRANSLUCENT_LIT;
-    }
+    public IParticleRenderType getRenderType() { return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
+    @Override
+    protected int getLightColor(float idk) { return 15728880; } // See WorldRenderer:2714
 
     @Override
     public void tick() {
-        // super.tick(); // That's what you fucking deserve
+        // super.tick(); // That's what you fucking deserve.
         if (this.age++ >= this.lifetime) this.remove();
 
         this.u = this.age % 2;
@@ -53,11 +52,6 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
         return this.sprite.getV((this.v + 1) * 8);
     }
 
-    @Override
-    protected int getLightColor(float idk) {
-        return 255;
-    }
-
     public static void createGlowParticles(World world, LivingEntity entity, Vector3d direction) {
         double heightMid = entity.getBbHeight() * 0.5;
         double widthMid = entity.getBbWidth() * 0.5;
@@ -67,7 +61,7 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
 
         Vector3d side = new Vector3d(-direction.normalize().z, 0, direction.normalize().x);
         boolean leftSide = world.getGameTime() % 8 < 4;
-        float verticalOffset = (world.getGameTime() % 4 < 2) ? -0.1F : 0.1F;
+        float verticalOffset = (world.getGameTime() % 4 < 2) ? 0.1F : -0.1F;
         side = side.multiply(leftSide ? -0.25F : 0.25F, 0, leftSide ? -0.25F : 0.25F);
 
         Vector3d particlePos = front.add(0F, 0.2F, 0F);

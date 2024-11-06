@@ -15,6 +15,8 @@ public class BlockTagInit {
     public static final Tags.IOptionalNamedTag<Block> PORTAL_TRANSPARENT = blockTag("portal_transparent");
     public static final Tags.IOptionalNamedTag<Block> PORTAL_NONBLOCKING = blockTag("portal_nonblocking");
     public static final Tags.IOptionalNamedTag<Block> ANTLINE_CONNECTABLE = blockTag("antline_connectable");
+    public static final Tags.IOptionalNamedTag<Block> BLOCK_TRANSPARENT = blockTag("block_transparent");
+    public static final Tags.IOptionalNamedTag<Block> BLOCK_PERMEABLE = blockTag("block_permeable");
 
     public static Tags.IOptionalNamedTag<Block> blockTag(String name) {
         return BlockTags.createOptional(new ResourceLocation(PortalMod.MODID, name));
