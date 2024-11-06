@@ -16,7 +16,6 @@ import net.portalmod.common.sorted.door.ChamberDoorBlock;
 import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
-import net.portalmod.common.sorted.gel.ConversionGelBlock;
 import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.gel.RepulsionGelBlock;
 import net.portalmod.common.sorted.panel.LargePanelBlock;
@@ -100,11 +99,9 @@ public class BlockInit {
             () -> new FaithPlateBlock(AbstractBlock.Properties.copy(Blocks.STONE)));
     
     public static final RegistryObject<Block> WIRE_MESH_BLOCK = BLOCKS.register("wire_mesh_block",
-            //() -> new IronGratingBlock(AbstractBlock.Properties.copy(Blocks.CHAIN)));
             () -> new WireMeshBlock(AbstractBlock.Properties.copy(Blocks.CHAIN)));
 
     public static final RegistryObject<Block> WIRE_MESH = BLOCKS.register("wire_mesh",
-            //() -> new IronGratingBlock(AbstractBlock.Properties.copy(Blocks.CHAIN)));
             () -> new PaneBlock(AbstractBlock.Properties.copy(Blocks.CHAIN)));
     
     public static final RegistryObject<Block> FOREST_CAKE = BLOCKS.register("forest_cake",
@@ -115,6 +112,9 @@ public class BlockInit {
 
     public static final RegistryObject<Block> CUBE_DROPPER = BLOCKS.register("cube_dropper",
             () -> new CubeDropperBlock(AbstractBlock.Properties.of(Material.STONE).noOcclusion()));
+
+    public static final RegistryObject<Block> PUSH_DOOR = BLOCKS.register("push_door",
+            () -> new PushDoorBlock(AbstractBlock.Properties.copy(Blocks.IRON_DOOR)));
 
     // todo rename
     public static final RegistryObject<Block> STANDING_BUTTON = BLOCKS.register("standing_button",
@@ -162,7 +162,7 @@ public class BlockInit {
     
     public static final RegistryObject<Block> REPULSION_GEL = BLOCKS.register("repulsion_gel", () -> new RepulsionGelBlock(GEL_BASE));
     public static final RegistryObject<Block> PROPULSION_GEL = BLOCKS.register("propulsion_gel", () -> new PropulsionGelBlock(GEL_BASE));
-    public static final RegistryObject<Block> CONVERSION_GEL = BLOCKS.register("conversion_gel", () -> new ConversionGelBlock(GEL_BASE));
+//    public static final RegistryObject<Block> CONVERSION_GEL = BLOCKS.register("conversion_gel", () -> new ConversionGelBlock(GEL_BASE));
 
     public static RegistryObject<Block> registerLunecast(String name) {
         return BLOCKS.register(name, () -> new SmallPanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_rh",
+  "textures": {
+    "top": "portalmod:block/push_door_top",
+    "bottom": "portalmod:block/push_door_bottom"
+  }
+}

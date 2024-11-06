@@ -1,0 +1,8 @@
+{
+  "parent": "portalmod:block/door_bottom_rh",
+  "textures": {
+    "top": "portalmod:block/push_door_top",
+    "bottom": "portalmod:block/push_door_bottom_clean",
+    "front": "portalmod:block/push_door_bottom"
+  }
+}

@@ -77,8 +77,8 @@ public class ItemInit {
     public static final RegistryObject<Item> PROPULSION_GEL = ITEMS.register("propulsion_gel",
             () -> new GelContainer(BlockInit.PROPULSION_GEL.get(), GEL_BASE, 0xE3834A));
 
-    public static final RegistryObject<Item> CONVERSION_GEL = ITEMS.register("conversion_gel",
-            () -> new GelContainer(BlockInit.CONVERSION_GEL.get(), GEL_BASE, 0xF7F7F8));
+//    public static final RegistryObject<Item> CONVERSION_GEL = ITEMS.register("conversion_gel",
+//            () -> new GelContainer(BlockInit.CONVERSION_GEL.get(), GEL_BASE, 0xF7F7F8));
 
     public static final RegistryObject<Item> TURRET = registerSpawnEgg("turret", EntityInit.TURRET, "turret");
 
@@ -158,6 +158,8 @@ public class ItemInit {
     public static final RegistryObject<Item> RUSTY_IRON_FRAME = registerBlockItem("rusty_iron_frame", BlockInit.RUSTY_IRON_FRAME);
     public static final RegistryObject<Item> RUSTY_BARRED_IRON_FRAME = registerBlockItem("rusty_barred_iron_frame", BlockInit.RUSTY_BARRED_IRON_FRAME);
     public static final RegistryObject<Item> RUSTY_MESHED_IRON_FRAME = registerBlockItem("rusty_meshed_iron_frame", BlockInit.RUSTY_MESHED_IRON_FRAME);
+
+    public static final RegistryObject<Item> PUSH_DOOR = registerBlockItem("push_door", BlockInit.PUSH_DOOR);
 
     // Test Items, remove later
     public static final RegistryObject<Item> TEST_BLOCK = registerBlockItem("test_block", BlockInit.TEST_BLOCK);

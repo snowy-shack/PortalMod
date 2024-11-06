@@ -125,6 +125,12 @@
     "block.chamber_door.close": {
         "sounds": [ "portalmod:block/chamber_door/close" ],
         "subtitle": "subtitles.block.chamber_door.close" },
+    "block.push_door.open": {
+        "sounds": [ "portalmod:block/push_door/open" ],
+        "subtitle": "subtitles.block.push_door.open" },
+    "block.push_door.close": {
+        "sounds": [ "portalmod:block/push_door/close" ],
+        "subtitle": "subtitles.block.push_door.close" },
     "block.super_button.press": {
         "sounds": [ "portalmod:block/super_button/press" ]},
     "block.super_button.release": {
