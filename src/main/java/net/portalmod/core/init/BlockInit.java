@@ -18,6 +18,7 @@ import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.gel.RepulsionGelBlock;
+import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.panel.LargePanelBlock;
 import net.portalmod.common.sorted.panel.SmallPanelBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
@@ -153,7 +154,7 @@ public class BlockInit {
             () -> new FizzlerFieldBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion().strength(-1.0F,3600000.0F).noDrops().lightLevel(blockState -> 10)));
 
     public static final RegistryObject<FlowingFluidBlock> GOO = BLOCKS.register("goo",
-            () -> new FlowingFluidBlock(() -> FluidInit.GOO_FLUID.get(), AbstractBlock.Properties.of(Material.WATER)));
+            () -> new GooBlock(FluidInit.GOO_FLUID, AbstractBlock.Properties.of(Material.WATER)));
     
     // GEL
     

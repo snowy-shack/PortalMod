@@ -9,7 +9,6 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -18,16 +17,14 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.init.FluidInit;
-import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.init.ItemTagInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.math.Vec3;
-import net.portalmod.core.util.ModUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -353,38 +350,25 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
     public void pmAddGooResistance(Vector3d p_213352_1_, CallbackInfo ci) {
         FluidState fluidState = this.level.getFluidState(this.blockPosition());
-        boolean isInGoo = !this.firstTick && this.fluidHeight.getDouble(FluidTagInit.GOO) > 0;
 
-        if (isInGoo && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.3, 0.6, 0.3));
+        if (GooBlock.isInGoo(this) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
+            GooBlock.applyGooResistance(this);
         }
     }
 
     @Inject(method = "baseTick", at = @At("HEAD"), remap = false)
     public void pmAddGooDamage(CallbackInfo ci) {
-        boolean isInGoo = !this.firstTick && this.fluidHeight.getDouble(FluidTagInit.GOO) > 0;
-        if (isInGoo) {
-            this.fallDistance = 0;
-
-            float damage = 4;
-            for (ItemStack itemStack: this.getArmorSlots()) {
-                if (itemStack.getItem().is(ItemTagInit.GOO_PROTECTION)) {
-                    damage = 0.2f;
-                    break;
-                }
-            }
-
-            this.hurt(FluidInit.GOO_DAMAGE, damage);
+        if (GooBlock.isInGoo(this)) {
+            GooBlock.addGooDamage(this);
         }
     }
 
-    //todo might have to create a packet to hurt the entity on the client as well, will have to test this on a server
-    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;broadcastEntityEvent(Lnet/minecraft/entity/Entity;B)V"))
-    public void pmHandleGooDamage(World instance, Entity entity, byte p_72960_2_, DamageSource p_70097_1_) {
-        if (p_70097_1_ == FluidInit.GOO_DAMAGE && p_72960_2_ == 2 && entity instanceof LivingEntity) {
-            this.level.playSound(null, entity, ((LivingEntity) entity).getHurtSound(p_70097_1_), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;broadcastEntityEvent(Lnet/minecraft/entity/Entity;B)V", ordinal = 2))
+    public void pmHandleGooDamage(World world, Entity entity, byte b, DamageSource damageSource) {
+        if (damageSource == FluidInit.GOO_DAMAGE && b == 2 && entity instanceof LivingEntity) {
+            GooBlock.handleGooDamage((LivingEntity) entity, damageSource);
         } else {
-            this.level.broadcastEntityEvent(this, p_72960_2_);
+            this.level.broadcastEntityEvent(this, b);
         }
     }
 }
