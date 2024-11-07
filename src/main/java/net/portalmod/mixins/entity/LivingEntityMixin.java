@@ -9,6 +9,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.IPacket;
 import net.minecraft.particles.BlockParticleData;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
@@ -69,6 +70,8 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Shadow public abstract Iterable<ItemStack> getArmorSlots();
 
     @Shadow public abstract EntitySize getDimensions(Pose p_213305_1_);
+
+    @Shadow public abstract IPacket<?> getAddEntityPacket();
 
     @Inject(
             remap = false,
@@ -400,7 +403,6 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         BlockPos pos = new BlockPos(this.position());
         BlockState state = level.getBlockState(pos);
 
-        System.out.println(pos);
         if (!isGelBlock(state)) {
             super.spawnSprintParticle();
         } else {
@@ -426,7 +428,6 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         BlockPos nPos = new BlockPos(this.position());
         BlockState nState = level.getBlockState(nPos);
 
-        System.out.println(isGelBlock(nState));
         if (!isGelBlock(nState)) {
             super.playStepSound(pos, state);
         } else {

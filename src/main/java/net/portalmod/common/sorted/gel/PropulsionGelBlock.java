@@ -9,7 +9,6 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 
 public class PropulsionGelBlock extends AbstractGelBlock {
     public PropulsionGelBlock(Properties properties) {
@@ -28,8 +27,8 @@ public class PropulsionGelBlock extends AbstractGelBlock {
         VoxelShape voxelshape1 = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
         boolean flag = VoxelShapes.joinIsNotEmpty(voxelshape1, VoxelShapes.create(entity.getBoundingBox().inflate(.001f)),
                 IBooleanFunction.AND);
-        if(entity instanceof IFaithPlateLaunchable && flag)
-            ((IFaithPlateLaunchable)entity).setLaunched(true);
+//        if(entity instanceof IFaithPlateLaunchable && flag)
+//            ((IFaithPlateLaunchable)entity).setLaunched(true);
         return flag ? 1.5f : super.getSpeedFactor();
 //        return entity.isColliding(pos, state) ? 1.5f : 0;
     }

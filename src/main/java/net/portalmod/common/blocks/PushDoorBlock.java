@@ -2,6 +2,7 @@ package net.portalmod.common.blocks;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoorBlock;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -41,6 +42,11 @@ public class PushDoorBlock extends DoorBlock {
 
     public PushDoorBlock(Properties p_i48413_1_) {
         super(p_i48413_1_);
+    }
+
+    @Override
+    public void fallOn(World p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
+        super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
     }
 
     @Override
