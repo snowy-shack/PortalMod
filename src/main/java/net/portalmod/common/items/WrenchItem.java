@@ -24,6 +24,7 @@ import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 public class WrenchItem extends Item {
     public WrenchItem(Properties properties) {
@@ -36,6 +37,10 @@ public class WrenchItem extends Item {
 
     public static void playUseSound(World level, double x, double y, double z) {
         level.playSound(null, x, y, z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    }
+
+    public static boolean holdingWrench(Entity entity) {
+        return StreamSupport.stream(entity.getHandSlots().spliterator(), false).anyMatch(itemStack -> itemStack.getItem() instanceof WrenchItem);
     }
 
     @Override

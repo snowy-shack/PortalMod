@@ -3,7 +3,7 @@ import net.minecraft.util.IStringSerializable;
 
 public enum HitType implements IStringSerializable {
     CLEAR,       // No block hits
-    PERMUABLE,   // Went through permuable blocks
+    PERMEABLE,   // Went through permeable blocks
     TRANSPARENT, // Hit a solid but transparent block
     SOLID,       // Hit a solid wall
     CUBE,        // Hits a cube

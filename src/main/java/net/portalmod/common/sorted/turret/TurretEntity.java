@@ -38,8 +38,8 @@ public class TurretEntity extends TestElementEntity {
     public static final DataParameter<String> STATE_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.STRING);
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
-    public static final float BULLET_DAMAGE = 0f;
-    public static final float BULLET_KNOCKBACK = 0.2f;
+    public static final float BULLET_DAMAGE = 0.01f;
+    public static final float BULLET_KNOCKBACK = 0.1f;
     public int fallDuration = 10;
     public int viewDistance = 32;
 
@@ -127,7 +127,7 @@ public class TurretEntity extends TestElementEntity {
             this.playSound(this.canShoot() ? SoundInit.TURRET_FIRE.get() : SoundInit.TURRET_FIRE_FAIL.get(), 4.5f, 1);
         }
 
-        if (this.targetEntity == null) {
+        if (this.targetEntity == null || !WrenchItem.holdingWrench(this.targetEntity)) {
             return;
         }
 
@@ -136,7 +136,9 @@ public class TurretEntity extends TestElementEntity {
             return;
         }
 
-        this.setAmmo(this.getAmmo() - 1);
+        if (!this.getInfiniteAmmo()) {
+            this.setAmmo(this.getAmmo() - 1);
+        }
 
         Vector3d you = this.getEyePosition(1.0F);
         Vector3d theGuySheTellsYouNotToWorryAbout = targetEntity.getEyePosition(1.0F).subtract(0F, 0.5F, 0F);
@@ -153,15 +155,12 @@ public class TurretEntity extends TestElementEntity {
         }
 
         // Do damage
-        if (new Random().nextFloat() < 0.6f) {
-            if (!targetEntity.isBlocking()) {
-                if (this.targetEntity.getMainHandItem().getItem() instanceof WrenchItem) return; // DEBUG
-                this.targetEntity.invulnerableTime = 0; // No mercy
-                boolean hurt = this.targetEntity.hurt(damageSource(this), BULLET_DAMAGE);
-                if (hurt) {
-                    Vector3d knockbackDirection = this.position().subtract(this.targetEntity.position()).scale(0.5);
-                    this.targetEntity.knockback(BULLET_KNOCKBACK, knockbackDirection.x, knockbackDirection.z);
-                }
+        if (new Random().nextFloat() < 0.6f && !targetEntity.isBlocking()) {
+            this.targetEntity.invulnerableTime = 0; // No mercy
+            boolean hurt = this.targetEntity.hurt(damageSource(this), BULLET_DAMAGE);
+            if (hurt) {
+                Vector3d knockbackDirection = this.position().subtract(this.targetEntity.position()).scale(0.5);
+                this.targetEntity.knockback(BULLET_KNOCKBACK, knockbackDirection.x, knockbackDirection.z);
             }
         }
     }
@@ -190,7 +189,7 @@ public class TurretEntity extends TestElementEntity {
             BlockState blockState = this.level.getBlockState(rayTraceResult.getBlockPos());
             Block block = blockState.getBlock();
 
-            if (hit != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hit = HitType.PERMUABLE;
+            if (hit != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hit = HitType.PERMEABLE;
             if (block.is(BlockTagInit.BLOCK_TRANSPARENT)) {
                 transparentBlockPos = rayTraceResult.getLocation();
                 hit = HitType.TRANSPARENT;
