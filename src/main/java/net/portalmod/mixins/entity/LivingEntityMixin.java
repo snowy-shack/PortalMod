@@ -1,28 +1,30 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.SoundType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particles.BlockParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.gel.IGelBouncable;
 import net.portalmod.common.sorted.portal.*;
-import net.portalmod.core.init.FluidInit;
-import net.portalmod.core.init.FluidTagInit;
-import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.init.ItemTagInit;
+import net.portalmod.core.init.*;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -41,7 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Deque;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements IFaithPlateLaunchable, IDragCancelable {
+public abstract class LivingEntityMixin extends Entity implements IFaithPlateLaunchable, IDragCancelable, IGelBouncable {
     private boolean pmLaunched = false;
 
     public LivingEntityMixin(EntityType<?> entityType, World level) {
@@ -63,6 +65,8 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Shadow public abstract boolean canStandOnFluid(Fluid p_230285_1_);
 
     @Shadow public abstract Iterable<ItemStack> getArmorSlots();
+
+    @Shadow public abstract EntitySize getDimensions(Pose p_213305_1_);
 
     @Inject(
             remap = false,
@@ -348,6 +352,85 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Override
     public boolean isLaunched() {
         return pmLaunched;
+    }
+
+    private float lastFallDistance = 0;
+    private boolean bounced = false;
+    private boolean wasOnGround = true;
+
+    @Override
+    public void setLastFallDistance(float distance) {
+        lastFallDistance = distance;
+    }
+
+    @Override
+    public float getLastFallDistance() {
+        return lastFallDistance;
+    }
+
+    @Override
+    public void setBounced(boolean newBounced) {
+        bounced = newBounced;
+    }
+
+    @Override
+    public boolean getBounced() {
+        return bounced;
+    }
+
+    @Override
+    public void setWasOnGround(boolean newWasOnGround) {
+        wasOnGround = newWasOnGround;
+    }
+
+    @Override
+    public boolean getWasOnGround() {
+        return wasOnGround;
+    }
+
+    boolean isGelBlock(BlockState state) {
+        return state.getBlock() == BlockInit.REPULSION_GEL.get() || state.getBlock() == BlockInit.PROPULSION_GEL.get(); // BlockTagInit.GEL_BLOCKS
+    }
+
+    @Override
+    protected void spawnSprintParticle() {
+        World level = this.level;
+        BlockPos pos = new BlockPos(this.position());
+        BlockState state = level.getBlockState(pos);
+
+        System.out.println(pos);
+        if (!isGelBlock(state)) {
+            super.spawnSprintParticle();
+        } else {
+            int i = MathHelper.floor(this.getX());
+            int j = MathHelper.floor(this.getY() + (double)0.8F);
+            int k = MathHelper.floor(this.getZ());
+            BlockPos blockpos = new BlockPos(i, j, k);
+            BlockState blockstate = this.level.getBlockState(blockpos);
+            if(!blockstate.addRunningEffects(level, blockpos, this))
+                if (blockstate.getRenderShape() != BlockRenderType.INVISIBLE) {
+                    Vector3d vector3d = this.getDeltaMovement();
+                    this.level.addParticle(new BlockParticleData(ParticleTypes.BLOCK, blockstate).setPos(blockpos),
+                            this.getX() + (this.random.nextDouble() - 0.5D) * (double)this.getDimensions(this.getPose()).width,
+                            this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) * (double)this.getDimensions(this.getPose()).width,
+                            vector3d.x * -4.0D, 1.5D, vector3d.z * -4.0D);
+                }
+        }
+    }
+
+    @Override
+    protected void playStepSound(BlockPos pos, BlockState state) {
+        World level = this.level;
+        BlockPos nPos = new BlockPos(this.position());
+        BlockState nState = level.getBlockState(nPos);
+
+        System.out.println(isGelBlock(nState));
+        if (!isGelBlock(nState)) {
+            super.playStepSound(pos, state);
+        } else {
+            SoundType soundtype = nState.getSoundType(level, nPos, this);
+            this.playSound(soundtype.getStepSound(), soundtype.getVolume() * 0.15F, ModUtil.randomSoundPitch());
+        }
     }
 
     @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
