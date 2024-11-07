@@ -55,6 +55,7 @@ import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalEntityClient;
 import net.portalmod.common.sorted.portal.PortalRenderer;
@@ -265,7 +266,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void fogDensity(final EntityViewRenderEvent.FogDensity event) {
         if (event.getInfo().getFluidInCamera().is(FluidTagInit.GOO)) {
-            event.setDensity(0.95f);
+            event.setDensity(GooBlock.FOG_DENSITY);
             event.setCanceled(true);
         }
     }
@@ -274,9 +275,7 @@ public class ClientEvents {
     public static void fogColor(final EntityViewRenderEvent.FogColors event) {
         FluidState fluidInCamera = event.getInfo().getFluidInCamera();
         if (fluidInCamera.is(FluidTagInit.GOO)) {
-            event.setRed(70 / 256f);
-            event.setGreen(53 / 256f);
-            event.setBlue(29 / 256f);
+            GooBlock.setFogColor(event);
         }
     }
     

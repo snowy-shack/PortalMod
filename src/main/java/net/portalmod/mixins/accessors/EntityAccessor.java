@@ -15,4 +15,7 @@ public interface EntityAccessor {
 
     @Invoker(remap = false, value = "getBoundingBoxForPose")
     AxisAlignedBB pmGetBoundingBoxForPose(Pose pose);
+
+    @Accessor(remap = false, value = "firstTick")
+    boolean pmGetFirstTick();
 }
