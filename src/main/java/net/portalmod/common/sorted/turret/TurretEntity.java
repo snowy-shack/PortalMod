@@ -118,17 +118,18 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void shoot() {
-        if (this.turretView(targetEntity) == HitType.TRANSPARENT) return;
-
-        if (this.level.getGameTime() % 2 == 0) {
-            if (this.canShoot()) TurretSparkParticle.createGlowParticles(this.level, this, this.turretToTarget);
+        if (this.targetEntity == null || WrenchItem.holdingWrench(this.targetEntity) || this.turretView(targetEntity) == HitType.TRANSPARENT) {
+            return;
         }
+
+        // Particles
+        if (this.canShoot() && this.level.getGameTime() % 2 == 0) {
+            TurretSparkParticle.createGlowParticles(this.level, this, this.turretToTarget);
+        }
+
+        // Sounds
         if (this.level.getGameTime() % 8 == 0) {
             this.playSound(this.canShoot() ? SoundInit.TURRET_FIRE.get() : SoundInit.TURRET_FIRE_FAIL.get(), 4.5f, 1);
-        }
-
-        if (this.targetEntity == null || !WrenchItem.holdingWrench(this.targetEntity)) {
-            return;
         }
 
         // Shoot every 4 ticks (5 times per second)
@@ -145,7 +146,7 @@ public class TurretEntity extends TestElementEntity {
 
         AxisAlignedBB eyeToEye = new AxisAlignedBB(you, theGuySheTellsYouNotToWorryAbout);
 
-        boolean obstructed = false;
+        // Cube shield
         for (Cube cube : this.level.getNearbyEntities(Cube.class, EntityPredicate.DEFAULT, this, eyeToEye)) {
             AxisAlignedBB cubeAABB = cube.getBoundingBox();
             if (cubeAABB.clip(you, theGuySheTellsYouNotToWorryAbout).orElse(null) != null) {
