@@ -52,15 +52,22 @@ public class PushDoorBlock extends DoorBlock {
     @Override
     public void tick(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random) {
         // Get whether there is a player within 3 blocks
-        boolean playerNearby = !world.getEntitiesOfClass(PlayerEntity.class,
+        boolean playerNearby = !world.getEntitiesOfClass(
+                PlayerEntity.class,
                 new AxisAlignedBB(blockPos).inflate(3),
-                player -> !player.isSpectator()).isEmpty();
-        if (!playerNearby) {
-            if (blockState.getValue(OPEN)) {
-                blockState = blockState.cycle(OPEN); // Close the door
-                world.setBlock(blockPos, blockState, 10);
-                this.playCloseSound(world, blockPos);
-            }
-        } else world.getBlockTicks().scheduleTick(blockPos, this, 5);
+                player -> !player.isSpectator()
+        ).isEmpty();
+
+        if (playerNearby) {
+            world.getBlockTicks().scheduleTick(blockPos, this, 5);
+            return;
+        }
+
+        // Close
+        if (blockState.getValue(OPEN)) {
+            blockState = blockState.cycle(OPEN); // Close the door
+            world.setBlock(blockPos, blockState, 10);
+            this.playCloseSound(world, blockPos);
+        }
     }
 }
