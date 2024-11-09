@@ -38,7 +38,7 @@ public class TurretEntity extends TestElementEntity {
     public static final DataParameter<String> STATE_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.STRING);
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
-    public static final float BULLET_DAMAGE = 0.01f;
+    public static final float BULLET_DAMAGE = 0.5f;
     public static final float BULLET_KNOCKBACK = 0.1f;
     public int fallDuration = 10;
     public int viewDistance = 32;

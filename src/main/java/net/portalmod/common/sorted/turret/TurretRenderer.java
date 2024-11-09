@@ -26,8 +26,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret_off.png"),
     };
     private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR);
-    private TurretState state = TurretState.RESTING;
-    private boolean tipToLeft;
+    public static TurretState state = TurretState.RESTING;
 
     public TurretRenderer(EntityRendererManager erm) {
         super(erm, new TurretModel<>(), 0.5f);
@@ -36,7 +35,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
 
     @Override
     public ResourceLocation getTextureLocation(TurretEntity turret) {
-        return TEXTURE[(this.state == TurretState.DEAD) ? 1 : 0];
+        return TEXTURE[(state == TurretState.DEAD) ? 1 : 0];
     }
 
     @Override
@@ -49,7 +48,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         float rotCos = (float) Math.cos(yRod);
 
         float tipSide = (float) turret.tipDirection.x * rotCos - (float) turret.tipDirection.z * rotSin;
-        tipToLeft = (tipSide > 0);
+        boolean tipToLeft = (tipSide > 0);
 
         float fallAnimTick = Math.min(turret.animationTick + partialTicks, turret.fallDuration);
         float fallAmount = 90F * (fallAnimTick * fallAnimTick) / (turret.fallDuration * turret.fallDuration);
