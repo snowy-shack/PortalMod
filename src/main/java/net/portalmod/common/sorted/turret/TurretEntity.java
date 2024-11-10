@@ -5,7 +5,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -24,10 +26,7 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.TurretSparkParticle;
 import net.portalmod.common.sorted.cube.Cube;
-import net.portalmod.core.init.BlockTagInit;
-import net.portalmod.core.init.EntityInit;
-import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.init.*;
 
 import java.util.*;
 
@@ -42,6 +41,9 @@ public class TurretEntity extends TestElementEntity {
     public static final float BULLET_KNOCKBACK = 0.1f;
     public int fallDuration = 10;
     public int viewDistance = 32;
+
+    public LivingEntity previousTargetEntity = null;
+    private int thisTargetShootingTicks = 0;
 
     public LivingEntity targetEntity = null;
     public Vector3d lastLaserPos = Vector3d.ZERO;
@@ -71,18 +73,20 @@ public class TurretEntity extends TestElementEntity {
         this.yBodyRot = this.yRot;
         if (this.isFizzling()) return;
 
-        if (this.getVehicle() instanceof PlayerEntity) { // If it's being held with a Portal Gun
+        // If it's being held with a Portal Gun
+        if (this.getVehicle() instanceof PlayerEntity) {
             setState(TurretState.LOST_TARGET);
             return;
         }
 
         this.animate();
 
+        // Tipping over
         Vector3d motionXZ = new Vector3d(getDeltaMovement().x, 0, getDeltaMovement().z);
         if (motionXZ.length() > 0.1
                 && getState() != TurretState.FALLING
                 && getState() != TurretState.DEAD
-                && this.onGround) { // If it's being pushed
+                && this.onGround) {
             this.animationTick = 0;
             setState(TurretState.FALLING);
             this.tipDirection = motionXZ.normalize();
@@ -93,7 +97,9 @@ public class TurretEntity extends TestElementEntity {
 
         if (getState() == TurretState.SHOOTING || getState() == TurretState.FALLING) {
             this.shoot();
-        }
+        } else this.thisTargetShootingTicks = 0;
+
+        this.previousTargetEntity = this.targetEntity;
     }
 
     public void animate() {
@@ -118,8 +124,19 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void shoot() {
+        // This is awkward advancement
+        if (this.targetEntity == null || this.targetEntity != this.previousTargetEntity) {
+            this.thisTargetShootingTicks = 0;
+        }
+
         if (this.targetEntity == null || WrenchItem.holdingWrench(this.targetEntity) || this.turretView(targetEntity) == HitType.TRANSPARENT) {
             return;
+        }
+
+        // This is awkward advancement
+        if (this.targetEntity == this.previousTargetEntity) this.thisTargetShootingTicks++;
+        if (thisTargetShootingTicks > 200 && targetEntity instanceof ServerPlayerEntity) {
+            CriteriaTriggerInit.SURVIVE_TURRET.get().trigger((ServerPlayerEntity) targetEntity);
         }
 
         // Particles
@@ -150,7 +167,9 @@ public class TurretEntity extends TestElementEntity {
         for (Cube cube : this.level.getNearbyEntities(Cube.class, EntityPredicate.DEFAULT, this, eyeToEye)) {
             AxisAlignedBB cubeAABB = cube.getBoundingBox();
             if (cubeAABB.clip(you, theGuySheTellsYouNotToWorryAbout).orElse(null) != null) {
-                this.playSound(SoundInit.CUBE_HIT.get(), 1.5f, 1); // A cube intercepted the bullets
+                Vector3d cubePos = targetEntity.getEyePosition(1F).add(targetEntity.getViewVector(1F));
+                level.playSound(null, cubePos.x, cubePos.y, cubePos.z, SoundInit.CUBE_HIT.get(),
+                        SoundCategory.NEUTRAL, 1.5f, 1); // A cube intercepted the bullets
                 return;
             }
         }
@@ -164,6 +183,15 @@ public class TurretEntity extends TestElementEntity {
                 this.targetEntity.knockback(BULLET_KNOCKBACK, knockbackDirection.x, knockbackDirection.z);
             }
         }
+
+        // Friendly Fire advancement
+        if (targetEntity instanceof MonsterEntity) {
+            PlayerEntity nearestPlayer = level.getNearestPlayer(this, 10);
+            if (nearestPlayer instanceof ServerPlayerEntity) {
+                CriteriaTriggerInit.TURRET_DEFENSE.get().trigger((ServerPlayerEntity) nearestPlayer);
+            }
+        }
+
     }
 
     public boolean canShoot() {
@@ -176,6 +204,7 @@ public class TurretEntity extends TestElementEntity {
         RayTraceContext context;
         BlockRayTraceResult rayTraceResult;
         Vector3d transparentBlockPos = null;
+        boolean hitGlass = false;
 
         HitType hit = HitType.CLEAR;
         while (true) {
@@ -191,8 +220,9 @@ public class TurretEntity extends TestElementEntity {
             Block block = blockState.getBlock();
 
             if (hit != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hit = HitType.PERMEABLE;
-            if (block.is(BlockTagInit.BLOCK_TRANSPARENT)) {
+            if (block.is(BlockTagInit.BLOCK_TRANSPARENT) && !hitGlass) {
                 transparentBlockPos = rayTraceResult.getLocation();
+                hitGlass = true;
                 hit = HitType.TRANSPARENT;
             }
 

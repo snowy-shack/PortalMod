@@ -116,10 +116,10 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Vec3 laserRight = laserUp.clone().cross(laserForward).normalize();
 
         Mat4 laserMatrix = new Mat4(
-                laserRight.x, laserUp.x, laserForward.x, 0,
-                laserRight.y, laserUp.y, laserForward.y, 0,
-                laserRight.z, laserUp.z, laserForward.z, 0,
-                           0,         0,               0, 1
+                laserRight.x, laserUp.x, laserForward.x,0,
+                laserRight.y, laserUp.y, laserForward.y,0,
+                laserRight.z, laserUp.z, laserForward.z,0,
+                0,0, 0, 1
         );
 
         Vector3d rayPath = turretToTarget.scale(Minecraft.getInstance().gameRenderer.getRenderDistance() * 2);
@@ -150,7 +150,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
-        RenderSystem.disableCull();
+//        RenderSystem.disableCull(); // Causes transparent texture issues
 
         Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
         LASER_BUFFER.bind();
@@ -158,6 +158,8 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         if (this.state != TurretState.FALLING && this.state != TurretState.DEAD) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
         VertexBuffer.unbind();
         DefaultVertexFormats.POSITION_TEX_COLOR.clearBufferState();
+
+        RenderSystem.defaultBlendFunc();
 
         matrixStack.popPose();
 
