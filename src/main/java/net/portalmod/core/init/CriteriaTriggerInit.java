@@ -3,8 +3,6 @@ package net.portalmod.core.init;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
 import net.portalmod.common.triggers.CodeBoundTrigger;
-import net.portalmod.common.triggers.FaithPlateElytraTrigger;
-import net.portalmod.common.triggers.ShootMoonTrigger;
 import net.portalmod.core.util.Registry;
 
 public class CriteriaTriggerInit {
@@ -20,6 +18,8 @@ public class CriteriaTriggerInit {
     public static final Registry.Entry<CodeBoundTrigger> SHOOT_PORTAL_FAR = registerCBT("shoot_portal_far");
     public static final Registry.Entry<CodeBoundTrigger> GRAB_ENTITY = registerCBT("grab_entity");
     public static final Registry.Entry<CodeBoundTrigger> CUBE_ON_BUTTON = registerCBT("cube_on_button");
+    public static final Registry.Entry<CodeBoundTrigger> SURVIVE_TURRET = registerCBT("survive_turret");
+    public static final Registry.Entry<CodeBoundTrigger> TURRET_DEFENSE = registerCBT("turret_defense");
 
     private static <S extends AbstractCriterionTrigger<?>> S register(S trigger) {
         CriteriaTriggers.register(trigger);

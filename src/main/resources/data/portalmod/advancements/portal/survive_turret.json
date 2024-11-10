@@ -2,7 +2,7 @@
   "parent": "portalmod:portal/turret_defense",
   "criteria": {
     "requirement": {
-      "trigger": "minecraft:impossible"
+      "trigger": "portalmod:survive_turret"
     }
   },
   "display": {

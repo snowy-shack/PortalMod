@@ -2,7 +2,7 @@
   "parent": "portalmod:portal/root",
   "criteria": {
     "condition_name": {
-      "trigger": "minecraft:impossible"
+      "trigger": "portalmod:turret_defense"
     }
   },
   "display": {
