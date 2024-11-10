@@ -54,7 +54,6 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
 
     public static void createGlowParticles(World world, LivingEntity entity, Vector3d direction) {
         double heightMid = entity.getBbHeight() * 0.5;
-        double widthMid = entity.getBbWidth() * 0.5;
         Vector3d middle = entity.position().add(0, heightMid, 0);
 
         Vector3d front = middle.add(direction.normalize().multiply(0.3F, 0F, 0.3F));
