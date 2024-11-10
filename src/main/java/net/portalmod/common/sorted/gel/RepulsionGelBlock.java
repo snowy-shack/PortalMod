@@ -1,12 +1,15 @@
 package net.portalmod.common.sorted.gel;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
@@ -18,40 +21,93 @@ public class RepulsionGelBlock extends AbstractGelBlock {
 
     @Override
     public void fallOn(World world, BlockPos blockPos, Entity entity, float fallDistance) {
-//        super.fallOn(world, blockPos, entity, fallDistance);
+        if (!entity.isShiftKeyDown()) {
+            super.fallOn(world, blockPos, entity, fallDistance); // Negate fall damage unless shifting
+        }
     }
 
     public RepulsionGelBlock(Properties properties) {
         super(properties);
     }
 
-    public static void bounce(Entity entity, float velocity) {
-        IGelBouncable gelBouncable = (((IGelBouncable) entity));
-        if (gelBouncable.getBounced()) return;
-        gelBouncable.setBounced(true);
+    public static void verticalBounce(Entity entity, float velocity) {
+        IGelAffected gelAffected = (((IGelAffected) entity));
+        if (gelAffected.getBounced()) return;
+        gelAffected.setBounced(true);
 
-        entity.level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.REPULSION_GEL_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
+        entity.level.playSound(null, entity, SoundInit.REPULSION_GEL_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
         entity.setDeltaMovement(entity.getDeltaMovement().x, velocity, entity.getDeltaMovement().z);
+
+        // Reset some variables
         entity.fallDistance = 0;
-        gelBouncable.setLastFallDistance(0);
+        gelAffected.setLastNeurtalHeight(0);
+    }
+
+    public static double checkSpeedInDirection(Entity entity, Direction direction) {
+        Vector3d deltaMovement = ((IGelAffected) entity).getLastDeltaMovement();
+        switch (direction) {
+            case NORTH: return -deltaMovement.z;
+            case EAST:  return  deltaMovement.x;
+            case SOUTH: return  deltaMovement.z;
+            case WEST:  return -deltaMovement.x;
+            default: return 0;
+        }
+    }
+
+    public static void horizontalBounce(BlockPos pos, Entity entity, Direction direction) {
+        Vector3d deltaMovement = ((IGelAffected)entity).getLastDeltaMovement();
+
+        float horizontalBounceAmount = 0.7F;
+        float verticalBounceAmount = 0.25F;
+        float speedBounceBonusAmount = 1.4F;
+
+        Vector3d bounceDir = new Vector3d(direction.getOpposite().getStepX(), 0, direction.getOpposite().getStepZ());
+        Vector3d parallel = new Vector3d(Math.abs(bounceDir.z), 0, Math.abs(bounceDir.x)).scale(speedBounceBonusAmount);
+
+        Vector3d bounceSurface = Vector3d.atCenterOf(pos).add(bounceDir.scale(-.5F));
+        Vector3d distance = entity.getPosition(1F).subtract(bounceSurface);
+
+        // Check whether the player is nearby enough
+        if (direction.getAxis() == Direction.Axis.X) {
+            if (Math.abs(distance.x) > entity.getBbWidth() / 1.5F) return;
+        } else {
+            if (Math.abs(distance.z) > entity.getBbWidth() / 1.5F) return;
+        }
+
+        float speed = (float) checkSpeedInDirection(entity, direction);
+//        ModUtil.sendChat(entity.level, speed);
+        if (speed > 0.1 || (Minecraft.getInstance().options.keyJump.isDown())) {
+            // This also applies a boost along the plane of the gel
+            // todo preserve momentum going into bounce
+            entity.setDeltaMovement(bounceDir.scale(horizontalBounceAmount)
+                    .add(0, verticalBounceAmount, 0)
+                    .add(deltaMovement.multiply(parallel))
+            );
+            entity.level.playSound(null, entity, SoundInit.REPULSION_GEL_BOUNCE.get(),
+                    SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
+        }
     }
 
     public static void calculateBounce(World level, BlockState state, BlockPos pos, Entity entity) {
-        IGelBouncable gelBouncable = ((IGelBouncable) entity);
-//        float playerFallHeight = (float) ((gelBouncable.getLastFallDistance() > 0) ? Math.floor(gelBouncable.getLastFallDistance() / 2 + 1) : 0);
-        float playerFallHeight = (float) (gelBouncable.getLastFallDistance() - pos.getY());
-//        ModUtil.sendChat(level, gelBouncable.getLastFallDistance());
-//        ModUtil.sendChat(level, entity.getY());
+        IGelAffected gelAffected = ((IGelAffected) entity);
+        float playerFallHeight = (float) Math.floor(gelAffected.getLastNeutralHeight() - pos.getY());
+
+        if (playerFallHeight >= 193) {
+            playerFallHeight = (float) (Math.pow(playerFallHeight - 193, 2F/3F) + 192);
+        }
 
         boolean bounceVertical = state.getValue(DOWN);
 
-//        VoxelShape voxelshape = state.getCollisionShape(level, pos, ISelectionContext.of(entity));
-//        VoxelShape voxelshape1 = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
-//        boolean flag = VoxelShapes.joinIsNotEmpty(voxelshape1, VoxelShapes.create(entity.getBoundingBox().inflate(200f)), IBooleanFunction.AND);
+        if (!entity.isShiftKeyDown()) {
+            if (state.getValue(NORTH)) horizontalBounce(pos, entity, Direction.NORTH);
+            if (state.getValue(EAST))  horizontalBounce(pos, entity, Direction.EAST);
+            if (state.getValue(SOUTH)) horizontalBounce(pos, entity, Direction.SOUTH);
+            if (state.getValue(WEST))  horizontalBounce(pos, entity, Direction.WEST);
+        }
 
         boolean bounceFromAbove = playerFallHeight > 0.1 && entity.isOnGround();
         boolean bounceFromSpeed = entity.getDeltaMovement().length() > 0.2 && entity.isOnGround();
-        boolean bounceFromJump = gelBouncable.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
+        boolean bounceFromJump = gelAffected.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
 
         // Vertical bounce
         if (state.getBlock() == BlockInit.REPULSION_GEL.get() && bounceVertical &&
@@ -63,38 +119,35 @@ public class RepulsionGelBlock extends AbstractGelBlock {
                 CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayerEntity) entity); // Leap of Faith advancement
             }
 
-//            ((IFaithPlateLaunchable) entity).setLaunched(true);
-
-//            float velocity = (float) Math.sqrt(Math.max(prevFallDistance, minBounceHeight) * 1.8 * 0.08);
-            ModUtil.sendChat(entity.level, playerFallHeight);
-
             float x = Math.max(playerFallHeight, minBounceHeight);
-            float velocity = (float) (-0.1F +
-                    0.47F * Math.sqrt(x) +
-                    0.0006F * x * Math.sqrt(x));
+//            float velocity = 1.028F * (float) (0.0173 * x + 0.286 * Math.pow(x, 1F/2F) + 0.13 * Math.pow(x, 1F/3F));
+            float velocity = (float) (0.0178F * x + 0.294F * Math.pow(x, 1F/2F) + 0.134F * Math.pow(x, 1F/3F));
+            // This function is the result of fine-tuning an approximation of the inverse of Minecraft's gravity
+            // calculations. See https://www.geogebra.org/calculator/qkdz2b9x.
 
-            bounce(entity, velocity);
+            verticalBounce(entity, velocity);
         }
     }
 
     public static void onPreTick(LivingEntity entity) {
-        IGelBouncable gelBouncable = ((IGelBouncable) entity);
+        IGelAffected gelAffected = ((IGelAffected) entity);
         if (entity.getDeltaMovement().y < -0.1) {
-            gelBouncable.setBounced(false);
+            gelAffected.setBounced(false);
         } else {
-            gelBouncable.setLastFallDistance((float) entity.getY());
+            gelAffected.setLastNeurtalHeight((float) entity.getY());
         }
-//        ((IGelBouncable) entity).setLastFallDistance(entity.fallDistance);
     }
 
     public static void onPostTick(LivingEntity entity) {
         World level = entity.level;
         BlockPos pos = new BlockPos(entity.position());
-        BlockState state = level.getBlockState(pos);
 
-        if (state.getBlock() == BlockInit.REPULSION_GEL.get() && !((IGelBouncable) entity).getBounced()) {
-            calculateBounce(level, state, pos, entity);
-        };
-        ((IGelBouncable) entity).setWasOnGround(entity.isOnGround());
+        BlockState state = level.getBlockState(pos);
+        BlockState stateAbove = level.getBlockState(pos.above());
+
+        if (!((IGelAffected) entity).getBounced()) {
+            if (state.getBlock() == BlockInit.REPULSION_GEL.get())      calculateBounce(level, state, pos, entity);
+            if (stateAbove.getBlock() == BlockInit.REPULSION_GEL.get()) calculateBounce(level, stateAbove, pos.above(), entity);
+        }
     }
 }

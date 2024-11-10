@@ -1,6 +1,5 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.MoverType;
@@ -10,19 +9,16 @@ import net.minecraft.tags.ITag;
 import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.cube.Cube;
-import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.DiscontinuousLerpPos;
 import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portal.ITeleportable2;
 import net.portalmod.common.sorted.portal.PortalEntity;
-import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.interfaces.IDiscontinuouslyLerpable;
 import net.portalmod.core.interfaces.IDragCancelable;
@@ -235,15 +231,16 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         return new ReuseableStream<>(Stream.concat(Stream.concat(reuseablestream.getStream(), stream2),
                 Stream.of(PortalEntity.getCollisionShape(thiss))));
     }
-    
-    @Inject(remap = false, at = @At(value = "HEAD"), method = "getBlockSpeedFactor()F", cancellable = true)
-    private void pmGetPropulsionGelSpeedFactor(CallbackInfoReturnable<Float> info) {
-        Entity entity = (Entity)(Object)this;
-        BlockPos pos = entity.blockPosition();
-        BlockState state = entity.level.getBlockState(pos);
-        if(state.getBlock() == BlockInit.PROPULSION_GEL.get())
-            info.setReturnValue(((PropulsionGelBlock)state.getBlock()).getSpeedFactor(pos, state, entity));
-    }
+
+    // Replaced
+//    @Inject(remap = false, at = @At(value = "HEAD"), method = "getBlockSpeedFactor()F", cancellable = true)
+//    private void pmGetPropulsionGelSpeedFactor(CallbackInfoReturnable<Float> info) {
+//        Entity entity = (Entity)(Object)this;
+//        BlockPos pos = entity.blockPosition();
+//        BlockState state = entity.level.getBlockState(pos);
+//        if(state.getBlock() == BlockInit.PROPULSION_GEL.get())
+//            info.setReturnValue(((PropulsionGelBlock)state.getBlock()).getSpeedFactor(pos, state, entity));
+//    }
 
     @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, remap = false)
     public void pmAddFlowingGooPhysics(CallbackInfoReturnable<Boolean> cir, double d0, boolean flag) {
