@@ -22,7 +22,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
-import net.portalmod.common.sorted.gel.IGelBouncable;
+import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.init.BlockInit;
@@ -46,7 +46,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Deque;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements IFaithPlateLaunchable, IDragCancelable, IGelBouncable {
+public abstract class LivingEntityMixin extends Entity implements IFaithPlateLaunchable, IDragCancelable, IGelAffected {
     private boolean pmLaunched = false;
 
     public LivingEntityMixin(EntityType<?> entityType, World level) {
@@ -359,18 +359,31 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         return pmLaunched;
     }
 
-    private float lastFallDistance = 0;
+    private float lastNeutralHeight = 0;
     private boolean bounced = false;
     private boolean wasOnGround = true;
+    private Vector3d lastDeltaMovement = Vector3d.ZERO;
+    private boolean affectedBySpeedGel = false;
+    private int ticksSinceSpeedGel = 100;
 
     @Override
-    public void setLastFallDistance(float distance) {
-        lastFallDistance = distance;
+    public void setAffectedBySpeedGel(boolean newAffectedBySpeedGel) {
+        affectedBySpeedGel = newAffectedBySpeedGel;
     }
 
     @Override
-    public float getLastFallDistance() {
-        return lastFallDistance;
+    public boolean getAffectedBySpeedGel() {
+        return affectedBySpeedGel;
+    }
+
+    @Override
+    public void setLastNeurtalHeight(float distance) {
+        lastNeutralHeight = distance;
+    }
+
+    @Override
+    public float getLastNeutralHeight() {
+        return lastNeutralHeight;
     }
 
     @Override
@@ -392,6 +405,27 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     public boolean getWasOnGround() {
         return wasOnGround;
     }
+
+    @Override
+    public void setTicksSinceSpeedGel(int ticksSinceSpeedGel) {
+        this.ticksSinceSpeedGel = ticksSinceSpeedGel;
+    }
+
+    @Override
+    public int getTicksSinceSpeedGel() {
+        return ticksSinceSpeedGel;
+    }
+
+    @Override
+    public void setLastDeltaMovement(Vector3d newLastDeltaMovement) {
+        lastDeltaMovement = newLastDeltaMovement;
+    }
+
+    @Override
+    public Vector3d getLastDeltaMovement() {
+        return lastDeltaMovement;
+    }
+
 
     boolean isGelBlock(BlockState state) {
         return state.getBlock() == BlockInit.REPULSION_GEL.get() || state.getBlock() == BlockInit.PROPULSION_GEL.get(); // BlockTagInit.GEL_BLOCKS

@@ -17,7 +17,8 @@ import net.portalmod.core.util.ModUtil;
 
 public class GelContainer extends BlockItem {
     private final int color;
-    
+    private static final int maxAmount = 16;
+
     public GelContainer(Block block, Properties properties, int color) {
         super(block, properties);
         this.color = color;
@@ -51,7 +52,7 @@ public class GelContainer extends BlockItem {
                 return ActionResult.fail(stack);
             
             int amount = getAmount(stack) + 1;
-            if(amount > 16)
+            if(amount > maxAmount)
                 return ActionResult.fail(stack);
             if(amount <= 0)
                 return ActionResult.fail(new ItemStack(ItemInit.CONTAINER.get()));
@@ -69,17 +70,15 @@ public class GelContainer extends BlockItem {
                 newState = Blocks.AIR.defaultBlockState();
 
             level.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundInit.GEL_COLLECT.get(), SoundCategory.BLOCKS, 1, 1);
-
-//            level.levelEvent(player, 2001, pos, Block.getId(state)); // What is this for??
             level.setBlock(pos, newState, BlockFlags.DEFAULT);
             
         } else {
             int amount = getAmount(stack);
             if(amount <= 0)
                 return ActionResult.fail(empty);
-            if(amount > 16) {
-                amount = 16;
-                setAmount(stack, 16);
+            if(amount > maxAmount) {
+                amount = maxAmount;
+                setAmount(stack, maxAmount);
             }
             
             if(!super.place(itemContext).consumesAction())
@@ -97,7 +96,7 @@ public class GelContainer extends BlockItem {
         CompoundNBT nbt = stack.getOrCreateTag();
         if(nbt.contains("amount"))
             return nbt.getInt("amount");
-        return 16;
+        return maxAmount;
     }
     
     public static void setAmount(ItemStack stack, int amount) {
@@ -116,12 +115,12 @@ public class GelContainer extends BlockItem {
     
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
-        return getAmount(stack) < 16;
+        return getAmount(stack) < maxAmount;
     }
     
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        return 1f - getAmount(stack) / 16f;
+        return 1f - (double) getAmount(stack) / maxAmount;
     }
     
     @Override
