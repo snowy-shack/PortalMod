@@ -204,30 +204,28 @@ public class TurretEntity extends TestElementEntity {
         RayTraceContext context;
         BlockRayTraceResult rayTraceResult;
         Vector3d transparentBlockPos = null;
-        boolean hitGlass = false;
 
-        HitType hit = HitType.CLEAR;
+        HitType hitType = HitType.CLEAR;
         while (true) {
             context = new RayTraceContext(startPos, endPos,
                     RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this);
             rayTraceResult = this.level.clip(context);
 
             if (rayTraceResult.getType() == RayTraceResult.Type.MISS || startPos.distanceToSqr(endPos) <= 0.1) {
-                return new Pair<>(hit, (transparentBlockPos != null) ? transparentBlockPos : endPos);
+                return new Pair<>(hitType, transparentBlockPos != null ? transparentBlockPos : endPos);
             }
 
             BlockState blockState = this.level.getBlockState(rayTraceResult.getBlockPos());
             Block block = blockState.getBlock();
 
-            if (hit != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hit = HitType.PERMEABLE;
-            if (block.is(BlockTagInit.BLOCK_TRANSPARENT) && !hitGlass) {
+            if (hitType != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hitType = HitType.PERMEABLE;
+            if (block.is(BlockTagInit.BLOCK_TRANSPARENT) && transparentBlockPos == null) {
                 transparentBlockPos = rayTraceResult.getLocation();
-                hitGlass = true;
-                hit = HitType.TRANSPARENT;
+                hitType = HitType.TRANSPARENT;
             }
 
             if (!block.is(BlockTagInit.BLOCK_PERMEABLE) && !block.is(BlockTagInit.BLOCK_TRANSPARENT)) {
-                return new Pair<>(HitType.SOLID, rayTraceResult.getLocation());
+                return new Pair<>(HitType.SOLID, transparentBlockPos != null ? transparentBlockPos : rayTraceResult.getLocation());
             }
 
             startPos = rayTraceResult.getLocation().add(direction.scale(0.3));
