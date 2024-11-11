@@ -1,6 +1,7 @@
 package net.portalmod.common.sorted.portalgun;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -22,6 +23,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -116,6 +119,7 @@ public class PortalGun extends Item {
     }
     
     public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
+        if (player.isSpectator()) return;
 
         gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
 
@@ -335,7 +339,7 @@ public class PortalGun extends Item {
     }
 
     public static DyeColor getRightDyeColour(CompoundNBT nbt) {
-        DyeColor color = DyeColor.BLUE;
+        DyeColor color = DyeColor.ORANGE;
         if (nbt.contains("RightColor")) {
             color = DyeColor.byName(nbt.getString("RightColor"), color);
         }
@@ -390,7 +394,16 @@ public class PortalGun extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack p_77624_1_, @Nullable World p_77624_2_, List<ITextComponent> list, ITooltipFlag p_77624_4_) {
+    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag iTooltipFlag) {
+        String leftColor = getLeftDyeColour(itemStack.getOrCreateTag()).toString();
+        String rightColor = getRightDyeColour(itemStack.getOrCreateTag()).toString();
+
+        list.add(new TranslationTextComponent("tooltip.portalmod.portalgun.colors"));
+        list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColor)
+            .append("§7 & ")
+            .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColor)));
+        if (Screen.hasControlDown()) list.add(new StringTextComponent(""));
+
         ModUtil.addTooltip("portalgun", list);
     }
 }
