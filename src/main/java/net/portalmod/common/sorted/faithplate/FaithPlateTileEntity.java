@@ -84,6 +84,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
                     velocity * Math.cos(angle) * Math.sin(rotation)
             ));
 
+            entity.setShiftKeyDown(false);
             ((IFaithPlateLaunchable)entity).setLaunched(true);
 
             if(!level.isClientSide) {
