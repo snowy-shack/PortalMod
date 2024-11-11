@@ -80,10 +80,12 @@ public class PropulsionGelBlock extends AbstractGelBlock {
             gelAffected.setTicksSinceSpeedGel(0);
             gelAffected.setAffectedBySpeedGel(true);
 
-        } else if (LivingEntityInjector.effectsShouldBeReset(entity, true)) {
+        } else if (LivingEntityInjector.effectsShouldBeReset(entity, true)
+                && !(state.getBlock() == BlockInit.REPULSION_GEL.get() && !entity.isShiftKeyDown())) {
             gelAffected.setTicksSinceSpeedGel(Math.min(gelAffected.getTicksSinceSpeedGel() + 1, 20));
         }
 
+        if (gelAffected.getTicksSinceSpeedGel() < 2 && !entity.isOnGround()) gelAffected.setTicksSinceSpeedGel(2); // So that you can't keep the boost by bhopping
         if (gelAffected.getTicksSinceSpeedGel() > 2) gelAffected.setAffectedBySpeedGel(false);
 
         if (gelAffected.getAffectedBySpeedGel()) {
