@@ -97,11 +97,17 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         super.neighborChanged(blockState, world, pos, block, neighborPos, b);
 
+        Direction direction = blockState.getValue(FACING);
         if (blockState.getValue(ACTIVE)) {
-            Block adjacent = world.getBlockState(pos.relative(blockState.getValue(FACING))).getBlock();
+            Block adjacent = world.getBlockState(pos.relative(direction)).getBlock();
             if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
                 this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             }
+        }
+
+        BlockState supporting = world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite()));
+        if (!supporting.isFaceSturdy(world, pos, direction.getOpposite())) {
+            world.destroyBlock(pos, true);
         }
 
         if (world.isClientSide) {
@@ -154,8 +160,19 @@ public class FizzlerEmitterBlock extends DoubleBlock {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         Direction clickedFace = context.getClickedFace();
         BlockState half = super.getStateForPlacement(context);
+
         if (half != null && clickedFace.getAxis() != Direction.Axis.Y) {
-            return half.setValue(FACING, clickedFace);
+            boolean top = half.getValue(HALF) == DoubleBlockHalf.UPPER;
+
+            BlockState supportSelf = context.getLevel()
+                    .getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()));
+            BlockState supportPartner = context.getLevel()
+                    .getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()).relative(top ? Direction.DOWN : Direction.UP));
+
+            if (supportSelf.isFaceSturdy(context.getLevel(), context.getClickedPos(), clickedFace.getOpposite()) &&
+                    supportPartner.isFaceSturdy(context.getLevel(), context.getClickedPos(), clickedFace.getOpposite())) {
+                return half.setValue(FACING, clickedFace);
+            }
         }
         return null;
     }
