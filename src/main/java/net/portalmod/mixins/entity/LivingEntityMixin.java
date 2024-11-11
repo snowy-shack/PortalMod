@@ -275,12 +275,10 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         if(entity.horizontalCollision && !entity.verticalCollision && !entity.level.isClientSide
                 && thiss.getItemBySlot(EquipmentSlotType.FEET).getItem() != ItemInit.LONGFALL_BOOTS.get()) {
 
-            float f2 = (float)(momentumFromLastTick * 10 - 10);
-            System.out.println(f2);
-            if(f2 > 1) {
-                // TODO new damage source
-                entity.playSound(this.getFallDamageSound((int)f2), 1.0F, 1.0F);
-                entity.hurt(DamageSource.FLY_INTO_WALL, f2);
+            float slamDamage = (float)(momentumFromLastTick * 3 - 10);
+            if(slamDamage > .1F) {
+                entity.playSound(this.getFallDamageSound((int)slamDamage), 1.0F, 1.0F);
+                entity.hurt(new DamageSource("faithplate_wall"), slamDamage);
             }
         }
     }

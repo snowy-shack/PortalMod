@@ -221,11 +221,11 @@
 
 
 
-  "death.attack.cube":           "%2$s threatened to stab %1$s",
-  "death.attack.launchIntoWall": "%1$s got launched into a wall",
-  "death.attack.turret":         "%1$s got perforated by %2$s",
-  "death.attack.goo":            "%1$s dissolved in goo",
-  "death.attack.goo.player":     "%1$s dissolved in goo whilst trying to escape %2$s",
+  "death.attack.cube":            "%2$s threatened to stab %1$s",
+  "death.attack.faithplate_wall": "%1$s slammed into a wall",
+  "death.attack.turret":          "%1$s got perforated by %2$s",
+  "death.attack.goo":             "%1$s dissolved in goo",
+  "death.attack.goo.player":      "%1$s dissolved in goo whilst trying to escape %2$s",
 
   "options.portalmod.button":     "PortalMod Options...",
   "options.portalmod.title":      "PortalMod Options",
