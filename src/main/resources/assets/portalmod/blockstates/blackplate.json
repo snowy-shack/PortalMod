@@ -14,29 +14,36 @@
     },
     "axis=z,state=bottom_right": {
       "model": "portalmod:block/blackplate_panel_corner_bottom",
+      "uvlock": true,
       "y": 180
     },
     "axis=z,state=top_left": {
-      "model": "portalmod:block/blackplate_panel_corner_top"
+      "model": "portalmod:block/blackplate_panel_corner_top",
+      "uvlock": true
     },
     "axis=z,state=top_right": {
       "model": "portalmod:block/blackplate_panel_corner_top",
+      "uvlock": true,
       "y": 180
     },
     "axis=x,state=bottom_left": {
       "model": "portalmod:block/blackplate_panel_corner_bottom",
+      "uvlock": true,
       "y": 90
     },
     "axis=x,state=bottom_right": {
       "model": "portalmod:block/blackplate_panel_corner_bottom",
+      "uvlock": true,
       "y": 270
     },
     "axis=x,state=top_left": {
       "model": "portalmod:block/blackplate_panel_corner_top",
+      "uvlock": true,
       "y": 90
     },
     "axis=x,state=top_right": {
       "model": "portalmod:block/blackplate_panel_corner_top",
+      "uvlock": true,
       "y": 270
     }
   }
