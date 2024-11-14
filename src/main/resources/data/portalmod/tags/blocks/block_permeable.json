@@ -2,6 +2,16 @@
   "replace": true,
   "values": [
     "portalmod:wire_mesh",
-    "portalmod:wire_mesh_block"
+    "portalmod:wire_mesh_block",
+    "portalmod:meshed_iron_frame",
+    "portalmod:barred_iron_frame",
+    "portalmod:rusty_meshed_iron_frame",
+    "portalmod:rusty_barred_iron_frame",
+    "minecraft:oak_leaves",
+    "minecraft:birch_leaves",
+    "minecraft:spruce_leaves",
+    "minecraft:jungle_leaves",
+    "minecraft:acacia_leaves",
+    "minecraft:dark_oak_leaves"
   ]
 }

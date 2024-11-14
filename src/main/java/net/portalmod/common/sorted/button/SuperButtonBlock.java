@@ -32,6 +32,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
@@ -328,10 +329,9 @@ public class SuperButtonBlock extends MultiBlock {
 
         boolean pressed = blocks.stream().anyMatch(pos1 -> isBeingPressed(state, level, pos1));
 
-        if(pressed)
-            level.getBlockTicks().scheduleTick(pos, this, 10);
+        if (pressed) level.getBlockTicks().scheduleTick(pos, this, 10);
         
-        if(wasPressed != pressed) {
+        if (wasPressed != pressed) {
             this.setBlockStateValue(PRESSED, pressed, state, level, pos);
             playPressSound(level, pos, pressed);
 
@@ -367,12 +367,8 @@ public class SuperButtonBlock extends MultiBlock {
         
         List<? extends Entity> entities;
         entities = level.getEntities(null, trigger);
-        
-//        for(Entity entity : entities)
-////            if(!entity.isIgnoringBlockTriggers())
-//            if(entity instanceof Cube)
-//                ((Cube)entity).setActive();
 
+        entities.removeIf(entity -> entity.getType().is(EntityTagInit.BUTTON_NO_PRESS));
         return entities.size() > 0;
     }
     
