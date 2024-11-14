@@ -15,6 +15,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -23,7 +24,10 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.portalmod.common.sorted.gel.container.GelContainer;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
@@ -90,7 +94,24 @@ public class AbstractGelBlock extends BreakableBlock {
             SHAPES.put(facing, shape.clone().transform(matrix, true));
         }
     }
-    
+
+    @Override
+    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block block, BlockPos neighbor, boolean b) {
+        Direction direction = Direction.getNearest(
+                neighbor.getX() - pos.getX(),
+                neighbor.getY() - pos.getY(),
+                neighbor.getZ() - pos.getZ()
+        );
+
+        BlockState supporting = world.getBlockState(neighbor);
+        if (!supporting.isFaceSturdy(world, pos, direction)) {
+            world.setBlock(pos, blockState.setValue(STATES.get(direction), false), Constants.BlockFlags.DEFAULT);
+            world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundInit.GEL_BREAK.get(), SoundCategory.BLOCKS, 1, 1);
+        }
+
+        super.neighborChanged(blockState, world, pos, block, neighbor, b);
+    }
+
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         BlockState previousState = context.getLevel().getBlockState(context.getClickedPos());
@@ -129,7 +150,8 @@ public class AbstractGelBlock extends BreakableBlock {
     
     @Override
     public boolean canBeReplaced(BlockState state, BlockItemUseContext context) {
-        return context.getItemInHand().getItem() == this.asItem();
+//        return context.getItemInHand().getItem() == this.asItem();
+        return true;
     }
     
     @Override

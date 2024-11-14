@@ -105,7 +105,7 @@ public class FizzlerEmitterBlock extends DoubleBlock {
             }
         }
 
-        BlockState supporting = world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite()));
+        BlockState supporting = world.getBlockState(neighborPos);
         if (!supporting.isFaceSturdy(world, pos, direction.getOpposite())) {
             world.destroyBlock(pos, true);
         }
