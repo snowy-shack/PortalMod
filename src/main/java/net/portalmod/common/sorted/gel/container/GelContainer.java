@@ -131,12 +131,12 @@ public class GelContainer extends BlockItem {
     public static int getAmount(ItemStack stack) {
         CompoundNBT nbt = stack.getOrCreateTag();
         if(nbt.contains("amount"))
-            return nbt.getInt("amount");
+            return Math.max(nbt.getInt("amount"), 0);
         return maxAmount;
     }
     
     public static void setAmount(ItemStack stack, int amount) {
-        stack.getOrCreateTag().putInt("amount", amount);
+        stack.getOrCreateTag().putInt("amount", Math.min(amount, maxAmount));
     }
     
     @Override
