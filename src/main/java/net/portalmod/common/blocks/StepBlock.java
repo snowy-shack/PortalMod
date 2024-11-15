@@ -3,6 +3,7 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.IWaterLoggable;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
@@ -11,13 +12,18 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.Half;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+import net.portalmod.common.items.WrenchItem;
 
 import javax.annotation.Nullable;
 
@@ -25,6 +31,7 @@ public class StepBlock extends Block implements IWaterLoggable {
 
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
     public static final BooleanProperty PILLAR = BooleanProperty.create("pillar");
+    public static final BooleanProperty FORCED_PILLAR = BooleanProperty.create("forced_pillar");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public StepBlock(Properties properties) {
@@ -32,12 +39,24 @@ public class StepBlock extends Block implements IWaterLoggable {
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(HALF, Half.BOTTOM)
                 .setValue(PILLAR, false)
+                .setValue(FORCED_PILLAR, false)
                 .setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF, PILLAR, WATERLOGGED);
+        builder.add(HALF, PILLAR, FORCED_PILLAR, WATERLOGGED);
+    }
+
+    @Override
+    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
+        if (WrenchItem.usedWrench(player, hand)) {
+            BlockState cycled = state.cycle(FORCED_PILLAR);
+            world.setBlockAndUpdate(pos, cycled.setValue(PILLAR, shouldHavePillar(cycled, world, pos)));
+            return ActionResultType.SUCCESS;
+        }
+
+        return super.use(state, world, pos, player, hand, blockRayTraceResult);
     }
 
     @Override
@@ -72,8 +91,12 @@ public class StepBlock extends Block implements IWaterLoggable {
             world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
-        boolean hasPillar = world.getBlockState(pos.below()).getBlock() instanceof StepPillarBlock;
+        boolean hasPillar = shouldHavePillar(blockState, world, pos);
         return blockState.setValue(PILLAR, hasPillar);
+    }
+
+    public static boolean shouldHavePillar(BlockState blockState, IWorld world, BlockPos pos) {
+        return blockState.getValue(FORCED_PILLAR) || world.getBlockState(pos.below()).getBlock() instanceof StepPillarBlock;
     }
 
     @Override
