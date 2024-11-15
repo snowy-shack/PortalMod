@@ -57,6 +57,10 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static void horizontalBounce(BlockPos pos, Entity entity, Direction direction) {
         Vector3d deltaMovement = ((IGelAffected)entity).getLastDeltaMovement();
 
+        if (entity.isSpectator()) {
+            return;
+        }
+
         float horizontalBounceAmount = 0.7F;
         float verticalBounceAmount = 0.25F;
         float speedBounceBonusAmount = 1.4F;
