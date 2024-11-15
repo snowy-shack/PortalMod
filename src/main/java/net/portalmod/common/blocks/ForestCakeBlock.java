@@ -3,12 +3,15 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CakeBlock;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.portalmod.core.init.ParticleInit;
+import net.portalmod.core.math.Vec3;
 
 import java.util.Random;
 
@@ -42,11 +45,15 @@ public class ForestCakeBlock extends CakeBlock {
 
     @Override
     public void animateTick(BlockState blockState, World level, BlockPos pos, Random randomSource) {
-//        Vec3 vec3 = new Vec3(0.5, 1.0, 0.5).add(pos);
-//        float f = randomSource.nextFloat();
-//        if (f < 0.3F) {
-//            level.addParticle(ParticleTypes.SMOKE, vec3.x, vec3.y, vec3.z, 0.0, 0.0, 0.0);
-//        }
-//        level.addParticle(ParticleInit.SMALL_FLAME.get(), vec3.x, vec3.y, vec3.z, 0.0, 0.0, 0.0);
+        if (blockState.getValue(BITES) > 0) {
+            return;
+        }
+
+        Vec3 vec3 = new Vec3(0.5, 1.0, 0.5).add(pos);
+        float f = randomSource.nextFloat();
+        if (f < 0.3F) {
+            level.addParticle(ParticleTypes.SMOKE, vec3.x, vec3.y, vec3.z, 0.0, 0.0, 0.0);
+        }
+        level.addParticle(ParticleInit.SMALL_FLAME.get(), vec3.x, vec3.y, vec3.z, 0.0, 0.0, 0.0);
     }
 }

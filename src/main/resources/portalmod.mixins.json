@@ -33,6 +33,7 @@
     "MinecraftMixin",
     "OptionsScreenMixin",
     "accessors.ActiveRenderInfoAccessor",
+    "accessors.FlameParticleAccessor",
     "accessors.FogRendererAccessor",
     "accessors.GameRendererAccessor",
     "accessors.MainMenuScreenAccessor",

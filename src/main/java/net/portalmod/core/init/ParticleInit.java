@@ -13,10 +13,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
-import net.portalmod.common.particles.FizzleFlakeParticle;
-import net.portalmod.common.particles.FizzleGlowParticle;
-import net.portalmod.common.particles.PortalGunSparkParticle;
-import net.portalmod.common.particles.TurretSparkParticle;
+import net.portalmod.common.particles.*;
 import net.portalmod.common.sorted.portal.PortalParticle;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
@@ -35,8 +32,9 @@ public class ParticleInit {
     public static final RegistryObject<BasicParticleType> TURRET_SPARK = PARTICLE_TYPES.register("turret_spark",
             () -> new BasicParticleType(false));
 
-//    public static final RegistryObject<BasicParticleType> SMALL_FLAME = PARTICLE_TYPES.register("small_flame",
-//            () -> new BasicParticleType(false));
+    // Backport of the small flame for candles, this should get replaced with the vanilla one after porting to a newer version
+    public static final RegistryObject<BasicParticleType> SMALL_FLAME = PARTICLE_TYPES.register("small_flame",
+            () -> new BasicParticleType(false));
 
     private ParticleInit() {}
 
@@ -49,22 +47,6 @@ public class ParticleInit {
         particleEngine.register(ParticleInit.FIZZLE_FLAKE_LANDING.get(), FizzleFlakeParticle.LandingFactory::new);
         particleEngine.register(ParticleInit.PORTALGUN_SPARK.get(), PortalGunSparkParticle.Factory::new);
         particleEngine.register(ParticleInit.TURRET_SPARK.get(), TurretSparkParticle.Factory::new);
+        particleEngine.register(ParticleInit.SMALL_FLAME.get(), SmallFlameFactory::new);
     }
-
-//    public static class SmallFlameParticle implements IParticleFactory<BasicParticleType> {
-//        private final IAnimatedSprite sprite;
-//
-//        public SmallFlameParticle(IAnimatedSprite spriteSet) {
-//            this.sprite = spriteSet;
-//        }
-//
-//        @Nullable
-//        @Override
-//        public Particle createParticle(BasicParticleType basicParticleType, ClientWorld clientLevel, double v, double v1, double v2, double v3, double v4, double v5) {
-//            FlameParticle flameParticle = new FlameParticle(clientLevel, v, v1, v2, v3, v4, v5);
-//            flameParticle.pickSprite(this.sprite);
-//            flameParticle.scale(0.5F);
-//            return flameParticle;
-//        }
-//    }
 }
