@@ -42,7 +42,7 @@ public class PropulsionGelBlock extends AbstractGelBlock {
     }
 
     public static boolean shouldGetGelBoost(BlockPos pos, BlockState state, Entity entity) {
-        VoxelShape shapeEntity = state.getCollisionShape(entity.level, pos, ISelectionContext.of(entity));
+        VoxelShape shapeEntity = state.getShape(entity.level, pos, ISelectionContext.of(entity));
         VoxelShape alignedShapeEntity = shapeEntity.move(pos.getX(), pos.getY(), pos.getZ());
 
         return VoxelShapes.joinIsNotEmpty(alignedShapeEntity,

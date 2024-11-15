@@ -159,7 +159,7 @@ public class BlockInit {
     // GEL
     
     private static final AbstractBlock.Properties GEL_BASE = AbstractBlock.Properties.of(Material.CLOTH_DECORATION)
-            .sound(SoundTypeInit.GEL).noOcclusion();
+            .sound(SoundTypeInit.GEL).noOcclusion().noCollission();
     
     public static final RegistryObject<Block> REPULSION_GEL = BLOCKS.register("repulsion_gel", () -> new RepulsionGelBlock(GEL_BASE));
     public static final RegistryObject<Block> PROPULSION_GEL = BLOCKS.register("propulsion_gel", () -> new PropulsionGelBlock(GEL_BASE));

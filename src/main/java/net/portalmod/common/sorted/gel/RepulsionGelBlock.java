@@ -57,7 +57,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static void horizontalBounce(BlockPos pos, Entity entity, Direction direction) {
         Vector3d deltaMovement = ((IGelAffected)entity).getLastDeltaMovement();
 
-        if (entity.isSpectator()) {
+        if (entity.isSpectator() || ((IGelAffected) entity).getHorizontalBounced()) {
             return;
         }
 
@@ -87,8 +87,11 @@ public class RepulsionGelBlock extends AbstractGelBlock {
                     .add(0, verticalBounceAmount, 0)
                     .add(deltaMovement.multiply(parallel))
             );
-            entity.level.playSound(null, entity, SoundInit.REPULSION_GEL_BOUNCE.get(),
-                    SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
+
+            entity.playSound(SoundInit.REPULSION_GEL_BOUNCE.get(), 1, ModUtil.randomSoundPitch());
+
+            // horizontalBounced lasts for one tick, to make sure only one bounce happens
+            ((IGelAffected) entity).setHorizontalBounced(true);
         }
     }
 

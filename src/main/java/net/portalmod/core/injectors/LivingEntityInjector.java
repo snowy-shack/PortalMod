@@ -18,10 +18,13 @@ public class LivingEntityInjector {
             ((IGelAffected) entity).setAffectedBySpeedGel(false);
         }
     }
+
     public static void onPostTick(LivingEntity entity) {
         RepulsionGelBlock.onPostTick(entity);
-        ((IGelAffected) entity).setWasOnGround(entity.isOnGround());
-        ((IGelAffected) entity).setLastDeltaMovement(entity.getDeltaMovement());
+        IGelAffected gelAffected = (IGelAffected) entity;
+        gelAffected.setWasOnGround(entity.isOnGround());
+        gelAffected.setLastDeltaMovement(entity.getDeltaMovement());
+        gelAffected.setHorizontalBounced(false);
     }
 
     public static boolean effectsShouldBeReset(LivingEntity entity, boolean includeOnGround) {

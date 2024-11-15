@@ -359,6 +359,7 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
 
     private float lastNeutralHeight = 0;
     private boolean bounced = false;
+    private boolean horizontalBounced = false;
     private boolean wasOnGround = true;
     private Vector3d lastDeltaMovement = Vector3d.ZERO;
     private boolean affectedBySpeedGel = false;
@@ -392,6 +393,16 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Override
     public boolean getBounced() {
         return bounced;
+    }
+
+    @Override
+    public void setHorizontalBounced(boolean newHorizontalBounced) {
+        horizontalBounced = newHorizontalBounced;
+    }
+
+    @Override
+    public boolean getHorizontalBounced() {
+        return horizontalBounced;
     }
 
     @Override
