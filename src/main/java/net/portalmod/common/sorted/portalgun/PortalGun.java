@@ -361,29 +361,9 @@ public class PortalGun extends Item {
         boolean didFizzleAny = false;
 
         for (ItemStack itemStack : entity.inventory.items) {
-            if (!(itemStack.getItem() instanceof PortalGun))
-                continue;
-
-            UUID gunUUID = PortalGun.getUUID(itemStack);
-            PortalPair pair = PortalManager.getPair(gunUUID);
-
-            if (pair == null)
-                continue;
-
-            if (pair.has(PortalEnd.PRIMARY)) {
-                PortalEntity blue = pair.get(PortalEnd.PRIMARY);
-                ((ServerWorld) blue.level).removeEntity(blue, false);
-                PortalManager.remove(gunUUID, blue);
-                didFizzleAny = true;
+            if (itemStack.getItem() instanceof PortalGun) {
+                didFizzleAny = fizzleGunItem(itemStack) || didFizzleAny;
             }
-            if (pair.has(PortalEnd.SECONDARY)) {
-                PortalEntity orange = pair.get(PortalEnd.SECONDARY);
-                ((ServerWorld) orange.level).removeEntity(orange, false);
-                PortalManager.remove(gunUUID, orange);
-                didFizzleAny = true;
-            }
-
-            itemStack.getOrCreateTag().putInt("LastPortal", 0);
         }
 
         if (didFizzleAny) {
@@ -391,6 +371,34 @@ public class PortalGun extends Item {
                     new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
             level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
         }
+    }
+
+    /**
+     * Fizzles one portalgun item.
+     * @param itemStack The portalgun item.
+     * @return whether any portals got fizzled.
+     */
+    public static boolean fizzleGunItem(ItemStack itemStack) {
+        UUID gunUUID = PortalGun.getUUID(itemStack);
+        PortalPair pair = PortalManager.getPair(gunUUID);
+
+        if (pair == null) {
+            return false;
+        }
+
+        if (pair.has(PortalEnd.PRIMARY)) {
+            PortalEntity blue = pair.get(PortalEnd.PRIMARY);
+            ((ServerWorld) blue.level).removeEntity(blue, false);
+            PortalManager.remove(gunUUID, blue);
+        }
+        if (pair.has(PortalEnd.SECONDARY)) {
+            PortalEntity orange = pair.get(PortalEnd.SECONDARY);
+            ((ServerWorld) orange.level).removeEntity(orange, false);
+            PortalManager.remove(gunUUID, orange);
+        }
+
+        itemStack.getOrCreateTag().putInt("LastPortal", 0);
+        return true;
     }
 
     @Override

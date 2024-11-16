@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
@@ -153,6 +154,10 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
         if (entity instanceof PlayerEntity) {
             PortalGun.fizzleGun(level, (PlayerEntity) entity);
+        }
+
+        if (entity instanceof ItemEntity && ((ItemEntity) entity).getItem().getItem() instanceof PortalGun) {
+            PortalGun.fizzleGunItem(((ItemEntity) entity).getItem());
         }
     }
 

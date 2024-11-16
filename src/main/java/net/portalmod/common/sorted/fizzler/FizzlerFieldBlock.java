@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
@@ -109,6 +110,10 @@ public class FizzlerFieldBlock extends DoubleBlock {
 
         if (entity instanceof PlayerEntity) {
             PortalGun.fizzleGun(level, (PlayerEntity) entity);
+        }
+
+        if (entity instanceof ItemEntity && ((ItemEntity) entity).getItem().getItem() instanceof PortalGun) {
+            PortalGun.fizzleGunItem(((ItemEntity) entity).getItem());
         }
     }
 }
