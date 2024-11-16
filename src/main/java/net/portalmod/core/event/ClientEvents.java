@@ -16,12 +16,14 @@ import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.HandSide;
@@ -40,6 +42,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -49,6 +52,8 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.cube.Cube;
@@ -256,6 +261,19 @@ public class ClientEvents {
         
         event.setCanceled(true);
         CreerRenderer.INSTANCE.get().render(entity, 0, partialTicks, matrixStack, renderTypeBuffer, light);
+    }
+
+    @SubscribeEvent
+    public static void onLivingDrops(final LivingDropsEvent event) {
+        LivingEntity entity = event.getEntityLiving();
+        if (entity instanceof TestElementEntity) {
+            for (ItemEntity itemEntity : event.getDrops()) {
+                ItemStack itemStack = itemEntity.getItem();
+                if (itemStack.getItem() instanceof ModSpawnEggItem && entity.hasCustomName()) {
+                    itemStack.setHoverName(entity.getCustomName());
+                }
+            }
+        }
     }
 
     @SubscribeEvent
