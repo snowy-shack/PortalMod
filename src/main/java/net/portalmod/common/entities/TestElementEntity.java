@@ -206,7 +206,7 @@ public abstract class TestElementEntity extends LivingEntity {
         }
 
         boolean shouldSwing = true;
-        boolean holdingWrench = source instanceof EntityDamageSource && source.getEntity() instanceof PlayerEntity && ((PlayerEntity) source.getEntity()).getMainHandItem().getItem() instanceof WrenchItem;
+        boolean holdingWrench = source instanceof EntityDamageSource && source.getEntity() instanceof LivingEntity && WrenchItem.hitWithWrench((LivingEntity) source.getEntity());
         boolean outOfWorld = source == DamageSource.OUT_OF_WORLD;
         boolean inGoo = source == FluidInit.GOO_DAMAGE && this.getVehicle() == null;
         boolean isCreative = source instanceof EntityDamageSource && source.getEntity() instanceof PlayerEntity && ((PlayerEntity) source.getEntity()).isCreative();
@@ -215,6 +215,7 @@ public abstract class TestElementEntity extends LivingEntity {
 
         if (holdingWrench) {
             damage *= 1.5f;
+//            this.playSound(SoundInit.CUBE_HIT.get(), 0.75f, ModUtil.randomSoundPitch());
         }
 
         if (inGoo) {

@@ -27,8 +27,10 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.TurretSparkParticle;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.core.init.*;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class TurretEntity extends TestElementEntity {
 
@@ -39,6 +41,13 @@ public class TurretEntity extends TestElementEntity {
     public static final int MAX_BULLETS = 64;
     public static final float BULLET_DAMAGE = 0.5f;
     public static final float BULLET_KNOCKBACK = 0.1f;
+    public static Predicate<LivingEntity> TARGETS = e -> !(
+            e instanceof TestElementEntity
+            || e.isSpectator()
+            || e instanceof PlayerEntity && ((PlayerEntity) e).isCreative()
+            || e.isBaby() && e.getClassification(false) != EntityClassification.MONSTER
+    );
+
     public int fallDuration = 10;
     public int viewDistance = 32;
 
@@ -166,10 +175,8 @@ public class TurretEntity extends TestElementEntity {
         // Cube shield
         for (Cube cube : this.level.getNearbyEntities(Cube.class, EntityPredicate.DEFAULT, this, eyeToEye)) {
             AxisAlignedBB cubeAABB = cube.getBoundingBox();
-            if (cubeAABB.clip(you, theGuySheTellsYouNotToWorryAbout).orElse(null) != null) {
-                Vector3d cubePos = targetEntity.getEyePosition(1F).add(targetEntity.getViewVector(1F));
-                level.playSound(null, cubePos.x, cubePos.y, cubePos.z, SoundInit.CUBE_HIT.get(),
-                        SoundCategory.NEUTRAL, 1.5f, 1); // A cube intercepted the bullets
+            if (cubeAABB.clip(you, theGuySheTellsYouNotToWorryAbout).isPresent()) {
+                cube.playSound(SoundInit.CUBE_HIT.get(), 0.75f, ModUtil.randomSoundPitch()); // A cube intercepted the bullets
                 return;
             }
         }
@@ -247,22 +254,16 @@ public class TurretEntity extends TestElementEntity {
                 this.position().x - this.viewDistance, this.position().y - this.viewDistance, this.position().z - this.viewDistance,
                 this.position().x + this.viewDistance, this.position().y + this.viewDistance, this.position().z + this.viewDistance
         );
+
         // Map entities to their distances
         Map<LivingEntity, Double> entityDistances = new HashMap<>();
-        for (LivingEntity entity : this.level.getNearbyEntities(LivingEntity.class, EntityPredicate.DEFAULT, this, searchBox)) {
+        for (LivingEntity entity : this.level.getNearbyEntities(LivingEntity.class, new EntityPredicate().selector(TARGETS), this, searchBox)) {
             Vector3d ray = entity.position().subtract(this.position());
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();
 
             // In range and in front of turret (cone shape)
-            if (cosine > 0.6
-                    && !(entity instanceof Cube)
-                    && !(entity instanceof TurretEntity)
-                    && (
-                        !(entity instanceof PlayerEntity) // Either it's not a player or it's not in creative or spectator.
-                        || (!((PlayerEntity) entity).isCreative() && !entity.isSpectator()))
-                    ) {
-
+            if (cosine > 0.6) {
                 entityDistances.put(entity, distanceSqr);
             }
         }

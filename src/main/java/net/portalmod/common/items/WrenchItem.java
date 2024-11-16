@@ -43,8 +43,13 @@ public class WrenchItem extends Item {
     public static boolean holdingWrench(Entity entity) {
         return StreamSupport.stream(entity.getHandSlots().spliterator(), false).anyMatch(itemStack -> itemStack.getItem() instanceof WrenchItem);
     }
+
     public static boolean usedWrench(LivingEntity entity, Hand hand) {
         return entity.getItemInHand(hand).getItem() instanceof WrenchItem;
+    }
+
+    public static boolean hitWithWrench(LivingEntity entity) {
+        return entity.getMainHandItem().getItem() instanceof WrenchItem;
     }
 
     @Override
