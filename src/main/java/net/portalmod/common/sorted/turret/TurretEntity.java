@@ -41,6 +41,7 @@ public class TurretEntity extends TestElementEntity {
     public static final int MAX_BULLETS = 64;
     public static final float BULLET_DAMAGE = 0.5f;
     public static final float BULLET_KNOCKBACK = 0.1f;
+
     public static Predicate<LivingEntity> TARGETS = e -> !(
             e instanceof TestElementEntity
             || e.isSpectator()
@@ -262,28 +263,33 @@ public class TurretEntity extends TestElementEntity {
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();
 
-            // In range and in front of turret (cone shape)
+            // No shooting the same team
+            if (this.getTeam() != null && entity.getTeam() != null && this.getTeam().isAlliedTo(entity.getTeam())) {
+                continue;
+            }
+
+            // In front of turret (cone shape)
             if (cosine > 0.6) {
                 entityDistances.put(entity, distanceSqr);
             }
         }
 
         // Sort entities
-        List<LivingEntity> orderedEntities = new ArrayList<>();
-        entityDistances.entrySet().stream().sorted(Comparator.comparingDouble(Map.Entry::getValue)).forEach(
-                entry -> orderedEntities.add(entry.getKey())
-        );
+        ArrayList<Map.Entry<LivingEntity, Double>> orderedEntities = new ArrayList<>(entityDistances.entrySet());
+        orderedEntities.sort(Map.Entry.comparingByValue());
 
-        Vector3d turretPos = this.getEyePosition(1.0F);
-        for (LivingEntity entity : orderedEntities) { // For target Entities
+        // Target closest entity
+        for (Map.Entry<LivingEntity, Double> entry : orderedEntities) {
+            LivingEntity entity = entry.getKey();
             if (this.turretView(entity) != HitType.SOLID) {
-                if (entity != this.targetEntity) this.targetAcquired(entity);
+                if (entry != this.targetEntity) this.targetAcquired(entity);
                 return;
             }
         }
 
+        // No targets found
         if (this.targetEntity != null) {
-            this.targetLost();   // Update if not already null
+            this.targetLost();
         }
     }
 
