@@ -118,8 +118,8 @@ public abstract class TestElementEntity extends LivingEntity {
         FizzleGlowParticle.createGlowParticles(level, this);
         FizzleFlakeParticle.createFlakeParticles(level, this);
 
-        if (this.getFizzleTicks() > this.maxFizzleTime && !this.level.isClientSide && this.isAlive()) {
-            if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS)) {
+        if (this.getFizzleTicks() > this.maxFizzleTime && this.isAlive()) {
+            if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
                 this.dropAllDeathLoot(new DamageSource("fizzle"));
             }
             this.remove();
@@ -236,8 +236,8 @@ public abstract class TestElementEntity extends LivingEntity {
             this.setHurtDir(-this.getHurtDir());
             this.setHurtTime(10);
         }
-        this.markHurt();
         this.setDamage(this.getDamage() + damage * 10.0F);
+        this.markHurt();
         if (creative || this.getDamage() > 40.0F) {
             this.remove();
             if (!creative && !this.isFromDropper() && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
