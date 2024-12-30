@@ -7,15 +7,13 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.LazyValue;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.portalmod.PortalMod;
 
 import java.util.function.Supplier;
 
 public enum ArmorMaterialInit implements IArmorMaterial {
     LONGFALL_BOOTS(PortalMod.MODID + ":longfall_boots", 37, new int[]{3, 6, 8, 3}, 15,
-            SoundEvents.ARMOR_EQUIP_NETHERITE, 3.0F, 0.1F, () -> Ingredient.of(Items.NETHERITE_SCRAP));
+            SoundEvents.ARMOR_EQUIP_IRON, 3.0F, 0.1F, () -> Ingredient.of(Items.NETHERITE_SCRAP));
     
     private static final int[] HEALTH_PER_SLOT = new int[]{13, 15, 16, 11};
     private final String name;

@@ -106,14 +106,12 @@ public class FizzlerEmitterBlock extends DoubleBlock {
             }
         }
 
-        BlockState supporting = world.getBlockState(neighborPos);
-        if (!supporting.isFaceSturdy(world, pos, direction.getOpposite())) {
-            world.destroyBlock(pos, true);
-        }
+//        BlockState supporting = world.getBlockState(neighborPos);
+//        if (!supporting.isFaceSturdy(world, pos, direction.getOpposite())) {
+//            world.destroyBlock(pos, true);
+//        }
 
-        if (world.isClientSide) {
-            return;
-        }
+        if (world.isClientSide) return;
 
         boolean wasPowered = blockState.getValue(POWERED);
         boolean isPowered = false;

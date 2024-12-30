@@ -61,11 +61,9 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
 
             WrenchItem.playUseSound(world, player);
-        } else {
-            // temporary
-            setActive(!blockState.getValue(ACTIVE), world, pos);
+            return ActionResultType.SUCCESS;
         }
-        return ActionResultType.SUCCESS;
+        return ActionResultType.FAIL;
     }
 
     public void setActive(boolean active, World world, BlockPos pos) {
@@ -77,6 +75,14 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
         boolean reversed = blockState.getValue(REVERSED);
         return reversed != active;
     }
+
+//    @Override
+//    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+//        super.neighborChanged(state, level, pos, block, neighborPos, b);
+//        ModUtil.sendChat(level, "Antline Indicator update");
+//        level.sendBlockUpdated(pos, state, state, 0);
+//        level.updateNeighborsAt(pos, block);
+//    }
 
     private void initAABBs() {
         VoxelShapeGroup shape = new VoxelShapeGroup.Builder()

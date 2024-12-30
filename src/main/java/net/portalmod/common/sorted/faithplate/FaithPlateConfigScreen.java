@@ -1,25 +1,9 @@
 package net.portalmod.common.sorted.faithplate;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
-import net.portalmod.core.interfaces.PMActiveRenderInfo;
-import net.portalmod.mixins.accessors.MinecraftAccessor;
-import org.lwjgl.glfw.GLFW;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -27,12 +11,20 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.profiler.IProfiler;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -40,10 +32,17 @@ import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.ShaderInit;
+import net.portalmod.core.interfaces.PMActiveRenderInfo;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.mixins.accessors.MinecraftAccessor;
+import org.lwjgl.glfw.GLFW;
 
-import static org.lwjgl.opengl.GL11.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.lwjgl.opengl.GL11.GL_QUADS;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 
 public class FaithPlateConfigScreen extends Screen {
@@ -108,9 +107,9 @@ public class FaithPlateConfigScreen extends Screen {
         
         this.updateField();
         
-//        ShaderInit.FAITHPLATE_GUI.get().bind()
-//        .setMatrix("modelViewProjection", Mat4.createScale(pitch * 2f / (float)panel.getWidth(), pitch * 2f / (float)panel.getHeight(), 1).toBuffer())
-//        .unbind();
+        ShaderInit.FAITHPLATE_GUI.get().bind()
+        .setMatrix("modelViewProjection", Mat4.createScale(pitch * 2f / (float)panel.getWidth(), pitch * 2f / (float)panel.getHeight(), 1).toBuffer())
+        .unbind();
         
         ShaderInit.FAITHPLATE_GRID.get().bind()
         .setMatrix("modelViewProjection", Mat4.identity().toBuffer())

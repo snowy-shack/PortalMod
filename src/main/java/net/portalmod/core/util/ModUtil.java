@@ -81,10 +81,10 @@ public class ModUtil {
     }
 
     public static void sendChat(World level, String text) {
-        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent(text), false));
+        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text), false));
     }
 
     public static void sendChat(World level, Object text) {
-        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent(text.toString()), false));
+        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text.toString()), false));
     }
 }
