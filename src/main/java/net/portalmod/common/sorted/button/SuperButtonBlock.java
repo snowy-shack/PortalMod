@@ -43,7 +43,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class SuperButtonBlock extends QuadBlock {
+public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
