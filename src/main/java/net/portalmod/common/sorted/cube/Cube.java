@@ -69,7 +69,7 @@ public class Cube extends TestElementEntity {
     public void tick() {
         super.tick();
 
-        if (this.getType() == EntityInit.GABE.get() && this.random.nextDouble() < 0.005) {
+        if (this.getType() == EntityInit.GABE.get() && this.random.nextDouble() < 0.001) {
             this.playSound(SoundInit.CUBE_GABE.get(), 3, ModUtil.randomSlightSoundPitch());
         }
 

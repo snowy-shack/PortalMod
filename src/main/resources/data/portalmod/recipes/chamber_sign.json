@@ -5,7 +5,7 @@
     "l"
   ],
   "key": {
-    "i": { "item": "minecraft:sea_lantern" }
+    "l": { "item": "minecraft:sea_lantern" }
   },
   "result": { "item": "portalmod:chamber_sign" }
 }
