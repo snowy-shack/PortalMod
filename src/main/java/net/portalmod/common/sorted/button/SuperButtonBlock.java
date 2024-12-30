@@ -6,16 +6,16 @@ import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
+import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -26,11 +26,9 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants.BlockFlags;
-import net.portalmod.common.blocks.MultiBlock;
+import net.portalmod.common.blocks.QuadBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.SoundInit;
@@ -41,15 +39,10 @@ import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Predicate;
 
-public class SuperButtonBlock extends MultiBlock {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
+public class SuperButtonBlock extends QuadBlock {
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
@@ -66,54 +59,6 @@ public class SuperButtonBlock extends MultiBlock {
                 .setValue(MODE, ButtonMode.NORMAL)
         );
         this.initAABBs();
-    }
-
-    @Override
-    public BlockPos getMainPosition(BlockState blockState, BlockPos pos) {
-        QuadBlockCorner corner = blockState.getValue(CORNER);
-        Direction facing = blockState.getValue(FACING);
-
-        Direction horizontal = facing == Direction.UP ? Direction.WEST : facing == Direction.DOWN ? Direction.EAST : facing.getClockWise();
-        Direction vertical = facing.getAxis() == Axis.Y ? Direction.NORTH : Direction.UP;
-
-        if (!corner.isLeft()) {
-            pos = pos.relative(horizontal);
-        }
-        if (!corner.isUp()) {
-            pos = pos.relative(vertical);
-        }
-        return pos;
-    }
-
-    @Override
-    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        Direction facing = blockState.getValue(FACING);
-
-        Direction horizontal = facing == Direction.UP ? Direction.EAST : facing == Direction.DOWN ? Direction.WEST : facing.getCounterClockWise();
-        Direction vertical = facing.getAxis() == Axis.Y ? Direction.SOUTH : Direction.DOWN;
-
-        return new ArrayList<>(Arrays.asList(
-                mainPos.relative(horizontal),
-                mainPos.relative(horizontal).relative(vertical),
-                mainPos.relative(vertical)
-        ));
-    }
-
-    @Override
-    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
-        QuadBlockCorner base = blockState.getValue(CORNER);
-        Direction facing = blockState.getValue(FACING);
-
-        for(QuadBlockCorner corner : QuadBlockCorner.values()) {
-            if(corner == base)
-                continue;
-            world.setBlock(getOtherBlock(pos, base, corner, facing), blockState.setValue(CORNER, corner), BlockFlags.DEFAULT);
-        }
-    }
-
-    @Override
-    public boolean isMainBlock(BlockState blockState) {
-        return blockState.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
     }
 
     @Override
@@ -162,67 +107,6 @@ public class SuperButtonBlock extends MultiBlock {
             }
         }
     }
-    
-    @Nullable
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        Vec3 playerView = new Vec3(context.getPlayer().getViewVector(1));
-        Direction direction = context.getClickedFace();
-        Axis axis = direction.getAxis();
-        QuadBlockCorner corner;
-        
-        Tuple<Direction, Direction> directions = placementDirectionsFromFacing(axis);
-        Direction a = directions.getA();
-        Direction b = directions.getB();
-        
-        if(direction.getAxisDirection() == AxisDirection.NEGATIVE) {
-            if(direction.getAxis() == Axis.X)
-                playerView.z *= -1;
-            else
-                playerView.x *= -1;
-        }
-        
-        double x = a.getAxisDirection().getStep() * -playerView.to3d().get(a.getAxis());
-        double y = b.getAxisDirection().getStep() * -playerView.to3d().get(b.getAxis());
-        corner = QuadBlockCorner.fromCoords(x, y);
-//        System.out.println(x);
-//        System.out.println(y);
-        
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                .setValue(FACING, direction)
-                .setValue(CORNER, corner);
-
-        boolean xNeg = false;
-        boolean yNeg = false;
-
-        if(x < y)
-            xNeg = true;
-        else
-            yNeg = true;
-
-        corner = QuadBlockCorner.fromCoords(x * (xNeg ? -1 : 1), y * (yNeg ? -1 : 1));
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
-
-        corner = QuadBlockCorner.fromCoords(x * (xNeg ? 1 : -1), y * (yNeg ? 1 : -1));
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
-
-        corner = QuadBlockCorner.fromCoords(-x, -y);
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
-        
-        return null;
-    }
 
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
@@ -265,26 +149,6 @@ public class SuperButtonBlock extends MultiBlock {
     
     private VoxelShape getShape(BlockState state) {
         return this.getShapeGroup(state).getVariant(state.getValue(PRESSED) ? "pressed" : "normal");
-    }
-
-    private boolean canSurvive(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing) {
-        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
-            if(!canSupportCenter(level, targetPos.relative(facing.getOpposite()), facing))
-                return false;
-        return true;
-    }
-    
-    @Override
-    public boolean canSurvive(BlockState state, IWorldReader level, BlockPos pos) {
-        return canSurvive(level, pos, state.getValue(CORNER), state.getValue(FACING));
-    }
-
-    private Tuple<Direction, Direction> placementDirectionsFromFacing(Axis axis) {
-        if(axis == Axis.X)
-            return new Tuple<>(Direction.NORTH, Direction.UP);
-        if(axis == Axis.Z)
-            return new Tuple<>(Direction.EAST, Direction.UP);
-        return new Tuple<>(Direction.EAST, Direction.NORTH);
     }
     
     @Override
@@ -372,63 +236,14 @@ public class SuperButtonBlock extends MultiBlock {
         return entities.size() > 0;
     }
     
-    private boolean isPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
-        World level = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-
-        return checkEachBlock(level, pos, corner, context.getClickedFace(), s -> !s.canBeReplaced(context))
-                && canSurvive(level, pos, corner, context.getClickedFace());
-    }
-    
 //    private boolean isMultiblockComplete(World level, BlockPos pos, BlockState state) {
 //        return checkEachBlock(level, pos, state.getValue(CORNER), state.getValue(FACING),
 //                s -> s.getBlock() != BlockInit.SUPER_BUTTON.get());
 //    }
-
-    private boolean checkEachBlock(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing, Predicate<BlockState> p) {
-        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
-            if(p.test(level.getBlockState(targetPos)))
-                return false;
-        return true;
-    }
-    
-    private List<BlockPos> getAllBlocks(BlockPos pos, QuadBlockCorner base, Direction facing) {
-        List<BlockPos> poses = new ArrayList<>();
-        for(QuadBlockCorner corner : QuadBlockCorner.values())
-            poses.add(getOtherBlock(pos, base, corner, facing));
-        return poses;
-    }
-    
-    private BlockPos getOtherBlock(BlockPos pos, QuadBlockCorner base, QuadBlockCorner corner, Direction facing) {
-        Tuple<Direction, Direction> directions = placementDirectionsFromFacing(facing.getAxis());
-        Direction a = directions.getA();
-        Direction b = directions.getB();
-        int x = corner.getX() - base.getX();
-        int y = corner.getY() - base.getY();
-        
-        if(facing.getAxisDirection() == AxisDirection.NEGATIVE)
-            x *= -1;
-        
-        BlockPos newPos = new BlockPos(pos);
-        if(x != 0) newPos = newPos.relative(x < 0 ? a.getOpposite() : a);
-        if(y != 0) newPos = newPos.relative(y < 0 ? b.getOpposite() : b);
-        
-        return newPos;
-    }
     
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.DESTROY;
-    }
-    
-    @Override
-    public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
-    }
-    
-    @Override
-    public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
