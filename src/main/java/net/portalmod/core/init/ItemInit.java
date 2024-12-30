@@ -57,6 +57,7 @@ public class ItemInit {
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
     public static final RegistryObject<Item> FIZZLER_EMITTER = registerBlockItem("fizzler_emitter", BlockInit.FIZZLER_EMITTER);
     public static final RegistryObject<Item> FAITHPLATE = registerBlockItem("faithplate", BlockInit.FAITHPLATE);
+    public static final RegistryObject<Item> PELLET_LAUNCHER = registerBlockItem("pellet_launcher", BlockInit.PELLET_LAUNCHER);
 
     public static final RegistryObject<Item> CHAMBER_SIGN = ITEMS.register("chamber_sign", () -> new ChamberSignItem(new Item.Properties().tab(PortalModTab.INSTANCE)));
 

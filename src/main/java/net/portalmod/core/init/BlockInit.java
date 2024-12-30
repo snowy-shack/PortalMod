@@ -21,6 +21,7 @@ import net.portalmod.common.sorted.gel.RepulsionGelBlock;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.panel.LargePanelBlock;
 import net.portalmod.common.sorted.panel.SmallPanelBlock;
+import net.portalmod.common.sorted.pellet.PelletLauncherBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 
 public class BlockInit {
@@ -116,6 +117,9 @@ public class BlockInit {
 
     public static final RegistryObject<Block> PUSH_DOOR = BLOCKS.register("push_door",
             () -> new PushDoorBlock(AbstractBlock.Properties.copy(Blocks.IRON_DOOR)));
+
+    public static final RegistryObject<Block> PELLET_LAUNCHER = BLOCKS.register("pellet_launcher",
+            () -> new PelletLauncherBlock(AbstractBlock.Properties.of(Material.STONE)));
 
     // todo rename
     public static final RegistryObject<Block> STANDING_BUTTON = BLOCKS.register("standing_button",

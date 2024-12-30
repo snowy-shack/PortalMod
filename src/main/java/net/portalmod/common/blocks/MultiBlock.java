@@ -22,12 +22,24 @@ public abstract class MultiBlock extends Block {
         super(properties);
     }
 
+    /**
+     * @return the main position of the multiblock (usually top-left), given a particular corner.
+     */
     public abstract BlockPos getMainPosition(BlockState blockState, BlockPos pos);
 
+    /**
+     * @return all block positions of the multiblock, given the main corner.
+     */
     public abstract List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos);
 
+    /**
+     * Should call {@link net.minecraft.world.World#setBlockAndUpdate(net.minecraft.util.math.BlockPos, net.minecraft.block.BlockState)} for every block except for the main one.
+     */
     public abstract void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos);
 
+    /**
+     * @return whether the blockstate is the main block.
+     */
     public abstract boolean isMainBlock(BlockState blockState);
 
     public List<BlockPos> getAllPositions(BlockState blockState, BlockPos pos) {
