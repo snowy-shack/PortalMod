@@ -82,7 +82,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.CLIENT)
 public class ClientEvents {
@@ -614,24 +613,21 @@ public class ClientEvents {
         ActiveRenderInfo camera = minecraft.gameRenderer.getMainCamera();
         Vector3d velocity = entity.getDeltaMovement();
         
-        if(event.getType() == ElementType.TEXT && !minecraft.options.renderDebug) {
-            String fps = Minecraft.getInstance().fpsString.split("fps")[0];
-            String pos = String.format(Locale.ROOT, "pos: %.2f %.2f %.2f", entity.getX(), entity.getY(), entity.getZ());
-            String ang = String.format(Locale.ROOT, "ang: %.2f %.2f", camera.getXRot(), camera.getYRot() % 360);
-            String vel = String.format(Locale.ROOT, "vel: %.2f %.2f %.2f", velocity.x, velocity.y, velocity.z);
-            fontRenderer.draw(new MatrixStack(), fps + "fps", 2, 2, 14737632);
-            fontRenderer.draw(new MatrixStack(), pos, 2, 2 + 10 * 1, 14737632);
-            fontRenderer.draw(new MatrixStack(), ang, 2, 2 + 10 * 2, 14737632);
-            fontRenderer.draw(new MatrixStack(), vel, 2, 2 + 10 * 3, 14737632);
-
-
-            
-            
-//            TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-//            Texture textureAtlas = textureManager.getTexture(new ResourceLocation("textures/atlas/blocks.png"));
-//            textureAtlas.bind();
-//            Screen.blit(new MatrixStack(), 0, 0, 0, 0, 0, 512, 512, 512, 512);
-        }
+//        if (event.getType() == ElementType.TEXT && !minecraft.options.renderDebug) {
+//            String fps = Minecraft.getInstance().fpsString.split("fps")[0];
+//            String pos = String.format(Locale.ROOT, "pos: %.2f %.2f %.2f", entity.getX(), entity.getY(), entity.getZ());
+//            String ang = String.format(Locale.ROOT, "ang: %.2f %.2f", camera.getXRot(), camera.getYRot() % 360);
+//            String vel = String.format(Locale.ROOT, "vel: %.2f %.2f %.2f", velocity.x, velocity.y, velocity.z);
+//            fontRenderer.draw(new MatrixStack(), fps + "fps", 2, 2, 14737632);
+//            fontRenderer.draw(new MatrixStack(), pos, 2, 2 + 10 * 1, 14737632);
+//            fontRenderer.draw(new MatrixStack(), ang, 2, 2 + 10 * 2, 14737632);
+//            fontRenderer.draw(new MatrixStack(), vel, 2, 2 + 10 * 3, 14737632);
+//
+////            TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+////            Texture textureAtlas = textureManager.getTexture(new ResourceLocation("textures/atlas/blocks.png"));
+////            textureAtlas.bind();
+////            Screen.blit(new MatrixStack(), 0, 0, 0, 0, 0, 512, 512, 512, 512);
+//        }
         
         if(event.getType() == ElementType.CROSSHAIRS) {
             PortalGunCrosshairRenderer.render(event.getMatrixStack());

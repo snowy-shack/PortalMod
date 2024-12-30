@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.sorted.antline.AntlineActivator;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
@@ -37,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class StandingButtonBlock extends DoubleBlock {
+public class StandingButtonBlock extends DoubleBlock implements AntlineActivator {
 
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -111,6 +112,7 @@ public class StandingButtonBlock extends DoubleBlock {
         else if (mode == ButtonMode.TOGGLE) {
             this.setBlockStateValue(ACTIVE, !wasActive, blockState, world, pos);
         }
+        this.updateAdjacentBlocks(blockState, world, pos);
     }
 
     @Override
@@ -122,6 +124,7 @@ public class StandingButtonBlock extends DoubleBlock {
             if (blockState.getValue(MODE) == ButtonMode.NORMAL) {
                 this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             }
+            this.updateAdjacentBlocks(world.getBlockState(pos), world, pos);
         }
     }
 
@@ -145,6 +148,7 @@ public class StandingButtonBlock extends DoubleBlock {
 
             WrenchItem.playUseSound(world, player);
 
+            this.updateAdjacentBlocks(world.getBlockState(pos), world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
 
@@ -199,5 +203,20 @@ public class StandingButtonBlock extends DoubleBlock {
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
         ModUtil.addTooltip("standing_button", list);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        return state.getValue(ACTIVE);
+    }
+
+    private void updateAdjacentBlocks(BlockState blockState, World world, BlockPos pos) {
+        world.updateNeighborsAtExceptFromFacing(
+                blockState.getValue(HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos, blockState.getBlock(), Direction.DOWN);
+    }
+
+    @Override
+    public Direction getHorsedOn(BlockState state) {
+        return Direction.DOWN;
     }
 }

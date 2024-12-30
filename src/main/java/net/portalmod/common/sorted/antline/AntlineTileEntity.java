@@ -19,6 +19,7 @@ import java.util.List;
 
 public class AntlineTileEntity extends TileEntity {
     private final SideMap sideMap = new SideMap();
+    private Boolean initialized = false;
 
     public SideMap getSideMap() {
         return sideMap;
@@ -51,6 +52,33 @@ public class AntlineTileEntity extends TileEntity {
         else
             sideMap.merge(nbt);
     }
+
+//    @Override
+//    public void onLoad() {
+//        super.onLoad();
+//
+//        if (level.isClientSide) return; //|| this.initialized
+//
+//        BlockPos pos = this.getBlockPos();
+//        BlockState state = level.getBlockState(pos);
+//        Block block = state.getBlock();
+//
+//        AntlineBlock.onPlaced(state, level, pos, block, this);
+//        this.initialized = true;
+//    }
+//
+//    @Override
+//    protected void invalidateCaps() { // onRemoved
+//        if (level.isClientSide) return;
+//
+//        BlockPos pos = this.getBlockPos();
+//        BlockState state = level.getBlockState(pos);
+//        Block block = state.getBlock();
+//
+//        AntlineBlock.onRemoved(state, level, pos, block, this);
+//
+//        super.invalidateCaps();
+//    }
 
     @Nonnull
     @Override
@@ -132,6 +160,10 @@ public class AntlineTileEntity extends TileEntity {
         public int getSideCount() {
             return (int)values().stream().filter(v -> v.value != 0).count();
         }
+//
+//        public List<Direction> getSides() {
+//            return values().stream().map(s -> s.side).filter(this::hasSide).collect(Collectors.toList());
+//        }
 
         public IModelData toModelData() {
             ModelDataMap.Builder builder = new ModelDataMap.Builder();
@@ -177,7 +209,7 @@ public class AntlineTileEntity extends TileEntity {
 
         public boolean isConnectable() {
 //            return getValue() != 0 && !(getValue() % 3 == 0 || getValue() % 5 == 0);
-            return getValue() == 0xF || countBits(getValue()) == 1;
+            return getValue() == 0xF || countConnections((byte) (getValue() & 0b1111)) == 1;
         }
 
         public boolean isConnectableWith(Direction direction) {
@@ -243,12 +275,13 @@ public class AntlineTileEntity extends TileEntity {
         }
 
         public void removeConnection(Direction direction) {
-            if(countBits(getValue()) == 1) {
+            if (countConnections(getValue()) == 1) {
                 value = (byte)(value | 0xF);
                 return;
             }
-            if(getValue() != 0xF)
-                value = (byte)((value & 0xF0) | (value & 0xF) & ~valueByDirection(direction));
+            if (getValue() % 0xF != 0) {
+                value = (byte)((value & 0xF0) | (value & 0xF) & ~valueByDirection(toRelative(direction)));
+            }
         }
 
         public List<Direction> getPresentConnections() {
@@ -272,23 +305,31 @@ public class AntlineTileEntity extends TileEntity {
         }
 
         public byte getValue() {
-            return (byte)(value & 0xF);
+            return (byte) (value & 0xF);
+        }
+
+        public byte getActualValue() {
+            return value;
         }
 
         public boolean isActive() {
             return (value & 0b10000) != 0;
         }
 
+        public void setActive(boolean active) {
+            value = (byte) (active ? (value | 0b10000) : (value & 0b01111));
+        }
+
         private void checkValid(byte value) {
-            if(countBits(value) == 3)
+            if (countConnections(value) == 3)
                 throw new IllegalStateException("Antlines with three connections not allowed");
         }
 
-        private int countBits(byte value) {
-            int count = 0;
-            for(int i = 0; i < 4; i++)
-                count += ((value >> i) & 1) != 0 ? 1 : 0;
-            return count;
+        private int countConnections(byte value) {
+//            int count = 0;
+//            for (int i = 0; i < 4; i++)
+//                count += (((value & 0xF) >> i) & 1) != 0 ? 1 : 0;
+            return Integer.bitCount(value & 0xF);
         }
     }
 }

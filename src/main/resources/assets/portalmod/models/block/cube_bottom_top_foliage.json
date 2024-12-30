@@ -1,0 +1,19 @@
+{
+  "parent": "portalmod:block/cube_foliage",
+  "textures": {
+    "particle": "#side",
+    "down":  "#bottom",
+    "up":    "#top",
+    "north": "#side",
+    "east":  "#side",
+    "south": "#side",
+    "west":  "#side",
+
+    "down_foliage":  "#bottom_foliage",
+    "up_foliage":    "#top_foliage",
+    "north_foliage": "#side_foliage",
+    "east_foliage":  "#side_foliage",
+    "south_foliage": "#side_foliage",
+    "west_foliage":  "#side_foliage"
+  }
+}

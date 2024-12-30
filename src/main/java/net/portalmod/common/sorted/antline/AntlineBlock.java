@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.antline;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
@@ -21,10 +22,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.core.init.BlockInit;
-import net.portalmod.core.init.ItemInit;
+import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -63,179 +64,402 @@ public class AntlineBlock extends Block {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        if(!canSupportCenter(context.getLevel(),
+        if (!canSupportCenter(context.getLevel(),
                 context.getClickedPos().relative(context.getClickedFace().getOpposite()),
                 context.getClickedFace()))
             return null;
         return super.getStateForPlacement(context);
     }
 
-    @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
-        super.neighborChanged(state, level, pos, block, targetPos, b);
+    public static int modifyConnectedSides(World level, BlockPos pos, Direction dotDirection, AntlineTileEntity tileEntity, boolean add, boolean changePower, Direction powerOrigin) {
+        for (Direction adjacentFace : Direction.values()) {
+            if (adjacentFace.getAxis() == dotDirection.getAxis()) continue;
+            if (adjacentFace.getOpposite() == powerOrigin) continue;
 
-//        if(level.isClientSide()) return;
+            if (changePower && (!tileEntity.getSideMap().hasSide(dotDirection) || !tileEntity.getSideMap().get(dotDirection).hasConnection(adjacentFace))) continue;
 
-        AntlineTileEntity blockEntity = (AntlineTileEntity)level.getBlockEntity(pos);
+            // For all 4 adjacent faces
+            BlockPos neighborPos = pos.relative(adjacentFace);
+            BlockState neighborBlockState = level.getBlockState(neighborPos);
+            Block neighborBlock = neighborBlockState.getBlock();
 
-        for(Direction direction : Direction.values()) {
-            if(!(pos.relative(direction).getX() == targetPos.getX()
-                    && pos.relative(direction).getY() == targetPos.getY()
-                    && pos.relative(direction).getZ() == targetPos.getZ()))
+            Block cornerNeighborBlock = level.getBlockState(pos.relative(adjacentFace).relative(dotDirection)).getBlock();
+
+            if (neighborBlockState.isRedstoneConductor(level, neighborPos)) { // Solid block; same block
+                if (changePower) chainPower(level, pos, adjacentFace, dotDirection.getOpposite(), add);
+                else modifyConnection(level, pos, dotDirection, adjacentFace, pos, adjacentFace, dotDirection, add);
                 continue;
-
-            if(blockEntity.getSideMap().hasSide(direction)) {
-                if(!canSupportCenter(level, targetPos, direction.getOpposite())) {
-                    if(blockEntity.getSideMap().getSideCount() <= 1) {
-                        dropResources(state, level, pos);
-                        level.removeBlock(pos, false);
-                    } else {
-                        blockEntity.getSideMap().put(direction, new AntlineTileEntity.Side(direction, 0));
-                        level.sendBlockUpdated(pos, state, state, 0);
-
-                        CompoundNBT nbt = new CompoundNBT();
-                        nbt.putByte(direction.getName(), (byte) 0);
-
-                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
-                    }
-                }
             }
 
-            if(level.getBlockState(targetPos).getBlock() == BlockInit.ANTLINE.get()) {
-                AntlineTileEntity targetBlockEntity = (AntlineTileEntity)level.getBlockEntity(targetPos);
-
-                for(Direction side : Direction.values()) {
-                    if(side.getAxis() == direction.getAxis())
-                        continue;
-
-                    AntlineTileEntity.SideMap sideMap = blockEntity.getSideMap();
-                    AntlineTileEntity.SideMap targetSideMap = targetBlockEntity.getSideMap();
-
-                    if(sideMap.hasSide(side) && targetSideMap.hasSide(side)
-                            && sideMap.get(side).isConnectableWith(direction) && targetSideMap.get(side).isConnectableWith(direction.getOpposite())) {
-
-                        // TODO separate block update
-
-                        sideMap.get(side).addConnection(direction);
-                        targetSideMap.get(side).addConnection(direction.getOpposite());
-
-                        level.sendBlockUpdated(pos, state, state, 0);
-                        level.sendBlockUpdated(targetPos, state, state, 0);
-
-                        CompoundNBT nbt = new CompoundNBT();
-                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
-
-                        CompoundNBT targetNbt = new CompoundNBT();
-                        targetNbt.putByte(side.getName(), targetSideMap.get(side).getValue());
-
-                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
-
-                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                                () -> level.getChunkAt(targetPos)), new SAntlineUpdatePacket(targetPos, targetNbt));
-                    } else if(!targetSideMap.get(side).hasConnection(direction.getOpposite())) {
-                        sideMap.get(side).removeConnection(direction);
-
-                        level.sendBlockUpdated(pos, state, state, 0);
-
-                        CompoundNBT nbt = new CompoundNBT();
-                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
-
-                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
-                    }
-                }
-            } else {
-                for(Direction side : Direction.values()) {
-                    if(side == direction || side == direction.getOpposite())
-                        continue;
-
-                    AntlineTileEntity.SideMap sideMap = blockEntity.getSideMap();
-
-                    if(sideMap.get(side).hasConnection(direction)) {
-                        sideMap.get(side).removeConnection(direction);
-
-                        for(Direction targetBlockDirection : Direction.values()) {
-                            if(targetBlockDirection.getAxis() == side.getAxis()
-                                    || level.getBlockState(pos.relative(targetBlockDirection)).getBlock() != BlockInit.ANTLINE.get()
-                                    || sideMap.get(side).hasConnection(targetBlockDirection))
-                                continue;
-
-                            AntlineTileEntity targetBlockEntity = (AntlineTileEntity)level.getBlockEntity(pos.relative(targetBlockDirection));
-                            AntlineTileEntity.SideMap targetSideMap = targetBlockEntity.getSideMap();
-
-                            if(targetSideMap.get(side).isConnectableWith(targetBlockDirection.getOpposite())) {
-                                sideMap.get(side).addConnection(targetBlockDirection);
-                                targetSideMap.get(side).addConnection(targetBlockDirection.getOpposite());
-
-                                level.sendBlockUpdated(pos.relative(targetBlockDirection), state, state, 0);
-
-                                CompoundNBT nbt = new CompoundNBT();
-                                nbt.putByte(side.getName(), targetSideMap.get(side).getValue());
-
-                                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                                        () -> level.getChunkAt(pos.relative(targetBlockDirection))), new SAntlineUpdatePacket(pos.relative(targetBlockDirection), nbt));
-                                break;
-                            }
-                        }
-
-                        level.sendBlockUpdated(pos, state, state, 0);
-
-                        CompoundNBT nbt = new CompoundNBT();
-                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
-
-                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
-                    }
-                }
+            if (cornerNeighborBlock instanceof AntlineBlock) { // Non-solid block; corner block
+                if (changePower) chainPower(level, pos.relative(adjacentFace).relative(dotDirection), adjacentFace.getOpposite(), dotDirection, add);
+                else modifyConnection(level, pos, dotDirection, adjacentFace, pos.relative(adjacentFace).relative(dotDirection), adjacentFace.getOpposite(), dotDirection.getOpposite(), add);
+                continue;
             }
-            break;
+
+            if (neighborBlock instanceof AntlineBlock || neighborBlock.is(BlockTagInit.ANTLINE_CONNECTABLE)) { // Adjacent block
+                if (changePower) chainPower(level, pos.relative(adjacentFace), dotDirection, adjacentFace, add);
+                else modifyConnection(level, pos, dotDirection, adjacentFace, pos.relative(adjacentFace), dotDirection, adjacentFace.getOpposite(), add);
+            }
+        }
+        return 0;
+    }
+
+    private static void modifyConnection(World level, BlockPos posA, Direction sideA, Direction dirA, BlockPos posB, Direction sideB, Direction dirB, boolean connect) {
+        AntlineTileEntity tileEntityA = (AntlineTileEntity)level.getBlockEntity(posA);
+        AntlineTileEntity.Side dotA = tileEntityA.getSideMap().get(sideA);
+
+        if (level.getBlockState(posB).getBlock() instanceof AntlineBlock) {
+
+            AntlineTileEntity tileEntityB = (AntlineTileEntity)level.getBlockEntity(posB);
+            AntlineTileEntity.Side dotB = tileEntityB.getSideMap().get(sideB);
+
+            if ((!connect && dotB.hasConnection(dirB)) || (connect && dotA.isConnectableWith(dirA) && dotB.isConnectableWith(dirB))) {
+                if (connect) {
+                    dotA.addConnection(dirA);
+                    dotB.addConnection(dirB);
+                } else {
+                    dotA.removeConnection(dirA);
+                    dotB.removeConnection(dirB);
+                }
+
+                CompoundNBT nbtA = new CompoundNBT();
+                nbtA.putByte(sideA.getName(), tileEntityA.getSideMap().get(sideA).getActualValue());
+                CompoundNBT nbtB = new CompoundNBT();
+                nbtB.putByte(sideB.getName(), tileEntityB.getSideMap().get(sideB).getActualValue());
+
+                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+                        () -> level.getChunkAt(posA)), new SAntlineUpdatePacket(posA, nbtA));
+                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+                        () -> level.getChunkAt(posB)), new SAntlineUpdatePacket(posB, nbtB));
+            }
+        } else {
+            if (connect) dotA.addConnection(dirA);
+            else dotA.removeConnection(dirA);
+
+            CompoundNBT nbtA = new CompoundNBT();
+            nbtA.putByte(sideA.getName(), tileEntityA.getSideMap().get(sideA).getActualValue());
+
+            PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+                    () -> level.getChunkAt(posA)), new SAntlineUpdatePacket(posA, nbtA));
+        }
+    }
+
+    private static void chainPower(World level, BlockPos newPos, Direction dotDirection, Direction powerDirection, boolean active) {
+//        ModUtil.sendChat(level, "POWER " + newPos);
+        Block block = level.getBlockState(newPos).getBlock();
+        if (block instanceof AntlineIndicatorBlock) level.setBlockAndUpdate(newPos, level.getBlockState(newPos).setValue(ACTIVE, active));
+        if (block instanceof AntlineActivator
+                && ((AntlineActivator) block).getHorsedOn(level.getBlockState(newPos)) == dotDirection
+                && ((AntlineActivator) block).isActive(level.getBlockState(newPos))
+                && !active) {
+            ModUtil.sendChat(level, "PONG " + active); // DEBUG
+//            chainPower(level, newPos.relative(powerDirection.getOpposite()), dotDirection, powerDirection.getOpposite(), true);
+            return;
         }
 
-//        if(!state.canSurvive(level, pos)) {
-//            dropResources(state, level, pos);
-//            level.removeBlock(pos, false);
-//        }
+        if (!(block instanceof AntlineBlock)) return;
+
+        AntlineTileEntity tileEntity = ((AntlineTileEntity) level.getBlockEntity(newPos));
+        AntlineTileEntity.Side side = tileEntity.getSideMap().get(dotDirection);
+
+        if (side.isActive() == active) return; // Prevent loops
+
+        side.setActive(active);
+
+        // Update the model
+        level.sendBlockUpdated(newPos, level.getBlockState(newPos), level.getBlockState(newPos), 0);
+        tileEntity.requestModelDataUpdate();
+
+        CompoundNBT nbtA = new CompoundNBT();
+        nbtA.putByte(dotDirection.getName(), tileEntity.getSideMap().get(dotDirection).getActualValue());
+
+        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+                () -> level.getChunkAt(newPos)), new SAntlineUpdatePacket(newPos, nbtA));
+
+//        ModUtil.sendChat(level, "POWER " + side.isActive() + " " + newPos + " " + side.getConnections()); // DEBUG
+
+        modifyConnectedSides(level, newPos, dotDirection, tileEntity, active, true, powerDirection); // From just activated antline
     }
 
     @Override
+    public void neighborChanged(BlockState blockState, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        super.neighborChanged(blockState, level, pos, block, neighborPos, b);
+
+        AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
+        Direction neighborDir = Direction.getNearest(
+                neighborPos.getX() - pos.getX(),
+                neighborPos.getY() - pos.getY(),
+                neighborPos.getZ() - pos.getZ()
+        );
+
+        // Connect when adjacent testing element
+        for (Direction direction : Direction.values()) {
+            if (direction.getAxis() == neighborDir.getAxis() || tileEntity.getSideMap().get(direction).isEmpty()) continue;
+            modifyConnectedSides(level, pos, direction, tileEntity, true, false, null);
+        }
+
+        // Disconnect when no longer connected
+//        for (Direction direction : Direction.values()) {
+//            if (direction.getAxis() == neighborDir.getAxis() || tileEntity.getSideMap().get(direction).isEmpty()) continue;
+//            if (!tileEntity.getSideMap().get(direction).hasConnection(neighborDir)) continue;
+//            if (level.getBlockState(neighborPos).getBlock() instanceof AntlineBlock
+//                    && ((AntlineTileEntity) level.getBlockEntity(neighborPos)).getSideMap().get(direction).hasConnection(neighborDir.getOpposite())) continue;
+//            modifyConnection(level, pos, direction, neighborDir, neighborPos, direction, neighborDir.getOpposite(), false);
+//        }
+
+        // Adopt power on/off
+        for (Direction direction : Direction.values()) {
+            BlockState neighborBlockState = level.getBlockState(neighborPos);
+            if (neighborBlockState.getBlock() instanceof AntlineIndicatorBlock) continue;
+
+            AntlineTileEntity.Side side = tileEntity.getSideMap().get(direction);
+            if (side.isEmpty() || !side.hasConnection(neighborDir) || neighborDir.getOpposite() == direction) continue;
+
+            boolean active = false;
+            if (neighborBlockState.getBlock() instanceof AntlineActivator
+                    && ((AntlineActivator) neighborBlockState.getBlock()).getHorsedOn(neighborBlockState) == direction) {
+                active = neighborBlockState.getValue(ACTIVE);
+            }
+
+            chainPower(level, pos, direction, neighborDir.getOpposite(), active);
+        }
+
+        // Break if no supporting block
+        for (Direction direction : Direction.values()) {
+            if (tileEntity.getSideMap().get(direction).isEmpty()) continue;
+
+            BlockState neighborState = level.getBlockState(pos.relative(direction));
+
+            if (!neighborState.isFaceSturdy(level, pos, direction)) {
+                breakDot(blockState, level, pos, null, direction);
+            }
+        }
+    }
+
+    //    @Override
+//    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+//        super.neighborChanged(state, level, pos, block, neighborPos, b);
+//
+////        if(level.isClientSide()) return;
+//
+////        ModUtil.sendChat(level, "Updating: " + pos);
+//
+//        AntlineTileEntity blockEntity = (AntlineTileEntity)level.getBlockEntity(pos);
+//
+//        // Ensure direction is from pos to neighborPos
+//        for (Direction direction : Direction.values()) {
+//            if (pos.relative(direction).getX() != neighborPos.getX() ||
+//                pos.relative(direction).getY() != neighborPos.getY() ||
+//                pos.relative(direction).getZ() != neighborPos.getZ()
+//            ) continue;
+//
+//            // A supporting block has been removed
+//            if (blockEntity.getSideMap().hasSide(direction) && !canSupportCenter(level, neighborPos, direction.getOpposite())) {
+//                // This was the last Antline within this block
+//                if (blockEntity.getSideMap().getSideCount() <= 1) {
+//                    dropResources(state, level, pos);
+//                    level.removeBlock(pos, false);
+//                } else {
+//                    blockEntity.getSideMap().put(direction, new AntlineTileEntity.Side(direction, 0));
+//                    level.sendBlockUpdated(pos, state, state, 0);
+//
+//                    dropResources(state, level, pos);
+//
+//                    CompoundNBT nbt = new CompoundNBT();
+//                    nbt.putByte(direction.getName(), (byte) 0);
+//
+//                    PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+//                            () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
+//                }
+//            }
+//
+//            // The neighbor is also an Antline
+//            if (level.getBlockState(neighborPos).getBlock() == BlockInit.ANTLINE.get()) {
+//                AntlineTileEntity neighborBlockEntity = (AntlineTileEntity)level.getBlockEntity(neighborPos);
+//
+//                // In directions (faces) perpendicular to the direction of the neighbor
+//                for (Direction side : Direction.values()) {
+//                    if (side.getAxis() == direction.getAxis()) continue;
+//
+//                    AntlineTileEntity.SideMap sideMap = blockEntity.getSideMap();
+//                    AntlineTileEntity.SideMap neighborSideMap = neighborBlockEntity.getSideMap();
+//
+////                    ModUtil.sendChat(level, pos + " " +
+////                            side + " " +
+////                            sideMap.hasSide(side) + " " +
+////                            neighborSideMap.hasSide(side) + " " +
+////                            sideMap.get(side).isConnectableWith(direction) + " " +
+////                            neighborSideMap.get(side).isConnectableWith(direction.getOpposite())
+////                    );
+//
+//                    // If the two faces can connect
+//                    if (sideMap.hasSide(side) && neighborSideMap.hasSide(side)
+//                            && sideMap.get(side).isConnectableWith(direction)
+//                            && neighborSideMap.get(side).isConnectableWith(direction.getOpposite())) {
+//
+//                        // TODO separate block update
+//
+////                        ModUtil.sendChat(level, "passed");
+//
+//                        sideMap.get(side).addConnection(direction);
+//                        neighborSideMap.get(side).addConnection(direction.getOpposite());
+//
+////                        level.sendBlockUpdated(pos, state, state, 0);
+////                        level.sendBlockUpdated(neighborPos, state, state, 0);
+//
+//                        CompoundNBT nbt = new CompoundNBT();
+//                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
+//
+//                        CompoundNBT neighborNbt = new CompoundNBT();
+//                        neighborNbt.putByte(side.getName(), neighborSideMap.get(side).getValue());
+//
+//                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+//                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
+//
+//                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+//                                () -> level.getChunkAt(neighborPos)), new SAntlineUpdatePacket(neighborPos, neighborNbt));
+//
+//                    }
+//
+////                    else if (!neighborSideMap.get(side).hasConnection(direction.getOpposite())) {
+////                        sideMap.get(side).removeConnection(direction);
+////
+////                        level.sendBlockUpdated(pos, state, state, 0);
+////
+////                        CompoundNBT nbt = new CompoundNBT();
+////                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
+////
+////                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+////                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
+////                    }
+//                }
+//            } else if (level.getBlockState(neighborPos).getBlock().is(BlockTagInit.ANTLINE_CONNECTABLE)) {
+////                ModUtil.sendChat(level, "Antline Connectable!");
+//
+//                AntlineTileEntity.SideMap sideMap = blockEntity.getSideMap();
+//                BlockState neighborState = level.getBlockState(neighborPos);
+//
+//                for (Direction side : Direction.values()) {
+////                    ModUtil.sendChat(level, side + " " + sideMap.hasSide(side) + " " + sideMap.get(side).isConnectableWith(direction));
+////                    ModUtil.sendChat(level, neighborState.getValue(FACING) + " " + side);
+//                    if (sideMap.hasSide(side) && sideMap.get(side).isConnectableWith(direction) &&
+//                            (
+//                                    (neighborState.getValue(FACE) == AttachFace.WALL && neighborState.getValue(FACING) != side) ||
+//                                    (neighborState.getValue(FACE) == AttachFace.FLOOR && side == Direction.DOWN) ||
+//                                    (neighborState.getValue(FACE) == AttachFace.CEILING && side == Direction.UP)
+//                            )
+//                    ) {
+////                        ModUtil.sendChat(level, side + " found");
+//
+////                        ModUtil.sendChat(level, sideMap.get(side).getValue());
+//                        sideMap.get(side).addConnection(direction);
+////                        ModUtil.sendChat(level, sideMap.get(side).getValue());
+//
+//                        level.sendBlockUpdated(pos, state, state, 0);
+//
+//                        CompoundNBT nbt = new CompoundNBT();
+//                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
+//
+//                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+//                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
+//                        break;
+//                    }
+//
+//                }
+//
+//            } else {
+//
+//                // In directions (faces) perpendicular to the direction of the neighbor
+//                for (Direction side : Direction.values()) {
+//                    if (side.getAxis() == direction.getAxis()) continue;
+//
+//                    AntlineTileEntity.SideMap sideMap = blockEntity.getSideMap();
+//
+//                    // If we were connected with the removed neighbor
+//                    if (sideMap.get(side).hasConnection(direction)) {
+//                        sideMap.get(side).removeConnection(direction);
+//
+//
+////                        for (Direction targetBlockDirection : Direction.values()) {
+////                            if(targetBlockDirection.getAxis() == side.getAxis()
+////                                    || level.getBlockState(pos.relative(targetBlockDirection)).getBlock() != BlockInit.ANTLINE.get()
+////                                    || sideMap.get(side).hasConnection(targetBlockDirection))
+////                                continue;
+////
+////                            AntlineTileEntity targetBlockEntity = (AntlineTileEntity)level.getBlockEntity(pos.relative(targetBlockDirection));
+////                            AntlineTileEntity.SideMap targetSideMap = targetBlockEntity.getSideMap();
+////
+////                            if(targetSideMap.get(side).isConnectableWith(targetBlockDirection.getOpposite())) {
+////                                sideMap.get(side).addConnection(targetBlockDirection);
+////                                targetSideMap.get(side).addConnection(targetBlockDirection.getOpposite());
+////
+////                                level.sendBlockUpdated(pos.relative(targetBlockDirection), state, state, 0);
+////
+////                                CompoundNBT nbt = new CompoundNBT();
+////                                nbt.putByte(side.getName(), targetSideMap.get(side).getValue());
+////
+////                                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+////                                        () -> level.getChunkAt(pos.relative(targetBlockDirection))), new SAntlineUpdatePacket(pos.relative(targetBlockDirection), nbt));
+////                                break;
+////                            }
+////                        }
+//
+////                        level.sendBlockUpdated(pos, state, state, 0);
+//
+//                        CompoundNBT nbt = new CompoundNBT();
+//                        nbt.putByte(side.getName(), sideMap.get(side).getValue());
+//
+//                        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+//                                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbt));
+//                    }
+//                }
+//            }
+//            break;
+//        }
+////        if(!state.canSurvive(level, pos)) {
+////            dropResources(state, level, pos);
+////            level.removeBlock(pos, false);
+////        }
+//    }
+
+    @Override
     public boolean canBeReplaced(BlockState state, BlockItemUseContext context) {
-        return context.getItemInHand().getItem() == ItemInit.ANTLINE.get();
+        return context.getItemInHand().getItem() instanceof AntlineBlockItem;
+    }
+
+    public void breakDot(BlockState state, World level, BlockPos pos, PlayerEntity player, Direction direction) {
+        AntlineTileEntity tileEntity = (AntlineTileEntity)level.getBlockEntity(pos);
+
+        // Break like normal
+        if (tileEntity.getSideMap().getSideCount() <= 1) {
+            if (!level.isClientSide) AntlineBlock.modifyConnectedSides(level, pos, direction, tileEntity, false, false, null);
+
+            level.destroyBlock(pos, false);
+            return;
+        }
+
+        if (player != null) level.levelEvent(player, 2001, pos, getId(state));
+        tileEntity.getSideMap().put(direction, AntlineTileEntity.Side.empty(direction));
+
+        if (!level.isClientSide) AntlineBlock.modifyConnectedSides(level, pos, direction, tileEntity, false, false, null);
+
+        level.sendBlockUpdated(pos, state, state, 0);
+        tileEntity.requestModelDataUpdate();
+        if (player == null || !player.isCreative()) dropResources(state, level, pos);
     }
 
     @Override
     public boolean removedByPlayer(BlockState state, World level, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
-        AntlineTileEntity blockEntity = (AntlineTileEntity)level.getBlockEntity(pos);
-
-        if(blockEntity.getSideMap().getSideCount() <= 1)
-            return super.removedByPlayer(state, level, pos, player, willHarvest, fluid);
-
         Vector3d rayPath = player.getViewVector(0).scale(7);
         Vector3d from = player.getEyePosition(0);
         Vector3d to = from.add(rayPath);
 
-        for(Direction direction : Direction.values()) {
+        for (Direction direction : Direction.values()) {
             BlockRayTraceResult rayHit = getSideShape(level, pos, direction).clip(from, to, pos);
 
-            if(rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK && blockEntity.getSideMap().getSideCount() > 1) {
-                level.levelEvent(player, 2001, pos, getId(state));
-                blockEntity.getSideMap().put(direction, AntlineTileEntity.Side.empty(direction));
-
-                for(Direction side : Direction.values()) {
-                    if(side.getAxis() == direction.getAxis())
-                        continue;
-
-                    if(blockEntity.getSideMap().get(side).hasConnection(direction))
-                        blockEntity.getSideMap().get(side).removeConnection(direction);
-                }
-
-                level.sendBlockUpdated(pos, state, state, 0);
-                level.updateNeighborsAt(pos, BlockInit.ANTLINE.get());
-                blockEntity.requestModelDataUpdate();
-                if (!player.isCreative()) {
-                    dropResources(state, level, pos);
-                }
+            if (rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK) {
+                breakDot(state, level, pos, player, direction);
                 break;
             }
         }
@@ -250,8 +474,8 @@ public class AntlineBlock extends Block {
     static {
         externalShapes.put(Direction.NORTH, DOT.move(0, 0, -5 / 16f));
         externalShapes.put(Direction.SOUTH, DOT.move(0, 0, 5 / 16f));
-        externalShapes.put(Direction.WEST, DOT.move(-5 / 16f, 0, 0));
-        externalShapes.put(Direction.EAST, DOT.move(5 / 16f, 0, 0));
+        externalShapes.put(Direction.WEST,  DOT.move(-5 / 16f, 0, 0));
+        externalShapes.put(Direction.EAST,  DOT.move(5 / 16f, 0, 0));
     }
 
     private static final HashMap<Direction, Function<VoxelShape, VoxelShape>> ROTATE = new HashMap<>();
@@ -286,7 +510,7 @@ public class AntlineBlock extends Block {
     }
 
     public VoxelShape getSideShape(IBlockReader level, BlockPos pos, Direction side) {
-        if(level.getBlockEntity(pos) == null || ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap() == null)
+        if (level.getBlockEntity(pos) == null || ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap() == null)
             return VoxelShapes.empty();
 
         AntlineTileEntity.Side sideData = ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap().get(side);
@@ -304,35 +528,35 @@ public class AntlineBlock extends Block {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-//        if(level.getBlockEntity(pos) == null || ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap() == null)
+//        if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
 //            // TODO use proper solution
 //            return DOT;
 //
-//        PlayerEntity player = Minecraft.getInstance().player;
-//        Vector3d rayPath = player.getViewVector(0).scale(7);
-//        Vector3d from = player.getEyePosition(0);
-//        Vector3d to = from.add(rayPath);
-//
-//        for(Direction direction : Direction.values()) {
-//            VoxelShape shape = getSideShape(level, pos, direction);
-//            BlockRayTraceResult rayHit = shape.clip(from, to, pos);
-//
-//            if(rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK)
-//                return shape;
-//        }
-//
-//        // TODO use proper solution
-//
-//        AtomicReference<VoxelShape> RESULT = new AtomicReference<>(VoxelShapes.empty());
-//
-//        ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap().forEach((direction, side) -> {
-//            if(!side.isEmpty())
-//                RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(direction).apply(DOT)));
-//        });
-//
-//        return RESULT.get();
-        // todo implement actual thing but for now this to compat server
-        return SHAPE;
+        PlayerEntity player = Minecraft.getInstance().player;
+        Vector3d rayPath = player.getViewVector(0).scale(7);
+        Vector3d from = player.getEyePosition(0);
+        Vector3d to = from.add(rayPath);
+
+        for (Direction direction : Direction.values()) {
+            VoxelShape shape = getSideShape(level, pos, direction);
+            BlockRayTraceResult rayHit = shape.clip(from, to, pos);
+
+            if (rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK)
+                return shape;
+        }
+
+        // TODO use proper solution
+
+        AtomicReference<VoxelShape> RESULT = new AtomicReference<>(VoxelShapes.empty());
+
+        ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap().forEach((direction, side) -> {
+            if(!side.isEmpty())
+                RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(direction).apply(DOT)));
+        });
+
+        return RESULT.get();
+        // TODO implement actual thing but for now this to compat server
+//        return SHAPE;
     }
 
     @Override

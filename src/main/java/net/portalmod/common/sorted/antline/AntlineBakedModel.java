@@ -157,8 +157,8 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         double uy = u;
         double dy = d;
 
-        Vec3 y = new Vec3(side.getOpposite().getNormal());
-        Vec3 z = new Vec3((side.getAxis().isHorizontal() ? Direction.DOWN : (side == Direction.UP ? Direction.NORTH : Direction.SOUTH)).getNormal());
+        Vec3 y = new Vec3((side == Direction.UP ? side : side.getOpposite()).getNormal());
+        Vec3 z = new Vec3((side.getAxis().isHorizontal() ? Direction.DOWN : Direction.SOUTH).getNormal());
         Vec3 x = y.clone().cross(z);
 
         Mat4 relToAbs = new Mat4(
@@ -168,15 +168,8 @@ public class AntlineBakedModel implements IDynamicBakedModel {
                 0, 0, 0, 1
         );
 
-//        Mat4 relToAbs = new Mat4(
-//                x.x, x.y, x.z, 0,
-//                y.x, y.y, y.z, 0,
-//                z.x, z.y, z.z, 0,
-//                0, 0, 0, 1
-//        );
-
         Vector3d absOffset = new Vec3(offset.getNormal()).transform(relToAbs).mul(5 / 16f).to3d();
-        if(offset.getAxis().isVertical())
+        if (offset.getAxis().isVertical())
             absOffset = Vector3d.ZERO;
 
         TextureAtlasSprite tex = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(texture);
@@ -209,8 +202,7 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
         sideMap.forEach((direction, sideData) -> {
 //            HashMap<String, ResourceLocation> current = sideData.isActive() ? ACTIVE : INACTIVE;
-//            String path = sideData.isActive() ? "antline/active_" : "antline/inactive_";
-            String path = state.getValue(AntlineBlock.ACTIVE) ? "antline/active_" : "antline/inactive_";
+            String path = sideData.isActive() ? "antline/active_" : "antline/inactive_";
 
             if(sideData.getCenter() == AntlineTileEntity.Side.Center.TRUE)
                 addQuad(quads, direction, Direction.UP, new ResourceLocation(PortalMod.MODID, path + "dot"));
@@ -256,9 +248,7 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        // TODO somehow different particle
-//        PlayerInteractionManager
-        return Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(inactive("particle"));
+        return Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(inactive("inactive_dot"));
     }
 
     @Override

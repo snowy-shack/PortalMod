@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.portalmod.client.render.BlockColorHandler;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.core.init.*;
 import org.apache.logging.log4j.LogManager;
@@ -39,6 +40,8 @@ public class PortalMod {
         EntityTagInit.init();
         FluidTagInit.init();
         createConfigs();
+
+        bus.register(new BlockColorHandler());
 
         MinecraftForge.EVENT_BUS.register(this);
     }

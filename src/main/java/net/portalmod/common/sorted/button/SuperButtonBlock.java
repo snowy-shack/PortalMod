@@ -32,6 +32,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.sorted.antline.AntlineActivator;
 import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.BiHashMap;
@@ -47,7 +48,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Predicate;
 
-public class SuperButtonBlock extends MultiBlock {
+public class SuperButtonBlock extends MultiBlock implements AntlineActivator {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
@@ -241,9 +242,17 @@ public class SuperButtonBlock extends MultiBlock {
 
             WrenchItem.playUseSound(world, player);
 
+            updateAdjacentBlocks(blockState, world, pos);
+
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
         return ActionResultType.FAIL;
+    }
+
+    private void updateAdjacentBlocks(BlockState blockState, World world, BlockPos pos) {
+        for (BlockPos cornerPos : this.getAllBlocks(pos, blockState.getValue(CORNER), blockState.getValue(FACING))) {
+            world.updateNeighborsAtExceptFromFacing(cornerPos, blockState.getBlock(), blockState.getValue(FACING));
+        }
     }
 
     public ButtonMode cycleMode(BlockState blockState, World world, BlockPos pos) {
@@ -252,7 +261,7 @@ public class SuperButtonBlock extends MultiBlock {
         this.setBlockStateValue(MODE, newMode, blockState, world, pos);
         return newMode;
     }
-    
+
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext selectionContext) {
         VoxelShape shape = this.getShape(state);
@@ -347,6 +356,8 @@ public class SuperButtonBlock extends MultiBlock {
                 this.setBlockStateValue(ACTIVE, !wasActive, state, level, pos);
                 playActivationSound(level, pos, !wasActive);
             }
+
+            updateAdjacentBlocks(state, level, pos);
         }
     }
 
@@ -386,8 +397,8 @@ public class SuperButtonBlock extends MultiBlock {
 //    }
 
     private boolean checkEachBlock(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing, Predicate<BlockState> p) {
-        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
-            if(p.test(level.getBlockState(targetPos)))
+        for (BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
+            if (p.test(level.getBlockState(targetPos)))
                 return false;
         return true;
     }
@@ -434,5 +445,15 @@ public class SuperButtonBlock extends MultiBlock {
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
         ModUtil.addTooltip("super_button", list);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        return state.getValue(ACTIVE);
+    }
+
+    @Override
+    public Direction getHorsedOn(BlockState state) {
+        return state.getValue(FACING).getOpposite();
     }
 }

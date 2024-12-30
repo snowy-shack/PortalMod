@@ -42,12 +42,12 @@ public class TurretEntity extends TestElementEntity {
     public static final float BULLET_DAMAGE = 0.5f;
     public static final float BULLET_KNOCKBACK = 0.1f;
 
-    public static Predicate<LivingEntity> TARGETS = e -> !(
-            e instanceof TestElementEntity
-            || e.isSpectator()
-            || e instanceof PlayerEntity && ((PlayerEntity) e).isCreative()
-            || e.isBaby() && e.getClassification(false) != EntityClassification.MONSTER
-    );
+    public static Predicate<LivingEntity> TARGETS = e ->
+            !(e instanceof TestElementEntity)
+            && !e.isSpectator()
+            && !(e instanceof PlayerEntity && ((PlayerEntity) e).isCreative())
+            && !(e.isBaby() && e.getClassification(false) != EntityClassification.MONSTER)
+            && !e.isInvisible();
 
     public int fallDuration = 10;
     public int viewDistance = 32;
@@ -264,14 +264,10 @@ public class TurretEntity extends TestElementEntity {
             double distanceSqr = ray.lengthSqr();
 
             // No shooting the same team
-            if (this.getTeam() != null && entity.getTeam() != null && this.getTeam().isAlliedTo(entity.getTeam())) {
-                continue;
-            }
+            if (this.getTeam() != null && entity.getTeam() != null && this.getTeam().isAlliedTo(entity.getTeam())) continue;
 
             // In front of turret (cone shape)
-            if (cosine > 0.6) {
-                entityDistances.put(entity, distanceSqr);
-            }
+            if (cosine > 0.6) entityDistances.put(entity, distanceSqr);
         }
 
         // Sort entities
