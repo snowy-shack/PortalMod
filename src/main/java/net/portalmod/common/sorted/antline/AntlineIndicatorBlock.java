@@ -31,7 +31,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AntlineIndicatorBlock extends HorizontalFaceBlock {
+public class AntlineIndicatorBlock extends HorizontalFaceBlock implements AntlineConnector {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
     private static final BiHashMap<Direction, AttachFace, VoxelShapeGroup> SHAPE = new BiHashMap<>();
@@ -137,5 +137,10 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock {
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
         ModUtil.addTooltip("antline_indicator", list);
+    }
+
+    @Override
+    public Direction getHorsedOn(BlockState state) {
+        return state.getValue(FACING).getOpposite();
     }
 }
