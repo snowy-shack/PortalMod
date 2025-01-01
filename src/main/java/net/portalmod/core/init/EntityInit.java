@@ -51,7 +51,7 @@ public class EntityInit {
 
     public static final RegistryObject<EntityType<PelletEntity>> PELLET = ENTITIES.register("pellet",
             () -> EntityType.Builder.<PelletEntity>of(PelletEntity::new, EntityClassification.MISC)
-                    .sized(.5f, .5f)
+                    .sized(.25f, .25f)
                     .build(new ResourceLocation(PortalMod.MODID, "pellet").toString()));
     
 //    public static final RegistryObject<EntityType<CreeperEntity>> CREER = ENTITIES.register("creer",

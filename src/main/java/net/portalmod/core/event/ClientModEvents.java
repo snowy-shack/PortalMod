@@ -3,7 +3,6 @@ package net.portalmod.core.event;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.IItemPropertyGetter;
@@ -37,6 +36,7 @@ import net.portalmod.common.sorted.cube.companion.CompanionCubeRenderer;
 import net.portalmod.common.sorted.cube.storage.StorageCubeRenderer;
 import net.portalmod.common.sorted.cube.vintage.VintageCubeRenderer;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
+import net.portalmod.common.sorted.pellet.PelletRenderer;
 import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
@@ -102,7 +102,7 @@ public class ClientModEvents {
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.TURRET.get(), TurretRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.PELLET.get(), manager -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
+        RenderingRegistry.registerEntityRenderingHandler(EntityInit.PELLET.get(), PelletRenderer::new);
         Minecraft.getInstance().getItemColors().register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
 
 //        APIWrapper.init();
