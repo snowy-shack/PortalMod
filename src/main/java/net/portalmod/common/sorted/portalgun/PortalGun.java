@@ -70,7 +70,8 @@ public class PortalGun extends Item {
     }
     
     public static void handleRightClick() {
-        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalGunClient::handleRightClick);
+//        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
     }
 
     public static boolean isHoldable(Entity entity) {
