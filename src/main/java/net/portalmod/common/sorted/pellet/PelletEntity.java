@@ -1,43 +1,52 @@
 package net.portalmod.common.sorted.pellet;
 
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IRendersAsItem;
-import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.entity.projectile.DamagingProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.core.init.EntityInit;
-import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.packet.SSpawnPelletPacket;
+import net.portalmod.core.util.ModUtil;
 
-public class PelletEntity extends DamagingProjectileEntity implements IRendersAsItem {
+public class PelletEntity extends ProjectileEntity {
 
-    public static final double SPEED = 0.2;
+    public static final double SPEED = 0.15;
 
-    public PelletEntity(EntityType<? extends DamagingProjectileEntity> entityType, World world) {
+    public PelletEntity(EntityType<? extends ProjectileEntity> entityType, World world) {
         super(entityType, world);
     }
 
     public PelletEntity(World world, double x, double y, double z, double dx, double dy, double dz) {
-        super(EntityInit.PELLET.get(), x, y, z, dx, dy, dz, world);
+        this(EntityInit.PELLET.get(), world);
+        this.moveTo(x, y, z);
+        this.setDeltaMovement(dx, dy, dz);
     }
 
     @Override
-    public void tick() {
-        // fireballs are weird
-        this.xPower = 0;
-        this.yPower = 0;
-        this.zPower = 0;
+    protected void defineSynchedData() {}
 
-        // ignore friction
+    @Override
+    public void tick() {
+        super.tick();
+
+        RayTraceResult raytraceresult = ProjectileHelper.getHitResult(this, this::canHitEntity);
+        if (raytraceresult.getType() != RayTraceResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, raytraceresult)) {
+            this.onHit(raytraceresult);
+        }
+
+        this.checkInsideBlocks();
+
         this.setDeltaMovement(this.getDeltaMovement().normalize().scale(SPEED));
 
-        super.tick();
+        Vector3d newPos = this.position().add(this.getDeltaMovement());
+        this.setPos(newPos.x, newPos.y, newPos.z);
+
+//        ModUtil.sendChat(level, this.getDeltaMovement() + (level.isClientSide ? "CLIENT" : "SERVER"));
     }
 
     @Override
@@ -50,16 +59,18 @@ public class PelletEntity extends DamagingProjectileEntity implements IRendersAs
         if (bounceAxis == Direction.Axis.Y) delta = delta.multiply(1, -1, 1);
         if (bounceAxis == Direction.Axis.Z) delta = delta.multiply(1, 1, -1);
         this.setDeltaMovement(delta);
-    }
-
-    @Override
-    public ItemStack getItem() {
-        return new ItemStack(ItemInit.TEST_BLOCK.get());
+        ModUtil.sendChat(level, level.isClientSide ? "CLIENT BOUNCE" : "SERVER BOUNCE");
     }
 
     @Override
     public boolean isOnFire() {
         return false;
+    }
+
+    @Override
+    public boolean isPickable() {
+//        return false;
+        return true;
     }
 
     @Override
