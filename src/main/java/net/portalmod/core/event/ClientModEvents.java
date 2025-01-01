@@ -3,6 +3,7 @@ package net.portalmod.core.event;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.entity.SpriteRenderer;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.IItemPropertyGetter;
@@ -101,6 +102,7 @@ public class ClientModEvents {
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.TURRET.get(), TurretRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityInit.PELLET.get(), manager -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
         Minecraft.getInstance().getItemColors().register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
 
 //        APIWrapper.init();

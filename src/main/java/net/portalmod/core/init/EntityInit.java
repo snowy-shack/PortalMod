@@ -8,6 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.sorted.pellet.PelletEntity;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.sign.ChamberSignEntity;
 import net.portalmod.common.sorted.turret.TurretEntity;
@@ -47,6 +48,11 @@ public class EntityInit {
                     .sized(.5f, .5f)
                     .updateInterval(Integer.MAX_VALUE)
                     .build(new ResourceLocation(PortalMod.MODID, "chamber_sign").toString()));
+
+    public static final RegistryObject<EntityType<PelletEntity>> PELLET = ENTITIES.register("pellet",
+            () -> EntityType.Builder.<PelletEntity>of(PelletEntity::new, EntityClassification.MISC)
+                    .sized(.5f, .5f)
+                    .build(new ResourceLocation(PortalMod.MODID, "pellet").toString()));
     
 //    public static final RegistryObject<EntityType<CreeperEntity>> CREER = ENTITIES.register("creer",
 //            () -> EntityType.Builder.of(CreeperEntity::new, EntityClassification.MONSTER)
