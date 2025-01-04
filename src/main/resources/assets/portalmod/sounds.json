@@ -33,63 +33,8 @@
         "sounds": [ "portalmod:mob/turret/close" ],
         "subtitle": "subtitles.entity.turret.close"
     },
-    "entity.turret.voice.activated": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.search"
-    },
-    "entity.turret.voice.death": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.sleep"
-    },
-    "entity.turret.voice.fall": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.fall"
-    },
-    "entity.turret.voice.fire": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.fire"
-    },
-    "entity.turret.voice.fizzle": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.fizzle"
-    },
-    "entity.turret.voice.pickup": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.pickup"
-    },
-    "entity.turret.voice.search": {
-        "sounds": [
-            "portalmod:error"
-        ]
-    },
-    "entity.turret.voice.sleep": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.sleep"
-    },
-    "entity.turret.voice.target": {
-        "sounds": [
-            "portalmod:error"
-        ],
-        "subtitle": "subtitles.entity.turret.voice.target"
-    },
     "entity.player.hurt_goo": {
-        "sounds": [
-            "portalmod:error"
-        ],
+        "sounds": [ "portalmod:error" ],
         "subtitle": "subtitles.entity.player.hurt"
     },
     "item.bucket.empty_goo": {
@@ -109,9 +54,7 @@
       "subtitle": "subtitles.item.bucket.fill"
     },
     "portal.teleport": {
-        "sounds": [
-            "portalmod:portal/teleport"
-        ],
+        "sounds": [ "portalmod:portal/teleport" ],
         "subtitle": "subtitles.portal.teleport"
     },
 
@@ -125,12 +68,14 @@
     "block.chamber_door.close": {
         "sounds": [ "portalmod:block/chamber_door/close" ],
         "subtitle": "subtitles.block.chamber_door.close" },
+
     "block.push_door.open": {
         "sounds": [ "portalmod:block/push_door/open" ],
         "subtitle": "subtitles.block.push_door.open" },
     "block.push_door.close": {
         "sounds": [ "portalmod:block/push_door/close" ],
         "subtitle": "subtitles.block.push_door.close" },
+
     "block.super_button.press": {
         "sounds": [ "portalmod:block/super_button/press" ]},
     "block.super_button.release": {
@@ -141,6 +86,14 @@
     "block.super_button.deactivate": {
         "sounds": [ "portalmod:block/super_button/deactivate" ],
         "subtitle": "subtitles.block.super_button.deactivate" },
+
+    "block.fizzler_emitter.activate": {
+        "sounds": [ "portalmod:block/fizzler_emitter/enable" ],
+        "subtitle": "subtitles.block.fizzler_emitter.enable" },
+    "block.fizzler_emitter.deactivate": {
+        "sounds": [ "portalmod:block/fizzler_emitter/disable" ],
+        "subtitle": "subtitles.block.fizzler_emitter.disable" },
+
     "block.gel.place": {
         "sounds": [
             "portalmod:block/gel/place1",
@@ -186,7 +139,8 @@
         "sounds": [
             "portalmod:entity/cube/hit1",
             "portalmod:entity/cube/hit2",
-            "portalmod:entity/cube/hit3"
+            "portalmod:entity/cube/hit3",
+            "portalmod:entity/cube/hit4"
         ],
         "subtitle": "subtitles.entity.cube.hit" },
     "entity.cube.gabe": {
