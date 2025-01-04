@@ -67,8 +67,7 @@
   "block.portalmod.rusty_iron_frame":            "Rusty Iron Frame",
   "block.portalmod.rusty_barred_iron_frame":     "Rusty Barred Iron Frame",
   "block.portalmod.rusty_meshed_iron_frame":     "Rusty Meshed Iron Frame",
-
-  "block.portalmod.push_door": "Push Door",
+  "block.portalmod.push_door":                   "Push Door",
 
   "block.portalmod.antline":           "Antline",
   "block.portalmod.antline_indicator": "Antline Indicator",
@@ -197,6 +196,8 @@
 
   "subtitles.block.chamber_door.open": "Chamber Door opens",
   "subtitles.block.chamber_door.close": "Chamber Door closes",
+  "subtitles.block.fizzler_emitter.activate": "Chamber Door opens",
+  "subtitles.block.fizzler_emitter.deactivate": "Chamber Door closes",
   "subtitles.block.push_door.open": "Push Door opens",
   "subtitles.block.push_door.close": "Push Door closes",
   "subtitles.block.super_button.activate": "Super Button activates",
