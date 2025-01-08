@@ -65,10 +65,11 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
             BlockPos oppositeEmitterPos = this.getBlockPos().relative(facing, distance);
             BlockState oppositeEmitterState = this.level.getBlockState(oppositeEmitterPos);
 
-            SoundEvent soundEvent = active ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get();
+            SoundEvent soundEvent = active ? SoundInit.FIZZLER_ACTIVATE.get() : SoundInit.FIZZLER_DEACTIVATE.get();
             float pitch = ModUtil.randomSoundPitch();
-            this.level.playSound(null, this.getBlockPos(), soundEvent, SoundCategory.BLOCKS, 2, pitch);
-            this.level.playSound(null, oppositeEmitterPos, soundEvent, SoundCategory.BLOCKS, 2, pitch);
+
+            this.level.playSound(null, this.getBlockPos(), soundEvent, SoundCategory.BLOCKS, 3, pitch);
+            this.level.playSound(null, oppositeEmitterPos, soundEvent, SoundCategory.BLOCKS, 3, pitch);
 
             ((FizzlerEmitterBlock) oppositeEmitterState.getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, oppositeEmitterState, this.level, oppositeEmitterPos);
 

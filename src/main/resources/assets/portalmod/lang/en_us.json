@@ -196,8 +196,10 @@
 
   "subtitles.block.chamber_door.open": "Chamber Door opens",
   "subtitles.block.chamber_door.close": "Chamber Door closes",
-  "subtitles.block.fizzler_emitter.activate": "Chamber Door opens",
-  "subtitles.block.fizzler_emitter.deactivate": "Chamber Door closes",
+  "subtitles.block.fizzler_emitter.activate": "Fizzler activates",
+  "subtitles.block.fizzler_emitter.deactivate": "Fizzler deactivates",
+  "subtitles.block.antline_indicator.activate": "Antline Indicator activates",
+  "subtitles.block.antline_indicator.deactivate": "Antline Indicator deactivates",
   "subtitles.block.push_door.open": "Push Door opens",
   "subtitles.block.push_door.close": "Push Door closes",
   "subtitles.block.super_button.activate": "Super Button activates",

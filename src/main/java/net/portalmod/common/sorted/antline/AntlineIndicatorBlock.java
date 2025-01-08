@@ -22,6 +22,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -68,6 +69,9 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock implements Antlin
 
     public void setActive(boolean active, World world, BlockPos pos) {
         world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVE, active));
+        world.playSound(null, pos,
+                active ? SoundInit.ANTLINE_INDICATOR_ACTIVATE.get() : SoundInit.ANTLINE_INDICATOR_DEACTIVATE.get(),
+                SoundCategory.BLOCKS, 3, 1);
     }
 
     public static boolean isOn(BlockState blockState) {

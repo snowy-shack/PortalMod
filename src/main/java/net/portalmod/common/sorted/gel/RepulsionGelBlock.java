@@ -35,12 +35,16 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         if (gelAffected.getBounced()) return;
         gelAffected.setBounced(true);
 
-        entity.level.playSound(null, entity, SoundInit.REPULSION_GEL_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
+        playBounceSound(entity);
         entity.setDeltaMovement(entity.getDeltaMovement().x, velocity, entity.getDeltaMovement().z);
 
         // Reset some variables
         entity.fallDistance = 0;
         gelAffected.setLastNeurtalHeight(0);
+    }
+
+    private static void playBounceSound(Entity entity) {
+        entity.level.playSound(null, entity, SoundInit.REPULSION_GEL_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
 
     public static double checkSpeedInDirection(Entity entity, Direction direction) {
@@ -57,9 +61,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static void horizontalBounce(BlockPos pos, Entity entity, Direction direction) {
         Vector3d deltaMovement = ((IGelAffected)entity).getLastDeltaMovement();
 
-        if (entity.isSpectator() || ((IGelAffected) entity).getHorizontalBounced()) {
-            return;
-        }
+        if (entity.isSpectator() || ((IGelAffected) entity).getHorizontalBounced()) return;
 
         float horizontalBounceAmount = 0.7F;
         float verticalBounceAmount = 0.25F;
@@ -79,10 +81,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         }
 
         float speed = (float) checkSpeedInDirection(entity, direction);
-//        ModUtil.sendChat(entity.level, speed);
         if (speed > 0.1 || (Minecraft.getInstance().options.keyJump.isDown())) {
             // This also applies a boost along the plane of the gel
-            // todo preserve momentum going into bounce
             entity.setDeltaMovement(bounceDir.scale(horizontalBounceAmount)
                     .add(0, verticalBounceAmount, 0)
                     .add(deltaMovement.multiply(parallel))
@@ -129,7 +129,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             float x = Math.max(playerFallHeight, minBounceHeight);
 //            float velocity = 1.028F * (float) (0.0173 * x + 0.286 * Math.pow(x, 1F/2F) + 0.13 * Math.pow(x, 1F/3F));
             float velocity = (float) (0.0178F * x + 0.294F * Math.pow(x, 1F/2F) + 0.134F * Math.pow(x, 1F/3F));
-            // This function is the result of fine-tuning an approximation of the inverse of Minecraft's gravity
+            // This function is the result of fine-tuning an approximation of the inverse of Minecraft's gravity and drag
             // calculations. See https://www.geogebra.org/calculator/qkdz2b9x.
 
             verticalBounce(entity, velocity);

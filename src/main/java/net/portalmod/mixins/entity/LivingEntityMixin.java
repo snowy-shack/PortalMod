@@ -22,6 +22,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
@@ -437,7 +438,7 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
 
 
     boolean isGelBlock(BlockState state) {
-        return state.getBlock() == BlockInit.REPULSION_GEL.get() || state.getBlock() == BlockInit.PROPULSION_GEL.get(); // BlockTagInit.GEL_BLOCKS
+        return state.getBlock() == BlockInit.REPULSION_GEL.get() || state.getBlock() == BlockInit.PROPULSION_GEL.get(); // TODO remove
     }
 
     @Override
@@ -446,7 +447,7 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         BlockPos pos = new BlockPos(this.position());
         BlockState state = level.getBlockState(pos);
 
-        if (!isGelBlock(state)) {
+        if (!(state.getBlock() instanceof AbstractGelBlock)) {
             super.spawnSprintParticle();
         } else {
             int i = MathHelper.floor(this.getX());
@@ -454,14 +455,15 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
             int k = MathHelper.floor(this.getZ());
             BlockPos blockpos = new BlockPos(i, j, k);
             BlockState blockstate = this.level.getBlockState(blockpos);
-            if(!blockstate.addRunningEffects(level, blockpos, this))
+            if(!blockstate.addRunningEffects(level, blockpos, this)) {
                 if (blockstate.getRenderShape() != BlockRenderType.INVISIBLE) {
                     Vector3d vector3d = this.getDeltaMovement();
                     this.level.addParticle(new BlockParticleData(ParticleTypes.BLOCK, blockstate).setPos(blockpos),
-                            this.getX() + (this.random.nextDouble() - 0.5D) * (double)this.getDimensions(this.getPose()).width,
-                            this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) * (double)this.getDimensions(this.getPose()).width,
+                            this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
+                            this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             vector3d.x * -4.0D, 1.5D, vector3d.z * -4.0D);
                 }
+            }
         }
     }
 
@@ -471,7 +473,7 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         BlockPos nPos = new BlockPos(this.position());
         BlockState nState = level.getBlockState(nPos);
 
-        if (!isGelBlock(nState)) {
+        if (!(nState.getBlock() instanceof AbstractGelBlock)) {
             super.playStepSound(pos, state);
         } else {
             SoundType soundtype = nState.getSoundType(level, nPos, this);
