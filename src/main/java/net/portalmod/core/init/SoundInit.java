@@ -43,8 +43,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> FAITHPLATE_LAUNCH = register("block.faithplate.launch");
     public static final RegistryObject<SoundEvent> FAITHPLATE_RESET = register("block.faithplate.reset");
 
-    public static final RegistryObject<SoundEvent> FIZZLER_ACTIVATE = register("block.fizzler.activate");
-    public static final RegistryObject<SoundEvent> FIZZLER_DEACTIVATE = register("block.fizzler.deactivate");
+    public static final RegistryObject<SoundEvent> FIZZLER_ACTIVATE = register("block.fizzler_emitter.activate");
+    public static final RegistryObject<SoundEvent> FIZZLER_DEACTIVATE = register("block.fizzler_emitter.deactivate");
 
     public static final RegistryObject<SoundEvent> ANTLINE_INDICATOR_ACTIVATE = register("block.antline_indicator.activate");
     public static final RegistryObject<SoundEvent> ANTLINE_INDICATOR_DEACTIVATE = register("block.antline_indicator.deactivate");

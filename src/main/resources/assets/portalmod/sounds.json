@@ -88,11 +88,18 @@
         "subtitle": "subtitles.block.super_button.deactivate" },
 
     "block.fizzler_emitter.activate": {
-        "sounds": [ "portalmod:block/fizzler_emitter/enable" ],
-        "subtitle": "subtitles.block.fizzler_emitter.enable" },
+        "sounds": [ "portalmod:block/fizzler_emitter/activate" ],
+        "subtitle": "subtitles.block.fizzler_emitter.activate" },
     "block.fizzler_emitter.deactivate": {
-        "sounds": [ "portalmod:block/fizzler_emitter/disable" ],
-        "subtitle": "subtitles.block.fizzler_emitter.disable" },
+        "sounds": [ "portalmod:block/fizzler_emitter/deactivate" ],
+        "subtitle": "subtitles.block.fizzler_emitter.deactivate" },
+
+    "block.antline_indicator.activate": {
+        "sounds": [ "portalmod:block/antline_indicator/activate" ],
+        "subtitle": "subtitles.block.antline_indicator.activate" },
+    "block.antline_indicator.deactivate": {
+        "sounds": [ "portalmod:block/antline_indicator/deactivate" ],
+        "subtitle": "subtitles.block.antline_indicator.deactivate" },
 
     "block.gel.place": {
         "sounds": [
