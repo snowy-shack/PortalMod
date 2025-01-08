@@ -32,7 +32,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -130,14 +129,14 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         this.justUsedPortal = -1;
     }
 
-    @Redirect(
-            remap = false,
-            method = "move",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/entity/Entity;maybeBackOffFromEdge(Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/entity/MoverType;)Lnet/minecraft/util/math/vector/Vector3d;"
-            )
-    )
+//    @Redirect(
+//            remap = false,
+//            method = "move",
+//            at = @At(
+//                    value = "INVOKE",
+//                    target = "Lnet/minecraft/entity/Entity;maybeBackOffFromEdge(Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/entity/MoverType;)Lnet/minecraft/util/math/vector/Vector3d;"
+//            ) // TODO this causes the player to not be able to swim
+//    )
     private Vector3d pmTeleport(Entity instance, Vector3d delta, MoverType moverType) {
 //        if((Entity)(Object)this instanceof AbstractMinecartEntity)
 //            return this.maybeBackOffFromEdge(delta, moverType);
