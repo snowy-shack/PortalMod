@@ -1,5 +1,6 @@
 package net.portalmod.core.util;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -80,11 +81,13 @@ public class ModUtil {
         return randomSoundPitch(0.075f);
     }
 
-    public static void sendChat(World level, String text) {
-        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text), false));
+    public static void sendChat(String text) {
+        if (Minecraft.getInstance().level == null) return;
+        Minecraft.getInstance().level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text), false));
     }
 
-    public static void sendChat(World level, Object text) {
-        level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text.toString()), false));
+    public static void sendChat(Object text) {
+        if (Minecraft.getInstance().level == null) return;
+        Minecraft.getInstance().level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text.toString()), false));
     }
 }
