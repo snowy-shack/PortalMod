@@ -1,61 +1,49 @@
 package net.portalmod.common.sorted.gel.container;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResult;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
 public class EmptyGelContainer extends Item {
     public EmptyGelContainer(Properties properties) {
         super(properties);
     }
-    
-    @Override
-    public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        ItemUseContext context = new ItemUseContext(player, hand, ModUtil.rayTraceBlock(player, level, 10));
-        
-        BlockPos pos = context.getClickedPos();
-        BlockState state = level.getBlockState(pos);
-        Block block = state.getBlock();
-        
-        if(block instanceof AbstractGelBlock) {
-            stack = new ItemStack(((AbstractGelBlock)block).asItem());
-            GelContainer.setAmount(stack, 1);
-            
-            Direction face = context.getClickedFace().getOpposite();
-            BlockState previousState = level.getBlockState(pos);
-            BlockState newState = previousState.setValue(AbstractGelBlock.STATES.get(face), false);
-            
-            boolean emptyState = true;
-            for(Direction facing : Direction.values())
-                if(newState.getValue(AbstractGelBlock.STATES.get(facing)))
-                    emptyState = false;
-            if(emptyState)
-                newState = Blocks.AIR.defaultBlockState();
-            
-            level.levelEvent(player, 2001, pos, Block.getId(state));
-            level.setBlock(pos, newState, BlockFlags.DEFAULT);
-            return ActionResult.success(stack);
-        }
-        
-        return ActionResult.fail(stack);
-    }
 
     @Override
     public ActionResultType useOn(ItemUseContext context) {
-        return ActionResultType.PASS;
+        PlayerEntity player = context.getPlayer();
+        BlockPos clickedPos = context.getClickedPos();
+        BlockState clickedState = context.getLevel().getBlockState(clickedPos);
+        boolean creative = player.abilities.instabuild;
+        Direction gelSide = context.getClickedFace().getOpposite();
+
+        BooleanProperty sideProperty = AbstractGelBlock.STATES.get(gelSide);
+
+        // Can't pick up any gel
+        if (!(clickedState.getBlock() instanceof AbstractGelBlock) || !clickedState.getValue(sideProperty)) {
+            return ActionResultType.FAIL;
+        }
+
+        context.getLevel().setBlockAndUpdate(clickedPos, AbstractGelBlock.removeSide(gelSide, clickedState));
+        context.getLevel().playSound(player, clickedPos, SoundInit.GEL_COLLECT.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+
+        // Fill container with gel
+        if (!creative) {
+            ItemStack newContainer = new ItemStack(clickedState.getBlock().asItem());
+            GelContainer.setAmount(newContainer, 1);
+            player.setItemInHand(context.getHand(), newContainer);
+        }
+
+        return ActionResultType.SUCCESS;
     }
 }
