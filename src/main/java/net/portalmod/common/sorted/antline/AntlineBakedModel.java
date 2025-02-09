@@ -192,30 +192,28 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction sideDir, @Nonnull Random rand, @Nonnull IModelData extraData) {
         List<BakedQuad> quads = new ArrayList<>();
 
-        if(side != null)
-            return Collections.emptyList();
+        if (sideDir != null) return Collections.emptyList();
 
         AntlineTileEntity.SideMap sideMap = extraData.getData(AntlineTileEntity.SideMap.MODEL_PROPERTY);
 
-        sideMap.forEach((direction, sideData) -> {
-//            HashMap<String, ResourceLocation> current = sideData.isActive() ? ACTIVE : INACTIVE;
-            String path = sideData.isActive() ? "antline/active_" : "antline/inactive_";
+        sideMap.forEach((direction, side) -> {
+            if (!side.isEmpty()) {
+                String path = side.isActive() ? "antline/active_" : "antline/inactive_";
 
-            if(sideData.getCenter() == AntlineTileEntity.Side.Center.TRUE)
-                addQuad(quads, direction, Direction.UP, new ResourceLocation(PortalMod.MODID, path + "dot"));
-//                addQuad(quads, direction, inactive("dot"));
-            else if(sideData.getCenter() == AntlineTileEntity.Side.Center.CORNER)
-                addQuad(quads, direction, Direction.UP, new ResourceLocation(PortalMod.MODID, path + "corner"));
-//                addQuad(quads, direction, inactive("corner"));
+                // Center dot
+                if (side.getSideType() == AntlineTileEntity.Side.SideType.NORMAL)
+                    addQuad(quads, direction, Direction.UP, new ResourceLocation(PortalMod.MODID, path + "dot"));
+                else if (side.getSideType() == AntlineTileEntity.Side.SideType.CORNER)
+                    addQuad(quads, direction, Direction.UP, new ResourceLocation(PortalMod.MODID, path + "corner"));
 
-            sideData.getConnections().forEach((direction1, b) -> {
-//                Vec3 normal = new Vec3(direction1.getNormal());
-                if(b) addQuad(quads, direction, direction1, new ResourceLocation(PortalMod.MODID, path + "dot"));
-//                if(b) addQuad(quads, direction, inactive(direction1.getName()));
-            });
+                // Connection dots
+                side.getConnections().forEach((connectionDir, b) -> {
+                    if (b) addQuad(quads, direction, connectionDir, new ResourceLocation(PortalMod.MODID, path + "dot"));
+                });
+            }
         });
 
         return quads;

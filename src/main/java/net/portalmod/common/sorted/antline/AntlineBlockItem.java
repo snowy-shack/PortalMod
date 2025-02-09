@@ -11,6 +11,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
@@ -27,13 +28,11 @@ public class AntlineBlockItem extends BlockItem {
         BlockPos pos = context.getClickedPos();
         Direction clickedFace = context.getClickedFace();
 
-        // If the targeted block is an Antline (with a tileEntity)
+        // If the targeted block is already an Antline
         if (level.getBlockEntity(pos) != null && level.getBlockEntity(pos) instanceof AntlineTileEntity) {
             AntlineTileEntity tileEntity = (AntlineTileEntity)level.getBlockEntity(pos);
             AntlineTileEntity.SideMap sideMap = tileEntity.getSideMap();
             Vector3d clickedVector = context.getClickLocation();
-
-            // TODO use ray casting
 
             int count = 0;
             if (clickedVector.x == Math.round(clickedVector.x)) count++;
@@ -41,7 +40,6 @@ public class AntlineBlockItem extends BlockItem {
             if (clickedVector.z == Math.round(clickedVector.z)) count++;
 
             if (count != 1 || sideMap.hasSide(clickedFace.getOpposite())) return false;
-
         } else super.placeBlock(context, state);
 
         AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
@@ -49,45 +47,14 @@ public class AntlineBlockItem extends BlockItem {
 
         sideMap.put(clickedFace.getOpposite(), AntlineTileEntity.Side.dot(clickedFace.getOpposite()));
 
-        if (!level.isClientSide) AntlineBlock.modifyConnectedSides(level, pos, clickedFace.getOpposite(), tileEntity, true, false, null);
+        if (level instanceof ServerWorld && this.getBlock() instanceof AntlineBlock) {
+            AntlineBlock block = (AntlineBlock) this.getBlock();
 
-//        for (Direction side : Direction.values()) { // Should be moved to AntlineBlock
-//            if (side.getAxis() == clickedFace.getAxis())
-//                continue;
-//
-////            if (sideMap.get(side).isConnectableWith(clickedFace.getOpposite())) {
-////                sideMap.get(clickedFace.getOpposite()).addConnection(side);
-////                sideMap.get(side).addConnection(clickedFace.getOpposite());
-////            }
-//        }
+            boolean shift = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
+            block.sideUpdate(level, sideMap.get(clickedFace.getOpposite()), pos, true, shift, null);
 
-//        for(Direction targetBlockDirection : Direction.values()) {
-//            if(targetBlockDirection.getAxis() == clickedFace.getAxis()
-//                    || !sideMap.get(targetBlockDirection).isEmpty()
-//                    || level.getBlockState(pos.relative(targetBlockDirection)).getBlock() != BlockInit.ANTLINE.get())
-//                continue;
-//
-//            AntlineTileEntity targetBlockEntity = (AntlineTileEntity)level.getBlockEntity(pos.relative(targetBlockDirection));
-//            AntlineTileEntity.SideMap targetSideMap = targetBlockEntity.getSideMap();
-//
-//            if(targetSideMap.get(clickedFace.getOpposite()).isConnectableWith(targetBlockDirection.getOpposite())) {
-//                sideMap.get(clickedFace.getOpposite()).addConnection(targetBlockDirection);
-//                targetSideMap.get(clickedFace.getOpposite()).addConnection(targetBlockDirection.getOpposite());
-//
-//                level.sendBlockUpdated(pos.relative(targetBlockDirection), state, state, 0);
-//
-//                CompoundNBT nbt = new CompoundNBT();
-//                nbt.putByte(clickedFace.getOpposite().getName(), targetSideMap.get(clickedFace.getOpposite()).getValue());
-//
-//                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-//                        () -> level.getChunkAt(pos.relative(targetBlockDirection))), new AntlineUpdatePacket.Client(pos.relative(targetBlockDirection), nbt));
-//                break;
-//            }
-//        }
-
-        context.getLevel().sendBlockUpdated(context.getClickedPos(), state, state, 0);
-//        context.getLevel().updateNeighborsAt(pos, BlockInit.ANTLINE.get());
-        tileEntity.requestModelDataUpdate();
+            block.sendUpdatePacket(level, pos, clickedFace.getOpposite(), (AntlineTileEntity) level.getBlockEntity(pos));
+        }
         return true;
     }
 

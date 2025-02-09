@@ -133,9 +133,21 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
         return ActionResultType.FAIL;
     }
 
-    private void updateAdjacentBlocks(BlockState blockState, World world, BlockPos pos) {
-        for (BlockPos cornerPos : this.getAllBlocks(pos, blockState.getValue(CORNER), blockState.getValue(FACING))) {
-            world.updateNeighborsAtExceptFromFacing(cornerPos, blockState.getBlock(), blockState.getValue(FACING));
+    private void updateAdjacentBlocks(BlockState blockState, World level, BlockPos pos) {
+        List<BlockPos> blockList = this.getAllBlocks(pos, blockState.getValue(CORNER), blockState.getValue(FACING));
+
+        for (BlockPos cornerPos : blockList) {
+//            world.updateNeighborsAtExceptFromFacing(cornerPos, blockState.getBlock(), blockState.getValue(FACING));
+//            world.blockUpdated(pos.relative(corner));
+
+            BlockState cornerState = level.getBlockState(cornerPos);
+
+            for (Direction direction : Direction.values()) {
+                if (direction.getAxis() == blockState.getValue(FACING).getAxis()) continue;
+                if (blockList.contains(cornerPos.relative(direction))) continue; // If it's another corner
+
+                level.neighborChanged(cornerPos.relative(direction), cornerState.getBlock(), cornerPos);
+            }
         }
     }
 

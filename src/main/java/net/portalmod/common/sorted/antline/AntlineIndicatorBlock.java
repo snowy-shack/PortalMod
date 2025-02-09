@@ -67,8 +67,11 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock implements Antlin
         return ActionResultType.FAIL;
     }
 
-    public void setActive(boolean active, World world, BlockPos pos) {
+    public static void setActive(boolean active, World world, BlockPos pos) {
+        if (world.getBlockState(pos).getValue(ACTIVE) == active) return;
+
         world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVE, active));
+
         world.playSound(null, pos,
                 active ? SoundInit.ANTLINE_INDICATOR_ACTIVATE.get() : SoundInit.ANTLINE_INDICATOR_DEACTIVATE.get(),
                 SoundCategory.BLOCKS, 3, 1);
@@ -79,14 +82,6 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock implements Antlin
         boolean reversed = blockState.getValue(REVERSED);
         return reversed != active;
     }
-
-//    @Override
-//    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
-//        super.neighborChanged(state, level, pos, block, neighborPos, b);
-//        ModUtil.sendChat(level, "Antline Indicator update");
-//        level.sendBlockUpdated(pos, state, state, 0);
-//        level.updateNeighborsAt(pos, block);
-//    }
 
     private void initAABBs() {
         VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
@@ -145,6 +140,8 @@ public class AntlineIndicatorBlock extends HorizontalFaceBlock implements Antlin
 
     @Override
     public Direction getHorsedOn(BlockState state) {
-        return state.getValue(FACING).getOpposite();
+        if (state.getValue(FACE) == AttachFace.WALL)
+            return state.getValue(FACING).getOpposite();
+        return (state.getValue(FACE) == AttachFace.CEILING) ? Direction.UP : Direction.DOWN;
     }
 }

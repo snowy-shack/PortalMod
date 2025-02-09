@@ -2,13 +2,13 @@ package net.portalmod.common.sorted.antline;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -21,33 +21,41 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
-import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.Center.FALSE;
+import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.SideType.NONE;
 
 public class AntlineBlock extends Block {
-    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
-    public static final VoxelShape SHAPE = Block.box(4, 4, 4, 12, 12, 12);  // test
+//    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+
+    private static final int MAX_RECURSION_DEPTH = 256;
+    private static final int NO_THRESHOLD = 20;
+    public enum ConnectionType {
+        SELF,
+        ADJACENT,
+        CORNER,
+        ELEMENT,
+        NONE
+    }
 
     public AntlineBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any()
-                .setValue(ACTIVE, false));
+//        registerDefaultState(stateDefinition.any()
+//                .setValue(ACTIVE, false));
     }
 
-    @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(ACTIVE);
-    }
+//    @Override
+//    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+//        builder.add(ACTIVE);
+//    }
 
     @Override
     public boolean hasTileEntity(BlockState state) {
@@ -71,168 +79,235 @@ public class AntlineBlock extends Block {
         return super.getStateForPlacement(context);
     }
 
-    public static int modifyConnectedSides(World level, BlockPos pos, Direction dotDirection, AntlineTileEntity tileEntity, boolean add, boolean changePower, Direction powerOrigin) {
-        for (Direction adjacentFace : Direction.values()) {
-            if (adjacentFace.getAxis() == dotDirection.getAxis()) continue;
-            if (adjacentFace.getOpposite() == powerOrigin) continue;
+    public static ConnectionType getConnectionType(World level, BlockPos pos, Direction sideDir, Direction direction, int threshold) {
+        if (!(level.getBlockState(pos).getBlock() instanceof AntlineBlock)) return ConnectionType.NONE;
 
-            if (changePower && (!tileEntity.getSideMap().hasSide(dotDirection) || !tileEntity.getSideMap().get(dotDirection).hasConnection(adjacentFace))) continue;
+        BlockState adjacentState = level.getBlockState(pos.relative(direction)); // Adjacent face
+        BlockState cornerState   = level.getBlockState(pos.relative(direction).relative(sideDir)); // Face around the corner
 
-            // For all 4 adjacent faces
-            BlockPos neighborPos = pos.relative(adjacentFace);
-            BlockState neighborBlockState = level.getBlockState(neighborPos);
-            Block neighborBlock = neighborBlockState.getBlock();
+        AntlineTileEntity selfEntity = ((AntlineTileEntity) level.getBlockEntity(pos));
 
-            Block cornerNeighborBlock = level.getBlockState(pos.relative(adjacentFace).relative(dotDirection)).getBlock();
+        boolean cornerIsSolid = adjacentState.isRedstoneConductor(level, pos.relative(direction));
 
-            if (neighborBlockState.isRedstoneConductor(level, neighborPos)) { // Solid block; same block
-                if (changePower) chainPower(level, pos, adjacentFace, dotDirection.getOpposite(), add);
-                else modifyConnection(level, pos, dotDirection, adjacentFace, pos, adjacentFace, dotDirection, add);
-                continue;
-            }
+        if (adjacentState.getBlock() instanceof AntlineBlock) { // Adjacent block
+            AntlineTileEntity adjacentEntity = ((AntlineTileEntity) level.getBlockEntity(pos.relative(direction)));
 
-            if (cornerNeighborBlock instanceof AntlineBlock) { // Non-solid block; corner block
-                if (changePower) chainPower(level, pos.relative(adjacentFace).relative(dotDirection), adjacentFace.getOpposite(), dotDirection, add);
-                else modifyConnection(level, pos, dotDirection, adjacentFace, pos.relative(adjacentFace).relative(dotDirection), adjacentFace.getOpposite(), dotDirection.getOpposite(), add);
-                continue;
-            }
-
-            if (neighborBlock instanceof AntlineBlock || neighborBlock.is(BlockTagInit.ANTLINE_CONNECTABLE)) { // Adjacent block
-                if (changePower) chainPower(level, pos.relative(adjacentFace), dotDirection, adjacentFace, add);
-                else modifyConnection(level, pos, dotDirection, adjacentFace, pos.relative(adjacentFace), dotDirection, adjacentFace.getOpposite(), add);
-            }
+            if (adjacentEntity.getSideMap().hasSide(sideDir)
+                    && adjacentEntity.getSideMap().get(sideDir).isConnectableWith(direction.getOpposite())
+                    && adjacentEntity.getSideMap().get(sideDir).countConnections() <= threshold)
+                return ConnectionType.ADJACENT;
         }
-        return 0;
+
+        if (adjacentState.getBlock() instanceof AntlineConnector) { // Adjacent connector
+            if (((AntlineConnector) adjacentState.getBlock()).getHorsedOn(adjacentState) == sideDir)
+                return ConnectionType.ELEMENT;
+        }
+
+        if (!cornerIsSolid && cornerState.getBlock() instanceof AntlineBlock) { // Block around the corner
+            AntlineTileEntity cornerEntity = ((AntlineTileEntity) level.getBlockEntity(pos.relative(direction).relative(sideDir)));
+
+            if (cornerEntity.getSideMap().hasSide(direction.getOpposite())
+                    && cornerEntity.getSideMap().get(direction.getOpposite()).isConnectableWith(sideDir.getOpposite())
+                    && cornerEntity.getSideMap().get(direction.getOpposite()).countConnections() <= threshold)
+                return ConnectionType.CORNER;
+        }
+
+        if (selfEntity.getSideMap().hasSide(direction)
+                && selfEntity.getSideMap().get(direction).isConnectableWith(sideDir)
+                && selfEntity.getSideMap().get(direction).countConnections() <= threshold) {
+            return ConnectionType.SELF;
+        }
+
+        return ConnectionType.NONE;
     }
 
-    private static void modifyConnection(World level, BlockPos posA, Direction sideA, Direction dirA, BlockPos posB, Direction sideB, Direction dirB, boolean connect) {
-        AntlineTileEntity tileEntityA = (AntlineTileEntity)level.getBlockEntity(posA);
-        AntlineTileEntity.Side dotA = tileEntityA.getSideMap().get(sideA);
+    public void recursiveSignalChain(World level, AntlineTileEntity.Side side, BlockPos pos, Direction originDirection, boolean active, int depth) {
+        if (depth > MAX_RECURSION_DEPTH) return;
+        Boolean newActive = null;
 
-        if (level.getBlockState(posB).getBlock() instanceof AntlineBlock) {
+        // Loop prevention
+        if (active == side.isActive() && originDirection != null) return;
+        side.setActive(active);
 
-            AntlineTileEntity tileEntityB = (AntlineTileEntity)level.getBlockEntity(posB);
-            AntlineTileEntity.Side dotB = tileEntityB.getSideMap().get(sideB);
-
-            if ((!connect && dotB.hasConnection(dirB)) || (connect && dotA.isConnectableWith(dirA) && dotB.isConnectableWith(dirB))) {
-                if (connect) {
-                    dotA.addConnection(dirA);
-                    dotB.addConnection(dirB);
-                } else {
-                    dotA.removeConnection(dirA);
-                    dotB.removeConnection(dirB);
-                }
-
-                CompoundNBT nbtA = new CompoundNBT();
-                nbtA.putByte(sideA.getName(), tileEntityA.getSideMap().get(sideA).getActualValue());
-                CompoundNBT nbtB = new CompoundNBT();
-                nbtB.putByte(sideB.getName(), tileEntityB.getSideMap().get(sideB).getActualValue());
-
-                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                        () -> level.getChunkAt(posA)), new SAntlineUpdatePacket(posA, nbtA));
-                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                        () -> level.getChunkAt(posB)), new SAntlineUpdatePacket(posB, nbtB));
-            }
-        } else {
-            if (connect) dotA.addConnection(dirA);
-            else dotA.removeConnection(dirA);
-
-            CompoundNBT nbtA = new CompoundNBT();
-            nbtA.putByte(sideA.getName(), tileEntityA.getSideMap().get(sideA).getActualValue());
-
-            PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                    () -> level.getChunkAt(posA)), new SAntlineUpdatePacket(posA, nbtA));
-        }
-    }
-
-    private static void chainPower(World level, BlockPos newPos, Direction dotDirection, Direction powerDirection, boolean active) {
-//        ModUtil.sendChat(level, "POWER " + newPos);
-        Block block = level.getBlockState(newPos).getBlock();
-        if (block instanceof AntlineIndicatorBlock) level.setBlockAndUpdate(newPos, level.getBlockState(newPos).setValue(ACTIVE, active));
-        if (block instanceof AntlineActivator
-                && ((AntlineActivator) block).getHorsedOn(level.getBlockState(newPos)) == dotDirection
-                && ((AntlineActivator) block).isActive(level.getBlockState(newPos))
-                && !active) {
-            ModUtil.sendChat(level, "PONG " + active); // DEBUG
-//            chainPower(level, newPos.relative(powerDirection.getOpposite()), dotDirection, powerDirection.getOpposite(), true);
+        // Dead end
+        if (side.countConnections() < 2 && originDirection != null) {
+            sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
             return;
         }
 
-        if (!(block instanceof AntlineBlock)) return;
+        // In all connection directions
+        for (Direction connectDirection : Direction.values()) {
+            if (!side.hasConnection(connectDirection)                              // Assert a connection in the direction
+                    || connectDirection.getAxis() == side.toDirection().getAxis()  // Rule out relative up / down
+                    || connectDirection == originDirection) continue;              // Prevent signal from going backwards
 
-        AntlineTileEntity tileEntity = ((AntlineTileEntity) level.getBlockEntity(newPos));
-        AntlineTileEntity.Side side = tileEntity.getSideMap().get(dotDirection);
+            // Check direction
+            ConnectionType connectionType = getConnectionType(level, pos, side.toDirection(), connectDirection, NO_THRESHOLD);
+            if (connectionType == ConnectionType.NONE) continue;
 
-        if (side.isActive() == active) return; // Prevent loops
+            Friend friend = new Friend(connectionType, pos, side.toDirection(), connectDirection);
 
-        side.setActive(active);
+            // If it's an element, (un)power it
+            if (connectionType == ConnectionType.ELEMENT) {
+                BlockState neighborState = level.getBlockState(friend.pos);
+                if (neighborState.getBlock() instanceof AntlineIndicatorBlock)
+                    AntlineIndicatorBlock.setActive(active, level, friend.pos);
 
-        // Update the model
-        level.sendBlockUpdated(newPos, level.getBlockState(newPos), level.getBlockState(newPos), 0);
-        tileEntity.requestModelDataUpdate();
+                // Hit another input, adopt its signal
+                if (neighborState.getBlock() instanceof AntlineActivator) {
+                    newActive = ((AntlineActivator) neighborState.getBlock()).isActive(neighborState);
 
-        CompoundNBT nbtA = new CompoundNBT();
-        nbtA.putByte(dotDirection.getName(), tileEntity.getSideMap().get(dotDirection).getActualValue());
+                    if (newActive && !active) {
+                        recursiveSignalChain(level, side, pos, null, newActive, 0);
+                    }
+                    continue;
+                }
+                continue;
+            }
 
-        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
-                () -> level.getChunkAt(newPos)), new SAntlineUpdatePacket(newPos, nbtA));
+            // It's another Antline. Do a recursive signal call
+            AntlineTileEntity entity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
+            AntlineTileEntity.SideMap sideMap = entity.getSideMap();
+            recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active, depth + 1);
+        }
 
-//        ModUtil.sendChat(level, "POWER " + side.isActive() + " " + newPos + " " + side.getConnections()); // DEBUG
+        sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
+    }
 
-        modifyConnectedSides(level, newPos, dotDirection, tileEntity, active, true, powerDirection); // From just activated antline
+    public void sideUpdate(World level, AntlineTileEntity.Side side, BlockPos pos,
+                           boolean allowNewConnections, boolean shift, Direction allowedConnectDirection) {
+        Boolean active = null;
+        Direction originDirection = null;
+
+        // In all directions for that side
+        for (Direction connectionDirection : Direction.values()) {
+            boolean allowConnection = (allowedConnectDirection == connectionDirection) || allowNewConnections;
+
+            if (!side.isConnectableWith(connectionDirection)                                    // Assert a connection is possible
+                    || connectionDirection.getAxis() == side.toDirection().getAxis()) continue; // Rule out relative up / down
+
+            ConnectionType connectionType = getConnectionType(level, pos, side.toDirection(), connectionDirection, (shift || !allowConnection) ? NO_THRESHOLD : 1);
+
+            Friend friend = null;
+            if (connectionType != ConnectionType.NONE) friend = new Friend(connectionType, pos, side.toDirection(), connectionDirection);
+
+            boolean element = (connectionType == ConnectionType.ELEMENT);
+            boolean connect = (connectionType != ConnectionType.NONE);
+
+            // Make / break the connections
+            if (side.hasConnection(connectionDirection) != connect)
+                connect(level, pos, side.toDirection(), connectionDirection, connect && allowConnection); // Self
+
+            if (!element && connect && allowConnection)
+                connect(level, friend.pos, friend.sideDirection, friend.connectDirection, true); // Neighbor
+
+            if (friend == null) continue;
+
+            BlockState friendState = level.getBlockState(friend.pos);
+            if (element && friendState.getBlock() instanceof AntlineActivator) {
+                active = ((AntlineActivator) friendState.getBlock()).isActive(friendState);
+                originDirection = connectionDirection;
+            }
+
+//            if (connect && !element && friendState.getBlock() instanceof AntlineBlock) {
+//                AntlineTileEntity friendEntity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
+//
+//                if (friendEntity.getSideMap().get(side.toDirection()).isActive()) {
+//                    active = true;
+//                    originDirection = connectionDirection;
+//                }
+//            }
+        }
+
+        // If a signal source was found, recurse
+        if (active != null) recursiveSignalChain(level, side, pos, originDirection, active, 0);
+    }
+
+    private static class Friend {
+        public BlockPos  pos = null;
+        public Direction sideDirection = null;
+        public Direction connectDirection = null;
+
+        /**
+         * A connection with a side in a certain direction.
+         * @param type type of connection between the two sides.
+         * @param pos the original block pos.
+         * @param sideDirection the original side direction.
+         * @param connectionDirection the direction of the connection from the original side.
+         */
+        private Friend(ConnectionType type, BlockPos pos, Direction sideDirection, Direction connectionDirection) {
+            switch (type) {
+                case SELF: {
+                    this.pos = pos;
+                    this.connectDirection = sideDirection;
+                    this.sideDirection = connectionDirection;
+                    break;
+                }
+                case ADJACENT: {
+                    this.pos = pos.relative(connectionDirection);
+                    this.connectDirection = connectionDirection.getOpposite();
+                    this.sideDirection = sideDirection;
+                    break;
+                }
+                case CORNER: {
+                    this.pos = pos.relative(connectionDirection).relative(sideDirection);
+                    this.connectDirection = sideDirection.getOpposite();
+                    this.sideDirection = connectionDirection.getOpposite();
+                    break;
+                }
+                case ELEMENT: {
+                    this.pos = pos.relative(connectionDirection);
+                    this.sideDirection = sideDirection;
+                    this.connectDirection = connectionDirection.getOpposite();
+                }
+            }
+        }
+    }
+
+    private void connect(World level, BlockPos pos, Direction side, Direction connectDir, boolean connect) {
+        AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
+        AntlineTileEntity.Side sideObj = tileEntity.getSideMap().get(side);
+
+        if (connect)
+            sideObj.addConnection(connectDir);
+        else
+            sideObj.removeConnection(connectDir);
+
+        sendUpdatePacket(level, pos, side, tileEntity);
     }
 
     @Override
     public void neighborChanged(BlockState blockState, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         super.neighborChanged(blockState, level, pos, block, neighborPos, b);
 
+        BlockState neighborState = level.getBlockState(neighborPos);
+
         AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
+        AntlineTileEntity.SideMap sideMap = tileEntity.getSideMap();
+
         Direction neighborDir = Direction.getNearest(
                 neighborPos.getX() - pos.getX(),
                 neighborPos.getY() - pos.getY(),
                 neighborPos.getZ() - pos.getZ()
         );
 
-        // Connect when adjacent testing element
-        for (Direction direction : Direction.values()) {
-            if (direction.getAxis() == neighborDir.getAxis() || tileEntity.getSideMap().get(direction).isEmpty()) continue;
-            modifyConnectedSides(level, pos, direction, tileEntity, true, false, null);
-        }
-
-        // Disconnect when no longer connected
-//        for (Direction direction : Direction.values()) {
-//            if (direction.getAxis() == neighborDir.getAxis() || tileEntity.getSideMap().get(direction).isEmpty()) continue;
-//            if (!tileEntity.getSideMap().get(direction).hasConnection(neighborDir)) continue;
-//            if (level.getBlockState(neighborPos).getBlock() instanceof AntlineBlock
-//                    && ((AntlineTileEntity) level.getBlockEntity(neighborPos)).getSideMap().get(direction).hasConnection(neighborDir.getOpposite())) continue;
-//            modifyConnection(level, pos, direction, neighborDir, neighborPos, direction, neighborDir.getOpposite(), false);
-//        }
-
-        // Adopt power on/off
-        for (Direction direction : Direction.values()) {
-            BlockState neighborBlockState = level.getBlockState(neighborPos);
-            if (neighborBlockState.getBlock() instanceof AntlineIndicatorBlock) continue;
-
-            AntlineTileEntity.Side side = tileEntity.getSideMap().get(direction);
-            if (side.isEmpty() || !side.hasConnection(neighborDir) || neighborDir.getOpposite() == direction) continue;
-
-            boolean active = false;
-            if (neighborBlockState.getBlock() instanceof AntlineActivator
-                    && ((AntlineActivator) neighborBlockState.getBlock()).getHorsedOn(neighborBlockState) == direction) {
-                active = neighborBlockState.getValue(ACTIVE);
-            }
-
-            chainPower(level, pos, direction, neighborDir.getOpposite(), active);
-        }
-
         // Break if no supporting block
-        for (Direction direction : Direction.values()) {
-            if (tileEntity.getSideMap().get(direction).isEmpty()) continue;
+        if (!sideMap.get(neighborDir).isEmpty()) {
+            if (!neighborState.isFaceSturdy(level, pos, neighborDir)) {
+                breakDot(blockState, level, pos, null, neighborDir);
+                return;
+            }
+        }
 
-            BlockState neighborState = level.getBlockState(pos.relative(direction));
+        // Update each side
+        for (AntlineTileEntity.Side side : sideMap.values()) {
+            if (side.isEmpty()) continue;
 
-            if (!neighborState.isFaceSturdy(level, pos, direction)) {
-                breakDot(blockState, level, pos, null, direction);
+            // Allow new connections if the updating block is connectable with the side
+            sideUpdate(level, side, pos, false, true, neighborState.getBlock() instanceof AntlineConnector ? neighborDir : null);
+
+            if (!(neighborState.getBlock() instanceof AntlineBlock) && !(neighborState.getBlock() instanceof AntlineConnector)) {
+                recursiveSignalChain(level, side, pos, null, false, 0);
             }
         }
     }
@@ -243,24 +318,52 @@ public class AntlineBlock extends Block {
     }
 
     public void breakDot(BlockState state, World level, BlockPos pos, PlayerEntity player, Direction direction) {
-        AntlineTileEntity tileEntity = (AntlineTileEntity)level.getBlockEntity(pos);
+        AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
 
         // Break like normal
         if (tileEntity.getSideMap().getSideCount() <= 1) {
-            if (!level.isClientSide) AntlineBlock.modifyConnectedSides(level, pos, direction, tileEntity, false, false, null);
+            if (player != null) level.levelEvent(player, 2001, pos, getId(state)); // Particles and sound
 
-            level.destroyBlock(pos, false); //TODO this is causing double sounds when breaking by hand, because the breaking sound is handled somewhere else by minecraft too.
-            return;
+            if (player == null || !player.isCreative()) dropResources(state, level, pos); // Item drops
+            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+
+        } else {
+            // Just a dot removed
+            level.levelEvent(player, 2001, pos, getId(state)); // Particles and sound
+            tileEntity.getSideMap().removeSide(direction);
+
+            if (player == null || !player.isCreative()) dropResources(state, level, pos); // Item drops
+
+            if (level instanceof ServerWorld) {
+                // Update each side
+                for (AntlineTileEntity.Side side : tileEntity.getSideMap().values()) {
+                    if (side.isEmpty() || side.toDirection() == direction) continue;
+
+                    sideUpdate(level, side, pos, false, false, null);
+                }
+            }
         }
 
-        if (player != null) level.levelEvent(player, 2001, pos, getId(state));
-        tileEntity.getSideMap().put(direction, AntlineTileEntity.Side.empty(direction));
+        // Update the neighbors of the blocks around the supporting block of each side, for around-the-corner connections
+        for (AntlineTileEntity.Side side : tileEntity.getSideMap().values()) {
+            level.updateNeighborsAtExceptFromFacing(pos.relative(side.toDirection()), state.getBlock(), side.toDirection().getOpposite());
+        }
 
-        if (!level.isClientSide) AntlineBlock.modifyConnectedSides(level, pos, direction, tileEntity, false, false, null);
+        level.updateNeighborsAt(pos, state.getBlock());
 
-        level.sendBlockUpdated(pos, state, state, 0);
-        tileEntity.requestModelDataUpdate();
-        if (player == null || !player.isCreative()) dropResources(state, level, pos);
+        sendUpdatePacket(level, pos, direction, tileEntity);
+    }
+
+    public void sendUpdatePacket(World level, BlockPos pos, Direction sideDir, AntlineTileEntity tileEntity) {
+        if (level instanceof ClientWorld) return;
+        CompoundNBT nbtA = new CompoundNBT();
+
+        AntlineTileEntity.SideMap sideMap = tileEntity.getSideMap();
+        AntlineTileEntity.Side side = sideMap.get(sideDir);
+
+        nbtA.putByte(sideDir.getName(), side.getActualValue());
+        PacketInit.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(
+                () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbtA));
     }
 
     @Override
@@ -277,24 +380,24 @@ public class AntlineBlock extends Block {
                 break;
             }
         }
-        
-        // TODO use single face shape and subtract all the other faces to remove the intersections
         return false;
     }
 
-    private static final VoxelShape DOT = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 1.0D, 11.0D);
-    private static final HashMap<Direction, VoxelShape> externalShapes = new HashMap<>();
+    private static final VoxelShape DOT = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 2.0D, 11.0D);
+    private static final HashMap<Direction, VoxelShape> dotShapes = new HashMap<>();
 
     static {
-        externalShapes.put(Direction.NORTH, DOT.move(0, 0, -5 / 16f));
-        externalShapes.put(Direction.SOUTH, DOT.move(0, 0, 5 / 16f));
-        externalShapes.put(Direction.WEST,  DOT.move(-5 / 16f, 0, 0));
-        externalShapes.put(Direction.EAST,  DOT.move(5 / 16f, 0, 0));
+        dotShapes.put(Direction.NORTH, DOT.move(0, 0, -5 / 16f));
+        dotShapes.put(Direction.SOUTH, DOT.move(0, 0, 5 / 16f));
+        dotShapes.put(Direction.WEST,  DOT.move(-5 / 16f, 0, 0));
+        dotShapes.put(Direction.EAST,  DOT.move(5 / 16f, 0, 0));
     }
 
     private static final HashMap<Direction, Function<VoxelShape, VoxelShape>> ROTATE = new HashMap<>();
 
-    static {
+    static { initializeRotateMap(); }
+
+    private static void initializeRotateMap() {
         ROTATE.put(Direction.NORTH, shape -> {
             AxisAlignedBB bb = shape.move(-.5, -.5, -.5).bounds();
             return Block.box(bb.minX * 16, -bb.minZ * 16, bb.minY * 16, bb.maxX * 16, -bb.maxZ * 16, bb.maxY * 16).move(.5, .5, .5);
@@ -323,18 +426,21 @@ public class AntlineBlock extends Block {
         ROTATE.put(Direction.DOWN, shape -> shape);
     }
 
-    public VoxelShape getSideShape(IBlockReader level, BlockPos pos, Direction side) {
-        if (level.getBlockEntity(pos) == null || ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap() == null)
-            return VoxelShapes.empty();
+    public VoxelShape getSideShape(IBlockReader level, BlockPos pos, Direction sideDirection) {
+        TileEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null || sideDirection == null) return VoxelShapes.empty();
 
-        AntlineTileEntity.Side sideData = ((AntlineTileEntity)level.getBlockEntity(pos)).getSideMap().get(side);
+        AntlineTileEntity.SideMap sideMap = ((AntlineTileEntity) blockEntity).getSideMap();
+        if (sideMap == null) return VoxelShapes.empty();
+
+        AntlineTileEntity.Side side = sideMap.get(sideDirection);
         AtomicReference<VoxelShape> RESULT = new AtomicReference<>(VoxelShapes.empty());
 
-        if(sideData.getCenter() != FALSE)
-            RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(side).apply(DOT)));
+        if (side.getSideType() != NONE && DOT != null)
+            RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(DOT)));
 
-        sideData.getConnections().forEach((direction, b) -> {
-            if(b) RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(side).apply(externalShapes.get(direction))));
+        side.getConnections().forEach((direction, b) -> {
+            if (b && dotShapes.get(direction) != null) RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(dotShapes.get(direction))));
         });
 
         return RESULT.get();
@@ -342,10 +448,9 @@ public class AntlineBlock extends Block {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-//        if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
-//            // TODO use proper solution
-//            return DOT;
-//
+        if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
+            return VoxelShapes.empty();
+
         PlayerEntity player = Minecraft.getInstance().player;
         Vector3d rayPath = player.getViewVector(0).scale(7);
         Vector3d from = player.getEyePosition(0);
@@ -359,18 +464,15 @@ public class AntlineBlock extends Block {
                 return shape;
         }
 
-        // TODO use proper solution
-
         AtomicReference<VoxelShape> RESULT = new AtomicReference<>(VoxelShapes.empty());
 
-        ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap().forEach((direction, side) -> {
+        AntlineTileEntity.SideMap sideMap = ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap();
+        sideMap.forEach((direction, side) -> {
             if(!side.isEmpty())
                 RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(direction).apply(DOT)));
         });
 
         return RESULT.get();
-        // TODO implement actual thing but for now this to compat server
-//        return SHAPE;
     }
 
     @Override

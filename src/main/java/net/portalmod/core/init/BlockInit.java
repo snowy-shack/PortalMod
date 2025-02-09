@@ -121,7 +121,6 @@ public class BlockInit {
     public static final RegistryObject<Block> PELLET_LAUNCHER = BLOCKS.register("pellet_launcher",
             () -> new PelletLauncherBlock(AbstractBlock.Properties.of(Material.STONE)));
 
-    // todo rename
     public static final RegistryObject<Block> STANDING_BUTTON = BLOCKS.register("standing_button",
             () -> new StandingButtonBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
 
@@ -135,9 +134,9 @@ public class BlockInit {
             () -> new Block(AbstractBlock.Properties.copy(Blocks.NETHERITE_BLOCK)));
     
     // ANTLINE
-    
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
-            () -> new AntlineBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_WIRE).lightLevel(i -> 4).emissiveRendering(($0, $1, $2) -> true)));  // todo: this emissive rendering stuff doesnt work properly because it does not have a simple block model
+            () -> new AntlineBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_WIRE).lightLevel(i -> 2).emissiveRendering(($0, $1, $2) -> true)));
+    // todo: this emissive rendering stuff doesnt work properly because it does not have a simple block model
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
             () -> new AntlineIndicatorBlock(AbstractBlock.Properties.of(Material.DECORATION).noOcclusion().strength(1.0F)));

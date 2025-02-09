@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -10,16 +11,13 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
+import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class AntlineTileEntity extends TileEntity {
     private final SideMap sideMap = new SideMap();
-    private Boolean initialized = false;
 
     public SideMap getSideMap() {
         return sideMap;
@@ -47,7 +45,7 @@ public class AntlineTileEntity extends TileEntity {
     }
 
     public void load(CompoundNBT nbt, boolean complete) {
-        if(complete)
+        if (complete)
             sideMap.set(nbt);
         else
             sideMap.merge(nbt);
@@ -67,20 +65,24 @@ public class AntlineTileEntity extends TileEntity {
 //        this.initialized = true;
 //    }
 //
-//    @Override
-//    protected void invalidateCaps() { // onRemoved
-//        if (level.isClientSide) return;
-//
-//        BlockPos pos = this.getBlockPos();
-//        BlockState state = level.getBlockState(pos);
-//        Block block = state.getBlock();
-//
-//        AntlineBlock.onRemoved(state, level, pos, block, this);
-//
-//        super.invalidateCaps();
-//    }
+    @Override
+    protected void invalidateCaps() { // On removal of entity
+        if (level.isClientSide) return;
 
-    @Nonnull
+        SideMap sidemap = this.getSideMap();
+        int count = sidemap.getSideCount();
+
+        for (int i = 0; i < count - 1; i++) {
+            AntlineBlock.dropResources(getBlock().defaultBlockState(), level, this.getBlockPos());
+        }
+
+        super.invalidateCaps();
+    }
+
+    private static Block getBlock() {
+        return BlockInit.ANTLINE.get();
+    }
+
     @Override
     public IModelData getModelData() {
         return sideMap.toModelData();
@@ -117,14 +119,12 @@ public class AntlineTileEntity extends TileEntity {
 
         public void makeDefault() {
             for(Direction direction : Direction.values())
-                put(direction, direction == Direction.DOWN ? Side.dot(direction) : Side.empty(direction));
+                put(direction, direction == Direction.DOWN ? Side.dot(direction) : Side.emptySide(direction));
         }
 
-        // TODO implement get wire list
-
         public SideMap() {
-            for(Direction direction : Direction.values())
-                this.put(direction, Side.empty(direction));
+            for (Direction direction : Direction.values())
+                this.put(direction, Side.emptySide(direction));
         }
 
         public boolean isBlank() {
@@ -139,36 +139,35 @@ public class AntlineTileEntity extends TileEntity {
         }
 
         public void set(CompoundNBT nbt) {
-            CompoundNBT data = nbt.getCompound("data");
-            for(Direction direction : Direction.values())
+            CompoundNBT data = nbt.getCompound("AntlineSides");
+            for (Direction direction : Direction.values())
                 this.put(direction, new Side(direction, data.getByte(direction.getName())));
+//            }
         }
 
         public CompoundNBT get(CompoundNBT nbt) {
             CompoundNBT data = new CompoundNBT();
             for(Direction direction : Direction.values())
-                data.putByte(direction.getName(), get(direction).value);
-            nbt.put("data", data);
+                data.putByte(direction.getName(), this.get(direction).value);
+            nbt.put("AntlineSides", data);
             return nbt;
         }
 
         public void merge(CompoundNBT nbt) {
-            for(String s : nbt.getAllKeys())
-                put(Direction.valueOf(s.toUpperCase()), new Side(Direction.valueOf(s.toUpperCase()), nbt.getByte(s)));
+            for (String s : nbt.getAllKeys())
+                this.put(Direction.valueOf(s.toUpperCase()), new Side(Direction.valueOf(s.toUpperCase()), nbt.getByte(s)));
         }
 
         public int getSideCount() {
-            return (int)values().stream().filter(v -> v.value != 0).count();
+            return (int)values().stream().filter(v -> v.value != 0xF).count();
         }
-//
-//        public List<Direction> getSides() {
-//            return values().stream().map(s -> s.side).filter(this::hasSide).collect(Collectors.toList());
-//        }
+
+        public void removeSide(Direction direction) {
+            this.put(direction, Side.emptySide(direction));
+        }
 
         public IModelData toModelData() {
             ModelDataMap.Builder builder = new ModelDataMap.Builder();
-//            for(Direction direction : Direction.values())
-//                builder.withInitial(PROPERTIES.get(direction), get(direction));
             builder.withInitial(MODEL_PROPERTY, this);
             return builder.build();
         }
@@ -176,132 +175,99 @@ public class AntlineTileEntity extends TileEntity {
 
     public static class Side {
         private byte value;
-        private final Direction side;
+        private final Direction sideDir;
+
+        public void setActualValue(byte value) {
+            this.value = value;
+        }
 
         public void setValue(byte value) {
-            checkValid(value);
-            this.value = value;
+            this.value = (byte) ((this.value & 0b00010000) | (value & 0x0F));
         }
 
-        // TODO make common constants
-
-        public Side(Direction side, byte value) {
-            checkValid(value);
-            this.side = side;
-            this.value = value;
+        public Side(Direction sideDir, byte value) {
+            this.sideDir = sideDir;
+            this.value   = value;
         }
 
-        public Side(Direction side, int value) {
-            this(side, (byte)value);
-        }
-
-        public static Side empty(Direction direction) {
-            return new Side(direction, 0);
+        public static Side emptySide(Direction direction) {
+            return new Side(direction, (byte) 0xF);
         }
 
         public static Side dot(Direction direction) {
-            return new Side(direction, 0xF);
+            return new Side(direction, (byte) 0);
         }
 
         public boolean isEmpty() {
-            return value == 0;
+            return getValue() == 0xF;
         }
 
         public boolean isConnectable() {
-//            return getValue() != 0 && !(getValue() % 3 == 0 || getValue() % 5 == 0);
-            return getValue() == 0xF || countConnections((byte) (getValue() & 0b1111)) == 1;
+            return countConnections() <= 2;
         }
 
         public boolean isConnectableWith(Direction direction) {
-            return isConnectable() && !hasConnection(direction);
+            return isConnectable() || hasConnection(direction);
         }
 
         public static byte valueByDirection(Direction direction) {
-            switch(direction) {
-                case NORTH: return 0b1000;
-                case EAST:  return 0b0100;
-                case SOUTH: return 0b0010;
-                case WEST:  return 0b0001;
+            switch (direction) {
+                case NORTH: return 0b1000; // 1000 north
+                case EAST:  return 0b0100; // 0100 east
+                case SOUTH: return 0b0010; // 0010 south
+                case WEST:  return 0b0001; // 0001 west
             }
             return 0;
         }
 
         private Direction toRelative(Direction direction) {
-            Direction returnDirection = direction;
+            if (sideDir.getAxis() != Direction.Axis.Y) { // On a wall
+                switch (direction) {
+                    case UP:    return Direction.NORTH;
+                    case DOWN:  return Direction.SOUTH;
 
-            if(side.getAxis() != Direction.Axis.Y) {
-                if(direction == Direction.UP)
-                    returnDirection = Direction.NORTH;
-                if(direction == Direction.DOWN)
-                    returnDirection = Direction.SOUTH;
-                if(side == Direction.SOUTH && direction.getAxis() == Direction.Axis.X)
-                    returnDirection = direction.getOpposite();
-                if(side == Direction.EAST) {
-                    if(direction == Direction.NORTH)
-                        returnDirection = Direction.WEST;
-                    if(direction == Direction.SOUTH)
-                        returnDirection = Direction.EAST;
-                }
-                if(side == Direction.WEST) {
-                    if(direction == Direction.NORTH)
-                        returnDirection = Direction.EAST;
-                    if(direction == Direction.SOUTH)
-                        returnDirection = Direction.WEST;
+                    default: { // Else
+                        switch (sideDir) {
+                            case NORTH: return direction;
+                            case WEST:  return direction.getClockWise();
+                            case SOUTH: return direction.getOpposite();
+                            case EAST:  return direction.getCounterClockWise();
+                        }
+                    }
                 }
             }
-            return returnDirection;
+            return direction;
         }
 
         public boolean hasConnection(Direction direction) {
-            return getConnections().get(toRelative(direction));
+            return Integer.bitCount(getValue() & valueByDirection(toRelative(direction))) != 0 && getValue() != 0xF;
         }
 
         public HashMap<Direction, Boolean> getConnections() {
             HashMap<Direction, Boolean> connections = new HashMap<>();
-
-            for(int i = 0; i < 4; i++)
-                connections.put(Direction.from2DDataValue((i + 2) % 4), getValue() != 0xF && ((getValue() >> (3 - i)) & 1) != 0);
+            for (Direction direction : Direction.values()) {
+                if (direction.getAxis() == Direction.Axis.Y) continue;
+                connections.put(toRelative(direction), hasConnection(direction));
+            }
             return connections;
         }
 
         public void addConnection(Direction direction) {
-            direction = toRelative(direction);
-
-            if(getValue() != 0xF)
-                value |= valueByDirection(direction);
-            else
-                value = (byte)((value & 0xF0) | valueByDirection(direction));
-            checkValid(value);
+            int newValue = this.value | valueByDirection(toRelative(direction));
+            this.setValue((byte) newValue);
         }
 
         public void removeConnection(Direction direction) {
-            if (countConnections(getValue()) == 1) {
-                value = (byte)(value | 0xF);
-                return;
-            }
-            if (getValue() % 0xF != 0) {
-                value = (byte)((value & 0xF0) | (value & 0xF) & ~valueByDirection(toRelative(direction)));
-            }
+            int newValue = this.value & ~valueByDirection(toRelative(direction));
+            this.setValue((byte) newValue);
         }
 
-        public List<Direction> getPresentConnections() {
-            HashMap<Direction, Boolean> connections = getConnections();
-            List<Direction> presentConnections = new ArrayList<>();
+        public enum SideType { NORMAL, NONE, CORNER }
 
-            connections.forEach((direction, b) -> {
-                if(b) presentConnections.add(direction);
-            });
-            return presentConnections;
-        }
-
-        public enum Center { TRUE, FALSE, CORNER }
-
-        public Center getCenter() {
-            if(getValue() == 0)
-                return Center.FALSE;
-            if(getValue() != 0xF && getValue() % 3 == 0)
-                return Center.CORNER;
-            return Center.TRUE;
+        public SideType getSideType() {
+            if (getValue() == 0xF) return SideType.NONE; // Empty side
+            if ((getValue() == 0b0101) || (getValue() == 0b1010)) return SideType.NORMAL; // Straight lines
+            return SideType.CORNER; // Intersection side
         }
 
         public byte getValue() {
@@ -316,20 +282,17 @@ public class AntlineTileEntity extends TileEntity {
             return (value & 0b10000) != 0;
         }
 
-        public void setActive(boolean active) {
-            value = (byte) (active ? (value | 0b10000) : (value & 0b01111));
+        public void setActive(boolean active) { // Sets the 5th LSB
+            this.setActualValue((byte) (active ? (value | 0x10) : (value & 0x0F)));
         }
 
-        private void checkValid(byte value) {
-            if (countConnections(value) == 3)
-                throw new IllegalStateException("Antlines with three connections not allowed");
+        public int countConnections() { // Count how many connections a side has
+            if (getValue() == 0xF) return 0;
+            return Integer.bitCount(getValue());
         }
 
-        private int countConnections(byte value) {
-//            int count = 0;
-//            for (int i = 0; i < 4; i++)
-//                count += (((value & 0xF) >> i) & 1) != 0 ? 1 : 0;
-            return Integer.bitCount(value & 0xF);
+        public Direction toDirection() {
+            return this.sideDir;
         }
     }
 }
