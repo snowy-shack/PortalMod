@@ -81,16 +81,24 @@ public class ModUtil {
         return randomSoundPitch(0.075f);
     }
 
-    public static void sendChat(String text) {
+    public static void sendClientChat(String text) {
         if (Minecraft.getInstance().level == null) return;
-        Minecraft.getInstance().level.players().forEach(
+        sendChat(Minecraft.getInstance().level, text);
+    }
+
+    public static void sendClientChat(Object text) {
+        sendClientChat(text.toString());
+    }
+
+    public static void sendChat(World level, String text) {
+        level.players().forEach(
                 player -> player.displayClientMessage(
                         new StringTextComponent("§7§l[Debug]: §r" + ((text == null) ? "null" : text)
                 ), false)
         );
     }
 
-    public static void sendChat(Object text) {
-        if (Minecraft.getInstance().level != null) sendChat((text == null) ? "null" : text.toString());
+    public static void sendChat(World level, Object text) {
+        sendChat(level, (text == null) ? "null" : text.toString());
     }
 }
