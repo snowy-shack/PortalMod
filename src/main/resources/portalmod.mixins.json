@@ -21,6 +21,7 @@
     "entity.TrackedEntityMixin",
     "fluid.FlowingFluidBlockMixin",
     "fluid.FlowingFluidMixin",
+    "item.BlockItemMixin",
     "level.EntityTrackerMixin",
     "level.ServerLevelMixin",
     "level.chunk.ChunkMixin",

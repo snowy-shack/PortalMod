@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.gel;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.BreakableBlock;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,7 +18,6 @@ import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -25,7 +25,6 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Mat4;
@@ -97,16 +96,13 @@ public class AbstractGelBlock extends BreakableBlock {
 
     @Override
     public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block block, BlockPos neighbor, boolean b) {
-        Direction direction = Direction.getNearest(
-                neighbor.getX() - pos.getX(),
-                neighbor.getY() - pos.getY(),
-                neighbor.getZ() - pos.getZ()
-        );
-
-        BlockState supporting = world.getBlockState(neighbor);
-        if (!supporting.isFaceSturdy(world, pos, direction)) {
-            world.setBlock(pos, blockState.setValue(STATES.get(direction), false), Constants.BlockFlags.DEFAULT);
-            world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), SoundInit.GEL_BREAK.get(), SoundCategory.BLOCKS, 1, 1);
+        for (Direction direction : Direction.values()) {
+            // Has gel but no supporting block in that direction
+            if (blockState.getValue(STATES.get(direction)) && !isValidFace(direction.getOpposite(), world, pos.relative(direction))) {
+                blockState = removeSide(direction, blockState);
+                world.setBlockAndUpdate(pos, blockState);
+                world.playSound(null, pos, SoundInit.GEL_BREAK.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+            }
         }
 
         super.neighborChanged(blockState, world, pos, block, neighbor, b);
@@ -114,16 +110,25 @@ public class AbstractGelBlock extends BreakableBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockState previousState = context.getLevel().getBlockState(context.getClickedPos());
-        if(previousState.getBlock() != this)
+        BlockPos clickedPos = context.getClickedPos();
+        Direction clickedDirection = context.getClickedFace().getOpposite();
+        BlockState previousState = context.getLevel().getBlockState(clickedPos);
+
+        if (!isValidFace(context.getClickedFace(), context.getLevel(), clickedPos.relative(clickedDirection))) {
+            return previousState;
+        }
+
+        if (!previousState.getBlock().is(this)) {
             previousState = this.emptyBlockState;
-        
-        BlockRayTraceResult ray = ModUtil.rayTraceBlock(context.getPlayer(), context.getLevel(), 10);
-        if(ray.getBlockPos().equals(context.getClickedPos()))
-            return null;
-        return previousState.setValue(STATES.get(context.getClickedFace().getOpposite()), true);
+        }
+
+        return addSide(clickedDirection, previousState);
     }
-    
+
+    public static boolean isValidFace(Direction face, World world, BlockPos pos) {
+        return Block.isFaceFull(world.getBlockState(pos).getCollisionShape(world, pos), face);
+    }
+
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         genAABBs();
@@ -157,5 +162,17 @@ public class AbstractGelBlock extends BreakableBlock {
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.DESTROY;
+    }
+
+    public static BlockState addSide(Direction side, BlockState state) {
+        return state.setValue(STATES.get(side), true);
+    }
+
+    public static BlockState removeSide(Direction side, BlockState state) {
+        BlockState newState = state.setValue(STATES.get(side), false);
+        if (STATES.values().stream().noneMatch(newState::getValue)) {
+            return Blocks.AIR.defaultBlockState();
+        }
+        return newState;
     }
 }
