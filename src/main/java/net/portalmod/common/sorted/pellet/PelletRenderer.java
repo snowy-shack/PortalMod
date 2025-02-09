@@ -12,7 +12,7 @@ import net.portalmod.PortalMod;
 
 public class PelletRenderer extends EntityRenderer<PelletEntity> {
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/pellet.png");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/energy_pellet.png");
 
     public final PelletModel model = new PelletModel();
 

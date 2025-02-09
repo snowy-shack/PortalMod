@@ -83,11 +83,14 @@ public class ModUtil {
 
     public static void sendChat(String text) {
         if (Minecraft.getInstance().level == null) return;
-        Minecraft.getInstance().level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text), false));
+        Minecraft.getInstance().level.players().forEach(
+                player -> player.displayClientMessage(
+                        new StringTextComponent("§7§l[Debug]: §r" + ((text == null) ? "null" : text)
+                ), false)
+        );
     }
 
     public static void sendChat(Object text) {
-        if (Minecraft.getInstance().level == null) return;
-        Minecraft.getInstance().level.players().forEach(player -> player.displayClientMessage(new StringTextComponent("§7§l[Debug]: §r" + text.toString()), false));
+        if (Minecraft.getInstance().level != null) sendChat((text == null) ? "null" : text.toString());
     }
 }

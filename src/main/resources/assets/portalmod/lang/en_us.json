@@ -119,6 +119,7 @@
 
   "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
   "tooltip.portalmod.antline_2": "§7- Cannot power §cTesting Elements§7 directly",
+  "tooltip.portalmod.antline_3": "§7- Hold crouch to create intersection connections",
 
   "tooltip.portalmod.chamber_door_1": "§7Entrance and exit to Test Chambers",
   "tooltip.portalmod.chamber_door_2": "§7- Opens when activated by all adjacent §bAntline Indicators",
@@ -142,7 +143,7 @@
 
   "tooltip.portalmod.bullets_1": "§7Provides a Turret with ammo",
   "tooltip.portalmod.bullets_2": "§7- Allows a Turret to shoot 20 times",
-  "tooltip.portalmod.bullets_3": "§7- Hold shift to add a whole stack",
+  "tooltip.portalmod.bullets_3": "§7- Hold crouch to add a whole stack",
   "tooltip.portalmod.bullets_4": "§7- Click with a §6Wrench§7 to take all §aBullets§7 from a Turret",
 
   "tooltip.portalmod.portalgun_1": "§7Shoots §9Portals§7",
@@ -223,12 +224,12 @@
 
 
 
-
-  "death.attack.cube":            "%2$s threatened to stab %1$s",
-  "death.attack.faithplate_wall": "%1$s slammed into a wall",
-  "death.attack.turret":          "%1$s got perforated by %2$s",
-  "death.attack.goo":             "%1$s dissolved in goo",
-  "death.attack.goo.player":      "%1$s dissolved in goo whilst trying to escape %2$s",
+  "death.attack.turret":                 "%1$s got perforated by %2$s",
+  "death.attack.cube":                   "%2$s threatened to stab %1$s",
+  "death.attack.faithplate_wall":        "%1$s slammed into a wall",
+  "death.attack.faithplate_wall.player": "%1$s slammed into a wall whilst trying to escape %2$s",
+  "death.attack.goo":                    "%1$s dissolved in goo",
+  "death.attack.goo.player":             "%1$s dissolved in goo whilst trying to escape %2$s",
 
   "options.portalmod.button":     "PortalMod Options...",
   "options.portalmod.title":      "PortalMod Options",
@@ -237,6 +238,8 @@
   "options.portalmod.tooltips":   "Tooltips",
   "options.portalmod.menu":       "Portal Themed Menu",
   "options.portalmod.recursion":  "Portal Render Depth",
+
+  "options.portalmod.skins.title": "Select your Portal Gun skin:",
 
   "debug.portalmod.reload_shaders.help":    "F3 + Z = Reload PortalMod shaders",
   "debug.portalmod.reload_shaders.message": "PortalMod shaders reloaded",

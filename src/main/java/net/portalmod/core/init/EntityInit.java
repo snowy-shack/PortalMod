@@ -49,10 +49,10 @@ public class EntityInit {
                     .updateInterval(Integer.MAX_VALUE)
                     .build(new ResourceLocation(PortalMod.MODID, "chamber_sign").toString()));
 
-    public static final RegistryObject<EntityType<PelletEntity>> PELLET = ENTITIES.register("pellet",
+    public static final RegistryObject<EntityType<PelletEntity>> PELLET = ENTITIES.register("energy_pellet",
             () -> EntityType.Builder.<PelletEntity>of(PelletEntity::new, EntityClassification.MISC)
-                    .sized(.25f, .25f)
-                    .build(new ResourceLocation(PortalMod.MODID, "pellet").toString()));
+                    .sized(.4f, .4f)
+                    .build(new ResourceLocation(PortalMod.MODID, "energy_pellet").toString()));
     
 //    public static final RegistryObject<EntityType<CreeperEntity>> CREER = ENTITIES.register("creer",
 //            () -> EntityType.Builder.of(CreeperEntity::new, EntityClassification.MONSTER)
