@@ -66,9 +66,10 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         float horizontalBounceAmount = 0.7F;
         float verticalBounceAmount = 0.25F;
         float speedBounceBonusAmount = 1.4F;
+        float maxSpeedBoostAmount = 2.0F;
 
         Vector3d bounceDir = new Vector3d(direction.getOpposite().getStepX(), 0, direction.getOpposite().getStepZ());
-        Vector3d parallel = new Vector3d(Math.abs(bounceDir.z), 0, Math.abs(bounceDir.x)).scale(speedBounceBonusAmount);
+        Vector3d parallel = new Vector3d(Math.abs(bounceDir.z), 0, Math.abs(bounceDir.x));
 
         Vector3d bounceSurface = Vector3d.atCenterOf(pos).add(bounceDir.scale(-.5F));
         Vector3d distance = entity.getPosition(1F).subtract(bounceSurface);
@@ -82,10 +83,13 @@ public class RepulsionGelBlock extends AbstractGelBlock {
 
         float speed = (float) checkSpeedInDirection(entity, direction);
         if (speed > 0.1 || (Minecraft.getInstance().options.keyJump.isDown())) {
+
             // This also applies a boost along the plane of the gel
+            speedBounceBonusAmount = (deltaMovement.multiply(parallel).length() < maxSpeedBoostAmount) ? speedBounceBonusAmount : 1.0F;
+
             entity.setDeltaMovement(bounceDir.scale(horizontalBounceAmount)
                     .add(0, verticalBounceAmount, 0)
-                    .add(deltaMovement.multiply(parallel))
+                    .add(deltaMovement.multiply(parallel).scale(speedBounceBonusAmount))
             );
 
             entity.playSound(SoundInit.REPULSION_GEL_BOUNCE.get(), 1, ModUtil.randomSoundPitch());
