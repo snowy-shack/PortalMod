@@ -2,18 +2,18 @@
   "parent": "portalmod:portal/place_portals",
   "criteria": {
     "requirement": {
-      "trigger": "portalmod:grab_entity"
+      "trigger": "portalmod:portal_surface"
     }
   },
   "display": {
     "icon": {
-      "item": "portalmod:storage_cube"
+      "item": "portalmod:lunecast"
     },
     "title": {
-      "translate": "advancements.portal.grab_entity.title"
+      "translate": "advancements.portalmod.portal_surface.title"
     },
     "description": {
-      "translate": "advancements.portal.grab_entity.description"
+      "translate": "advancements.portalmod.portal_surface.description"
     },
     "frame": "task",
     "show_toast": true,

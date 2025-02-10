@@ -10,10 +10,10 @@
       "item": "portalmod:faithplate"
     },
     "title": {
-      "translate": "advancements.portal.faith_plate_elytra.title"
+      "translate": "advancements.portalmod.faith_plate_elytra.title"
     },
     "description": {
-      "translate": "advancements.portal.faith_plate_elytra.description"
+      "translate": "advancements.portalmod.faith_plate_elytra.description"
     },
     "frame": "task",
     "show_toast": true,

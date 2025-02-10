@@ -2,18 +2,18 @@
   "parent": "portalmod:portal/place_portals",
   "criteria": {
     "requirement": {
-      "trigger": "portalmod:portal_surface"
+      "trigger": "portalmod:shoot_portal_far"
     }
   },
   "display": {
     "icon": {
-      "item": "portalmod:lunecast"
+      "item": "minecraft:target"
     },
     "title": {
-      "translate": "advancements.portal.portal_surface.title"
+      "translate": "advancements.portalmod.shoot_portal_far.title"
     },
     "description": {
-      "translate": "advancements.portal.portal_surface.description"
+      "translate": "advancements.portalmod.shoot_portal_far.description"
     },
     "frame": "task",
     "show_toast": true,

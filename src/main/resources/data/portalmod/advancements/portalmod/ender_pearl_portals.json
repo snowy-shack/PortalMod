@@ -10,10 +10,10 @@
       "item": "minecraft:ender_pearl"
     },
     "title": {
-      "translate": "advancements.portal.ender_pearl_portals.title"
+      "translate": "advancements.portalmod.ender_pearl_portals.title"
     },
     "description": {
-      "translate": "advancements.portal.ender_pearl_portals.description"
+      "translate": "advancements.portalmod.ender_pearl_portals.description"
     },
     "frame": "challenge",
     "show_toast": true,

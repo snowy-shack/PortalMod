@@ -20,10 +20,10 @@
       "item": "minecraft:diamond_pickaxe"
     },
     "title": {
-      "translate": "advancements.portal.mine_end_stone.title"
+      "translate": "advancements.portalmod.mine_end_stone.title"
     },
     "description": {
-      "translate": "advancements.portal.mine_end_stone.description"
+      "translate": "advancements.portalmod.mine_end_stone.description"
     },
     "frame": "task",
     "show_toast": true,

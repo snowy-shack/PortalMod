@@ -10,10 +10,10 @@
       "item": "portalmod:repulsion_gel"
     },
     "title": {
-      "translate": "advancements.portal.bounce_on_gel.title"
+      "translate": "advancements.portalmod.bounce_on_gel.title"
     },
     "description": {
-      "translate": "advancements.portal.bounce_on_gel.description"
+      "translate": "advancements.portalmod.bounce_on_gel.description"
     },
     "frame": "challenge",
     "show_toast": true,

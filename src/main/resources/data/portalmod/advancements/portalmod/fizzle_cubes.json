@@ -39,10 +39,10 @@
       "item": "portalmod:fizzler_emitter"
     },
     "title": {
-      "translate": "advancements.portal.fizzle_cubes.title"
+      "translate": "advancements.portalmod.fizzle_cubes.title"
     },
     "description": {
-      "translate": "advancements.portal.fizzle_cubes.description"
+      "translate": "advancements.portalmod.fizzle_cubes.description"
     },
     "frame": "challenge",
     "show_toast": true,
