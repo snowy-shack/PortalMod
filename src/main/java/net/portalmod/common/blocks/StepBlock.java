@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -52,7 +53,14 @@ public class StepBlock extends Block implements IWaterLoggable {
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
         if (WrenchItem.usedWrench(player, hand)) {
             BlockState cycled = state.cycle(FORCED_PILLAR);
-            world.setBlockAndUpdate(pos, cycled.setValue(PILLAR, shouldHavePillar(cycled, world, pos)));
+
+            boolean shouldHavePillar = shouldHavePillar(cycled, world, pos);
+            world.setBlockAndUpdate(pos, cycled.setValue(PILLAR, shouldHavePillar));
+
+            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.step." + (shouldHavePillar ? "pillar" : "normal")), true);
+
+            WrenchItem.playUseSound(world, player);
+
             return ActionResultType.SUCCESS;
         }
 

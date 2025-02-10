@@ -176,6 +176,8 @@
   "actionbar.portalmod.button_mode.toggle":      "Set Button Mode to Toggle",
   "actionbar.portalmod.indicator_mode.normal":   "Set Indicator Mode to Normal",
   "actionbar.portalmod.indicator_mode.reversed": "Set Indicator Mode to Reversed",
+  "actionbar.portalmod.step.normal":             "Removed Pillar from Step",
+  "actionbar.portalmod.step.pillar":             "Added Pillar to Step",
   "actionbar.portalmod.turret.full":             "This turret is filled to the brim!",
   "actionbar.portalmod.turret.infinite_ammo":    "This turret has infinite ammo",
   "actionbar.portalmod.turret.empty":            "This turret is already empty",
