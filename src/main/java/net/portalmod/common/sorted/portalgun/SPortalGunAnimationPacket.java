@@ -44,6 +44,14 @@ public class SPortalGunAnimationPacket implements AbstractPacket<SPortalGunAnima
                 case FIZZLE:
                     PortalGunISTER.startFizzleAnimation();
                     break;
+
+                case DROP:
+                    PortalGunISTER.stopLiftAnimation(this.gunUUID);
+                    break;
+
+                case LIFT:
+                    PortalGunISTER.startLiftAnimation(this.gunUUID);
+                    break;
             }
         }));
 

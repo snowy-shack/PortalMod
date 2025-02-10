@@ -93,14 +93,16 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     player.level.getEntity(data).startRiding(player);
                     // todo only temporary fix
                     ((ITeleportable)player.level.getEntity(data)).removeLastUsedPortal();
+
+                    PortalGun.pickCube(player, player.getMainHandItem());
                     break;
 
                 case DROP_ENTITY:
-                    PortalGun.dropCube(player, false);
+                    PortalGun.dropCube(player, false, player.getMainHandItem());
                     break;
 
                 case THROW_ENTITY:
-                    PortalGun.dropCube(player, true);
+                    PortalGun.dropCube(player, true, player.getMainHandItem());
                     break;
 
                 case SHOOT_PORTAL:

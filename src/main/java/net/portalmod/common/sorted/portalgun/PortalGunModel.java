@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.portalgun;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.portalmod.client.animation.AnimatedModel;
 import net.portalmod.core.init.AnimationInit;
@@ -58,10 +57,20 @@ public class PortalGunModel extends AnimatedModel {
             gun.addChild(gun_front);
             gun.addChild(gun_base);
 
-            attachAnimation("shoot", gun_front, Z, AnimationInit.COMPRESSION);
+            attachAnimation("shoot", gun_front,   Z,    AnimationInit.COMPRESSION);
             attachAnimation("shoot", prong_right, XROT, AnimationInit.CLAWS);
-            attachAnimation("shoot", prong_left, XROT, AnimationInit.CLAWS);
-            attachAnimation("shoot", prong_top, XROT, AnimationInit.CLAWS);
+            attachAnimation("shoot", prong_left,  XROT, AnimationInit.CLAWS);
+            attachAnimation("shoot", prong_top,   XROT, AnimationInit.CLAWS);
+
+            attachAnimation("lift", gun_front,   Z,    AnimationInit.COMPRESSION_START);
+            attachAnimation("lift", prong_right, XROT, AnimationInit.CLAWS_OPEN);
+            attachAnimation("lift", prong_left,  XROT, AnimationInit.CLAWS_OPEN);
+            attachAnimation("lift", prong_top,   XROT, AnimationInit.CLAWS_OPEN);
+
+            attachAnimation("drop", gun_front,   Z,    AnimationInit.COMPRESSION_STOP);
+            attachAnimation("drop", prong_right, XROT, AnimationInit.CLAWS_CLOSE);
+            attachAnimation("drop", prong_left,  XROT, AnimationInit.CLAWS_CLOSE);
+            attachAnimation("drop", prong_top,   XROT, AnimationInit.CLAWS_CLOSE);
         }
 
         colour = new ModelRenderer(this);
@@ -79,6 +88,8 @@ public class PortalGunModel extends AnimatedModel {
             colour.addChild(colour_base);
 
             attachAnimation("shoot", colour_front, Z, AnimationInit.COMPRESSION);
+            attachAnimation("lift",  colour_front, Z, AnimationInit.COMPRESSION_START);
+            attachAnimation("drop",  colour_front, Z, AnimationInit.COMPRESSION_STOP);
         }
 
         stripes = new ModelRenderer(this);

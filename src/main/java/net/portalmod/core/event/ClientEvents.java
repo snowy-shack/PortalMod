@@ -352,7 +352,7 @@ public class ClientEvents {
 //                }
 
                 if(player.hasPassenger(Cube.class) || player.hasPassenger(TurretEntity.class)) {
-                    PortalGun.dropCube(player, false);
+                    PortalGun.dropCube(player, false, player.getMainHandItem());
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());

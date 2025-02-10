@@ -6,6 +6,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.ParticleInit;
 
 import java.util.Random;
@@ -58,10 +59,17 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
     }
 
     public static void createParticles(World world, PlayerEntity player) {
-        Vector3d viewLocation = player.getEyePosition(1).add(player.getViewVector(1).scale(1.5));
+        Vector3d viewVec = player.getViewVector(1);
+        Vector3d rightVec = new Vector3d(-viewVec.z, 0, viewVec.x).normalize(); // Perpendicular to view
+        Vector3d downVec = new Vector3d(0, -1, 0); // Straight down
 
-        // 1 - 3
-        int amount = RANDOM.nextInt(3) + 1;
+        Vector3d viewLocation = player.getEyePosition(1)
+                .add(viewVec.scale(1.5)) // Forward
+                .add(rightVec.scale(0.4)
+                        .scale(player.getMainHandItem().getItem() instanceof PortalGun ? 1 : -1)) // Right
+                .add(downVec.scale(0.2)); // Down
+
+        int amount = RANDOM.nextInt(3) + 1; // 1 - 3
 
         for (int i = 0; i < amount; i++) {
             Vector3d offset = new Vector3d(symmetricRandom(0.3), symmetricRandom(0.3), symmetricRandom(0.3));

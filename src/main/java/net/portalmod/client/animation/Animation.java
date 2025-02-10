@@ -20,6 +20,10 @@ public class Animation {
         this.start(System.currentTimeMillis());
     }
 
+    public void stop() {
+        this.start = (long) (System.currentTimeMillis() - 1000000000000.0);
+    }
+
     public double computeAbs(long time) {
         double accum = 0;
         Part selected = null;
