@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/root",
+  "parent": "portalmod:portalmod/root",
   "criteria": {
     "requirement": {
       "trigger": "minecraft:item_used_on_block",

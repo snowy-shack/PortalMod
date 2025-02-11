@@ -54,7 +54,7 @@
       "subtitle": "subtitles.item.bucket.fill"
     },
     "portal.teleport": {
-        "sounds": [ "portalmod:portal/teleport" ],
+        "sounds": [ "portalmod:portalmod/teleport" ],
         "subtitle": "subtitles.portal.teleport"
     },
 
