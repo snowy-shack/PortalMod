@@ -22,7 +22,9 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         super(world, x, y, z, dx, dy, dz);
         this.lifetime = 2;
         this.gravity = 0;
-        this.yd -= 0.1;
+        this.xd = dx;
+        this.yd = dy;
+        this.zd = dz;
 
         this.u = RANDOM.nextInt(4);
         this.v = RANDOM.nextInt(4);
@@ -35,6 +37,13 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
 
     @Override
     public void tick() {
+
+//        this.setAlpha(1f - ((float) this.age / this.getLifetime()));
+
+        if (this.age == 1) {
+            this.setAlpha(0.5f);
+        }
+
         super.tick();
     }
 
@@ -64,18 +73,20 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         Vector3d downVec = new Vector3d(0, -1, 0); // Straight down
 
         Vector3d viewLocation = player.getEyePosition(1)
-                .add(viewVec.scale(1.5)) // Forward
+                .add(viewVec.scale(1)) // Forward
                 .add(rightVec.scale(0.4)
                         .scale(player.getMainHandItem().getItem() instanceof PortalGun ? 1 : -1)) // Right
                 .add(downVec.scale(0.2)); // Down
 
         int amount = RANDOM.nextInt(3) + 1; // 1 - 3
+        double speed = 0.07;
+        double spread = 0.3;
 
         for (int i = 0; i < amount; i++) {
-            Vector3d offset = new Vector3d(symmetricRandom(0.3), symmetricRandom(0.3), symmetricRandom(0.3));
+            Vector3d offset = new Vector3d(symmetricRandom(spread), symmetricRandom(spread), symmetricRandom(spread));
             Vector3d particlePos = viewLocation.add(offset);
 
-            world.addParticle(ParticleInit.PORTALGUN_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, symmetricRandom(0.5), symmetricRandom(0.5), symmetricRandom(0.5));
+            world.addParticle(ParticleInit.PORTALGUN_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, symmetricRandom(speed), symmetricRandom(speed), symmetricRandom(speed));
         }
     }
 

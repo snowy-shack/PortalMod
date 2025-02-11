@@ -99,8 +99,7 @@ public class Animation {
         QUADRATIC(x -> polynomial(2f, x)),
         CUBIC(x -> polynomial(3f, x)),
         EASE_OUT(Curve::easeOut),
-        EASE_OUT_BACK(Curve::easeOutBack),
-        ;
+        EASE_OUT_BACK(Curve::easeOutBack);
 
         private final UnaryOperator<Double> animationFunction;
 

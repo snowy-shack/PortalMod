@@ -29,7 +29,7 @@ public class AnimationInit {
         .build();
 
     public static final Animation CLAWS_OPEN = new Animation.Builder(CLAW_REST)
-        .keyframe(Curve.CUBIC, CLAW_RECOIL, 100)
+        .keyframe(Curve.EASE_OUT_BACK, CLAW_RECOIL, 200)
         .build();
 
     public static final Animation CLAWS_CLOSE = new Animation.Builder(CLAW_RECOIL)
