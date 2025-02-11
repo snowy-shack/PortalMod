@@ -2,6 +2,7 @@ package net.portalmod.client.animation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class Animation {
     private final List<Part> parts;
@@ -83,21 +84,40 @@ public class Animation {
         }
 
         private double compute(double x) {
-            return (end - start) * (1. - Math.pow(1. - x / duration, type.exp)) + start;
+            return (end - start) * type.animationFunction.apply(x / duration) + start;
         }
     }
 
     public enum Curve {
-        INV_CUBIC(1/3f),
-        INV_QUADRATIC(1/2f),
-        LINEAR(1),
-        QUADRATIC(2),
-        CUBIC(3);
+        INV_CUBIC(x -> polynomial(1/3f, x)),
+        INV_QUADRATIC(x -> polynomial(1/2f, x)),
+        LINEAR(x -> polynomial(1f, x)),
+        QUADRATIC(x -> polynomial(2f, x)),
+        CUBIC(x -> polynomial(3f, x)),
+        EASE_OUT(Curve::easeOut),
+        EASE_OUT_BACK(Curve::easeOutBack),
+        ;
 
-        private final float exp;
+        private final UnaryOperator<Double> animationFunction;
 
-        Curve(float exp) {
-            this.exp = exp;
+        Curve(UnaryOperator<Double> animationFunction) {
+            this.animationFunction = animationFunction;
+        }
+
+        public static double polynomial(double exp, double x) {
+            return (1. - Math.pow(1. - x, exp));
+        }
+
+        private static double easeOut(double x) {
+            int strength = 3;
+            return 1 - Math.pow(1 - x, strength);
+        }
+
+        private static double easeOutBack(double x) {
+            double c1 = 1.70158;
+            double c3 = c1 + 1;
+
+            return (1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2));
         }
     }
 }
