@@ -82,7 +82,7 @@ public abstract class TestElementEntity extends LivingEntity {
         super.tick();
 
         if (this.isFizzling()) {
-            this.handleFizzling();
+            this.fizzleTick();
         } else {
             this.checkTraversedBlocks();
         }
@@ -98,12 +98,12 @@ public abstract class TestElementEntity extends LivingEntity {
             if (state.getBlock() instanceof FizzlerFieldBlock && FizzlerFieldBlock.getFieldShape(state).bounds().move(pos).intersects(movementBox)
                     || state.getBlock() instanceof FizzlerEmitterBlock && FizzlerEmitterBlock.getFieldShape(state).bounds().move(pos).intersects(movementBox)) {
                 this.startFizzling();
-                this.handleFizzling();
+                this.fizzleTick();
             }
         });
     }
 
-    public void handleFizzling() {
+    public void fizzleTick() {
         double minSpeed = 0.08;
         Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
 
@@ -117,6 +117,10 @@ public abstract class TestElementEntity extends LivingEntity {
 
         FizzleGlowParticle.createGlowParticles(level, this);
         FizzleFlakeParticle.createFlakeParticles(level, this);
+
+        // Rotate slowly
+        this.yRot += 35f * (float) newMovement.length();
+        this.yHeadRot = this.yRot;
 
         if (this.getFizzleTicks() > this.maxFizzleTime && this.isAlive()) {
             if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {

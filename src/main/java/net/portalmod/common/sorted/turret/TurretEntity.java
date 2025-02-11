@@ -112,6 +112,12 @@ public class TurretEntity extends TestElementEntity {
         this.previousTargetEntity = this.targetEntity;
     }
 
+    @Override
+    public void fizzleTick() {
+        super.fizzleTick();
+        // TODO handle weird rotation of wings when fizzled (make it look in the direction it is looking)
+    }
+
     public void animate() {
         if (getState() == TurretState.OPENING && this.animationTick >= 10
                 || getState() == TurretState.LOST_TARGET && this.animationTick >= 20
