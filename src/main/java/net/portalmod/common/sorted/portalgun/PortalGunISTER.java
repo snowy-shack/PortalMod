@@ -92,8 +92,8 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         
         boolean animate = true;
         
-        if(transformType == TransformType.FIRST_PERSON_RIGHT_HAND || transformType == TransformType.FIRST_PERSON_LEFT_HAND) {
-//            if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_G)) {
+        if (transformType == TransformType.FIRST_PERSON_RIGHT_HAND || transformType == TransformType.FIRST_PERSON_LEFT_HAND) {
+//            if (InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_G)) {
 //                PORTALGUN_MODEL.startAnimation(itemStack, "shoot");
 //                AnimationInit.RECOIL_X.start();
 //                AnimationInit.RECOIL_Y.start();
@@ -103,9 +103,12 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
 //                AnimationInit.FIZZLE_BODY.start();
 //            }
             
-            float xRot = (float)AnimationInit.RECOIL_X.compute(System.currentTimeMillis());
-            float yRot = (float)AnimationInit.RECOIL_Y.compute(System.currentTimeMillis());
-            float zRot = (float)AnimationInit.FIZZLE_BODY.compute(System.currentTimeMillis());
+            float xRot = (float) ((float) AnimationInit.RECOIL_X.compute(System.currentTimeMillis())
+                    + 1.5 * AnimationInit.LIFT.compute(System.currentTimeMillis()));
+            float yRot = (float) ((float) AnimationInit.RECOIL_Y.compute(System.currentTimeMillis())
+                    + AnimationInit.LIFT.compute(System.currentTimeMillis()));
+            float zRot = (float) ((float) AnimationInit.FIZZLE_BODY.compute(System.currentTimeMillis())
+                    + .5 * AnimationInit.LIFT.compute(System.currentTimeMillis()));
             
             matrixStack.translate(0, 0, .5);
             matrixStack.mulPose(Vector3f.YP.rotationDegrees(yRot));
@@ -192,5 +195,15 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
 
     public static void startFizzleAnimation() {
         AnimationInit.FIZZLE_BODY.start();
+    }
+
+    public static void startLiftAnimation(UUID gunUUID) {
+        PORTALGUN_MODEL.startAnimation(gunUUID, "lift");
+        AnimationInit.LIFT.start();
+    }
+
+    public static void stopLiftAnimation(UUID gunUUID) {
+        PORTALGUN_MODEL.startAnimation(gunUUID, "drop");
+        AnimationInit.LIFT.stop();
     }
 }

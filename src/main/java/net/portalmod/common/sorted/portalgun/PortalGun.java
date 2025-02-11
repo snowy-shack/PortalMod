@@ -31,12 +31,11 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.portal.PortalPair;
-import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
@@ -76,21 +75,35 @@ public class PortalGun extends Item {
 
     public static boolean isHoldable(Entity entity) {
         // todo this doesnt work for some reason, can still hold cube if fizzling
-        return entity instanceof Cube && !((Cube) entity).isFizzling() || entity instanceof TurretEntity;
+        return entity instanceof TestElementEntity && !((TestElementEntity) entity).isFizzling();
     }
-    
-    public static void dropCube(PlayerEntity player, boolean toBeThrown) {
+
+    public static void pickCube(PlayerEntity player, ItemStack gun) {
+        // Play drop animation
+        if (player.level instanceof ServerWorld)
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                    new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.LIFT));
+    }
+
+    public static void dropCube(PlayerEntity player, boolean toBeThrown, ItemStack gun) {
         List<Entity> cubes = player.getPassengers();
-        for(int i = cubes.size() - 1; i >= 0; --i) {
+        for (int i = cubes.size() - 1; i >= 0; --i) {
             Entity cube = cubes.get(0);
-            if(isHoldable(cube)) {
+            if (isHoldable(cube)) {
                 cube.stopRiding();
+
+                // Play pick-up animation
+                if (player.level instanceof ServerWorld)
+                    PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                            new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.DROP));
+
                 float maxSpeed = 0.5f;
-//                System.out.println(cube.getDeltaMovement().length());
+
                 boolean exceedsLimit = cube.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
                 if (exceedsLimit) cube.setDeltaMovement(cube.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
-                if(toBeThrown) {
-                    float strength = .2f;
+
+                if (toBeThrown) {
+                    float strength = .3f;
                     cube.setDeltaMovement(cube.getDeltaMovement().add(player.getViewVector(0)
                             .multiply(strength, strength, strength)));
                 }
@@ -101,14 +114,18 @@ public class PortalGun extends Item {
     private static BlockRayTraceResult customClip(World level, RayTraceContext context) {
         return IBlockReader.traverseBlocks(context, (ctx, pos) -> {
             BlockState blockstate = level.getBlockState(pos);
-            if(blockstate.is(BlockTagInit.PORTAL_TRANSPARENT))
+
+            if (blockstate.is(BlockTagInit.PORTAL_TRANSPARENT))
                 return null;
             FluidState fluidstate = level.getFluidState(pos);
+
             Vector3d vector3d = ctx.getFrom();
             Vector3d vector3d1 = ctx.getTo();
             VoxelShape voxelshape = ctx.getBlockShape(blockstate, level, pos);
+
             BlockRayTraceResult blockraytraceresult = level.clipWithInteractionOverride(vector3d, vector3d1, pos, voxelshape, blockstate);
             VoxelShape voxelshape1 = ctx.getFluidShape(fluidstate, level, pos);
+
             BlockRayTraceResult blockraytraceresult1 = voxelshape1.clip(vector3d, vector3d1, pos);
             double d0 = blockraytraceresult == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockraytraceresult.getLocation());
             double d1 = blockraytraceresult1 == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockraytraceresult1.getLocation());
@@ -127,6 +144,7 @@ public class PortalGun extends Item {
         // Play shooting animation
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                 new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
+
         level.playSound(null, player.position().x, player.position().y, player.position().z,
                 (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
 

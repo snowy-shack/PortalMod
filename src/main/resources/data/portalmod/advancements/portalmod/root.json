@@ -18,10 +18,10 @@
       "item": "portalmod:radio"
     },
     "title": {
-      "translate": "advancements.portal.root.title"
+      "translate": "advancements.portalmod.root.title"
     },
     "description": {
-      "translate": "advancements.portal.root.description"
+      "translate": "advancements.portalmod.root.description"
     },
     "background": "portalmod:textures/gui/advancements/backgrounds/portal.png",
     "frame": "task",

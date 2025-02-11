@@ -2,18 +2,18 @@
   "parent": "portalmod:portal/place_portals",
   "criteria": {
     "requirement": {
-      "trigger": "portalmod:shoot_portal_far"
+      "trigger": "portalmod:grab_entity"
     }
   },
   "display": {
     "icon": {
-      "item": "minecraft:target"
+      "item": "portalmod:storage_cube"
     },
     "title": {
-      "translate": "advancements.portal.shoot_portal_far.title"
+      "translate": "advancements.portalmod.grab_entity.title"
     },
     "description": {
-      "translate": "advancements.portal.shoot_portal_far.description"
+      "translate": "advancements.portalmod.grab_entity.description"
     },
     "frame": "task",
     "show_toast": true,

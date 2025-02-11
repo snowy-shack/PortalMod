@@ -10,10 +10,10 @@
       "item": "minecraft:netherite_chestplate"
     },
     "title": {
-      "translate": "advancements.portal.survive_turret.title"
+      "translate": "advancements.portalmod.survive_turret.title"
     },
     "description": {
-      "translate": "advancements.portal.survive_turret.description"
+      "translate": "advancements.portalmod.survive_turret.description"
     },
     "frame": "challenge",
     "show_toast": true,

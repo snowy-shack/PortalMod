@@ -10,10 +10,10 @@
       "item": "portalmod:turret"
     },
     "title": {
-      "translate": "advancements.portal.turret_defense.title"
+      "translate": "advancements.portalmod.turret_defense.title"
     },
     "description": {
-      "translate": "advancements.portal.turret_defense.description"
+      "translate": "advancements.portalmod.turret_defense.description"
     },
     "frame": "task",
     "show_toast": true,

@@ -25,10 +25,10 @@
       "item": "portalmod:longfall_boots"
     },
     "title": {
-      "translate": "advancements.portal.obtain_fall_boots.title"
+      "translate": "advancements.portalmod.obtain_fall_boots.title"
     },
     "description": {
-      "translate": "advancements.portal.obtain_fall_boots.description"
+      "translate": "advancements.portalmod.obtain_fall_boots.description"
     },
     "frame": "task",
     "show_toast": true,

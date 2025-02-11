@@ -10,10 +10,10 @@
       "item": "minecraft:end_stone"
     },
     "title": {
-      "translate": "advancements.portal.shoot_moon.title"
+      "translate": "advancements.portalmod.shoot_moon.title"
     },
     "description": {
-      "translate": "advancements.portal.shoot_moon.description"
+      "translate": "advancements.portalmod.shoot_moon.description"
     },
     "frame": "task",
     "show_toast": true,

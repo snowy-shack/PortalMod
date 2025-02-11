@@ -1,14 +1,15 @@
 {
-  "parent": "portalmod:portal/turret_defense",
+  "parent": "portalmod:portal/root",
   "criteria": {
     "requirement": {
       "trigger": "minecraft:item_used_on_block",
       "conditions": {
         "location": {
+          "dimension": "minecraft:the_end",
           "block": {
             "block": "portalmod:radio",
             "state": {
-              "state": "on"
+              "state": "active"
             }
           }
         }
@@ -20,14 +21,14 @@
       "item": "portalmod:radio"
     },
     "title": {
-      "translate": "advancements.portal.turret_band.title"
+      "translate": "advancements.portalmod.radio_transmission.title"
     },
     "description": {
-      "translate": "advancements.portal.turret_band.description"
+      "translate": "advancements.portalmod.radio_transmission.description"
     },
     "frame": "task",
     "show_toast": true,
     "announce_to_chat": true,
-    "hidden": false
+    "hidden": true
   }
 }

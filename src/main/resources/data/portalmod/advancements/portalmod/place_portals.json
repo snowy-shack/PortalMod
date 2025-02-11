@@ -25,10 +25,10 @@
       "item": "portalmod:portalgun"
     },
     "title": {
-      "translate": "advancements.portal.place_portals.title"
+      "translate": "advancements.portalmod.place_portals.title"
     },
     "description": {
-      "translate": "advancements.portal.place_portals.description"
+      "translate": "advancements.portalmod.place_portals.description"
     },
     "frame": "task",
     "show_toast": true,

@@ -1,5 +1,5 @@
 package net.portalmod.common.sorted.portalgun;
 
 public enum PortalGunAnimation {
-    SHOOT, FIZZLE
+    SHOOT, FIZZLE, LIFT, DROP
 }

@@ -20,10 +20,10 @@
       "item": "portalmod:forest_cake"
     },
     "title": {
-      "translate": "advancements.portal.eat_forest_cake.title"
+      "translate": "advancements.portalmod.eat_forest_cake.title"
     },
     "description": {
-      "translate": "advancements.portal.eat_forest_cake.description"
+      "translate": "advancements.portalmod.eat_forest_cake.description"
     },
     "frame": "task",
     "show_toast": true,
