@@ -14,7 +14,10 @@ import net.minecraftforge.client.model.data.ModelProperty;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class AntlineTileEntity extends TileEntity {
     private final SideMap sideMap = new SideMap();
@@ -208,6 +211,10 @@ public class AntlineTileEntity extends TileEntity {
 
         public boolean isConnectableWith(Direction direction) {
             return isConnectable() || hasConnection(direction);
+        }
+
+        public Set<Direction> absoluteConnections() {
+            return Arrays.stream(Direction.values()).filter(this::hasConnection).collect(Collectors.toSet());
         }
 
         public static byte valueByDirection(Direction direction) {

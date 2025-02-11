@@ -135,11 +135,12 @@ public class AntlineBlock extends Block {
             return;
         }
 
+        boolean becameActive = active;
+
         // In all connection directions
-        for (Direction connectDirection : Direction.values()) {
-            if (!side.hasConnection(connectDirection)                              // Assert a connection in the direction
-                    || connectDirection.getAxis() == side.toDirection().getAxis()  // Rule out relative up / down
-                    || connectDirection == originDirection) continue;              // Prevent signal from going backwards
+        for (Direction connectDirection : side.absoluteConnections()) {
+            if (connectDirection.getAxis() == side.toDirection().getAxis()  // Rule out relative up / down
+                    || connectDirection == originDirection) continue;       // Prevent signal from going backwards
 
             // Check direction
             ConnectionType connectionType = getConnectionType(level, pos, side.toDirection(), connectDirection, NO_THRESHOLD);
@@ -160,6 +161,9 @@ public class AntlineBlock extends Block {
                     if (newActive && !active) {
                         recursiveSignalChain(level, side, pos, null, newActive, 0);
                     }
+
+                    becameActive = newActive;
+
                     continue;
                 }
                 continue;
@@ -168,7 +172,12 @@ public class AntlineBlock extends Block {
             // It's another Antline. Do a recursive signal call
             AntlineTileEntity entity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
             AntlineTileEntity.SideMap sideMap = entity.getSideMap();
-            recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active, depth + 1);
+            recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active || becameActive, depth + 1);
+
+            // If the antline we just updated ended up being powered, we set becameActive to true, so we don't unpower the next ones we were supposed to unpower.
+            if (((AntlineTileEntity) level.getBlockEntity(friend.pos)).getSideMap().get(friend.sideDirection).isActive()) {
+                becameActive = true;
+            }
         }
 
         sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
@@ -303,8 +312,14 @@ public class AntlineBlock extends Block {
         for (AntlineTileEntity.Side side : sideMap.values()) {
             if (side.isEmpty()) continue;
 
+            boolean usedToHaveConnection = side.hasConnection(neighborDir);
+
             // Allow new connections if the updating block is connectable with the side
             sideUpdate(level, side, pos, false, true, neighborState.getBlock() instanceof AntlineConnector ? neighborDir : null);
+
+            if (!usedToHaveConnection) continue;
+
+            //TODO placing a branch next to an antline that is next to an indicator still causes issues
 
             if (!(neighborState.getBlock() instanceof AntlineBlock) && !(neighborState.getBlock() instanceof AntlineConnector)) {
                 recursiveSignalChain(level, side, pos, null, false, 0);

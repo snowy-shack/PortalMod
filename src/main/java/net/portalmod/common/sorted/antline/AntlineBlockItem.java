@@ -51,7 +51,11 @@ public class AntlineBlockItem extends BlockItem {
             AntlineBlock block = (AntlineBlock) this.getBlock();
 
             boolean shift = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
-            block.sideUpdate(level, sideMap.get(clickedFace.getOpposite()), pos, true, shift, null);
+            AntlineTileEntity.Side side = sideMap.get(clickedFace.getOpposite());
+            block.sideUpdate(level, side, pos, true, shift, null);
+
+            // Activate if needed
+            block.recursiveSignalChain(level, side, pos, null, false, 0);
 
             block.sendUpdatePacket(level, pos, clickedFace.getOpposite(), (AntlineTileEntity) level.getBlockEntity(pos));
         }
