@@ -2,6 +2,8 @@ package net.portalmod.core.init;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -135,11 +137,11 @@ public class BlockInit {
     
     // ANTLINE
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
-            () -> new AntlineBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_WIRE).lightLevel(i -> 2).emissiveRendering(($0, $1, $2) -> true)));
-    // todo: this emissive rendering stuff doesnt work properly because it does not have a simple block model
+            () -> new AntlineBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_WIRE).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+    // todo: this emissive rendering stuff likely doesnt work properly because it does not have a simple block model
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
-            () -> new AntlineIndicatorBlock(AbstractBlock.Properties.of(Material.DECORATION).noOcclusion().strength(1.0F)));
+            () -> new AntlineIndicatorBlock(AbstractBlock.Properties.of(Material.DECORATION).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
     
 //    public static final RegistryObject<Block> LASER_EMITTER = BLOCKS.register("laser_emitter",
 //            () -> new LaserEmitterBlock(AbstractBlock.Properties.copy(Blocks.STONE).noOcclusion()));
@@ -182,5 +184,9 @@ public class BlockInit {
 
     public static RegistryObject<Block> registerStairs(String name) {
         return BLOCKS.register(name + "_stairs", () -> new StairsBlock(() -> LUNECAST.get().defaultBlockState(), AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    }
+
+    private static boolean always(BlockState p_235426_0_, IBlockReader p_235426_1_, BlockPos p_235426_2_) {
+        return true;
     }
 }
