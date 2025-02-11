@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/turret_defense",
+  "parent": "portalmod:portalmod/turret_defense",
   "criteria": {
     "requirement": {
       "trigger": "portalmod:survive_turret"

@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/root",
+  "parent": "portalmod:portalmod/eat_forest_cake",
   "criteria": {
     "requirement": {
       "trigger": "minecraft:item_used_on_block",

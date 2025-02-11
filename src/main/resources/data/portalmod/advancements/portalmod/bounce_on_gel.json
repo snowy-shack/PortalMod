@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/obtain_fall_boots",
+  "parent": "portalmod:portalmod/obtain_fall_boots",
   "criteria": {
     "requirement": {
       "trigger": "portalmod:bounce_on_gel"

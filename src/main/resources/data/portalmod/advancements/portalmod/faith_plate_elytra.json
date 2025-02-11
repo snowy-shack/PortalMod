@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/obtain_fall_boots",
+  "parent": "portalmod:portalmod/obtain_fall_boots",
   "criteria": {
     "condition_name": {
       "trigger": "portalmod:faith_plate_elytra"

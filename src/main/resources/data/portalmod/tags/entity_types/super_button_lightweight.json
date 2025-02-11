@@ -22,6 +22,7 @@
     "minecraft:spectral_arrow",
     "minecraft:tnt",
     "minecraft:vex",
-    "minecraft:wither_skull"
+    "minecraft:wither_skull",
+    "portalmod:turret"
   ]
 }

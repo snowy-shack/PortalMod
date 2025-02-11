@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/root",
+  "parent": "portalmod:portalmod/root",
   "criteria": {
     "condition_name": {
       "trigger": "portalmod:turret_defense"
