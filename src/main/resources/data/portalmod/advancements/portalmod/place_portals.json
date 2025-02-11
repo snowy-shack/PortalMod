@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/mine_end_stone",
+  "parent": "portalmod:portalmod/root",
   "criteria": {
     "requirement": {
       "trigger": "portalmod:place_portals",

@@ -119,7 +119,7 @@
 
   "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
   "tooltip.portalmod.antline_2": "§7- Cannot power §cTesting Elements§7 directly",
-  "tooltip.portalmod.antline_3": "§7- Hold crouch to create intersection connections",
+  "tooltip.portalmod.antline_3": "§7- Hold crouch to create branching connections",
 
   "tooltip.portalmod.chamber_door_1": "§7Entrance and exit to Test Chambers",
   "tooltip.portalmod.chamber_door_2": "§7- Opens when activated by all adjacent §bAntline Indicators",
@@ -207,7 +207,7 @@
   "subtitles.block.cube_dropper.activate": "Cube Dropper activates",
   "subtitles.block.cube_dropper.deactivate": "Cube Dropper deactivates",
   "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
-  "subtitles.block.gel.collect": "Gel Container fills",
+  "subtitles.block.gel.collect": "Gel collected",
 
   "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",
@@ -218,8 +218,6 @@
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
   "subtitles.item.portalgun.activate": "Portal Gun activates",
   "subtitles.item.wrench.use":         "Wrench Clicks",
-
-
 
   "death.attack.turret":                 "%1$s got perforated by %2$s",
   "death.attack.cube":                   "%2$s threatened to stab %1$s",
@@ -247,22 +245,16 @@
 
   "advancements.portalmod.root.title":                      "PortalMod",
   "advancements.portalmod.root.description":                "Like old times",
-  "advancements.portalmod.mine_end_stone.title":            "Minin' Away",
-  "advancements.portalmod.mine_end_stone.description":      "Collect End Stone for Lunecast Panels",
   "advancements.portalmod.place_portals.title":             "Through the Looking Glass",
   "advancements.portalmod.place_portals.description":       "Carve a hole through spacetime",
   "advancements.portalmod.portal_surface.title":            "Quality Standards",
-  "advancements.portalmod.portal_surface.description":      "Place a portal on a Lunecast surface",
-  "advancements.portalmod.obtain_blackplate.title":         "I Like It Shiny",
-  "advancements.portalmod.obtain_blackplate.description":   "Obtain Blackplate blocks for your test chamber",
+  "advancements.portalmod.portal_surface.description":      "Obtain Lunecast for better Portal conductivity",
   "advancements.portalmod.grab_entity.title":               "Wingardium Leviosa",
   "advancements.portalmod.grab_entity.description":         "Lift an object using your Portal Gun",
-  "advancements.portalmod.cube_on_button.title":            "Cubic Companion",
-  "advancements.portalmod.cube_on_button.description":      "Weigh down a Super Button using a Storage Cube",
   "advancements.portalmod.fizzle_cubes.title":              "Reduced to Pixels",
   "advancements.portalmod.fizzle_cubes.description":        "Disintegrate all Weighted Cube types",
   "advancements.portalmod.ender_pearl_portals.title":       "Triple Teleportation",
-  "advancements.portalmod.ender_pearl_portals.description": "Land an ender pearl by throwing it through two portals",
+  "advancements.portalmod.ender_pearl_portals.description": "Land an ender pearl by throwing it through two sets of portals",
   "advancements.portalmod.shoot_portal_far.title":          "Sharpshooter",
   "advancements.portalmod.shoot_portal_far.description":    "Place a Portal from a 100 block distance",
   "advancements.portalmod.shoot_moon.title":                "Fly me to the Moon",

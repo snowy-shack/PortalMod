@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/shoot_portal_far",
+  "parent": "portalmod:portalmod/shoot_portal_far",
   "criteria": {
     "requirement": {
       "trigger": "portalmod:shoot_moon"

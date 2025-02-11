@@ -1,0 +1,12 @@
+{
+  "block.portalmod.conversion_gel": "Conversiegel",
+  "block.portalmod.propulsion_gel": "Propulsiegel",
+  "block.portalmod.repulsion_gel": "Repulsiegel",
+  "block.portalmod.wire_mesh": "Gaas",
+  "container.faithplate.height": "Hoogte:",
+  "item.portalmod.bullets": "Kogels",
+  "item.portalmod.longfall_boots": "Lange-Val Laarzen",
+  "item.portalmod.wrench": "Moersleutel",
+  "tooltip.portalmod.bullets_3": "§7- Hold shift to add a whole stack",
+  "tooltip.portalmod.colors.white": "§fWit§r"
+}

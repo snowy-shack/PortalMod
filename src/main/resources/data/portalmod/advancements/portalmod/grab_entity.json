@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portal/place_portals",
+  "parent": "portalmod:portalmod/portal_surface",
   "criteria": {
     "requirement": {
       "trigger": "portalmod:grab_entity"
