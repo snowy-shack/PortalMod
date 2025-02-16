@@ -3,6 +3,7 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -102,5 +103,10 @@ public abstract class MultiBlock extends Block {
                 world.levelEvent(player, 2001, mainPos, Block.getId(mainBlockState));
             }
         }
+    }
+
+    @Override
+    public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
+        return PushReaction.BLOCK;
     }
 }

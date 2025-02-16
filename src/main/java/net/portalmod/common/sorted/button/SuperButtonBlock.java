@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.button;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -263,11 +262,6 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 //        return checkEachBlock(level, pos, state.getValue(CORNER), state.getValue(FACING),
 //                s -> s.getBlock() != BlockInit.SUPER_BUTTON.get());
 //    }
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
-       return PushReaction.DESTROY;
-    }
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
