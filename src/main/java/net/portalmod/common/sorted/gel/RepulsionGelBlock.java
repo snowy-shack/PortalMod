@@ -120,6 +120,9 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         boolean bounceFromSpeed = entity.getDeltaMovement().length() > 0.2 && entity.isOnGround();
         boolean bounceFromJump = gelAffected.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
 
+        double heightInBlock = entity.getPosition(1).y % 1;
+        if (heightInBlock > 0.5) return; // Fix #51
+
         // Vertical bounce
         if (state.getBlock() == BlockInit.REPULSION_GEL.get() && bounceVertical &&
                 (!entity.isShiftKeyDown() && (bounceFromAbove || bounceFromSpeed || bounceFromJump))) {
