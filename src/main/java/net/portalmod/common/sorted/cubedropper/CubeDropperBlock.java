@@ -277,11 +277,20 @@ public class CubeDropperBlock extends MultiBlock {
             }
 
             if (item instanceof WrenchItem && dropperEntity.entityType != null) {
-                dropperEntity.removeAllEntities();
-                if (!player.isCreative()) {
-                    player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
+
+                // Remove current spawned cube
+                if (dropperEntity.entityUUIDs.size() > 1) {
+                    dropperEntity.fizzleCube(dropperEntity.entityUUIDs.get(0));
+
+                // Clear entity type of dropper
+                } else {
+                    dropperEntity.removeAllEntities();
+                    if (!player.isCreative()) {
+                        player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
+                    }
+                    dropperEntity.entityType = null;
                 }
-                dropperEntity.entityType = null;
+
                 return ActionResultType.SUCCESS;
             }
         }

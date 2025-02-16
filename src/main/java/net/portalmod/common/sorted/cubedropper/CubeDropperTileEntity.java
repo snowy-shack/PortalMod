@@ -42,9 +42,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             return;
         }
 
-        if (this.openTicks > 0) {
-            this.openTicks++;
-        }
+        if (this.openTicks > 0) this.openTicks++;
 
         this.updateEntities();
 
@@ -69,15 +67,24 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             dropperBlock.setOpen(true, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 1;
             if (this.entityUUIDs.size() == 2) {
-                Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
-                if (entity instanceof TestElementEntity) {
-                    ((TestElementEntity) entity).startFizzling();
-                } else if (entity.isAlive()) {
-                    entity.remove();
-                }
-                this.entityUUIDs.remove(0);
+                fizzleCube(this.entityUUIDs.get(0));
             }
         }
+    }
+
+    public void fizzleCube(UUID uuid) {
+        World level = this.level;
+        if (!(level instanceof ServerWorld)) return;
+
+        Entity entity = ((ServerWorld) level).getEntity(uuid);
+
+        if (entity instanceof TestElementEntity)
+            ((TestElementEntity) entity).startFizzling();
+
+        else if (entity.isAlive())
+            entity.remove();
+
+        this.entityUUIDs.remove(0);
     }
 
     // Close dropper and spawn a new cube inside the dropper
