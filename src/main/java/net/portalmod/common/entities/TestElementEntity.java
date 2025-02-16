@@ -104,6 +104,12 @@ public abstract class TestElementEntity extends LivingEntity {
     }
 
     public void fizzleTick() {
+        int fizzleTicks = this.getFizzleTicks();
+
+        if (fizzleTicks == 1) {
+            this.fizzleInit();
+        }
+
         double minSpeed = 0.08;
         Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
 
@@ -122,14 +128,34 @@ public abstract class TestElementEntity extends LivingEntity {
         this.yRot += 35f * (float) newMovement.length();
         this.yHeadRot = this.yRot;
 
-        if (this.getFizzleTicks() > this.maxFizzleTime && this.isAlive()) {
+        if (fizzleTicks > this.maxFizzleTime && this.isAlive()) {
             if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
                 this.dropAllDeathLoot(new DamageSource("fizzle"));
             }
             this.remove();
         }
 
-        this.setFizzleTicks(this.getFizzleTicks() + 1);
+        this.setFizzleTicks(fizzleTicks + 1);
+    }
+
+    /**
+     * On the first tick of fizzling
+     */
+    private void fizzleInit() {
+        this.setNoGravity(true);
+        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
+
+        if (this.isPassenger() && this.getVehicle() instanceof PlayerEntity) {
+            ((PlayerEntity) this.getVehicle()).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
+
+            if (this.getVehicle() instanceof ServerPlayerEntity) {
+                CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
+                        (ServerPlayerEntity) this.getVehicle(),
+                        this,
+                        DamageSource.playerAttack((PlayerEntity) this.getVehicle())
+                );
+            }
+        }
     }
 
     @Override
@@ -264,20 +290,6 @@ public abstract class TestElementEntity extends LivingEntity {
     public void startFizzling() {
         if (canFizzle && !this.isFizzling()) {
             this.setFizzleTicks(this.getFizzleTicks() + 1);
-            this.setNoGravity(true);
-            this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
-
-            if (this.isPassenger() && this.getVehicle() instanceof PlayerEntity) {
-                ((PlayerEntity) this.getVehicle()).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
-
-                if (this.getVehicle() instanceof ServerPlayerEntity) {
-                    CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
-                            (ServerPlayerEntity) this.getVehicle(),
-                            this,
-                            DamageSource.playerAttack((PlayerEntity) this.getVehicle())
-                    );
-                }
-            }
         }
     }
 

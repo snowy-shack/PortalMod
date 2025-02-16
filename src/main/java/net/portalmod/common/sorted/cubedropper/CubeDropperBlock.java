@@ -16,10 +16,7 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
@@ -45,6 +42,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class CubeDropperBlock extends MultiBlock {
 
@@ -257,42 +255,47 @@ public class CubeDropperBlock extends MultiBlock {
         ItemStack itemStack = player.getItemInHand(hand);
         Item item = itemStack.getItem();
         TileEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
-        if (tileEntity instanceof CubeDropperTileEntity) {
-            CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) tileEntity;
+        if (!(tileEntity instanceof CubeDropperTileEntity)) {
+            return ActionResultType.FAIL;
+        }
 
-            if (item instanceof SpawnEggItem) {
-                EntityType<?> spawnEggType = ((SpawnEggItem) item).getType(itemStack.getTag());
-                if (spawnEggType != dropperEntity.entityType) {
-                    if (!player.isCreative()) {
-                        itemStack.shrink(1);
-                        player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
-                    }
-                    dropperEntity.removeAllEntities();
-                    dropperEntity.entityType = spawnEggType;
-                    return ActionResultType.SUCCESS;
-                }
-                WrenchItem.playUseSound(world, player);
+        CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) tileEntity;
+        Optional<EntityType<?>> entityType = dropperEntity.getEntityType();
 
-                return ActionResultType.PASS;
+        if (item instanceof SpawnEggItem) {
+            EntityType<?> spawnEggType = ((SpawnEggItem) item).getType(itemStack.getTag());
+
+            // Remove new egg and give previous egg
+            if (!player.isCreative()) {
+                itemStack.shrink(1);
+                entityType.ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
             }
 
-            if (item instanceof WrenchItem && dropperEntity.entityType != null) {
+            dropperEntity.removeAllEntities();
+            dropperEntity.setEntityNBT(spawnEggType);
+            player.playSound(SoundEvents.ITEM_FRAME_ADD_ITEM, 1, 1);
+            return ActionResultType.SUCCESS;
+        }
 
-                // Remove current spawned cube
-                if (dropperEntity.entityUUIDs.size() > 1) {
-                    dropperEntity.fizzleCube(dropperEntity.entityUUIDs.get(0));
+        if (item instanceof WrenchItem && dropperEntity.hasEntityNBT()) {
 
-                // Clear entity type of dropper
-                } else {
-                    dropperEntity.removeAllEntities();
-                    if (!player.isCreative()) {
-                        player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
-                    }
-                    dropperEntity.entityType = null;
+            // Remove current spawned cube
+            if (dropperEntity.entityUUIDs.size() > 1) {
+                dropperEntity.fizzleCube(dropperEntity.entityUUIDs.get(0));
+
+            // Clear entity type of dropper
+            } else {
+                dropperEntity.removeAllEntities();
+                if (!player.isCreative()) {
+                    entityType.ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
                 }
 
-                return ActionResultType.SUCCESS;
+                dropperEntity.removeEntityNBT();
             }
+
+            WrenchItem.playUseSound(world, player);
+
+            return ActionResultType.SUCCESS;
         }
         return ActionResultType.FAIL;
     }
@@ -313,8 +316,13 @@ public class CubeDropperBlock extends MultiBlock {
             if (blockEntity instanceof CubeDropperTileEntity) {
                 CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) blockEntity;
                 dropperEntity.removeAllEntities();
+
+                // Drop spawn egg if present
                 BlockPos mainPosition = this.getMainPosition(blockState, pos);
-                InventoryHelper.dropItemStack(world, mainPosition.getX(), mainPosition.getY(), mainPosition.getZ(), new ItemStack(ForgeSpawnEggItem.fromEntityType(dropperEntity.entityType)));
+                Optional<EntityType<?>> entityType = dropperEntity.getEntityType();
+                entityType.ifPresent(type ->
+                        InventoryHelper.dropItemStack(world, mainPosition.getX(), mainPosition.getY(), mainPosition.getZ(), new ItemStack(ForgeSpawnEggItem.fromEntityType(type)))
+                );
             }
         }
         super.onRemove(blockState, world, pos, newState, b);
