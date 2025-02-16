@@ -6,29 +6,24 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.antline.IndicatorActivated;
 import net.portalmod.common.sorted.antline.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class CubeDropperTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
 
     public List<UUID> entityUUIDs = new ArrayList<>();
     public int openTicks = 0;
-    public boolean wasPowered = false;
-    public EntityType<? extends Entity> entityType = null;
+    public boolean wasAntlinePowered = false;
+    public CompoundNBT entityNBT = null;
 
     public CubeDropperTileEntity() {
         super(TileEntityTypeInit.CUBE_DROPPER.get());
@@ -38,23 +33,22 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     public void tick() {
         BlockState blockState = this.getBlockState();
         BlockPos pos = this.getBlockPos();
-        if (!(blockState.getBlock() instanceof CubeDropperBlock) || this.entityType == null) {
-            return;
-        }
-
-        if (this.openTicks > 0) this.openTicks++;
-
-        this.updateEntities();
 
         CubeDropperBlock dropperBlock = (CubeDropperBlock) blockState.getBlock();
         IndicatorInfo indicatorInfo = this.checkIndicators(blockState, this.level, pos);
-        boolean isPowered = blockState.getValue(CubeDropperBlock.POWERED) || indicatorInfo.hasIndicators && indicatorInfo.allIndicatorsActivated;
+        boolean antlinePowered = blockState.getValue(CubeDropperBlock.POWERED) || indicatorInfo.hasIndicators && indicatorInfo.allIndicatorsActivated;
 
-        if (isPowered && this.openTicks == 0 && (this.entityUUIDs.size() == 1 || !this.wasPowered)) {
-            openDropper(dropperBlock);
+        if (this.openTicks > 0) this.openTicks++;
+
+        if (blockState.getBlock() instanceof CubeDropperBlock && this.entityNBT != null) {
+            this.updateEntities();
+
+            if (antlinePowered && this.openTicks == 0 && (this.entityUUIDs.size() == 1 || !this.wasAntlinePowered)) {
+                openDropper(dropperBlock);
+            }
         }
 
-        this.wasPowered = isPowered;
+        this.wasAntlinePowered = antlinePowered;
 
         if (this.openTicks > 20) {
             closeDropper(dropperBlock);
@@ -74,15 +68,16 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     public void fizzleCube(UUID uuid) {
         World level = this.level;
+
         if (!(level instanceof ServerWorld)) return;
 
         Entity entity = ((ServerWorld) level).getEntity(uuid);
 
-        if (entity instanceof TestElementEntity)
+        if (entity instanceof TestElementEntity) {
             ((TestElementEntity) entity).startFizzling();
-
-        else if (entity.isAlive())
+        } else if (entity != null && entity.isAlive()) {
             entity.remove();
+        }
 
         this.entityUUIDs.remove(0);
     }
@@ -106,20 +101,29 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void addEntity() {
-        if (this.entityType == null) {
+        if (this.entityNBT == null || !(this.level instanceof ServerWorld)) {
             return;
         }
 
-        Entity entity = this.entityType.create(this.level);
-        Vector3f position = new Vec3(this.getBlockPos().south().east()).to3f();
-        entity.teleportTo(position.x(), position.y(), position.z());
+        // Create new entity using nbt
+        Entity entity = EntityType.loadEntityRecursive(this.entityNBT, this.level, e -> {
+            e.moveTo(new Vec3(this.getBlockPos().south().east()).to3d());
+            return e;
+        });
+
+        if (entity == null) {
+            return;
+        }
 
         if (entity instanceof TestElementEntity) {
             ((TestElementEntity) entity).setFromDropper(true);
         }
 
-        this.entityUUIDs.add(entity.getUUID());
-        this.level.addFreshEntity(entity);
+        boolean successful = ((ServerWorld) this.level).tryAddFreshEntityWithPassengers(entity);
+
+        if (successful) {
+            this.entityUUIDs.add(entity.getUUID());
+        }
     }
 
     public void removeAllEntities() {
@@ -171,6 +175,23 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         ));
     }
 
+    public void setEntityNBT(EntityType<?> entityType) {
+        this.entityNBT = new CompoundNBT();
+        this.entityNBT.putString("id", Registry.ENTITY_TYPE.getKey(entityType).toString());
+    }
+
+    public boolean hasEntityNBT() {
+        return entityNBT != null;
+    }
+
+    public void removeEntityNBT() {
+        this.entityNBT = null;
+    }
+
+    public Optional<EntityType<?>> getEntityType() {
+        return this.entityNBT == null ? Optional.empty() : EntityType.by(this.entityNBT);
+    }
+
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         nbt = super.save(nbt);
@@ -180,9 +201,13 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         if (this.entityUUIDs.size() >= 2) {
             nbt.putUUID("UUID2", this.entityUUIDs.get(1));
         }
-        nbt.putBoolean("Powered", this.wasPowered);
+        nbt.putBoolean("Powered", this.wasAntlinePowered);
         nbt.putInt("OpenTicks", this.openTicks);
-        nbt.putString("EntityType", this.entityType == null ? "null" : this.entityType.getRegistryName().toString());
+
+        if (this.entityNBT != null) {
+            nbt.put("Entity", this.entityNBT);
+        }
+
         return nbt;
     }
 
@@ -196,9 +221,12 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         if (nbt.hasUUID("UUID2")) {
             this.entityUUIDs.add(nbt.getUUID("UUID2"));
         }
-        this.wasPowered = nbt.getBoolean("Powered");
+        this.wasAntlinePowered = nbt.getBoolean("Powered");
         this.openTicks = nbt.getInt("OpenTicks");
-        String entityType = nbt.getString("EntityType");
-        this.entityType = entityType.equals("null") ? null : ForgeRegistries.ENTITIES.getValue(new ResourceLocation(entityType));
+
+        this.entityNBT = null;
+        if (nbt.contains("Entity")) {
+            this.entityNBT = nbt.getCompound("Entity");
+        }
     }
 }
