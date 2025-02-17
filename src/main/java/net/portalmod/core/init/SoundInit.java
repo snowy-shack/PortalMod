@@ -19,10 +19,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> GEL_BREAK = register("block.gel.break");
     public static final RegistryObject<SoundEvent> GEL_COLLECT = register("block.gel.collect");
     public static final RegistryObject<SoundEvent> GEL_PLACE = register("block.gel.place");
-    public static final RegistryObject<SoundEvent> GEL_STEP = register("block.gel.step");;
+    public static final RegistryObject<SoundEvent> GEL_STEP = register("block.gel.step");
     public static final RegistryObject<SoundEvent> REPULSION_GEL_BOUNCE = register("block.gel.bounce");
-    public static final RegistryObject<SoundEvent> PROPULSION_GEL_ENTER = register("block.gel.enter");
-    public static final RegistryObject<SoundEvent> PROPULSION_GEL_LEAVE = register("block.gel.leave");
 
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_OPEN = register("block.chamber_door.open");
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_CLOSE = register("block.chamber_door.close");
@@ -56,6 +54,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_PRIMARY = register("item.portalgun.fire_primary");
     public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_SECONDARY = register("item.portalgun.fire_secondary");
     public static final RegistryObject<SoundEvent> PORTALGUN_FIZZLE = register("item.portalgun.fizzle");
+    public static final RegistryObject<SoundEvent> PORTALGUN_LIFT = register("item.portalgun.lift");
     public static final RegistryObject<SoundEvent> PORTALGUN_HOLD = register("item.portalgun.hold");
     public static final RegistryObject<SoundEvent> PORTALGUN_DROP = register("item.portalgun.drop");
 

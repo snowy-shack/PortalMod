@@ -166,6 +166,16 @@
         "sounds": [ "portalmod:item/portalgun/fire_secondary" ],
         "subtitle": "subtitles.item.portalgun.fire"
     },
+    "item.portalgun.lift": {
+        "sounds": [ "portalmod:item/portalgun/lift" ]
+    },
+    "item.portalgun.drop": {
+        "sounds": [ "portalmod:item/portalgun/drop" ]
+    },
+    "item.portalgun.hold": {
+        "sounds": [ "portalmod:item/portalgun/hold" ],
+        "subtitle": "subtitles.item.portalgun.hold"
+    },
     "item.portalgun.fizzle": {
         "sounds": [ "portalmod:error" ],
         "subtitle": "subtitles.item.portalgun.fizzle"
