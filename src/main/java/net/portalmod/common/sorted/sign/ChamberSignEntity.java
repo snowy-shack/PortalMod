@@ -245,7 +245,7 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     public void setLeftDigit(int leftDigit) {
-        this.getEntityData().set(DATA_LEFT_DIGIT, leftDigit);
+        this.getEntityData().set(DATA_LEFT_DIGIT, leftDigit % 10);
     }
 
     public int getRightDigit() {
@@ -253,7 +253,7 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     public void setRightDigit(int rightDigit) {
-        this.getEntityData().set(DATA_RIGHT_DIGIT, rightDigit);
+        this.getEntityData().set(DATA_RIGHT_DIGIT, rightDigit % 10);
     }
 
     public int getProgress() {

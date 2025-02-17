@@ -10,6 +10,7 @@ import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -25,6 +26,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
@@ -163,13 +165,13 @@ public abstract class TestElementEntity extends LivingEntity {
         this.setDeltaMovement(Vector3d.ZERO);
         this.tick();
 
-        if(this.getVehicle() instanceof PlayerEntity) {
+        if (this.getVehicle() instanceof PlayerEntity) {
             this.yRot = this.getVehicle().getYHeadRot();
             this.yBodyRot = this.yRot;
         } else {
-            if(!(this.getVehicle() instanceof AbstractMinecartEntity
-                    || this.getVehicle() instanceof BoatEntity))
+            if (!(this.getVehicle() instanceof AbstractMinecartEntity || this.getVehicle() instanceof BoatEntity)) {
                 this.stopRiding();
+            }
             return;
         }
 
@@ -207,7 +209,8 @@ public abstract class TestElementEntity extends LivingEntity {
 
         this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
 
-        if(this.position().distanceTo(ridingPos) > 1.5) {
+        if(this.position().distanceTo(ridingPos) > 1) {
+            this.tryDropAnim();
             this.stopRiding();
         }
 
@@ -216,7 +219,17 @@ public abstract class TestElementEntity extends LivingEntity {
         PortalGunSparkParticle.createParticles(this.level, player);
 
         if (this.isFizzling()) {
+            this.tryDropAnim();
             this.stopRiding();
+        }
+    }
+
+    public void tryDropAnim() {
+        PlayerEntity player = ((PlayerEntity) this.getVehicle());
+        if (player != null && player.level instanceof ServerWorld) {
+            ItemStack gun = (player.getMainHandItem().getItem() instanceof PortalGun) ? player.getMainHandItem() : player.getOffhandItem();
+
+            PortalGun.dropCube(player, false, gun);
         }
     }
 

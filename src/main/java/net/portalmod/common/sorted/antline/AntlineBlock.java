@@ -467,6 +467,9 @@ public class AntlineBlock extends Block {
             return VoxelShapes.empty();
 
         PlayerEntity player = Minecraft.getInstance().player;
+
+        if (player == null) return VoxelShapes.empty();
+
         Vector3d rayPath = player.getViewVector(0).scale(7);
         Vector3d from = player.getEyePosition(0);
         Vector3d to = from.add(rayPath);

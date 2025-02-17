@@ -79,7 +79,7 @@ public class PortalGun extends Item {
     }
 
     public static void pickCube(PlayerEntity player, ItemStack gun) {
-        // Play drop animation
+        // Play lift animation
         if (player.level instanceof ServerWorld)
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                     new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.LIFT));
@@ -92,7 +92,7 @@ public class PortalGun extends Item {
             if (isHoldable(cube)) {
                 cube.stopRiding();
 
-                // Play pick-up animation
+                // Play drop animation
                 if (player.level instanceof ServerWorld)
                     PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                             new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.DROP));
