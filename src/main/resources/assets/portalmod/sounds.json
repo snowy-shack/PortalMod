@@ -69,6 +69,10 @@
         "sounds": [ "portalmod:block/chamber_door/close" ],
         "subtitle": "subtitles.block.chamber_door.close" },
 
+    "block.chamber_lights.hum": {
+        "sounds": [ "portalmod:block/chamber_lights/hum" ],
+        "subtitle": "subtitles.block.chamber_lights.hum" },
+
     "block.push_door.open": {
         "sounds": [ "portalmod:block/push_door/open" ],
         "subtitle": "subtitles.block.push_door.open" },

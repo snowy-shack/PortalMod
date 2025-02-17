@@ -194,6 +194,7 @@
 
   "subtitles.block.chamber_door.open": "Chamber Door opens",
   "subtitles.block.chamber_door.close": "Chamber Door closes",
+  "subtitles.block.chamber_lights.hum": "Chamber Lights hum",
   "subtitles.block.fizzler_emitter.activate": "Fizzler activates",
   "subtitles.block.fizzler_emitter.deactivate": "Fizzler deactivates",
   "subtitles.block.antline_indicator.activate": "Antline Indicator activates",
@@ -217,6 +218,7 @@
   "subtitles.item.portalgun.fire":     "Portal Gun fires",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
   "subtitles.item.portalgun.activate": "Portal Gun activates",
+  "subtitles.item.portalgun.hold":     "Portal Gun buzzes",
   "subtitles.item.wrench.use":         "Wrench Clicks",
 
   "death.attack.turret":                 "%1$s got perforated by %2$s",
