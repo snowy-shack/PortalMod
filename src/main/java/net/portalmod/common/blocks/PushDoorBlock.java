@@ -13,16 +13,17 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.Random;
 
 public class PushDoorBlock extends DoorBlock {
     private void playCloseSound(World world, BlockPos pos) {
-        world.playSound(null, pos, SoundInit.PUSH_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, 1);
+        world.playSound(null, pos, SoundInit.PUSH_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
 
     private void playOpenSound(World world, BlockPos pos) {
-        world.playSound(null, pos, SoundInit.PUSH_DOOR_OPEN.get(), SoundCategory.BLOCKS, 1, 1);
+        world.playSound(null, pos, SoundInit.PUSH_DOOR_OPEN.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
 
     @Override
