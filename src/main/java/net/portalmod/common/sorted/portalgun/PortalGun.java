@@ -80,12 +80,25 @@ public class PortalGun extends Item {
 
     public static void pickCube(PlayerEntity player, ItemStack gun) {
         // Play lift animation
-        if (player.level instanceof ServerWorld)
+        World level = player.level;
+        if (level instanceof ServerWorld)
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                     new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.LIFT));
+
+        level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
+                SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
+
+        if (level instanceof ServerWorld) return;
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+                PortalGunGrabSoundClient.handlePacket(player, true));
     }
 
     public static void dropCube(PlayerEntity player, boolean toBeThrown, ItemStack gun) {
+        player.level.playSound(player, player,
+                SoundInit.PORTALGUN_DROP.get(), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+                PortalGunGrabSoundClient.handlePacket(player, false));
+
         List<Entity> cubes = player.getPassengers();
         for (int i = cubes.size() - 1; i >= 0; --i) {
             Entity cube = cubes.get(0);

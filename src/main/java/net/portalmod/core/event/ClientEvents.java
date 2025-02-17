@@ -376,6 +376,8 @@ public class ClientEvents {
 
                             if (entityRayTraceResult.distanceTo(player) < collisionRayHit.distanceTo(player)) {
                                 entity.startRiding(player);
+                                PortalGun.pickCube(player, player.getMainHandItem());
+
                                 PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
 
                                 consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
