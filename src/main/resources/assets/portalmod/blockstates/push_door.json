@@ -1,10 +1,10 @@
 {
   "variants": {
     "facing=east,half=lower,hinge=left,open=false": {
-      "model": "portalmod:block/push_door_bottom"
+      "model": "portalmod:block/push_door_bottom_hinge"
     },
     "facing=east,half=lower,hinge=left,open=true": {
-      "model": "portalmod:block/push_door_bottom_hinge",
+      "model": "portalmod:block/push_door_bottom",
       "y": 90
     },
     "facing=east,half=lower,hinge=right,open=false": {
@@ -29,11 +29,11 @@
       "y": 270
     },
     "facing=north,half=lower,hinge=left,open=false": {
-      "model": "portalmod:block/push_door_bottom",
+      "model": "portalmod:block/push_door_bottom_hinge",
       "y": 270
     },
     "facing=north,half=lower,hinge=left,open=true": {
-      "model": "portalmod:block/push_door_bottom_hinge"
+      "model": "portalmod:block/push_door_bottom"
     },
     "facing=north,half=lower,hinge=right,open=false": {
       "model": "portalmod:block/push_door_bottom_hinge",
@@ -59,11 +59,11 @@
       "y": 180
     },
     "facing=south,half=lower,hinge=left,open=false": {
-      "model": "portalmod:block/push_door_bottom",
+      "model": "portalmod:block/push_door_bottom_hinge",
       "y": 90
     },
     "facing=south,half=lower,hinge=left,open=true": {
-      "model": "portalmod:block/push_door_bottom_hinge",
+      "model": "portalmod:block/push_door_bottom",
       "y": 180
     },
     "facing=south,half=lower,hinge=right,open=false": {
@@ -89,11 +89,11 @@
       "model": "portalmod:block/push_door_top"
     },
     "facing=west,half=lower,hinge=left,open=false": {
-      "model": "portalmod:block/push_door_bottom",
+      "model": "portalmod:block/push_door_bottom_hinge",
       "y": 180
     },
     "facing=west,half=lower,hinge=left,open=true": {
-      "model": "portalmod:block/push_door_bottom_hinge",
+      "model": "portalmod:block/push_door_bottom",
       "y": 270
     },
     "facing=west,half=lower,hinge=right,open=false": {
