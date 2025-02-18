@@ -62,7 +62,9 @@ public class Cube extends TestElementEntity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        return entity instanceof PlayerEntity && !entity.hasPassenger(this);
+        return entity instanceof PlayerEntity
+                && !entity.hasPassenger(this)
+                && super.canCollideWith(entity);
     }
 
     @Override
