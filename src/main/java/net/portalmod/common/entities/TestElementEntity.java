@@ -3,6 +3,7 @@ package net.portalmod.common.entities;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
@@ -131,10 +132,7 @@ public abstract class TestElementEntity extends LivingEntity {
         this.yHeadRot = this.yRot;
 
         if (fizzleTicks > this.maxFizzleTime && this.isAlive()) {
-            if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
-                this.dropAllDeathLoot(new DamageSource("fizzle"));
-            }
-            this.remove();
+            this.fizzleKill();
         }
 
         this.setFizzleTicks(fizzleTicks + 1);
@@ -143,21 +141,33 @@ public abstract class TestElementEntity extends LivingEntity {
     /**
      * On the first tick of fizzling
      */
-    private void fizzleInit() {
+    public void fizzleInit() {
         this.setNoGravity(true);
         this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
 
-        if (this.isPassenger() && this.getVehicle() instanceof PlayerEntity) {
-            ((PlayerEntity) this.getVehicle()).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
+        Entity holder = this.getVehicle();
 
-            if (this.getVehicle() instanceof ServerPlayerEntity) {
+        if (this.isPassenger() && holder instanceof PlayerEntity) {
+            ((PlayerEntity) holder).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
+
+            if (holder instanceof ServerPlayerEntity) {
                 CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
-                        (ServerPlayerEntity) this.getVehicle(),
+                        (ServerPlayerEntity) holder,
                         this,
-                        DamageSource.playerAttack((PlayerEntity) this.getVehicle())
+                        DamageSource.playerAttack((PlayerEntity) holder)
                 );
             }
         }
+    }
+
+    /**
+     * On the last tick of fizzling
+     */
+    public void fizzleKill() {
+        if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
+            this.dropAllDeathLoot(new DamageSource("fizzle"));
+        }
+        this.remove();
     }
 
     @Override
