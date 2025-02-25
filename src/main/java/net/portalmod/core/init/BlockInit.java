@@ -153,7 +153,7 @@ public class BlockInit {
             () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
 
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
-            () -> new AntlineBlock(AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_LIGHT_BLUE).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+            () -> new AntlineBlock(AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_LIGHT_BLUE).lightLevel(i -> 7).noCollission().instabreak()/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
     // todo: this emissive rendering stuff likely doesnt work properly because it does not have a simple block model
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",

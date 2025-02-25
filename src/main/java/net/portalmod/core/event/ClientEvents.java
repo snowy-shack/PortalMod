@@ -346,21 +346,25 @@ public class ClientEvents {
 
                 // TODO ray trace on the server too
                 // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and then don't confirm anything
+                // which makes sense because there can be a desync between the two so the server just trusts the client
 
 //                if(rayHit.getType() == RayTraceResult.Type.MISS) {
 //                    return;
 //                }
 
-                if(player.hasPassenger(Cube.class) || player.hasPassenger(TurretEntity.class)) {
+                // Drop cube
+                if (player.hasPassenger(Cube.class) || player.hasPassenger(TurretEntity.class)) {
                     PortalGun.dropCube(player, false, player.getMainHandItem());
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 }
+                // Press button
                 else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < StandingButtonBlock.REACH) {
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
                     consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
                 }
+                // Pick up cube
                 else {
                     try {
 //                        Entity entity = Minecraft.getInstance().crosshairPickEntity;
