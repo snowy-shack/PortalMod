@@ -1,13 +1,13 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [ "Bg" ],
-    "key": {
-        "B": { "item": "portalmod:blackplate" },
-        "g": [
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "portalmod:blackplate" },
+        [
             { "item": "minecraft:dirt" },
             { "item": "minecraft:coarse_dirt" },
             { "item": "minecraft:gravel" }
         ]
-    },
-    "result": { "item": "portalmod:eroded_blackplate" }
+    ],
+    "result": { "item": "portalmod:eroded_blackplate" },
+    "category": "building"
 }

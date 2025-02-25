@@ -1,13 +1,13 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [ "Lg" ],
-    "key": {
-        "L": { "item": "portalmod:lunecast" },
-        "g": [
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "portalmod:lunecast" },
+        [
             { "item": "minecraft:dirt" },
             { "item": "minecraft:coarse_dirt" },
             { "item": "minecraft:gravel" }
         ]
-    },
-    "result": { "item": "portalmod:eroded_lunecast" }
+    ],
+    "result": { "item": "portalmod:eroded_lunecast" },
+    "category": "building"
 }

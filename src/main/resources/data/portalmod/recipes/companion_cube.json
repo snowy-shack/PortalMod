@@ -10,5 +10,6 @@
         "i": { "item": "minecraft:iron_nugget" },
         "o": { "item": "minecraft:golden_apple" }
     },
-    "result": { "item": "portalmod:companion_cube" }
+    "result": { "item": "portalmod:companion_cube" },
+    "category": "redstone"
 }

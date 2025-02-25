@@ -2,12 +2,12 @@ package net.portalmod.common.sorted.gel;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -44,7 +44,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     }
 
     private static void playBounceSound(Entity entity) {
-        entity.level.playSound(null, entity, SoundInit.REPULSION_GEL_BOUNCE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
+        if (entity.level instanceof ClientWorld) return;
+        entity.playSound(SoundInit.REPULSION_GEL_BOUNCE.get(), 1, ModUtil.randomSoundPitch());
     }
 
     public static double checkSpeedInDirection(Entity entity, Direction direction) {

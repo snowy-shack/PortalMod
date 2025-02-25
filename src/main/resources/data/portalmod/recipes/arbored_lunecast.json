@@ -1,13 +1,13 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [ "Lg" ],
-    "key": {
-        "L": { "item": "portalmod:lunecast" },
-        "g": [
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "portalmod:lunecast" },
+        [
             { "item": "minecraft:seagrass" },
             { "item": "minecraft:tall_grass" },
             { "item": "minecraft:grass" }
         ]
-    },
-    "result": { "item": "portalmod:arbored_lunecast" }
+    ],
+    "result": { "item": "portalmod:arbored_lunecast" },
+    "category": "building"
 }

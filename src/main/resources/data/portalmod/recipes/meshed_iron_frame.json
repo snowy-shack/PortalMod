@@ -9,8 +9,6 @@
         "i": { "item": "minecraft:iron_ingot" },
         "x": { "item": "portalmod:wire_mesh" }
     },
-    "result": {
-        "item": "portalmod:meshed_iron_frame",
-        "count": 4
-    }
+    "result": { "item": "portalmod:meshed_iron_frame", "count": 4 },
+    "category": "building"
 }

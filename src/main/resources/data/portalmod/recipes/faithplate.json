@@ -12,5 +12,6 @@
         "a": { "item": "portalmod:antline" },
         "p": { "item": "minecraft:piston" }
     },
-    "result": { "item": "portalmod:faithplate" }
+    "result": { "item": "portalmod:faithplate" },
+    "category": "redstone"
 }

@@ -41,7 +41,7 @@ public class GooBlock extends FlowingFluidBlock {
         entity.fallDistance = 0;
 
         float damage = 4;
-        for (ItemStack itemStack: entity.getArmorSlots()) {
+        for (ItemStack itemStack : entity.getArmorSlots()) {
             if (itemStack.getItem().is(ItemTagInit.GOO_PROTECTION)) {
                 damage = 0.2f;
                 break;

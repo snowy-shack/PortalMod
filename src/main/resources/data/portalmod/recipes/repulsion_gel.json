@@ -1,15 +1,10 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        "a",
-        "b",
-        "u"
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "minecraft:slime_ball" },
+        { "item": "minecraft:warped_wart_block" },
+        { "item": "portalmod:container" }
     ],
-    "key": {
-        "a": { "item": "minecraft:warped_wart_block" },
-        "b": { "item": "minecraft:slime_ball" },
-        "u": { "item": "portalmod:container" }
-    },
     "result": { "item": "portalmod:repulsion_gel" },
-    "group": "repulsion_gel"
+    "category": "misc"
 }

@@ -1,11 +1,12 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "nnn",
-        "nnn"
+        "ww",
+        "ww"
     ],
     "key": {
-        "n": { "item": "minecraft:iron_nugget" }
+        "w": { "item": "portalmod:wire_mesh" }
     },
-    "result": { "item": "portalmod:wire_mesh_block" }
+    "result": { "item": "portalmod:wire_mesh_block" },
+    "category": "building"
 }

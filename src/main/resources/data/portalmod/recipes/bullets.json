@@ -4,8 +4,6 @@
         { "item": "minecraft:gunpowder" },
         { "item": "minecraft:gold_ingot" }
     ],
-    "result": {
-        "item": "portalmod:bullets",
-        "count": 4
-    }
+    "result": { "item": "portalmod:bullets", "count": 4 },
+    "category": "misc"
 }

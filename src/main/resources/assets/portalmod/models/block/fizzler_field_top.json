@@ -1,17 +1,7 @@
 {
-	"ambientocclusion": false,
+	"parent": "portalmod:block/pane",
 	"textures": {
-		"base":    "portalmod:block/fizzler_field_top",
-		"particle": "#base"
-	},
-	"elements": [
-		{
-			"from": [ 8,  0,  0],
-			"to":   [ 8, 16, 16],
-			"faces": {
-				"east": {"uv": [ 0,  0, 16, 16], "texture": "#base"},
-				"west": {"uv": [ 0,  0, 16, 16], "texture": "#base"}
-			}
-		}
-	]
+		"left":     "portalmod:block/fizzler_field_top",
+		"right":    "portalmod:block/fizzler_field_top"
+	}
 }

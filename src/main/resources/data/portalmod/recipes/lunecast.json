@@ -8,8 +8,6 @@
         "#": { "item": "minecraft:end_stone" },
         "Q": { "item": "minecraft:quartz" }
     },
-    "result": {
-        "item": "portalmod:lunecast",
-        "count": 4
-    }
+    "result": { "item": "portalmod:lunecast", "count": 4 },
+    "category": "building"
 }

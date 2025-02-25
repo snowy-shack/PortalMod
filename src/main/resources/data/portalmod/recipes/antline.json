@@ -2,10 +2,7 @@
     "type": "minecraft:crafting_shapeless",
     "ingredients": [
         { "item": "minecraft:glowstone_dust" },
-        { "item": "minecraft:light_blue_dye" }
+        { "item": "minecraft:slime_ball" }
     ],
-    "result": {
-        "item": "portalmod:bullets",
-        "count": 4
-    }
+    "result": { "item": "portalmod:antline", "count": 4 }
 }

@@ -1,14 +1,9 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [ "Lg" ],
-    "key": {
-        "L": { "item": "portalmod:lunecast" },
-        "g": [
-            { "item": "minecraft:stone" },
-            { "item": "minecraft:andesite" },
-            { "item": "minecraft:granite" },
-            { "item": "minecraft:diorite" }
-        ]
-    },
-    "result": { "item": "portalmod:vintage_lunecast" }
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        { "item": "portalmod:lunecast" },
+        { "tag": "minecraft:planks" }
+    ],
+    "result": { "item": "portalmod:vintage_lunecast" },
+    "category": "building"
 }

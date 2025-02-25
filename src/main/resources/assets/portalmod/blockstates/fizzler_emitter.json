@@ -66,31 +66,51 @@
       "when": {"half": "upper", "facing": "east", "active": "false"}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_field_bottom"},
+      "apply": {"model": "portalmod:block/fizzler_field_bottom_directional"},
       "when": {"OR": [
-          {"half": "lower", "facing": "north", "active": "true"},
-          {"half": "lower", "facing": "south", "active": "true"}
+          {"half": "lower", "facing": "north", "active": "true"}
       ]}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_field_top"},
+      "apply": {"model": "portalmod:block/fizzler_field_bottom_directional", "y": 180},
       "when": {"OR": [
-          {"half": "upper", "facing": "north", "active": "true"},
-          {"half": "upper", "facing": "south", "active": "true"}
+        {"half": "lower", "facing": "south", "active": "true"}
       ]}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_field_bottom", "y": 90},
+      "apply": {"model": "portalmod:block/fizzler_field_top_directional"},
       "when": {"OR": [
-          {"half": "lower", "facing": "east", "active": "true"},
-          {"half": "lower", "facing": "west", "active": "true"}
+          {"half": "upper", "facing": "north", "active": "true"}
       ]}
     },
     {
-      "apply": {"model": "portalmod:block/fizzler_field_top", "y": 90},
+      "apply": {"model": "portalmod:block/fizzler_field_top_directional", "y": 180},
       "when": {"OR": [
-          {"half": "upper", "facing": "east", "active": "true"},
-          {"half": "upper", "facing": "west", "active": "true"}
+        {"half": "upper", "facing": "south", "active": "true"}
+      ]}
+    },
+    {
+      "apply": {"model": "portalmod:block/fizzler_field_bottom_directional", "y": 90},
+      "when": {"OR": [
+          {"half": "lower", "facing": "east", "active": "true"}
+      ]}
+    },
+    {
+      "apply": {"model": "portalmod:block/fizzler_field_bottom_directional", "y": 270},
+      "when": {"OR": [
+        {"half": "lower", "facing": "west", "active": "true"}
+      ]}
+    },
+    {
+      "apply": {"model": "portalmod:block/fizzler_field_top_directional", "y": 90},
+      "when": {"OR": [
+          {"half": "upper", "facing": "east", "active": "true"}
+      ]}
+    },
+    {
+      "apply": {"model": "portalmod:block/fizzler_field_top_directional", "y": 270},
+      "when": {"OR": [
+        {"half": "upper", "facing": "west", "active": "true"}
       ]}
     }
   ]

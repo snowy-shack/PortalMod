@@ -8,8 +8,6 @@
     "key": {
         "i": { "item": "minecraft:iron_ingot" }
     },
-    "result": {
-        "item": "portalmod:iron_frame",
-        "count": 4
-    }
+    "result": { "item": "portalmod:iron_frame", "count": 4 },
+    "category": "building"
 }

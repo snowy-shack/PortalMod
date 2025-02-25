@@ -9,5 +9,6 @@
         "I": { "item": "minecraft:iron_ingot" },
         "i": { "item": "minecraft:iron_nugget" }
     },
-    "result": { "item": "portalmod:storage_cube" }
+    "result": { "item": "portalmod:storage_cube" },
+    "category": "redstone"
 }

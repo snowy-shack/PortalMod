@@ -8,8 +8,6 @@
         "i": { "item": "minecraft:iron_ingot" },
         "p": { "item": "minecraft:paper" }
     },
-    "result": {
-        "item": "portalmod:container",
-        "count": 3
-    }
+    "result": { "item": "portalmod:container", "count": 3 },
+    "category": "misc"
 }

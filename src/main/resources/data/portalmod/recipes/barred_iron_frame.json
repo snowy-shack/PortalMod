@@ -9,8 +9,6 @@
         "i": { "item": "minecraft:iron_ingot" },
         "x": { "item": "minecraft:iron_bars" }
     },
-    "result": {
-        "item": "portalmod:barred_iron_frame",
-        "count": 4
-    }
+    "result": { "item": "portalmod:barred_iron_frame", "count": 4 },
+    "category": "building"
 }

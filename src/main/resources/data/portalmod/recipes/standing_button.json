@@ -6,13 +6,10 @@
         "b"
     ],
     "key": {
-        "r": [
-            { "item": "minecraft:red_dye" },
-            { "item": "minecraft:yellow_dye" },
-            { "item": "minecraft:cyan_dye" }
-        ],
+        "r": { "item": "minecraft:redstone" },
         "i": { "item": "minecraft:iron_ingot" },
         "b": { "item": "minecraft:blackstone" }
     },
-    "result": { "item": "portalmod:standing_button" }
+    "result": { "item": "portalmod:standing_button" },
+    "category": "redstone"
 }

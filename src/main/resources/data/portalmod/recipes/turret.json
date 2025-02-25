@@ -11,5 +11,6 @@
         "r": { "item": "minecraft:redstone" },
         "/": { "item": "minecraft:stick" }
     },
-    "result": { "item": "portalmod:turret" }
+    "result": { "item": "portalmod:turret" },
+    "category": "misc"
 }

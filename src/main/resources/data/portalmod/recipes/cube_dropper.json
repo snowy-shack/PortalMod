@@ -11,5 +11,6 @@
         "D": { "item": "minecraft:dispenser" },
         "i": { "item": "minecraft:iron_ingot" }
     },
-    "result": { "item": "portalmod:cube_dropper" }
+    "result": { "item": "portalmod:cube_dropper" },
+    "category": "redstone"
 }

@@ -6,12 +6,9 @@
         "/  "
     ],
     "key": {
-        "i": {
-            "item": "minecraft:iron_ingot"
-        },
-        "/": {
-            "item": "minecraft:stick"
-        }
+        "i": { "item": "minecraft:iron_ingot" },
+        "/": { "item": "minecraft:stick" }
     },
-    "result": { "item": "portalmod:wrench" }
+    "result": { "item": "portalmod:wrench" },
+    "category": "equipment"
 }

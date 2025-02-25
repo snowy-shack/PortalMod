@@ -10,8 +10,6 @@
         "d": { "item": "minecraft:diamond" },
         "i": { "item": "minecraft:iron_ingot" }
     },
-    "result": {
-        "item": "portalmod:fizzler_emitter",
-        "count": 2
-    }
+    "result": { "item": "portalmod:fizzler_emitter", "count": 2 },
+    "category": "redstone"
 }

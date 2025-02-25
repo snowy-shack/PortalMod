@@ -12,5 +12,6 @@
         "O": { "item": "minecraft:egg" },
         "w": { "item": "minecraft:wheat" }
     },
-    "result": { "item": "portalmod:forest_cake" }
+    "result": { "item": "portalmod:forest_cake" },
+    "category": "misc"
 }

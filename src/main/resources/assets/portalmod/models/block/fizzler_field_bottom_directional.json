@@ -1,0 +1,7 @@
+{
+	"parent": "portalmod:block/pane",
+	"textures": {
+		"left":     "portalmod:block/fizzler_field_bottom_left",
+		"right":    "portalmod:block/fizzler_field_bottom_right"
+	}
+}

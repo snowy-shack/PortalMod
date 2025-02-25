@@ -9,5 +9,6 @@
         "i": { "item": "minecraft:iron_ingot" },
         "a": { "item": "portalmod:antline" }
     },
-    "result": { "item": "portalmod:chamber_door" }
+    "result": { "item": "portalmod:chamber_door" },
+    "category": "building"
 }

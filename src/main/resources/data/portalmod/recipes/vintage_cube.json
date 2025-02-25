@@ -8,14 +8,8 @@
     "key": {
         "I": { "item": "minecraft:iron_ingot" },
         "i": { "item": "minecraft:iron_nugget" },
-        "o": [
-            { "item": "stripped_oak_log" },
-            { "item": "stripped_spruce_log" },
-            { "item": "stripped_jungle_log" },
-            { "item": "stripped_acacia_log" },
-            { "item": "stripped_dark_oak_log" },
-            { "item": "stripped_birch_log" }
-        ]
+        "o": { "tag": "minecraft:planks" }
     },
-    "result": { "item": "portalmod:vintage_cube" }
+    "result": { "item": "portalmod:vintage_cube" },
+    "category": "redstone"
 }
