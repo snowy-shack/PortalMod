@@ -6,6 +6,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
@@ -15,6 +16,7 @@ import net.portalmod.common.sorted.antline.IndicatorActivated;
 import net.portalmod.common.sorted.antline.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 
@@ -108,6 +110,9 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         // Create new entity using nbt
         Entity entity = EntityType.loadEntityRecursive(this.entityNBT, this.level, e -> {
             e.moveTo(new Vec3(this.getBlockPos().south().east()).to3d());
+            e.yRot = (ModUtil.symmetricRandom(15) + e.rotate(Rotation.getRandom(new Random())));
+            e.setYBodyRot(e.yRot);
+            e.setYHeadRot(e.yRot);
             return e;
         });
 

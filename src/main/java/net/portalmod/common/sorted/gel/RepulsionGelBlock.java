@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.gel;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -43,8 +42,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         gelAffected.setLastNeurtalHeight(0);
     }
 
-    private static void playBounceSound(Entity entity) {
-        if (entity.level instanceof ClientWorld) return;
+    public static void playBounceSound(Entity entity) {
         entity.playSound(SoundInit.REPULSION_GEL_BOUNCE.get(), 1, ModUtil.randomSoundPitch());
     }
 

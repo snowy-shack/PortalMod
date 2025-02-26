@@ -1,4 +1,4 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.step;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -15,6 +15,7 @@ import net.minecraft.state.properties.Half;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -51,7 +52,13 @@ public class StepBlock extends Block implements IWaterLoggable {
 
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        if (WrenchItem.usedWrench(player, hand)) {
+        if (player.getItemInHand(hand).getItem() instanceof StepPillarItem || WrenchItem.usedWrench(player, hand)) {
+
+            if (hasPillarBelow(world, pos)) {
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.step.fail"), true);
+                return ActionResultType.SUCCESS;
+            }
+
             BlockState cycled = state.cycle(FORCED_PILLAR);
 
             boolean shouldHavePillar = shouldHavePillar(cycled, world, pos);
@@ -59,7 +66,7 @@ public class StepBlock extends Block implements IWaterLoggable {
 
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.step." + (shouldHavePillar ? "pillar" : "normal")), true);
 
-            WrenchItem.playUseSound(world, player);
+            player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f);
 
             return ActionResultType.SUCCESS;
         }
@@ -82,15 +89,17 @@ public class StepBlock extends Block implements IWaterLoggable {
         Direction clickedFace = context.getClickedFace();
         boolean waterlogged = context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
         boolean pillar = context.getLevel().getBlockState(context.getClickedPos().below()).getBlock() instanceof StepPillarBlock;
-
         BlockState state = this.defaultBlockState().setValue(WATERLOGGED, waterlogged).setValue(PILLAR, pillar);
 
-        if (clickedFace.getAxis() == Direction.Axis.Y) {
-            return state.setValue(HALF, clickedFace.getAxisDirection() == Direction.AxisDirection.POSITIVE ? Half.BOTTOM : Half.TOP);
+        boolean bottom;
+        if (clickedFace.getAxis() == Direction.Axis.Y && context.getPlayer() != null) {
+            // Swap top or bottom when holding shift
+            bottom = (clickedFace.getAxisDirection() == Direction.AxisDirection.POSITIVE) != context.getPlayer().isShiftKeyDown();
         } else {
-            boolean placedOnLowerSide = context.getClickLocation().y - context.getClickedPos().getY() < 0.5;
-            return state.setValue(HALF, placedOnLowerSide ? Half.BOTTOM : Half.TOP);
+            bottom = context.getClickLocation().y - context.getClickedPos().getY() < 0.5;
         }
+
+        return state.setValue(HALF, bottom ? Half.BOTTOM : Half.TOP);
     }
 
     @Override
@@ -104,7 +113,11 @@ public class StepBlock extends Block implements IWaterLoggable {
     }
 
     public static boolean shouldHavePillar(BlockState blockState, IWorld world, BlockPos pos) {
-        return blockState.getValue(FORCED_PILLAR) || world.getBlockState(pos.below()).getBlock() instanceof StepPillarBlock;
+        return blockState.getValue(FORCED_PILLAR) || hasPillarBelow(world, pos);
+    }
+
+    private static boolean hasPillarBelow(IWorld world, BlockPos pos) {
+        return world.getBlockState(pos.below()).getBlock() instanceof StepPillarBlock;
     }
 
     @Override

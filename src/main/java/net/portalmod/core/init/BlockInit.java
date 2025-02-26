@@ -28,6 +28,8 @@ import net.portalmod.common.sorted.panel.LargePanelBlock;
 import net.portalmod.common.sorted.panel.SmallPanelBlock;
 import net.portalmod.common.sorted.pellet.PelletLauncherBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
+import net.portalmod.common.sorted.step.StepBlock;
+import net.portalmod.common.sorted.step.StepPillarBlock;
 
 public class BlockInit {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortalMod.MODID);

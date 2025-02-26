@@ -140,19 +140,18 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void shoot() {
-        // This is awkward advancement
-        if (this.targetEntity == null || this.targetEntity != this.previousTargetEntity) {
-            this.thisTargetShootingTicks = 0;
-        }
-
         if (this.targetEntity == null || WrenchItem.holdingWrench(this.targetEntity) || this.turretView(targetEntity) == HitType.TRANSPARENT) {
             return;
         }
 
-        // This is awkward advancement
-        if (this.targetEntity == this.previousTargetEntity) this.thisTargetShootingTicks++;
-        if (thisTargetShootingTicks > 200 && targetEntity instanceof ServerPlayerEntity) {
-            CriteriaTriggerInit.SURVIVE_TURRET.get().trigger((ServerPlayerEntity) targetEntity);
+        // "This is awkward" advancement
+        if (this.targetEntity == this.previousTargetEntity && this.canShoot()) {
+            this.thisTargetShootingTicks++;
+            if (thisTargetShootingTicks > 200 && targetEntity instanceof ServerPlayerEntity) {
+                CriteriaTriggerInit.SURVIVE_TURRET.get().trigger((ServerPlayerEntity) targetEntity);
+            }
+        } else {
+            this.thisTargetShootingTicks = 0;
         }
 
         // Particles
@@ -445,9 +444,16 @@ public class TurretEntity extends TestElementEntity {
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
-        this.setAmmo(nbt.getInt("Ammo"));
-        this.setInfiniteAmmo(nbt.getBoolean("InfiniteAmmo"));
-        this.setState(TurretState.valueOf(nbt.getString("State")));
+
+        if (nbt.contains("Ammo")) {
+            this.setAmmo(nbt.getInt("Ammo"));
+        }
+        if (nbt.contains("InfiniteAmmo")) {
+            this.setInfiniteAmmo(nbt.getBoolean("InfiniteAmmo"));
+        }
+        if (nbt.contains("State")) {
+            this.setState(TurretState.valueOf(nbt.getString("State")));
+        }
     }
 
     public int getAmmo() {

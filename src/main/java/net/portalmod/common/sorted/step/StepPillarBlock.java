@@ -1,4 +1,4 @@
-package net.portalmod.common.blocks;
+package net.portalmod.common.sorted.step;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

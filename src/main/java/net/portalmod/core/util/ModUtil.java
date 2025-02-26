@@ -69,8 +69,16 @@ public class ModUtil {
         }
     }
 
+    public static float symmetricRandom(float width) {
+        return new Random().nextFloat() * width * 2 - width;
+    }
+
+    public static float symmetricRandom() {
+        return symmetricRandom(1);
+    }
+
     public static float randomSoundPitch(float width) {
-        return 1 + new Random().nextFloat() * width * 2 - width;
+        return 1 + symmetricRandom(width);
     }
 
     public static float randomSoundPitch() {

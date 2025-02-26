@@ -345,8 +345,12 @@ public abstract class TestElementEntity extends LivingEntity {
     @Override
     public void readAdditionalSaveData(CompoundNBT nbt) {
         super.readAdditionalSaveData(nbt);
-        this.setFizzleTicks(nbt.getInt("FizzleTicks"));
-        this.setFromDropper(nbt.getBoolean("FromDropper"));
+        if (nbt.contains("FizzleTicks")) {
+            this.setFizzleTicks(nbt.getInt("FizzleTicks"));
+        }
+        if (nbt.contains("FromDropper")) {
+            this.setFromDropper(nbt.getBoolean("FromDropper"));
+        }
     }
 
     public int getFizzleTicks() {

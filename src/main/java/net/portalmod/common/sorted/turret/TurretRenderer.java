@@ -100,7 +100,14 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
                 .normalize();
 
         // The position that the laser should ease towards
-        Vector3d targetPos = turret.hasTarget() && turret.shouldLaserMove() ? turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0) : turretEyePos.to3d().add(new Vector3d(x, 0, z));
+        Vector3d targetPos;
+        if (turret.hasTarget() && turret.shouldLaserMove()) {
+            // Position at the target
+            targetPos = turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0);
+        } else {
+            // Position 5 blocks in front of the turret, when not looking at anything
+            targetPos = turretEyePos.to3d().add(new Vector3d(x, 0, z).scale(5));
+        }
 
         if (turret.lastLaserPos == Vector3d.ZERO) {
             turret.lastLaserPos = targetPos;

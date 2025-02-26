@@ -14,11 +14,11 @@
         "subtitle": "subtitles.block.radio.transmission"
     },
     "entity.turret.fire": {
-        "sounds": [ "portalmod:mob/turret/fire" ],
+        "sounds": [ "portalmod:entity/turret/fire" ],
         "subtitle": "subtitles.entity.turret.fire"
     },
     "entity.turret.fire_fail": {
-        "sounds": [ "portalmod:mob/turret/fire_fail" ],
+        "sounds": [ "portalmod:entity/turret/fire_fail" ],
         "subtitle": "subtitles.entity.turret.fire_fail"
     },
     "entity.turret.stock": {
@@ -26,11 +26,11 @@
         "subtitle": "subtitles.entity.turret.stock"
     },
     "entity.turret.open": {
-        "sounds": [ "portalmod:mob/turret/open" ],
+        "sounds": [ "portalmod:entity/turret/open" ],
         "subtitle": "subtitles.entity.turret.open"
     },
     "entity.turret.close": {
-        "sounds": [ "portalmod:mob/turret/close" ],
+        "sounds": [ "portalmod:entity/turret/close" ],
         "subtitle": "subtitles.entity.turret.close"
     },
     "entity.player.hurt_goo": {
