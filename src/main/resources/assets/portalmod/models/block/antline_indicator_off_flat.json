@@ -1,8 +1,0 @@
-{
-  "parent": "portalmod:block/antline_indicator",
-  "textures": {
-    "back": "portalmod:block/antline_indicator_back_flat",
-    "front": "portalmod:block/antline_indicator_off_flat",
-    "particle": "portalmod:block/antline_indicator_off_flat"
-  }
-}

@@ -71,6 +71,7 @@
 
   "block.portalmod.antline":           "Antline",
   "block.portalmod.antline_indicator": "Antline Indicator",
+  "block.portalmod.antline_timer":     "Antline Timer",
   "block.portalmod.faithplate":        "Aerial Faith Plate",
   "block.portalmod.super_button":      "Super Button",
   "block.portalmod.standing_button":   "Standing Button",
@@ -116,6 +117,10 @@
   "tooltip.portalmod.antline_indicator_1": "§7Can activate adjacent §cTesting Elements §7when activated",
   "tooltip.portalmod.antline_indicator_2": "§7- §6Wrench§7: Can be configured to reverse output",
   "tooltip.portalmod.antline_indicator_3": "§7- Combine with other §bAntline Indicators §7to have multiple required inputs",
+
+  "tooltip.portalmod.antline_timer_1": "§7Can activate adjacent §cTesting Elements §7when activated",
+  "tooltip.portalmod.antline_timer_2": "§7- Will stay active for a certain amount of time",
+  "tooltip.portalmod.antline_timer_3": "§7- §6Wrench§7: Timer duration can be configured",
 
   "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
   "tooltip.portalmod.antline_2": "§7- Cannot power §cTesting Elements§7 directly",

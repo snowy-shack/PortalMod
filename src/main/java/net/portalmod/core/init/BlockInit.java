@@ -13,6 +13,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.*;
 import net.portalmod.common.sorted.antline.AntlineBlock;
 import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
+import net.portalmod.common.sorted.antline.AntlineTimerBlock;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.common.sorted.cubedropper.CubeDropperBlock;
@@ -158,6 +159,9 @@ public class BlockInit {
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
             () -> new AntlineIndicatorBlock(AbstractBlock.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+
+    public static final RegistryObject<Block> ANTLINE_TIMER = BLOCKS.register("antline_timer",
+            () -> new AntlineTimerBlock(AbstractBlock.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
 
     public static final RegistryObject<Block> FIZZLER_EMITTER = BLOCKS.register("fizzler_emitter",
             () -> new FizzlerEmitterBlock(stoneCopy(MaterialColor.COLOR_BLACK).noOcclusion().lightLevel(blockState -> blockState.getValue(FizzlerEmitterBlock.ACTIVE) ? 10 : 0)));
