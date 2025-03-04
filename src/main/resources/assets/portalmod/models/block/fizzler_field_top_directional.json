@@ -1,5 +1,5 @@
 {
-	"parent": "portalmod:block/pane",
+	"parent": "portalmod:block/pane_emissive",
 	"textures": {
 		"left":     "portalmod:block/fizzler_field_top_left",
 		"right":    "portalmod:block/fizzler_field_top_right"
