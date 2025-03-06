@@ -17,8 +17,10 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class ModUtil {
     public static VoxelShape moveVoxelShape(VoxelShape shape, Direction direction, int multiplier) {
@@ -106,7 +108,7 @@ public class ModUtil {
         );
     }
 
-    public static void sendChat(World level, Object text) {
-        sendChat(level, (text == null) ? "null" : text.toString());
+    public static void sendChat(World level, Object... text) {
+        sendChat(level, Arrays.stream(text).map(t -> (t == null) ? "null" : t.toString()).collect(Collectors.joining(" ")));
     }
 }
