@@ -66,7 +66,7 @@ public class ChamberSignEntity extends HangingEntity {
             }
             // Progress
             else if (pixelYCoordinate > 15.5) {
-                this.setProgress((int) (pixelXCoordinate / 2 - 1));
+                this.setProgress((int) Math.floor(pixelXCoordinate / 2 - 1));
             }
             // Upper Icons
             else {
