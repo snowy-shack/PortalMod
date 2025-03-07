@@ -109,26 +109,6 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
     @Override
     public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
         Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
-        List<BlockPos> list = this.getAdjacentPositions(blockState, pos);
-
-        BlockPos abovePos = pos.above(2);
-        BlockState aboveState = world.getBlockState(abovePos);
-
-        if (aboveState.getBlock() instanceof FizzlerEmitterBlock && aboveState.getValue(FizzlerEmitterBlock.FACING) == facing) {
-            list.addAll(this.getAdjacentPositions(aboveState, abovePos));
-        }
-
-        BlockPos belowPos = pos.below();
-        BlockState belowState = world.getBlockState(belowPos);
-        if (belowState.getBlock() instanceof FizzlerEmitterBlock && belowState.getValue(FizzlerEmitterBlock.FACING) == facing) {
-            list.addAll(this.getAdjacentPositions(belowState, belowPos.below()));
-        }
-
-        return list;
-    }
-
-    public List<BlockPos> getAdjacentPositions(BlockState blockState, BlockPos pos) {
-        Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
 
         return new ArrayList<>(Arrays.asList(
                 pos.relative(facing.getClockWise()),
