@@ -3,6 +3,7 @@ package net.portalmod.core.util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
@@ -15,6 +16,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.portalmod.PortalMod;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 
 import java.util.Arrays;
@@ -91,19 +93,19 @@ public class ModUtil {
         return randomSoundPitch(0.075f);
     }
 
-    public static void sendClientChat(String text) {
-        if (Minecraft.getInstance().level == null) return;
-        sendChat(Minecraft.getInstance().level, text);
-    }
-
-    public static void sendClientChat(Object text) {
-        sendClientChat(text.toString());
+    public static void sendChatSinglePlayer(Object... text) {
+        ClientWorld clientWorld = Minecraft.getInstance().level;
+        if (clientWorld == null) {
+            PortalMod.LOGGER.error("Tried to send a client chat message while not in a client environment");
+            return;
+        }
+        sendChat(clientWorld, text);
     }
 
     public static void sendChat(World level, String text) {
         level.players().forEach(
-                player -> player.displayClientMessage(
-                        new StringTextComponent("§7§l[Debug]: §r" + ((text == null) ? "null" : text)
+                player -> player.displayClientMessage(new StringTextComponent(
+                        (level.isClientSide() ? "§3§l[Client" : "§7§l[Server") + "]: §r" + ((text == null) ? "null" : text)
                 ), false)
         );
     }
