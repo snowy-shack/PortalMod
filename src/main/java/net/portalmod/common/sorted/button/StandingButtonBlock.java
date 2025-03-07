@@ -217,6 +217,6 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
     @Override
     public Direction getHorsedOn(BlockState state) {
-        return Direction.DOWN;
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? Direction.DOWN : null;
     }
 }
