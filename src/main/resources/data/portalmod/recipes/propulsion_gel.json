@@ -1,7 +1,7 @@
 {
     "type": "minecraft:crafting_shapeless",
     "ingredients": [
-        { "item": "minecraft:soul_soil" },
+        { "item": "minecraft:crimson_fungus" },
         { "item": "minecraft:blaze_powder" },
         { "item": "portalmod:container" }
     ],
