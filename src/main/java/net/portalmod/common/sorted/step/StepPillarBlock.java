@@ -15,10 +15,12 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+import net.portalmod.common.blocks.CustomPushBehavior;
 
 import javax.annotation.Nullable;
 
-public class StepPillarBlock extends Block implements IWaterLoggable {
+public class StepPillarBlock extends Block implements IWaterLoggable, CustomPushBehavior {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -54,5 +56,15 @@ public class StepPillarBlock extends Block implements IWaterLoggable {
     @Override
     public FluidState getFluidState(BlockState blockState) {
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+    }
+
+    @Override
+    public boolean isStickyBlock(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
+        return dir.getAxis() == Direction.Axis.Y;
     }
 }
