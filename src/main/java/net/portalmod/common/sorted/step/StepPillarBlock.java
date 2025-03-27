@@ -7,6 +7,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
@@ -22,27 +23,40 @@ import javax.annotation.Nullable;
 
 public class StepPillarBlock extends Block implements IWaterLoggable, CustomPushBehavior {
 
+    public static final VoxelShape SHAPE_X = Block.box(0, 5, 5, 16, 11, 11);
+    public static final VoxelShape SHAPE_Y = Block.box(5, 0, 5, 11, 16, 11);
+    public static final VoxelShape SHAPE_Z = Block.box(5, 5, 0, 11, 11, 16);
+
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public StepPillarBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(WATERLOGGED, false)
+                .setValue(FACING, Direction.UP));
     }
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(WATERLOGGED);
+        builder.add(WATERLOGGED, FACING);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
-        return Block.box(5, 0, 5, 11, 16, 11);
+        switch (state.getValue(FACING).getAxis()) {
+            case X: return SHAPE_X;
+            case Y: return SHAPE_Y;
+            default: return SHAPE_Z;
+        }
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        return this.defaultBlockState().setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
+        return this.defaultBlockState()
+                .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER)
+                .setValue(FACING, context.getClickedFace());
     }
 
     @Override
@@ -65,6 +79,6 @@ public class StepPillarBlock extends Block implements IWaterLoggable, CustomPush
 
     @Override
     public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
-        return dir.getAxis() == Direction.Axis.Y;
+        return dir.getAxis() == state.getValue(FACING).getAxis();
     }
 }
