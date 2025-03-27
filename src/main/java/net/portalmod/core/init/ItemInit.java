@@ -18,10 +18,10 @@ import net.portalmod.common.sorted.antline.AntlineBlockItem;
 import net.portalmod.common.sorted.gel.container.EmptyGelContainer;
 import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
+import net.portalmod.common.sorted.platform.PillarItem;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.sign.ChamberSignItem;
-import net.portalmod.common.sorted.step.StepPillarItem;
 import net.portalmod.core.PortalModTab;
 
 public class ItemInit {
@@ -150,13 +150,13 @@ public class ItemInit {
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_STAIRS = registerBlockItem("vintage_blackplate_stairs", BlockInit.VINTAGE_BLACKPLATE_STAIRS);
 
     // Decoration blocks
-    public static final RegistryObject<Item> STEP_PILLAR = ITEMS.register("step_pillar", () ->
-            new StepPillarItem(BlockInit.STEP_PILLAR.get(), properties()));
+    public static final RegistryObject<Item> PILLAR = ITEMS.register("step_pillar", () ->
+            new PillarItem(BlockInit.PILLAR.get(), properties()));
 
-    public static final RegistryObject<Item> LUNECAST_STEP = registerBlockItem("lunecast_step", BlockInit.LUNECAST_STEP);
-    public static final RegistryObject<Item> RUSTY_LUNECAST_STEP = registerBlockItem("rusty_lunecast_step", BlockInit.RUSTY_LUNECAST_STEP);
-    public static final RegistryObject<Item> BLACKPLATE_STEP = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_STEP);
-    public static final RegistryObject<Item> RUSTY_BLACKPLATE_STEP = registerBlockItem("rusty_blackplate_step", BlockInit.RUSTY_BLACKPLATE_STEP);
+    public static final RegistryObject<Item> LUNECAST_PLATFORM = registerBlockItem("lunecast_step", BlockInit.LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> RUSTY_LUNECAST_PLATFORM = registerBlockItem("rusty_lunecast_step", BlockInit.RUSTY_LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> BLACKPLATE_PLATFORM = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_PLATFORM);
+    public static final RegistryObject<Item> RUSTY_BLACKPLATE_PLATFORM = registerBlockItem("rusty_blackplate_step", BlockInit.RUSTY_BLACKPLATE_PLATFORM);
 
     public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
     public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);

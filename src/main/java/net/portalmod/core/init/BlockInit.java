@@ -29,9 +29,9 @@ import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.panel.LargePanelBlock;
 import net.portalmod.common.sorted.panel.SmallPanelBlock;
 import net.portalmod.common.sorted.pellet.PelletLauncherBlock;
+import net.portalmod.common.sorted.platform.PillarBlock;
+import net.portalmod.common.sorted.platform.PlatformBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
-import net.portalmod.common.sorted.step.StepBlock;
-import net.portalmod.common.sorted.step.StepPillarBlock;
 
 public class BlockInit {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortalMod.MODID);
@@ -84,20 +84,20 @@ public class BlockInit {
 
 
 
-    public static final RegistryObject<Block> STEP_PILLAR = BLOCKS.register("step_pillar",
-            () -> new StepPillarBlock(AbstractBlock.Properties.copy(Blocks.LIGHT_GRAY_CONCRETE)));
+    public static final RegistryObject<Block> PILLAR = BLOCKS.register("step_pillar",
+            () -> new PillarBlock(AbstractBlock.Properties.copy(Blocks.LIGHT_GRAY_CONCRETE)));
 
-    public static final RegistryObject<Block> LUNECAST_STEP = BLOCKS.register("lunecast_step",
-            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
+    public static final RegistryObject<Block> LUNECAST_PLATFORM = BLOCKS.register("lunecast_step",
+            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
 
-    public static final RegistryObject<Block> RUSTY_LUNECAST_STEP = BLOCKS.register("rusty_lunecast_step",
-            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
+    public static final RegistryObject<Block> RUSTY_LUNECAST_PLATFORM = BLOCKS.register("rusty_lunecast_step",
+            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
 
-    public static final RegistryObject<Block> BLACKPLATE_STEP = BLOCKS.register("blackplate_step",
-            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    public static final RegistryObject<Block> BLACKPLATE_PLATFORM = BLOCKS.register("blackplate_step",
+            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
-    public static final RegistryObject<Block> RUSTY_BLACKPLATE_STEP = BLOCKS.register("rusty_blackplate_step",
-            () -> new StepBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    public static final RegistryObject<Block> RUSTY_BLACKPLATE_PLATFORM = BLOCKS.register("rusty_blackplate_step",
+            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
 
 
 

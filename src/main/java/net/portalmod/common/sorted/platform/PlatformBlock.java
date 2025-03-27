@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.step;
+package net.portalmod.common.sorted.platform;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -30,7 +30,7 @@ import net.portalmod.common.items.WrenchItem;
 
 import javax.annotation.Nullable;
 
-public class StepBlock extends Block implements IWaterLoggable {
+public class PlatformBlock extends Block implements IWaterLoggable {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
@@ -38,7 +38,7 @@ public class StepBlock extends Block implements IWaterLoggable {
     public static final BooleanProperty FORCED_PILLAR = BooleanProperty.create("forced_pillar");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public StepBlock(Properties properties) {
+    public PlatformBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.UP)
@@ -55,7 +55,7 @@ public class StepBlock extends Block implements IWaterLoggable {
 
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        if (player.getItemInHand(hand).getItem() instanceof StepPillarItem || WrenchItem.usedWrench(player, hand)) {
+        if (player.getItemInHand(hand).getItem() instanceof PillarItem || WrenchItem.usedWrench(player, hand)) {
 
             if (hasPillarBelow(state, world, pos)) {
                 player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.step.fail"), true);
@@ -117,7 +117,7 @@ public class StepBlock extends Block implements IWaterLoggable {
     }
 
     private static boolean hasPillarBelow(BlockState blockState, IWorld world, BlockPos pos) {
-        return world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite())).getBlock() instanceof StepPillarBlock;
+        return world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite())).getBlock() instanceof PillarBlock;
     }
 
     @Override

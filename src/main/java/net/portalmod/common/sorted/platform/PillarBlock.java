@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.step;
+package net.portalmod.common.sorted.platform;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -21,7 +21,7 @@ import net.portalmod.common.blocks.CustomPushBehavior;
 
 import javax.annotation.Nullable;
 
-public class StepPillarBlock extends Block implements IWaterLoggable, CustomPushBehavior {
+public class PillarBlock extends Block implements IWaterLoggable, CustomPushBehavior {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 5, 5, 16, 11, 11);
     public static final VoxelShape SHAPE_Y = Block.box(5, 0, 5, 11, 16, 11);
@@ -30,7 +30,7 @@ public class StepPillarBlock extends Block implements IWaterLoggable, CustomPush
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public StepPillarBlock(Properties properties) {
+    public PillarBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(WATERLOGGED, false)
