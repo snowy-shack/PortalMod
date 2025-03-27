@@ -8,6 +8,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -31,6 +32,7 @@ import javax.annotation.Nullable;
 
 public class StepBlock extends Block implements IWaterLoggable {
 
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
     public static final BooleanProperty PILLAR = BooleanProperty.create("pillar");
     public static final BooleanProperty FORCED_PILLAR = BooleanProperty.create("forced_pillar");
@@ -39,6 +41,7 @@ public class StepBlock extends Block implements IWaterLoggable {
     public StepBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
+                .setValue(FACING, Direction.UP)
                 .setValue(HALF, Half.BOTTOM)
                 .setValue(PILLAR, false)
                 .setValue(FORCED_PILLAR, false)
@@ -47,14 +50,14 @@ public class StepBlock extends Block implements IWaterLoggable {
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF, PILLAR, FORCED_PILLAR, WATERLOGGED);
+        builder.add(FACING, HALF, PILLAR, FORCED_PILLAR, WATERLOGGED);
     }
 
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
         if (player.getItemInHand(hand).getItem() instanceof StepPillarItem || WrenchItem.usedWrench(player, hand)) {
 
-            if (hasPillarBelow(world, pos)) {
+            if (hasPillarBelow(state, world, pos)) {
                 player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.step.fail"), true);
                 return ActionResultType.SUCCESS;
             }
@@ -76,11 +79,7 @@ public class StepBlock extends Block implements IWaterLoggable {
 
     @Override
     public VoxelShape getShape(BlockState blockState, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
-        final double raise = blockState.getValue(HALF) == Half.BOTTOM ? 0 : 8;
-        final VoxelShape SHAPE_PLATFORM = Block.box(0, 3 + raise, 0, 16, 8 + raise, 16);
-        final VoxelShape SHAPE_PILLAR = Block.box(5, 0, 5, 11, 3 + raise, 11);
-
-        return blockState.getValue(PILLAR) ? VoxelShapes.or(SHAPE_PLATFORM, SHAPE_PILLAR) : SHAPE_PLATFORM;
+        return VoxelShapes.block(); // TODO add actual shape
     }
 
     @Nullable
@@ -88,8 +87,9 @@ public class StepBlock extends Block implements IWaterLoggable {
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         Direction clickedFace = context.getClickedFace();
         boolean waterlogged = context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
-        boolean pillar = context.getLevel().getBlockState(context.getClickedPos().below()).getBlock() instanceof StepPillarBlock;
-        BlockState state = this.defaultBlockState().setValue(WATERLOGGED, waterlogged).setValue(PILLAR, pillar);
+        BlockState state = this.defaultBlockState()
+                .setValue(WATERLOGGED, waterlogged)
+                .setValue(FACING, context.getClickedFace());
 
         boolean bottom;
         if (clickedFace.getAxis() == Direction.Axis.Y && context.getPlayer() != null) {
@@ -99,7 +99,8 @@ public class StepBlock extends Block implements IWaterLoggable {
             bottom = context.getClickLocation().y - context.getClickedPos().getY() < 0.5;
         }
 
-        return state.setValue(HALF, bottom ? Half.BOTTOM : Half.TOP);
+        return state.setValue(HALF, bottom ? Half.BOTTOM : Half.TOP)
+                .setValue(PILLAR, hasPillarBelow(state, context.getLevel(), context.getClickedPos()));
     }
 
     @Override
@@ -108,16 +109,15 @@ public class StepBlock extends Block implements IWaterLoggable {
             world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
-        boolean hasPillar = shouldHavePillar(blockState, world, pos);
-        return blockState.setValue(PILLAR, hasPillar);
+        return blockState.setValue(PILLAR, shouldHavePillar(blockState, world, pos));
     }
 
     public static boolean shouldHavePillar(BlockState blockState, IWorld world, BlockPos pos) {
-        return blockState.getValue(FORCED_PILLAR) || hasPillarBelow(world, pos);
+        return blockState.getValue(FORCED_PILLAR) || hasPillarBelow(blockState, world, pos);
     }
 
-    private static boolean hasPillarBelow(IWorld world, BlockPos pos) {
-        return world.getBlockState(pos.below()).getBlock() instanceof StepPillarBlock;
+    private static boolean hasPillarBelow(BlockState blockState, IWorld world, BlockPos pos) {
+        return world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite())).getBlock() instanceof StepPillarBlock;
     }
 
     @Override
