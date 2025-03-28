@@ -1,7 +1,30 @@
 {
   "variants": {
-    "": {
+    "facing=up": {
       "model": "portalmod:block/step_pillar"
+    },
+    "facing=north": {
+      "model": "portalmod:block/step_pillar",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "portalmod:block/step_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "facing=south": {
+      "model": "portalmod:block/step_pillar",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "portalmod:block/step_pillar",
+      "x": 90,
+      "y": 270
+    },
+    "facing=down": {
+      "model": "portalmod:block/step_pillar",
+      "x": 180
     }
   }
 }
