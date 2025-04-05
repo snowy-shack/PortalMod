@@ -151,12 +151,15 @@ public class AntlineBlock extends Block {
             // If it's an element, (un)power it
             if (connectionType == ConnectionType.ELEMENT) {
                 BlockState neighborState = level.getBlockState(friend.pos);
-                if (neighborState.getBlock() instanceof AntlineIndicatorBlock)
-                    AntlineIndicatorBlock.setActive(active, level, friend.pos);
+                Block neighborBlock = neighborState.getBlock();
+
+                // Power indicators
+                if (neighborBlock instanceof AntlineOutput)
+                    ((AntlineOutput) neighborBlock).setActive(active, level, friend.pos);
 
                 // Hit another input, adopt its signal
-                if (neighborState.getBlock() instanceof AntlineActivator) {
-                    newActive = ((AntlineActivator) neighborState.getBlock()).isActive(neighborState);
+                if (neighborBlock instanceof AntlineActivator) {
+                    newActive = ((AntlineActivator) neighborBlock).isActive(neighborState);
 
                     if (newActive && !active) {
                         recursiveSignalChain(level, side, pos, null, newActive, 0);
