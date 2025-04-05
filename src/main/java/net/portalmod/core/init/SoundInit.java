@@ -49,8 +49,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> ANTLINE_INDICATOR_ACTIVATE = register("block.antline_indicator.activate");
     public static final RegistryObject<SoundEvent> ANTLINE_INDICATOR_DEACTIVATE = register("block.antline_indicator.deactivate");
 
-    public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
-    public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
+    public static final RegistryObject<SoundEvent> CAKE_EAT = register("block.black_forest_cake.eat");
+    public static final RegistryObject<SoundEvent> CAKE_EAT_CANDLE = register("block.black_forest_cake.eat_candle");
 
     // ITEM
     public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_PRIMARY = register("item.portalgun.fire_primary");
@@ -59,6 +59,9 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> PORTALGUN_LIFT = register("item.portalgun.lift");
     public static final RegistryObject<SoundEvent> PORTALGUN_HOLD = register("item.portalgun.hold");
     public static final RegistryObject<SoundEvent> PORTALGUN_DROP = register("item.portalgun.drop");
+
+    public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
+    public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
 
     public static final RegistryObject<SoundEvent> WRENCH_USE = register("item.wrench.use");
 
