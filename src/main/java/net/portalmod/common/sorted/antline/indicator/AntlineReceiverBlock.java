@@ -2,13 +2,21 @@ package net.portalmod.common.sorted.antline.indicator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.AttachFace;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.antline.AntlineActivator;
+import net.portalmod.core.util.ModUtil;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class AntlineReceiverBlock extends AntlineDevice implements AntlineActivator, TestElementActivator {
 
@@ -42,5 +50,10 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
     @Override
     public boolean isActive(BlockState state) {
         return state.getValue(POWERED);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip("antline_receiver", list);
     }
 }
