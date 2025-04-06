@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.antline;
+package net.portalmod.common.sorted.antline.indicator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -32,9 +32,9 @@ public interface IndicatorActivated {
         for (BlockPos indicatorPos : positions) {
             BlockState currentState = world.getBlockState(indicatorPos);
             Block block = currentState.getBlock();
-            if (block instanceof AntlineOutput) {
+            if (block instanceof TestElementActivator) {
                 totalIndicators++;
-                if (((AntlineOutput) block).isActive(currentState)) {
+                if (((TestElementActivator) block).isActive(currentState)) {
                     activeIndicators++;
                 }
             }

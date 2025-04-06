@@ -44,7 +44,6 @@ public class ChamberDoorBlock extends MultiBlock {
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     private static final VoxelShapeGroup UPPER = new VoxelShapeGroup.Builder()
             .add(0, 0, 3, 2, 16, 13)
@@ -117,7 +116,7 @@ public class ChamberDoorBlock extends MultiBlock {
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(FACING, OPEN, HALF, SIDE, POWERED);
+        builder.add(FACING, OPEN, HALF, SIDE);
     }
 
     @Override
@@ -145,10 +144,6 @@ public class ChamberDoorBlock extends MultiBlock {
         Direction clickedFace = context.getClickedFace();
 
         BlockState rotated = this.defaultBlockState().setValue(FACING, facing.getOpposite());
-
-        if (world.hasNeighborSignal(pos)) {
-            rotated = rotated.setValue(POWERED, true);
-        }
 
         List<Tuple<DoubleBlockHalf, Side>> possibleStates = new ArrayList<>();
 
@@ -218,10 +213,6 @@ public class ChamberDoorBlock extends MultiBlock {
         playSound(open, blockState, world, pos);
     }
 
-    public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
-        this.setBlockStateValue(POWERED, powered, blockState, world, pos);
-    }
-
     public static void playSound(boolean open, BlockState blockState, World world, BlockPos pos) {
         Vector3d middlePos = getExactMiddlePos(blockState, pos);
         world.playSound(null, middlePos.x, middlePos.y, middlePos.z, open ? SoundInit.CHAMBER_DOOR_OPEN.get() : SoundInit.CHAMBER_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
@@ -230,25 +221,6 @@ public class ChamberDoorBlock extends MultiBlock {
     public static Vector3d getExactMiddlePos(BlockState state, BlockPos pos) {
         Direction facing = state.getValue(FACING);
         return Vector3d.atBottomCenterOf(pos).add(new Vec3(facing.getCounterClockWise().getNormal()).mul(0.5).add(0, 1, 0).to3d());
-    }
-
-    @Override
-    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block p_220069_4_, BlockPos p_220069_5_, boolean p_220069_6_) {
-        if (world.isClientSide) {
-            return;
-        }
-
-        boolean wasPowered = blockState.getValue(POWERED);
-        boolean isPowered = false;
-        for (BlockPos checkingPos : getAllPositions(blockState, pos)) {
-            if (world.hasNeighborSignal(checkingPos)) {
-                isPowered = true;
-            }
-        }
-
-        if (wasPowered != isPowered) {
-            setPowered(isPowered, blockState, world, pos);
-        }
     }
 
     @Override

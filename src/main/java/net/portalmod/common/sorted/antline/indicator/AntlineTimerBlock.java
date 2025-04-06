@@ -1,10 +1,9 @@
-package net.portalmod.common.sorted.antline;
+package net.portalmod.common.sorted.antline.indicator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.AttachFace;
@@ -23,20 +22,18 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class AntlineTimerBlock extends AbstractAntlineIndicatorBlock {
-    public static final BooleanProperty POWERED = BooleanProperty.create("powered");
+public class AntlineTimerBlock extends AbstractAntlineIndicator {
     public static final IntegerProperty TIMER = IntegerProperty.create("timer", 0, 10);
 
     public AntlineTimerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
-                .setValue(POWERED, false)
+                .setValue(ACTIVATED, false)
                 .setValue(AntlineTimerBlock.TIMER, 0)
                 .setValue(REVERSED, false)
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
         );
-        this.initAABBs();
     }
 
     @Override
@@ -49,8 +46,8 @@ public class AntlineTimerBlock extends AbstractAntlineIndicatorBlock {
     @Override
     public void setActive(boolean active, World world, BlockPos pos) {
         // Save antline power
-        if (active != world.getBlockState(pos).getValue(POWERED)) {
-            world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(POWERED, active));
+        if (active != world.getBlockState(pos).getValue(ACTIVATED)) {
+            world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVATED, active));
         }
 
         // If activated, reset timer
@@ -79,7 +76,7 @@ public class AntlineTimerBlock extends AbstractAntlineIndicatorBlock {
         if (level.isClientSide) return;
 
         // Reset if powered by antline
-        if (state.getValue(POWERED)) {
+        if (state.getValue(ACTIVATED)) {
             level.setBlock(pos, state.setValue(TIMER, 1), 2);
             return;
         }
@@ -110,7 +107,7 @@ public class AntlineTimerBlock extends AbstractAntlineIndicatorBlock {
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(TIMER, POWERED);
+        builder.add(TIMER);
     }
 
     @Override

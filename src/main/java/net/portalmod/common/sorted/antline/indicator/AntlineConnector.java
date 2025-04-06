@@ -1,4 +1,4 @@
-package net.portalmod.common.sorted.antline;
+package net.portalmod.common.sorted.antline.indicator;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;

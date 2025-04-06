@@ -12,8 +12,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.entities.TestElementEntity;
-import net.portalmod.common.sorted.antline.IndicatorActivated;
-import net.portalmod.common.sorted.antline.IndicatorInfo;
+import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
+import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
@@ -38,7 +38,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
         CubeDropperBlock dropperBlock = (CubeDropperBlock) blockState.getBlock();
         IndicatorInfo indicatorInfo = this.checkIndicators(blockState, this.level, pos);
-        boolean antlinePowered = blockState.getValue(CubeDropperBlock.POWERED) || indicatorInfo.hasIndicators && indicatorInfo.allIndicatorsActivated;
+        boolean antlinePowered = indicatorInfo.hasIndicators && indicatorInfo.allIndicatorsActivated;
 
         if (this.openTicks > 0) this.openTicks++;
 
