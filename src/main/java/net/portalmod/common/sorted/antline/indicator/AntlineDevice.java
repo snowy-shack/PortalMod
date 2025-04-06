@@ -1,51 +1,34 @@
-package net.portalmod.common.sorted.antline;
+package net.portalmod.common.sorted.antline.indicator;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalFaceBlock;
 import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.*;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 
 /**
- * Handles general antline indicator stuff like the shape and reversed property.
+ * Handles shape and rotation blockstates.
  */
-public abstract class AbstractAntlineIndicatorBlock extends HorizontalFaceBlock implements AntlineOutput {
-    public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
+public class AntlineDevice extends HorizontalFaceBlock implements AntlineConnector {
 
     private static final BiHashMap<Direction, AttachFace, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
-    public AbstractAntlineIndicatorBlock(Properties properties) {
+    public AntlineDevice(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
-        boolean reversed = blockState.getValue(REVERSED);
-        if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
-            world.setBlockAndUpdate(pos, blockState.setValue(REVERSED, !reversed));
-            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
-
-            WrenchItem.playUseSound(world, player);
-            return ActionResultType.SUCCESS;
-        }
-        return ActionResultType.FAIL;
+        this.initAABBs();
     }
 
     protected void initAABBs() {
@@ -79,7 +62,7 @@ public abstract class AbstractAntlineIndicatorBlock extends HorizontalFaceBlock 
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(FACING, REVERSED, FACE);
+        builder.add(FACING, FACE);
     }
 
     @Override
