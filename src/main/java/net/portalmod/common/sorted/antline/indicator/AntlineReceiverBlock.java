@@ -26,6 +26,7 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
         super(properties);
         this.registerDefaultState(stateDefinition.any()
                 .setValue(POWERED, false)
+                .setValue(REVERSED, false)
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
         );
@@ -44,12 +45,13 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
         boolean powered = world.hasNeighborSignal(pos);
         if (powered != state.getValue(POWERED)) {
             world.setBlockAndUpdate(pos, state.setValue(POWERED, powered));
+            this.playActivationSound(powered, world, pos);
         }
     }
 
     @Override
     public boolean isActive(BlockState state) {
-        return state.getValue(POWERED);
+        return state.getValue(POWERED) != state.getValue(REVERSED);
     }
 
     @Override

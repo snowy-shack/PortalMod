@@ -8,14 +8,12 @@ import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.AttachFace;
 import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.core.init.BlockInit;
-import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
@@ -56,9 +54,7 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
             if (state.getValue(TIMER) != 1) {
                 world.setBlockAndUpdate(pos, state.setValue(TIMER, 1));
 
-                world.playSound(null, pos,
-                        SoundInit.ANTLINE_INDICATOR_ACTIVATE.get(),
-                        SoundCategory.BLOCKS, 3, 1);
+                this.playActivationSound(true, world, pos);
             }
             return;
         }
@@ -72,7 +68,7 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
         count(level, pos, state);
     }
 
-    public static void count(World level, BlockPos pos, BlockState state) {
+    public void count(World level, BlockPos pos, BlockState state) {
         if (level.isClientSide) return;
 
         // Reset if powered by antline
@@ -86,9 +82,7 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
         if (count >= 10) {
             level.setBlock(pos, state.setValue(TIMER, 0), 2);
 
-            level.playSound(null, pos,
-                    SoundInit.ANTLINE_INDICATOR_DEACTIVATE.get(),
-                    SoundCategory.BLOCKS, 3, 1);
+            this.playActivationSound(false, level, pos);
 
             return;
         }
