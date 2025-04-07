@@ -34,23 +34,27 @@
         "subtitle": "subtitles.entity.turret.close"
     },
     "entity.player.hurt_goo": {
-        "sounds": [ "portalmod:error" ],
+        "sounds": [
+            "portalmod:entity/player/hurt/goo_hurt1",
+            "portalmod:entity/player/hurt/goo_hurt2",
+            "portalmod:entity/player/hurt/goo_hurt3"
+        ],
         "subtitle": "subtitles.entity.player.hurt"
     },
     "item.bucket.empty_goo": {
       "sounds": [
-        "item/bucket/empty_lava1",
-        "item/bucket/empty_lava2",
-        "item/bucket/empty_lava3"
+        "portalmod:block/goo/place1",
+        "portalmod:block/goo/place2",
+        "portalmod:block/goo/place3"
       ],
       "subtitle": "subtitles.item.bucket.empty"
     },
     "item.bucket.fill_goo": {
-      "sounds": [
-        "item/bucket/fill_lava1",
-        "item/bucket/fill_lava2",
-        "item/bucket/fill_lava3"
-      ],
+        "sounds": [
+            "portalmod:block/goo/place1",
+            "portalmod:block/goo/place2",
+            "portalmod:block/goo/place3"
+        ],
       "subtitle": "subtitles.item.bucket.fill"
     },
     "portal.teleport": {
