@@ -1,0 +1,7 @@
+{
+  "parent": "portalmod:block/cube_part_bottom_tint",
+  "textures": {
+    "side": "portalmod:block/arbored_blackplate_panel_bottom_foliage",
+    "bottom": "portalmod:block/arbored_blackplate_bottom_foliage"
+  }
+}

@@ -52,6 +52,6 @@ public class GooBlock extends FlowingFluidBlock {
     }
 
     public static void handleGooDamage(LivingEntity entity, DamageSource damageSource) {
-        entity.level.playSound(null, entity, entity.getHurtSound(damageSource), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
+//        entity.level.playSound(null, entity, entity.getHurtSound(damageSource), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
     }
 }
