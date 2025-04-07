@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 
 public class AntlineTimerBlock extends AbstractAntlineIndicator {
-    public static final IntegerProperty TIMER = IntegerProperty.create("timer", 0, 10);
+    public static final IntegerProperty TIMER = IntegerProperty.create("timer", 0, 9);
 
     public AntlineTimerBlock(Properties properties) {
         super(properties);
@@ -36,13 +36,16 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
 
     @Override
     public boolean isActive(BlockState blockState) {
-        boolean active = blockState.getValue(TIMER) > 0;
+        boolean active = blockState.getValue(TIMER) < 9;
         boolean reversed = blockState.getValue(REVERSED);
         return active != reversed;
     }
 
     @Override
     public void setActive(boolean active, World world, BlockPos pos) {
+        // Don't allow unpowering when already not activatd, this fixes a loop
+        if (world.getBlockState(pos).getValue(ACTIVATED) == active) return;
+
         // Save antline power
         if (active != world.getBlockState(pos).getValue(ACTIVATED)) {
             world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVATED, active));
@@ -51,8 +54,8 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
         // If activated, reset timer
         if (active) {
             BlockState state = world.getBlockState(pos);
-            if (state.getValue(TIMER) != 1) {
-                world.setBlockAndUpdate(pos, state.setValue(TIMER, 1));
+            if (state.getValue(TIMER) != 8) {
+                world.setBlockAndUpdate(pos, state.setValue(TIMER, 8));
 
                 this.playActivationSound(true, world, pos);
             }
@@ -79,15 +82,15 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
 
         // Done counting
         int count = state.getValue(TIMER);
-        if (count >= 10) {
-            level.setBlock(pos, state.setValue(TIMER, 0), 2);
+        if (count <= 0) {
+            level.setBlock(pos, state.setValue(TIMER, 9), 2);
 
             this.playActivationSound(false, level, pos);
 
             return;
         }
 
-        level.setBlock(pos, state.setValue(TIMER, count + 1), 2);
+        level.setBlock(pos, state.setValue(TIMER, count - 1), 2);
 
         //todo play timer sound?
 
