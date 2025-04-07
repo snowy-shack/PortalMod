@@ -3,14 +3,20 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CakeBlock;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Vec3;
 
 import java.util.Random;
@@ -27,6 +33,16 @@ public class ForestCakeBlock extends CakeBlock {
 
     public ForestCakeBlock(Properties p_i48434_1_) {
         super(p_i48434_1_);
+    }
+
+    @Override
+    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+        ActionResultType used = super.use(blockState, world, pos, player, hand, result);
+        if (used.consumesAction()) {
+            boolean ateCandle = blockState.getValue(BITES) == 0;
+            world.playSound(player, pos, (ateCandle ? SoundInit.CAKE_EAT_CANDLE : SoundInit.CAKE_EAT).get(), SoundCategory.PLAYERS, 1, 1);
+        }
+        return used;
     }
 
     @Override

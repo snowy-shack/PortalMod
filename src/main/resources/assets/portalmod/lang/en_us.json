@@ -214,6 +214,8 @@
   "subtitles.block.cube_dropper.deactivate": "Cube Dropper deactivates",
   "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
   "subtitles.block.gel.collect": "Gel collected",
+  "subtitles.block.black_forest_cake.eat": "Cake gets eaten",
+  "subtitles.block.black_forest_cake.eat_candle": "Cake's candle gets eaten",
 
   "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",

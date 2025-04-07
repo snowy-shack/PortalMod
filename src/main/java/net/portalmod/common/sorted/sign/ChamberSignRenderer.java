@@ -11,7 +11,8 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
 
 public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/chamber_sign/chamber_sign.png");
+    public static final ResourceLocation TEXTURE_ON = new ResourceLocation(PortalMod.MODID, "textures/entity/chamber_sign/chamber_sign_on.png");
+    public static final ResourceLocation TEXTURE_OFF = new ResourceLocation(PortalMod.MODID, "textures/entity/chamber_sign/chamber_sign_off.png");
 
     public final ChamberSignModel model = new ChamberSignModel();
 
@@ -21,6 +22,8 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
 
     @Override
     public void render(ChamberSignEntity entity, float rotation, float b, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i) {
+        boolean enabled = entity.getEnabled();
+
         matrixStack.pushPose();
 
         // Flip for whatever reason
@@ -32,7 +35,7 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
         matrixStack.translate(0, -1.5, 0);
 
         this.model.changeModel(entity);
-        this.model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(this.model.renderType(TEXTURE)), LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        this.model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(this.model.renderType(enabled ? TEXTURE_ON : TEXTURE_OFF)), LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 
         matrixStack.popPose();
 
@@ -41,6 +44,6 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(ChamberSignEntity entity) {
-        return TEXTURE;
+        return TEXTURE_ON;
     }
 }
