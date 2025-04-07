@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/inner_stairs",
+  "parent": "block/slab",
   "textures": {
     "side": "portalmod:block/arbored_blackplate_tiles",
     "bottom": "portalmod:block/arbored_blackplate_bottom",

@@ -1,0 +1,10 @@
+{
+  "multipart": [
+    { "when": { "type": "bottom" }, "apply": { "model": "portalmod:block/arbored_blackplate_slab" } },
+    { "when": { "type": "bottom" }, "apply": { "model": "portalmod:block/arbored_blackplate_slab_foliage" } },
+    { "when": { "type": "top" }, "apply": { "model": "portalmod:block/arbored_blackplate_slab_top" } },
+    { "when": { "type": "top" }, "apply": { "model": "portalmod:block/arbored_blackplate_slab_top_foliage" } },
+    { "when": { "type": "double" }, "apply": { "model": "portalmod:block/arbored_blackplate_tiles" } },
+    { "when": { "type": "double" }, "apply": { "model": "portalmod:block/arbored_blackplate_tiles_foliage" } }
+  ]
+}

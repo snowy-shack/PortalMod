@@ -1,57 +1,29 @@
 {
-  "variants": {
-    "state=single": [
-      {
-        "model": "portalmod:block/arbored_blackplate"
-      },
-      {
-        "model": "portalmod:block/arbored_blackplate",
-        "y": 90
-      },
-      {
-        "model": "portalmod:block/arbored_blackplate",
-        "y": 180
-      },
-      {
-        "model": "portalmod:block/arbored_blackplate",
-        "y": 270
-      }
-    ],
-    "state=top": {
-      "model": "portalmod:block/arbored_blackplate_panel_top"
-    },
-    "state=bottom": {
-      "model": "portalmod:block/arbored_blackplate_panel_bottom"
-    },
-    "axis=z,state=bottom_left": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_bottom"
-    },
-    "axis=z,state=bottom_right": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_bottom",
-      "y": 180
-    },
-    "axis=z,state=top_left": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_top"
-    },
-    "axis=z,state=top_right": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_top",
-      "y": 180
-    },
-    "axis=x,state=bottom_left": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_bottom",
-      "y": 90
-    },
-    "axis=x,state=bottom_right": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_bottom",
-      "y": 270
-    },
-    "axis=x,state=top_left": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_top",
-      "y": 90
-    },
-    "axis=x,state=top_right": {
-      "model": "portalmod:block/arbored_blackplate_panel_corner_top",
-      "y": 270
-    }
-  }
+  "multipart": [
+    { "when": { "state": "single" }, "apply": { "model": "portalmod:block/arbored_blackplate" } },
+    { "when": { "state": "single" }, "apply": { "model": "portalmod:block/arbored_blackplate_foliage" } },
+
+    { "when": { "state": "top" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_top" } },
+    { "when": { "state": "top" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_top_foliage" } },
+    { "when": { "state": "bottom" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_bottom" } },
+    { "when": { "state": "bottom" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_bottom_foliage" } },
+
+    { "when": { "axis": "z", "state": "bottom_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom" } },
+    { "when": { "axis": "z", "state": "bottom_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom_foliage" } },
+    { "when": { "axis": "z", "state": "bottom_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom", "y": 180 } },
+    { "when": { "axis": "z", "state": "bottom_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom_foliage", "y": 180 } },
+    { "when": { "axis": "z", "state": "top_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top" } },
+    { "when": { "axis": "z", "state": "top_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top_foliage" } },
+    { "when": { "axis": "z", "state": "top_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top", "y": 180 } },
+    { "when": { "axis": "z", "state": "top_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top_foliage", "y": 180 } },
+
+    { "when": { "axis": "x", "state": "bottom_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom", "y": 90 } },
+    { "when": { "axis": "x", "state": "bottom_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom_foliage", "y": 90 } },
+    { "when": { "axis": "x", "state": "bottom_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom", "y": 270 } },
+    { "when": { "axis": "x", "state": "bottom_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_bottom_foliage", "y": 270 } },
+    { "when": { "axis": "x", "state": "top_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top", "y": 90 } },
+    { "when": { "axis": "x", "state": "top_left" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top_foliage", "y": 90 } },
+    { "when": { "axis": "x", "state": "top_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top", "y": 270 } },
+    { "when": { "axis": "x", "state": "top_right" }, "apply": { "model": "portalmod:block/arbored_blackplate_panel_corner_top_foliage", "y": 270 } }
+  ]
 }
