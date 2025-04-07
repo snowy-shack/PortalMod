@@ -23,6 +23,7 @@ import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.packet.SSpawnChamberSignPacket;
 
 import javax.annotation.Nullable;
+import java.util.stream.Stream;
 
 public class ChamberSignEntity extends HangingEntity {
 
@@ -37,6 +38,7 @@ public class ChamberSignEntity extends HangingEntity {
     public static final DataParameter<Boolean> DATA_ICON_6 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
     public static final DataParameter<Boolean> DATA_ICON_7 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
     public static final DataParameter<Boolean> DATA_ICON_8 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
+    public static final DataParameter<Boolean> DATA_ENABLED = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
 
     public ChamberSignEntity(EntityType<? extends HangingEntity> p_i48561_1_, World p_i48561_2_) {
         super(p_i48561_1_, p_i48561_2_);
@@ -45,6 +47,23 @@ public class ChamberSignEntity extends HangingEntity {
     public ChamberSignEntity(World world, BlockPos pos, Direction direction) {
         super(EntityInit.CHAMBER_SIGN.get(), world, pos);
         this.setDirection(direction);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        boolean powered = isPowered();
+
+        // Powering disables sign
+        if (powered == this.getEnabled()) {
+            this.setEnabled(!powered);
+        }
+    }
+
+    public boolean isPowered() {
+        Stream<BlockPos> boundingBoxPositions = BlockPos.betweenClosedStream(this.getBoundingBox());
+        return boundingBoxPositions.anyMatch(pos -> this.level.hasNeighborSignal(pos));
     }
 
     @Override
@@ -129,6 +148,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.getEntityData().define(DATA_ICON_6, false);
         this.getEntityData().define(DATA_ICON_7, true);
         this.getEntityData().define(DATA_ICON_8, true);
+        this.getEntityData().define(DATA_ENABLED, true);
     }
 
     @Override
@@ -326,5 +346,13 @@ public class ChamberSignEntity extends HangingEntity {
 
     public void setIcon8(boolean icon8) {
         this.getEntityData().set(DATA_ICON_8, icon8);
+    }
+
+    public boolean getEnabled() {
+        return this.getEntityData().get(DATA_ENABLED);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.getEntityData().set(DATA_ENABLED, enabled);
     }
 }
