@@ -1,0 +1,15 @@
+{
+    "textures": { "particle": "#back" },
+    "parent": "block/block",
+    "elements": [
+        {
+            "from": [ 0, 0, 0 ], "to": [ 16, 16, 16 ],
+            "faces": {
+                "up":    { "texture": "#top",   "tintindex": 0, "cullface": "up" },
+                "south": { "texture": "#back",  "tintindex": 0, "cullface": "south" },
+                "west":  { "texture": "#right", "tintindex": 0, "cullface": "west" },
+                "east":  { "texture": "#left",  "tintindex": 0, "cullface": "east" }
+            }
+        }
+    ]
+}

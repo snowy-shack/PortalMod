@@ -1,12 +1,8 @@
 {
-  "parent": "portalmod:block/cube_bottom_top_foliage",
+  "parent": "block/cube_bottom_top",
   "textures": {
     "side": "portalmod:block/arbored_blackplate",
     "top": "portalmod:block/arbored_blackplate_top",
-    "bottom": "portalmod:block/arbored_blackplate_bottom",
-
-    "side_foliage": "portalmod:block/arbored_blackplate_foliage",
-    "top_foliage": "portalmod:block/arbored_blackplate_top_foliage",
-    "bottom_foliage": "portalmod:block/arbored_blackplate_bottom"
+    "bottom": "portalmod:block/arbored_blackplate_bottom"
   }
 }
