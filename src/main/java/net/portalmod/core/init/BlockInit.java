@@ -29,7 +29,7 @@ import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.panel.LargePanelBlock;
 import net.portalmod.common.sorted.panel.SmallPanelBlock;
 import net.portalmod.common.sorted.pellet.PelletLauncherBlock;
-import net.portalmod.common.sorted.platform.PillarBlock;
+import net.portalmod.common.sorted.platform.PlatformBeamBlock;
 import net.portalmod.common.sorted.platform.PlatformBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 
@@ -84,20 +84,19 @@ public class BlockInit {
 
 
 
-    public static final RegistryObject<Block> PILLAR = BLOCKS.register("step_pillar",
-            () -> new PillarBlock(AbstractBlock.Properties.copy(Blocks.LIGHT_GRAY_CONCRETE)));
+    public static final RegistryObject<Block> PLATFORM_BEAM = BLOCKS.register("platform_beam",
+            () -> new PlatformBeamBlock(AbstractBlock.Properties.copy(Blocks.LIGHT_GRAY_CONCRETE)));
 
-    public static final RegistryObject<Block> LUNECAST_PLATFORM = BLOCKS.register("lunecast_step",
-            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
-
-    public static final RegistryObject<Block> RUSTY_LUNECAST_PLATFORM = BLOCKS.register("rusty_lunecast_step",
-            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
-
-    public static final RegistryObject<Block> BLACKPLATE_PLATFORM = BLOCKS.register("blackplate_step",
-            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
-
-    public static final RegistryObject<Block> RUSTY_BLACKPLATE_PLATFORM = BLOCKS.register("rusty_blackplate_step",
-            () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    public static final RegistryObject<Block> LUNECAST_PLATFORM = registerLunecastPlatform("lunecast_platform");
+    public static final RegistryObject<Block> BLACKPLATE_PLATFORM = registerBlackplatePlatform("blackplate_platform");
+    public static final RegistryObject<Block> ARBORED_LUNECAST_PLATFORM = registerLunecastPlatform("arbored_lunecast_platform");
+    public static final RegistryObject<Block> ARBORED_BLACKPLATE_PLATFORM = registerBlackplatePlatform("arbored_blackplate_platform");
+    public static final RegistryObject<Block> ERODED_LUNECAST_PLATFORM = registerLunecastPlatform("eroded_lunecast_platform");
+    public static final RegistryObject<Block> ERODED_BLACKPLATE_PLATFORM = registerBlackplatePlatform("eroded_blackplate_platform");
+    public static final RegistryObject<Block> FRACTURED_LUNECAST_PLATFORM = registerLunecastPlatform("fractured_lunecast_platform");
+    public static final RegistryObject<Block> FRACTURED_BLACKPLATE_PLATFORM = registerBlackplatePlatform("fractured_blackplate_platform");
+    public static final RegistryObject<Block> VINTAGE_LUNECAST_PLATFORM = registerLunecastPlatform("vintage_lunecast_platform");
+    public static final RegistryObject<Block> VINTAGE_BLACKPLATE_PLATFORM = registerBlackplatePlatform("vintage_blackplate_platform");
 
 
 
@@ -209,6 +208,16 @@ public class BlockInit {
 
     public static RegistryObject<Block> registerBlackplate(String name) {
         return BLOCKS.register(name, () -> new LargePanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+    }
+
+    public static RegistryObject<Block> registerLunecastPlatform(String name) {
+        return BLOCKS.register(name,
+                () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
+    }
+
+    public static RegistryObject<Block> registerBlackplatePlatform(String name) {
+        return BLOCKS.register(name,
+                () -> new PlatformBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerLunecastSlab(String name) {
