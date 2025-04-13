@@ -1,7 +1,7 @@
 {
 	"parent": "block/thin_block",
 	"textures": {
-		"base": "portalmod:block/step_pillar",
+		"base": "portalmod:block/platform_beam",
 		"particle": "#base"
 	},
 	"elements": [

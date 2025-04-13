@@ -18,7 +18,6 @@ import net.portalmod.common.sorted.antline.AntlineBlockItem;
 import net.portalmod.common.sorted.gel.container.EmptyGelContainer;
 import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
-import net.portalmod.common.sorted.platform.PillarItem;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.sign.ChamberSignItem;
@@ -150,13 +149,19 @@ public class ItemInit {
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_STAIRS = registerBlockItem("vintage_blackplate_stairs", BlockInit.VINTAGE_BLACKPLATE_STAIRS);
 
     // Decoration blocks
-    public static final RegistryObject<Item> PILLAR = ITEMS.register("step_pillar", () ->
-            new PillarItem(BlockInit.PILLAR.get(), properties()));
+    public static final RegistryObject<Item> PLATFORM_BEAM = ITEMS.register("platform_beam", () ->
+            new BlockItem(BlockInit.PLATFORM_BEAM.get(), properties()));
 
-    public static final RegistryObject<Item> LUNECAST_PLATFORM = registerBlockItem("lunecast_step", BlockInit.LUNECAST_PLATFORM);
-    public static final RegistryObject<Item> RUSTY_LUNECAST_PLATFORM = registerBlockItem("rusty_lunecast_step", BlockInit.RUSTY_LUNECAST_PLATFORM);
-    public static final RegistryObject<Item> BLACKPLATE_PLATFORM = registerBlockItem("blackplate_step", BlockInit.BLACKPLATE_PLATFORM);
-    public static final RegistryObject<Item> RUSTY_BLACKPLATE_PLATFORM = registerBlockItem("rusty_blackplate_step", BlockInit.RUSTY_BLACKPLATE_PLATFORM);
+    public static final RegistryObject<Item> LUNECAST_PLATFORM = registerBlockItem("lunecast_platform", BlockInit.LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> BLACKPLATE_PLATFORM = registerBlockItem("blackplate_platform", BlockInit.BLACKPLATE_PLATFORM);
+    public static final RegistryObject<Item> ARBORED_LUNECAST_PLATFORM = registerBlockItem("arbored_lunecast_platform", BlockInit.ARBORED_LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> ARBORED_BLACKPLATE_PLATFORM = registerBlockItem("arbored_blackplate_platform", BlockInit.ARBORED_BLACKPLATE_PLATFORM);
+    public static final RegistryObject<Item> ERODED_LUNECAST_PLATFORM = registerBlockItem("eroded_lunecast_platform", BlockInit.ERODED_LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> ERODED_BLACKPLATE_PLATFORM = registerBlockItem("eroded_blackplate_platform", BlockInit.ERODED_BLACKPLATE_PLATFORM);
+    public static final RegistryObject<Item> FRACTURED_LUNECAST_PLATFORM = registerBlockItem("fractured_lunecast_platform", BlockInit.FRACTURED_LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> FRACTURED_BLACKPLATE_PLATFORM = registerBlockItem("fractured_blackplate_platform", BlockInit.FRACTURED_BLACKPLATE_PLATFORM);
+    public static final RegistryObject<Item> VINTAGE_LUNECAST_PLATFORM = registerBlockItem("vintage_lunecast_platform", BlockInit.VINTAGE_LUNECAST_PLATFORM);
+    public static final RegistryObject<Item> VINTAGE_BLACKPLATE_PLATFORM = registerBlockItem("vintage_blackplate_platform", BlockInit.VINTAGE_BLACKPLATE_PLATFORM);
 
     public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
     public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);
