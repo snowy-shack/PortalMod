@@ -1,0 +1,8 @@
+{
+  "parent": "portalmod:block/template_platform_bottom",
+  "textures": {
+    "top": "portalmod:block/fractured_lunecast_top",
+    "side": "portalmod:block/fractured_lunecast_platform_side",
+    "bottom": "portalmod:block/platform_bottom"
+  }
+}

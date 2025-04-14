@@ -151,6 +151,8 @@ public class ItemInit {
     // Decoration blocks
     public static final RegistryObject<Item> PLATFORM_BEAM = ITEMS.register("platform_beam", () ->
             new BlockItem(BlockInit.PLATFORM_BEAM.get(), properties()));
+    public static final RegistryObject<Item> RUSTY_PLATFORM_BEAM = ITEMS.register("rusty_platform_beam", () ->
+            new BlockItem(BlockInit.PLATFORM_BEAM.get(), properties()));
 
     public static final RegistryObject<Item> LUNECAST_PLATFORM = registerBlockItem("lunecast_platform", BlockInit.LUNECAST_PLATFORM);
     public static final RegistryObject<Item> BLACKPLATE_PLATFORM = registerBlockItem("blackplate_platform", BlockInit.BLACKPLATE_PLATFORM);

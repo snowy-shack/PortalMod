@@ -1,0 +1,8 @@
+{
+  "parent": "portalmod:block/template_platform_top_tint",
+  "textures": {
+    "top": "portalmod:block/arbored_blackplate_top_foliage",
+    "side": "portalmod:block/arbored_blackplate_platform_side_foliage",
+    "bottom": "portalmod:block/rusty_platform_bottom"
+  }
+}
