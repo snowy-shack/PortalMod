@@ -166,7 +166,10 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable {
     }
 
     public static boolean hasBeamBelow(BlockState blockState, IWorld world, BlockPos pos) {
-        return world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite())).getBlock() instanceof PlatformBeamBlock;
+        BlockState belowState = world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite()));
+
+        return (belowState.getBlock() instanceof PlatformBeamBlock
+                && belowState.getValue(FACING).getAxis() == blockState.getValue(FACING).getAxis());
     }
 
     public static boolean isBeamItem(Item item) {
