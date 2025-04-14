@@ -86,6 +86,8 @@ public class BlockInit {
 
     public static final RegistryObject<Block> PLATFORM_BEAM = BLOCKS.register("platform_beam",
             () -> new PlatformBeamBlock(AbstractBlock.Properties.copy(Blocks.LIGHT_GRAY_CONCRETE)));
+    public static final RegistryObject<Block> RUSTY_PLATFORM_BEAM = BLOCKS.register("rusty_platform_beam",
+            () -> new PlatformBeamBlock(AbstractBlock.Properties.copy(Blocks.LIGHT_GRAY_CONCRETE)));
 
     public static final RegistryObject<Block> LUNECAST_PLATFORM = registerLunecastPlatform("lunecast_platform");
     public static final RegistryObject<Block> BLACKPLATE_PLATFORM = registerBlackplatePlatform("blackplate_platform");
