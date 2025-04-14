@@ -25,7 +25,7 @@ import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 
 /**
- * Handles shape, rotation and reversed blockstate.
+ * Handles shape, rotation and 'reversed' blockstate for Antline Indicator-like things.
  */
 public class AntlineDevice extends HorizontalFaceBlock implements AntlineConnector {
     private static final BiHashMap<Direction, AttachFace, VoxelShapeGroup> SHAPE = new BiHashMap<>();
