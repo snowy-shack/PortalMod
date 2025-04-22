@@ -2,7 +2,7 @@
   "parent": "portalmod:block/template_platform_top",
   "textures": {
     "top": "portalmod:block/vintage_lunecast_top",
-    "side": "portalmod:block/vintage_lunecast_wood",
-    "bottom": "portalmod:block/vintage_lunecast_wood"
+    "side": "portalmod:block/vintage_lunecast_platform_side",
+    "bottom": "portalmod:block/wood_platform_bottom"
   }
 }
