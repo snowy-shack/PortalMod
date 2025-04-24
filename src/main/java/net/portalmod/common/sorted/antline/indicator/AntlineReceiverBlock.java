@@ -45,7 +45,6 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
         boolean powered = world.hasNeighborSignal(pos);
         if (powered != state.getValue(POWERED)) {
             world.setBlockAndUpdate(pos, state.setValue(POWERED, powered));
-            this.playActivationSound(powered, world, pos);
         }
     }
 

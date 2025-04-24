@@ -35,11 +35,12 @@ public class AntlineIndicatorBlock extends AbstractAntlineIndicator {
 
     @Override
     public void setActive(boolean active, World world, BlockPos pos) {
-        if (world.getBlockState(pos).getValue(ACTIVATED) == active) return;
+        BlockState state = world.getBlockState(pos);
+        if (state.getValue(ACTIVATED) == active) return;
 
-        world.setBlockAndUpdate(pos, world.getBlockState(pos).setValue(ACTIVATED, active));
+        world.setBlockAndUpdate(pos, state.setValue(ACTIVATED, active));
 
-        this.playActivationSound(active, world, pos);
+        this.playActivationSound(active != state.getValue(REVERSED), world, pos);
     }
 
     @Override
