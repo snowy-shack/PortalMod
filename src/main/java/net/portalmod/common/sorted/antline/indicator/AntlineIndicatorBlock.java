@@ -9,33 +9,33 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AntlineIndicatorBlock extends AbstractAntlineIndicator {
+public class AntlineIndicatorBlock extends AntlineOutput implements AntlineActivated, TestElementActivator {
 
     public AntlineIndicatorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
-                .setValue(ACTIVATED, false)
-                .setValue(REVERSED, false)
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(ACTIVATED, false)
+                .setValue(REVERSED, false)
         );
     }
 
     @Override
-    public boolean isActive(BlockState blockState) {
-        boolean active = blockState.getValue(ACTIVATED);
-        boolean reversed = blockState.getValue(REVERSED);
+    public boolean isActive(BlockState state) {
+        boolean active = state.getValue(ACTIVATED);
+        boolean reversed = state.getValue(REVERSED);
         return reversed != active;
     }
 
     @Override
-    public void setActive(boolean active, World world, BlockPos pos) {
-        BlockState state = world.getBlockState(pos);
+    public void setActive(boolean active, BlockState state, World world, BlockPos pos) {
         if (state.getValue(ACTIVATED) == active) return;
 
         world.setBlockAndUpdate(pos, state.setValue(ACTIVATED, active));

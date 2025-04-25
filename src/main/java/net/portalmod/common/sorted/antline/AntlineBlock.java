@@ -23,8 +23,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.common.sorted.antline.indicator.AntlineActivated;
-import net.portalmod.common.sorted.antline.indicator.AntlineConnector;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
@@ -157,7 +155,7 @@ public class AntlineBlock extends Block {
 
                 // Power indicators
                 if (neighborBlock instanceof AntlineActivated)
-                    ((AntlineActivated) neighborBlock).setActive(active, level, friend.pos);
+                    ((AntlineActivated) neighborBlock).setActive(active, neighborState, level, friend.pos);
 
                 // Hit another input, adopt its signal
                 if (neighborBlock instanceof AntlineActivator) {

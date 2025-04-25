@@ -277,4 +277,9 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     public Direction getHorsedOn(BlockState state) {
         return state.getValue(FACING).getOpposite();
     }
+
+    @Override
+    public boolean connectsInDirection(Direction direction, BlockState state) {
+        return direction.getAxis() != state.getValue(FACING).getAxis();
+    }
 }

@@ -19,6 +19,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.util.ModUtil;
 
@@ -26,35 +27,39 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class AntlineTimerBlock extends AbstractAntlineIndicator {
+public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated, TestElementActivator {
     public static final int MAX_DURATION = 20;
+
     public static final IntegerProperty TIMER = IntegerProperty.create("timer", 0, 9);
     public static final IntegerProperty DURATION = IntegerProperty.create("duration", 1, MAX_DURATION + 1);
 
     public AntlineTimerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
-                .setValue(ACTIVATED, false)
-                .setValue(TIMER, 9)
-                .setValue(DURATION, 5)
-                .setValue(REVERSED, false)
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(ACTIVATED, false)
+                .setValue(REVERSED, false)
+                .setValue(TIMER, 9)
+                .setValue(DURATION, 5)
         );
     }
 
     @Override
-    public boolean isActive(BlockState blockState) {
-        boolean active = blockState.getValue(TIMER) < 9;
-        boolean reversed = blockState.getValue(REVERSED);
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(TIMER, DURATION);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        boolean active = state.getValue(TIMER) < 9;
+        boolean reversed = state.getValue(REVERSED);
         return active != reversed;
     }
 
     @Override
-    public void setActive(boolean active, World world, BlockPos pos) {
-        BlockState state = world.getBlockState(pos);
-
-        // Don't allow unpowering when already not activatd, this fixes a loop
+    public void setActive(boolean active, BlockState state, World world, BlockPos pos) {
         if (state.getValue(ACTIVATED) == active) return;
 
         // Save antline power
@@ -130,12 +135,6 @@ public class AntlineTimerBlock extends AbstractAntlineIndicator {
     public static void scheduleTick(BlockState state, World level, BlockPos pos) {
         int ticks = Math.round(state.getValue(DURATION) * 20f / 9f);
         level.getBlockTicks().scheduleTick(pos, BlockInit.ANTLINE_TIMER.get(), ticks);
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(TIMER, DURATION);
     }
 
     @Override

@@ -6,5 +6,5 @@ import net.minecraft.block.BlockState;
  * Testing elements get activated by this interface.
  */
 public interface TestElementActivator {
-    boolean isActive(BlockState blockState);
+    boolean isActive(BlockState state);
 }
