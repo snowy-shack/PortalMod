@@ -110,7 +110,7 @@
         "subtitle": "subtitles.block.antline_indicator.deactivate" },
     "block.antline_timer.tick": {
         "sounds": [ "portalmod:block/antline_indicator/tick" ],
-        "subtitle": "subtitles.block.antline_indicator.tick" },
+        "subtitle": "subtitles.block.antline_timer.tick" },
 
     "block.gel.place": {
         "sounds": [

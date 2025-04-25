@@ -11,6 +11,7 @@ import net.minecraft.state.properties.AttachFace;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
@@ -21,6 +22,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.init.BlockInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
@@ -129,8 +131,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
         }
 
         level.setBlock(pos, state.setValue(TIMER, count - 1), 2);
-
-        //todo play timer sound?
+        level.playSound(null, pos, SoundInit.ANTLINE_TIMER_TICK.get(), SoundCategory.BLOCKS, 3, 1);
 
         scheduleTick(state, level, pos);
     }
