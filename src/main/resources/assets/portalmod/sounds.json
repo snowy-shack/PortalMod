@@ -150,12 +150,12 @@
     "block.cube_dropper.close": {
         "sounds": [ "portalmod:block/cube_dropper/close" ]
     },
-    "block.black_forest_cake.eat": {
-        "sounds": [ "portalmod:block/black_forest_cake/eat" ],
-        "subtitle": "subtitles.block.black_forest_cake.eat"
-    },
     "block.black_forest_cake.eat_candle": {
-        "sounds": [ "portalmod:block/black_forest_cake/eat_candle" ],
+        "sounds": [
+            "portalmod:block/black_forest_cake/eat_candle1",
+            "portalmod:block/black_forest_cake/eat_candle2",
+            "portalmod:block/black_forest_cake/eat_candle3"
+        ],
         "subtitle": "subtitles.block.black_forest_cake.eat_candle"
     },
 
