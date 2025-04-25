@@ -39,11 +39,11 @@ public abstract class AntlineOutput extends AntlineDevice implements AntlineActi
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
             world.setBlockAndUpdate(pos, blockState.setValue(REVERSED, !reversed));
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
+            WrenchItem.playUseSound(world, result.getLocation());
 
-            WrenchItem.playUseSound(world, player);
             return ActionResultType.SUCCESS;
         }
-        return ActionResultType.FAIL;
+        return ActionResultType.PASS;
     }
 
     public void playActivationSound(boolean active, World world, BlockPos pos) {
