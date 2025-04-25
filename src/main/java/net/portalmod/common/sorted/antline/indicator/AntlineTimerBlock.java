@@ -33,7 +33,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     public static final int MAX_DURATION = 20;
 
     public static final IntegerProperty TIMER = IntegerProperty.create("timer", 0, 9);
-    public static final IntegerProperty DURATION = IntegerProperty.create("duration", 1, MAX_DURATION + 1);
+    public static final IntegerProperty DURATION = IntegerProperty.create("duration", 1, MAX_DURATION);
 
     public AntlineTimerBlock(Properties properties) {
         super(properties);
@@ -131,9 +131,25 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
         }
 
         level.setBlock(pos, state.setValue(TIMER, count - 1), 2);
-        level.playSound(null, pos, SoundInit.ANTLINE_TIMER_TICK.get(), SoundCategory.BLOCKS, 3, 1);
+
+        if (this.shouldPlaySound(state.getValue(DURATION), count)) {
+            level.playSound(null, pos, SoundInit.ANTLINE_TIMER_TICK.get(), SoundCategory.BLOCKS, 3, 1);
+        }
 
         scheduleTick(state, level, pos);
+    }
+
+    public boolean shouldPlaySound(int duration, int count) {
+        if (duration >= 5) return true;
+
+        // Don't tick too fast
+        switch (duration) {
+            case 1: return count % 5 == 2;
+            case 2: return count % 3 == 0;
+            case 3:
+            case 4: return count % 2 == 0;
+        }
+        return false;
     }
 
     public static void scheduleTick(BlockState state, World level, BlockPos pos) {
