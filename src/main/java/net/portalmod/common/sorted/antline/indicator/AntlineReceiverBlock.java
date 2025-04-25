@@ -18,8 +18,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AntlineReceiverBlock extends AntlineDevice implements AntlineActivator {
-
+public class AntlineReceiverBlock extends AntlineIcon implements AntlineActivator {
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
     public AntlineReceiverBlock(Properties properties) {
@@ -27,6 +26,7 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(ICON, 0)
                 .setValue(POWERED, false)
         );
     }

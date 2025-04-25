@@ -1,0 +1,7 @@
+{
+  "parent": "portalmod:block/antline_indicator",
+  "textures": {
+    "back": "portalmod:block/antline_indicator_back",
+    "front": "portalmod:block/antline_icon_8"
+  }
+}

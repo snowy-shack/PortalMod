@@ -3,16 +3,12 @@ package net.portalmod.common.sorted.antline.indicator;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -22,7 +18,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AntlineConverterBlock extends AntlineDevice implements AntlineActivated {
+public class AntlineConverterBlock extends AntlineIcon implements AntlineActivated {
     public static final BooleanProperty ACTIVATED = BooleanProperty.create("activated");
 
     public AntlineConverterBlock(Properties properties) {
@@ -30,6 +26,7 @@ public class AntlineConverterBlock extends AntlineDevice implements AntlineActiv
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(ICON, 0)
                 .setValue(ACTIVATED, false)
         );
     }
@@ -70,22 +67,9 @@ public class AntlineConverterBlock extends AntlineDevice implements AntlineActiv
 
     @Override
     public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (!moved && !state.is(newState.getBlock())) {
-            if (state.getValue(ACTIVATED)) {
-                this.updateNeighbours(state, world, pos);
-            }
-
-            super.onRemove(state, world, pos, newState, moved);
+        if (!moved && !state.is(newState.getBlock()) && state.getValue(ACTIVATED)) {
+            this.updateNeighbours(state, world, pos);
         }
-    }
-
-    @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
-        ActionResultType used = super.use(blockState, world, pos, player, hand, result);
-        if (used.consumesAction()) {
-            this.updateNeighbours(blockState, world, pos);
-        }
-        return used;
     }
 
     public void updateNeighbours(BlockState state, World world, BlockPos pos) {
