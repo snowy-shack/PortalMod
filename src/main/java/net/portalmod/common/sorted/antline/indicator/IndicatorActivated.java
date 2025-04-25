@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 import java.util.List;
 
 /**
- * Interface for block which can be activated by Antlines, using Indicators.
+ * Interface for blocks that can be activated by Antlines, using Indicators.
  */
 public interface IndicatorActivated {
     /**

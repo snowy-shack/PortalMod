@@ -18,17 +18,16 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AntlineReceiverBlock extends AntlineDevice implements AntlineActivator, TestElementActivator {
+public class AntlineReceiverBlock extends AntlineDevice implements AntlineActivator {
 
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
     public AntlineReceiverBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
-                .setValue(POWERED, false)
-                .setValue(REVERSED, false)
                 .setValue(FACE, AttachFace.FLOOR)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(POWERED, false)
         );
     }
 
@@ -39,9 +38,7 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
-        super.neighborChanged(state, world, pos, block, neighborPos, b);
-
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos pos1, boolean b) {
         boolean powered = world.hasNeighborSignal(pos);
         if (powered != state.getValue(POWERED)) {
             world.setBlockAndUpdate(pos, state.setValue(POWERED, powered));
@@ -50,7 +47,7 @@ public class AntlineReceiverBlock extends AntlineDevice implements AntlineActiva
 
     @Override
     public boolean isActive(BlockState state) {
-        return state.getValue(POWERED) != state.getValue(REVERSED);
+        return state.getValue(POWERED);
     }
 
     @Override
