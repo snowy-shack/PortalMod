@@ -50,7 +50,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> ANTLINE_INDICATOR_DEACTIVATE = register("block.antline_indicator.deactivate");
     public static final RegistryObject<SoundEvent> ANTLINE_TIMER_TICK = register("block.antline_timer.tick");
 
-    public static final RegistryObject<SoundEvent> CAKE_EAT_CANDLE = register("block.black_forest_cake.eat_candle");
+    public static final RegistryObject<SoundEvent> CAKE_EAT_CANDLE = register("block.forest_cake.eat_candle");
 
     // ITEM
     public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_PRIMARY = register("item.portalgun.fire_primary");
