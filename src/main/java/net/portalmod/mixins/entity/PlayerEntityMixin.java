@@ -41,9 +41,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
         super(entityType, level);
     }
 
-    @Shadow @Nullable private Pose forcedPose;
-
     @Shadow @Final public PlayerAbilities abilities;
+    @Shadow(remap = false) @Nullable private Pose forcedPose;
+
     @Unique
     private boolean clientJustPortaled = false;
 
@@ -152,6 +152,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             }
         }
     }
+
 
     @Inject(
             remap = false,

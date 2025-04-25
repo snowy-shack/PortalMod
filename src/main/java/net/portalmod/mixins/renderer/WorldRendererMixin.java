@@ -28,7 +28,7 @@ public abstract class WorldRendererMixin implements IResourceManagerReloadListen
         });
     }
 
-    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isAir(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z"))
+    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isAir(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z"), remap = false)
     public boolean fizzlerIsAirToo(BlockState instance, IBlockReader blockReader, BlockPos pos) {
         return instance.isAir(blockReader, pos) || instance.getBlock() instanceof FizzlerFieldBlock;
     }
