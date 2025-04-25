@@ -120,19 +120,18 @@
   "tooltip.portalmod.antline_indicator_2": "§7- §6Wrench§7: Reverses the output",
   "tooltip.portalmod.antline_indicator_3": "§7- Combine with other §bAntline Indicators§7 to have multiple required inputs",
 
-  "tooltip.portalmod.antline_timer_1": "§7Can activate adjacent §cTesting Elements §7when activated",
+  "tooltip.portalmod.antline_timer_1": "§7Can activate adjacent §cTesting Elements§7 when activated",
   "tooltip.portalmod.antline_timer_2": "§7- Will stay active for a certain amount of time",
   "tooltip.portalmod.antline_timer_3": "§7- §6Wrench§7: Reverses the output",
   "tooltip.portalmod.antline_timer_4": "§7- §6Wrench + Crouch§7: Configures the timer duration",
 
   "tooltip.portalmod.antline_converter_1": "§7Converts antline power to redstone power",
   "tooltip.portalmod.antline_converter_2": "§7- Allows incorporating redstone contraptions into test chambers without exposed redstone",
-  "tooltip.portalmod.antline_converter_3": "§7- §6Wrench§7: Inverts the redstone signal",
-  "tooltip.portalmod.antline_converter_4": "§7- §6Wrench + Crouch§7: Changes the appearance",
+  "tooltip.portalmod.antline_converter_4": "§7- §6Wrench§7: Changes the appearance",
 
   "tooltip.portalmod.antline_receiver_1": "§7Converts redstone power to antline power",
   "tooltip.portalmod.antline_receiver_2": "§7- Can be used in combination with §bAntline Converters§7 to power testing elements without a direct connection",
-  "tooltip.portalmod.antline_receiver_3": "§7- §6Wrench + Crouch§7: Changes the appearance",
+  "tooltip.portalmod.antline_receiver_3": "§7- §6Wrench§7: Changes the appearance",
 
   "tooltip.portalmod.antline_1": "§7Connects §3Buttons§7 with §bAntline Indicators",
   "tooltip.portalmod.antline_2": "§7- Cannot power §cTesting Elements§7 directly",
