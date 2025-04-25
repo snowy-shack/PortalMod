@@ -32,7 +32,7 @@ public class ChamberSignItem extends Item {
         ItemStack itemstack = context.getItemInHand();
 
         if (playerentity != null && !this.mayPlace(playerentity, direction, itemstack, blockpos1)) {
-            return ActionResultType.FAIL;
+            return ActionResultType.PASS;
         }
 
         World world = context.getLevel();
@@ -53,7 +53,7 @@ public class ChamberSignItem extends Item {
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
 
-        return ActionResultType.FAIL;
+        return ActionResultType.PASS;
     }
 
     protected boolean mayPlace(PlayerEntity player, Direction direction, ItemStack itemStack, BlockPos pos) {
