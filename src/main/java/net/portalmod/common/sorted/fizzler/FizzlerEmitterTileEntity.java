@@ -10,8 +10,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.antline.IndicatorActivated;
-import net.portalmod.common.sorted.antline.IndicatorInfo;
+import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
+import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -28,6 +28,10 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
 
     @Override
     public void tick() {
+        handleAntlineActivation();
+    }
+
+    private void handleAntlineActivation() {
         World world = this.level;
         BlockState blockState = this.getBlockState();
         BlockPos pos = this.getBlockPos();
@@ -36,24 +40,26 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
         Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
         int distance = this.distanceToOtherSide(facing);
 
+        // Redstone powered
         if (blockState.getValue(FizzlerEmitterBlock.POWERED)) {
             if (activated) {
                 this.setActive(false, distance, facing);
             }
-        } else {
-            BlockPos otherFizzlerPos = pos.relative(facing, distance);
-            List<BlockPos> indicatorPositions = getIndicatorPositions(blockState, world, pos);
-            indicatorPositions.addAll(getIndicatorPositions(world.getBlockState(otherFizzlerPos), world, otherFizzlerPos));
-            IndicatorInfo indicatorInfo = this.checkPositions(world, indicatorPositions);
-            if (indicatorInfo.hasIndicators) {
-                if (indicatorInfo.allIndicatorsActivated != activated) {
-                    this.setActive(indicatorInfo.allIndicatorsActivated, distance, facing);
-                }
-            } else {
-                if (!activated) {
-                    this.setActive(true, distance, facing);
-                }
+            return;
+        }
+
+        // Indicator powered
+        IndicatorInfo indicatorInfo = this.checkIndicators(blockState, world, pos);
+        if (indicatorInfo.hasIndicators) {
+            if (indicatorInfo.allIndicatorsActivated != activated) {
+                this.setActive(indicatorInfo.allIndicatorsActivated, distance, facing);
             }
+            return;
+        }
+
+        // No indicators
+        if (!activated) {
+            this.setActive(true, distance, facing);
         }
     }
 

@@ -123,13 +123,13 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             this.checkPressed(blockState, world, pos);
 
-            WrenchItem.playUseSound(world, player);
+            WrenchItem.playUseSound(world, result.getLocation());
 
             updateAdjacentBlocks(blockState, world, pos);
 
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
-        return ActionResultType.FAIL;
+        return ActionResultType.PASS;
     }
 
     private void updateAdjacentBlocks(BlockState blockState, World level, BlockPos pos) {
@@ -276,5 +276,10 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     @Override
     public Direction getHorsedOn(BlockState state) {
         return state.getValue(FACING).getOpposite();
+    }
+
+    @Override
+    public boolean connectsInDirection(Direction direction, BlockState state) {
+        return direction.getAxis() != state.getValue(FACING).getAxis();
     }
 }

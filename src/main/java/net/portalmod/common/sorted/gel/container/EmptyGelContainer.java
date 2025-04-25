@@ -31,7 +31,7 @@ public class EmptyGelContainer extends Item {
 
         // Can't pick up any gel
         if (!(clickedState.getBlock() instanceof AbstractGelBlock) || !clickedState.getValue(sideProperty)) {
-            return ActionResultType.FAIL;
+            return ActionResultType.PASS;
         }
 
         context.getLevel().setBlockAndUpdate(clickedPos, AbstractGelBlock.removeSide(gelSide, clickedState));

@@ -8,6 +8,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -40,7 +41,7 @@ public class ForestCakeBlock extends CakeBlock {
         ActionResultType used = super.use(blockState, world, pos, player, hand, result);
         if (used.consumesAction()) {
             boolean ateCandle = blockState.getValue(BITES) == 0;
-            world.playSound(player, pos, (ateCandle ? SoundInit.CAKE_EAT_CANDLE : SoundInit.CAKE_EAT).get(), SoundCategory.PLAYERS, 1, 1);
+            world.playSound(player, pos, (ateCandle ? SoundInit.CAKE_EAT_CANDLE.get() : SoundEvents.GENERIC_EAT), SoundCategory.PLAYERS, 1, 1);
         }
         return used;
     }
