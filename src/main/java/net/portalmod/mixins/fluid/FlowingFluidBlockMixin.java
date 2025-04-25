@@ -11,7 +11,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.portalmod.core.init.FluidTagInit;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,13 +20,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FlowingFluidBlock.class)
 public abstract class FlowingFluidBlockMixin extends Block implements IBucketPickupHandler {
-    @Shadow @Final private FlowingFluid fluid;
 
     @Shadow protected abstract void fizz(IWorld p_180688_1_, BlockPos p_180688_2_);
 
-    @Shadow public abstract FlowingFluid getFluid();
-
     @Shadow public abstract FluidState getFluidState(BlockState p_204507_1_);
+
+    @Shadow(remap = false) public abstract FlowingFluid getFluid();
 
     public FlowingFluidBlockMixin(Properties p_i48440_1_) {
         super(p_i48440_1_);

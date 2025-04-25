@@ -422,7 +422,7 @@ public class TurretEntity extends TestElementEntity {
             return ActionResultType.SUCCESS;
         }
 
-        return ActionResultType.FAIL;
+        return ActionResultType.PASS;
     }
 
     @Override

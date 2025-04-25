@@ -2,7 +2,6 @@
   "parent": "portalmod:block/antline_indicator",
   "textures": {
     "back": "portalmod:block/antline_indicator_back",
-    "front": "portalmod:block/antline_timer_3",
-    "particle": "portalmod:block/antline_timer_3"
+    "front": "portalmod:block/antline_timer_3"
   }
 }

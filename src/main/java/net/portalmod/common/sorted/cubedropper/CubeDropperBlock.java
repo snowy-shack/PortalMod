@@ -48,7 +48,6 @@ public class CubeDropperBlock extends MultiBlock {
 
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     private static final BiHashMap<DoubleBlockHalf, QuadBlockCorner, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
@@ -293,20 +292,16 @@ public class CubeDropperBlock extends MultiBlock {
                 dropperEntity.removeEntityNBT();
             }
 
-            WrenchItem.playUseSound(world, player);
+            WrenchItem.playUseSound(world, result.getLocation());
 
             return ActionResultType.SUCCESS;
         }
-        return ActionResultType.FAIL;
+        return ActionResultType.PASS;
     }
 
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
         world.playSound(null, pos, open ? SoundInit.CUBE_DROPPER_OPEN.get() : SoundInit.CUBE_DROPPER_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
-    }
-
-    public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
-        this.setBlockStateValue(POWERED, powered, blockState, world, pos);
     }
 
     @Override
@@ -329,27 +324,8 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block p_220069_4_, BlockPos p_220069_5_, boolean p_220069_6_) {
-        if (world.isClientSide) {
-            return;
-        }
-
-        boolean wasPowered = blockState.getValue(POWERED);
-        boolean isPowered = false;
-        for (BlockPos checkingPos : getAllPositions(blockState, pos)) {
-            if (world.hasNeighborSignal(checkingPos)) {
-                isPowered = true;
-            }
-        }
-
-        if (wasPowered != isPowered) {
-            setPowered(isPowered, blockState, world, pos);
-        }
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(CORNER, HALF, POWERED, OPEN);
+        builder.add(CORNER, HALF, OPEN);
     }
 
     @Override
