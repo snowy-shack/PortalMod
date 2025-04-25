@@ -84,10 +84,13 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
 
+        // Handle cycling duration
         if (player.isShiftKeyDown() && WrenchItem.usedWrench(player, hand)) {
             int newDuration = incrementDuration(blockState);
             world.setBlockAndUpdate(pos, blockState.setValue(DURATION, newDuration));
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.antline_timer.duration", newDuration), true);
+            WrenchItem.playUseSound(world, result.getLocation());
+
             return ActionResultType.SUCCESS;
         }
 

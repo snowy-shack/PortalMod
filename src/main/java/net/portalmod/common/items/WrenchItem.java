@@ -33,12 +33,8 @@ public class WrenchItem extends Item {
         super(properties);
     }
 
-    public static void playUseSound(World level, Entity entity) {
-        playUseSound(level, entity.getX(), entity.getY(), entity.getZ());
-    }
-
-    public static void playUseSound(World level, double x, double y, double z) {
-        level.playSound(null, x, y, z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    public static void playUseSound(World world, Vector3d location) {
+        world.playSound(null, location.x, location.y, location.z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
     public static boolean holdingWrench(Entity entity) {

@@ -292,11 +292,11 @@ public class CubeDropperBlock extends MultiBlock {
                 dropperEntity.removeEntityNBT();
             }
 
-            WrenchItem.playUseSound(world, player);
+            WrenchItem.playUseSound(world, result.getLocation());
 
             return ActionResultType.SUCCESS;
         }
-        return ActionResultType.FAIL;
+        return ActionResultType.PASS;
     }
 
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
