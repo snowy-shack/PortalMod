@@ -95,11 +95,14 @@ Antline Device:
         Antline Indicator
         Antline Timer
 
-    Antline Converter:
-        - Activated by antline
-        - Powers redstone
+    Antline Icon:
+        - Icon switching
 
-    Antline Receiver:
-        - Activated by redstone
-        - Powers antline
+        Antline Converter:
+            - Activated by antline
+            - Powers redstone
+
+        Antline Receiver:
+            - Activated by redstone
+            - Powers antline
  */
