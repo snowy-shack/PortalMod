@@ -94,7 +94,7 @@ public class ChamberSignEntity extends HangingEntity {
                 this.toggleIcon(x + y * 4);
             }
 
-            WrenchItem.playUseSound(this.level, this.position().x + pos.x, this.position().y + pos.y, this.position().z + pos.z);
+            WrenchItem.playUseSound(this.level, this.position().add(pos));
             return ActionResultType.SUCCESS;
         }
         return ActionResultType.PASS;

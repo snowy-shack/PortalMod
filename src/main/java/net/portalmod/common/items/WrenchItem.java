@@ -15,6 +15,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
@@ -32,12 +33,8 @@ public class WrenchItem extends Item {
         super(properties);
     }
 
-    public static void playUseSound(World level, Entity entity) {
-        playUseSound(level, entity.getX(), entity.getY(), entity.getZ());
-    }
-
-    public static void playUseSound(World level, double x, double y, double z) {
-        level.playSound(null, x, y, z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    public static void playUseSound(World world, Vector3d location) {
+        world.playSound(null, location.x, location.y, location.z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
     public static boolean holdingWrench(Entity entity) {
@@ -117,6 +114,11 @@ public class WrenchItem extends Item {
 //        }
 //
 //        return super.use(level, player, hand);
+    }
+
+    @Override
+    public boolean doesSneakBypassUse(ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player) {
+        return true;
     }
 
     @Override

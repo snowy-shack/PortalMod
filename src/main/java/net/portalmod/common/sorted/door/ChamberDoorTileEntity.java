@@ -9,8 +9,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.antline.IndicatorActivated;
-import net.portalmod.common.sorted.antline.IndicatorInfo;
+import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
+import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
 
@@ -38,34 +38,33 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         IndicatorInfo indicatorInfo = this.checkIndicators(blockState, world, pos);
         boolean isOpen = blockState.getValue(ChamberDoorBlock.OPEN);
 
-        if (blockState.getValue(ChamberDoorBlock.POWERED)) {
-            if (!isOpen) {
-                doorBlock.setOpen(true, blockState, world, pos);
-            }
-        }
-        else if (indicatorInfo.hasIndicators) {
+        // Powered by indicators
+        if (indicatorInfo.hasIndicators) {
             if (isOpen != indicatorInfo.allIndicatorsActivated) {
                 doorBlock.setOpen(indicatorInfo.allIndicatorsActivated, blockState, world, pos);
             }
+            return;
         }
-        else {
-            boolean hasNearbyPlayer = false;
-            for (PlayerEntity player : world.players()) {
-                if (player.isSpectator()) {
-                    continue;
-                }
-                Vector3d middlePos = ChamberDoorBlock.getExactMiddlePos(blockState, pos);
-                boolean inFront = player.position().subtract(middlePos).multiply(1, 0, 1).dot(new Vec3(facing.getNormal()).to3d()) > 0;
-                double playerDistance = player.position().distanceTo((middlePos));
-                int changeProximity = isOpen ? 4 : 3;  // Open in 3 blocks, close in 4
-                if (playerDistance < changeProximity && inFront || playerDistance < 1.5 && isOpen) {
-                    hasNearbyPlayer = true;
-                    break;
-                }
+
+        Vector3d middlePos = ChamberDoorBlock.getExactMiddlePos(blockState, pos);
+        int changeProximity = isOpen ? 4 : 3;  // Open in 3 blocks, close in 4
+
+        // Powered by nearby player
+        boolean hasNearbyPlayer = false;
+        for (PlayerEntity player : world.players()) {
+            if (player.isSpectator()) {
+                continue;
             }
-            if (isOpen != hasNearbyPlayer) {
-                doorBlock.setOpen(hasNearbyPlayer, blockState, world, pos);
+            boolean inFront = player.position().subtract(middlePos).multiply(1, 0, 1).dot(new Vec3(facing.getNormal()).to3d()) > 0;
+            double playerDistance = player.position().distanceTo((middlePos));
+            if (playerDistance < changeProximity && inFront || isOpen && playerDistance < 1.5) {
+                hasNearbyPlayer = true;
+                break;
             }
+        }
+
+        if (isOpen != hasNearbyPlayer) {
+            doorBlock.setOpen(hasNearbyPlayer, blockState, world, pos);
         }
     }
 

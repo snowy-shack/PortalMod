@@ -12,8 +12,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.*;
 import net.portalmod.common.sorted.antline.AntlineBlock;
-import net.portalmod.common.sorted.antline.AntlineIndicatorBlock;
-import net.portalmod.common.sorted.antline.AntlineTimerBlock;
+import net.portalmod.common.sorted.antline.indicator.AntlineConverterBlock;
+import net.portalmod.common.sorted.antline.indicator.AntlineIndicatorBlock;
+import net.portalmod.common.sorted.antline.indicator.AntlineReceiverBlock;
+import net.portalmod.common.sorted.antline.indicator.AntlineTimerBlock;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.common.sorted.cubedropper.CubeDropperBlock;
@@ -155,6 +157,8 @@ public class BlockInit {
     public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
             () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
 
+
+
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
             () -> new AntlineBlock(AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_LIGHT_BLUE).lightLevel(i -> 7).noCollission().instabreak()/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
     // todo: this emissive rendering stuff likely doesnt work properly because it does not have a simple block model
@@ -164,6 +168,14 @@ public class BlockInit {
 
     public static final RegistryObject<Block> ANTLINE_TIMER = BLOCKS.register("antline_timer",
             () -> new AntlineTimerBlock(AbstractBlock.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+
+    public static final RegistryObject<Block> ANTLINE_CONVERTER = BLOCKS.register("antline_converter",
+            () -> new AntlineConverterBlock(AbstractBlock.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+
+    public static final RegistryObject<Block> ANTLINE_RECEIVER = BLOCKS.register("antline_receiver",
+            () -> new AntlineReceiverBlock(AbstractBlock.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+
+
 
     public static final RegistryObject<Block> FIZZLER_EMITTER = BLOCKS.register("fizzler_emitter",
             () -> new FizzlerEmitterBlock(stoneCopy(MaterialColor.COLOR_BLACK).noOcclusion().lightLevel(blockState -> blockState.getValue(FizzlerEmitterBlock.ACTIVE) ? 10 : 0)));
