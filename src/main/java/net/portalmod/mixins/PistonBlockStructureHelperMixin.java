@@ -27,7 +27,8 @@ public class PistonBlockStructureHelperMixin {
     // fields that are needed because @Redirects cannot capture locals
     @Unique
     private BlockPos pos_addBlockLine;
-    @Unique private BlockPos behindPos_addBlockLine;
+    @Unique
+    private BlockPos behindPos_addBlockLinea;
 
     @Inject(
             method = "addBlockLine",
@@ -40,7 +41,7 @@ public class PistonBlockStructureHelperMixin {
     )
     private void captureBlockLinePositions(BlockPos p_177251_1_, Direction p_177251_2_, CallbackInfoReturnable<Boolean> cir, BlockState blockstate, int i, BlockState oldState, BlockPos blockpos) {
         pos_addBlockLine = blockpos.relative(pushDirection);
-        behindPos_addBlockLine = blockpos;
+        behindPos_addBlockLinea = blockpos;
     }
 
     @Redirect(
@@ -48,12 +49,13 @@ public class PistonBlockStructureHelperMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
-            )
+            ),
+            remap = false
     )
     private boolean onAddBlockLineCanStickToEachOther(BlockState state, BlockState behindState) {
         Block block = state.getBlock();
         if (block instanceof CustomPushBehavior) {
-            return ((CustomPushBehavior) block).isStickyToNeighbor(level, pos_addBlockLine, state, behindPos_addBlockLine, behindState, pushDirection.getOpposite(), pushDirection);
+            return ((CustomPushBehavior) block).isStickyToNeighbor(level, pos_addBlockLine, state, behindPos_addBlockLinea, behindState, pushDirection.getOpposite(), pushDirection);
         }
 
         return state.canStickTo(behindState);
@@ -82,7 +84,8 @@ public class PistonBlockStructureHelperMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
-            )
+            ),
+            remap = false
     )
     private boolean onAddBranchingBlocksCanStickToEachOther(BlockState neighborState, BlockState state, BlockPos pos) {
         Block block = state.getBlock();
