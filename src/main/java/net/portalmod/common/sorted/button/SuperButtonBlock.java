@@ -181,7 +181,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
         if(!state.canSurvive(level, pos))
             level.destroyBlock(pos, true, null, 0);
 
-        if (state.getValue(MODE) == ButtonMode.PERSISTENT && state.getValue(ACTIVE)) {
+        if ((state.getValue(MODE) == ButtonMode.PERSISTENT || state.getValue(MODE) == ButtonMode.TOGGLE) && state.getValue(ACTIVE)) {
             boolean isPowered = false;
             for (BlockPos checkingPos : getAllPositions(state, pos)) {
                 if (level.hasNeighborSignal(checkingPos)) {
