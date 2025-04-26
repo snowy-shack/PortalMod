@@ -14,13 +14,13 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_top"
+        "model": "portalmod:block/rusty_platform_beam_top"
       },
       "when": {"half": "top", "beam": "true", "facing":  "up"}
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_bottom"
+        "model": "portalmod:block/rusty_platform_beam_bottom"
       },
       "when": {"half": "bottom", "beam": "true", "facing":  "up"}
     },
@@ -40,14 +40,14 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_top",
+        "model": "portalmod:block/rusty_platform_beam_top",
         "x": 90
       },
       "when": {"half": "top", "beam": "true", "facing":  "north"}
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_bottom",
+        "model": "portalmod:block/rusty_platform_beam_bottom",
         "x": 90
       },
       "when": {"half": "bottom", "beam": "true", "facing":  "north"}
@@ -70,7 +70,7 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_top",
+        "model": "portalmod:block/rusty_platform_beam_top",
         "x": 90,
         "y": 90
       },
@@ -78,7 +78,7 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_bottom",
+        "model": "portalmod:block/rusty_platform_beam_bottom",
         "x": 90,
         "y": 90
       },
@@ -102,7 +102,7 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_top",
+        "model": "portalmod:block/rusty_platform_beam_top",
         "x": 90,
         "y": 180
       },
@@ -110,7 +110,7 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_bottom",
+        "model": "portalmod:block/rusty_platform_beam_bottom",
         "x": 90,
         "y": 180
       },
@@ -134,7 +134,7 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_top",
+        "model": "portalmod:block/rusty_platform_beam_top",
         "x": 90,
         "y": 270
       },
@@ -142,7 +142,7 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_bottom",
+        "model": "portalmod:block/rusty_platform_beam_bottom",
         "x": 90,
         "y": 270
       },
@@ -164,14 +164,14 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_top",
+        "model": "portalmod:block/rusty_platform_beam_top",
         "x": 180
       },
       "when": {"half": "top", "beam": "true", "facing":  "down"}
     },
     {
       "apply": {
-        "model": "portalmod:block/platform_beam_bottom",
+        "model": "portalmod:block/rusty_platform_beam_bottom",
         "x": 180
       },
       "when": {"half": "bottom", "beam": "true", "facing":  "down"}
