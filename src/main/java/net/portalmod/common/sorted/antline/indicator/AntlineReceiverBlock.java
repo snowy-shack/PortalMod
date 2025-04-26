@@ -46,6 +46,11 @@ public class AntlineReceiverBlock extends AntlineIcon implements AntlineActivato
     }
 
     @Override
+    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
+        return true;
+    }
+
+    @Override
     public boolean isActive(BlockState state) {
         return state.getValue(POWERED);
     }
