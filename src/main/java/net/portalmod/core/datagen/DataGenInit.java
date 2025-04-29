@@ -15,5 +15,6 @@ public class DataGenInit {
         ExistingFileHelper helper = event.getExistingFileHelper();
 
         generator.addProvider(new BlockStateGen(generator, helper));
+        generator.addProvider(new RecipeGen(generator));
     }
 }
