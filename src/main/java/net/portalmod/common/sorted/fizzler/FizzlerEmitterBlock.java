@@ -15,8 +15,8 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -27,7 +27,6 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.BiHashMap;
@@ -39,7 +38,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class FizzlerEmitterBlock extends DoubleBlock {
+public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -85,8 +84,13 @@ public class FizzlerEmitterBlock extends DoubleBlock {
         return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(ACTIVE) ? "active" : "");
     }
 
-    public static VoxelShape getFieldShape(BlockState state) {
+    public VoxelShape getFieldShape(BlockState state) {
         return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant("field");
+    }
+
+    @Override
+    public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
+        return state.getValue(FizzlerEmitterBlock.ACTIVE) && this.getFieldShape(state).bounds().move(pos).intersects(box);
     }
 
 //    @Override
@@ -138,17 +142,18 @@ public class FizzlerEmitterBlock extends DoubleBlock {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
-        if (entity instanceof TestElementEntity) {
-            VoxelShape voxelshape = this.getFieldShape(state);
-            VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
-            VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
-            if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
-                ((TestElementEntity) entity).startFizzling();
-            }
-        }
+//        if (entity instanceof TestElementEntity) {
+//            VoxelShape voxelshape = this.getFieldShape(state);
+//            VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
+//            VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
+//            if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
+//                ((TestElementEntity) entity).startFizzling();
+//            }
+//        }
 
-        if(level.isClientSide)
+        if (level.isClientSide) {
             return;
+        }
 
         if (entity instanceof PlayerEntity) {
             PortalGun.fizzleGun(level, (PlayerEntity) entity);

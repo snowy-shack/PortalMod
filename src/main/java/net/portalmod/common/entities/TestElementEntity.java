@@ -1,6 +1,7 @@
 package net.portalmod.common.entities;
 
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.entity.Entity;
@@ -32,8 +33,7 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.particles.PortalGunSparkParticle;
-import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
-import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
+import net.portalmod.common.sorted.fizzler.Fizzler;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
@@ -98,12 +98,20 @@ public abstract class TestElementEntity extends LivingEntity {
         Stream<BlockPos> collidedPositions = BlockPos.betweenClosedStream(movementBox);
         collidedPositions.forEach(pos -> {
             BlockState state = this.level.getBlockState(pos);
-            if (state.getBlock() instanceof FizzlerFieldBlock && FizzlerFieldBlock.getFieldShape(state).bounds().move(pos).intersects(movementBox)
-                    || state.getBlock() instanceof FizzlerEmitterBlock && FizzlerEmitterBlock.getFieldShape(state).bounds().move(pos).intersects(movementBox)) {
+            if (this.isInsideFizzler(pos, state, movementBox)) {
                 this.startFizzling();
                 this.fizzleTick();
             }
         });
+    }
+
+    private boolean isInsideFizzler(BlockPos pos, BlockState state, AxisAlignedBB box) {
+        Block block = state.getBlock();
+        if (block instanceof Fizzler) {
+            return ((Fizzler) block).isInsideField(box, pos, state);
+        }
+
+        return false;
     }
 
     public void fizzleTick() {
