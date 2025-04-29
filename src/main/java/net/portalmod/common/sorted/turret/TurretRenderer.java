@@ -160,6 +160,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         bufferBuilder.end();
         LASER_BUFFER.upload(bufferBuilder);
 
+        RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
 //        RenderSystem.disableCull(); // Causes transparent texture issues
@@ -170,8 +171,6 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         if (turretState != TurretState.FALLING && turretState != TurretState.DEAD && turret.getHurtTime() == 0) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
         VertexBuffer.unbind();
         DefaultVertexFormats.POSITION_TEX_COLOR.clearBufferState();
-
-        RenderSystem.defaultBlendFunc();
 
         matrixStack.popPose();
 
