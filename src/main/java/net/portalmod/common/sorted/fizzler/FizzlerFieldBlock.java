@@ -11,6 +11,7 @@ import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -29,7 +30,7 @@ import net.portalmod.core.math.VoxelShapeGroup;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FizzlerFieldBlock extends DoubleBlock {
+public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
 
     public FizzlerFieldBlock(Properties properties) {
@@ -69,8 +70,13 @@ public class FizzlerFieldBlock extends DoubleBlock {
 //        return getFieldShape(state);
     }
 
-    public static VoxelShape getFieldShape(BlockState state) {
+    public VoxelShape getFieldShape(BlockState state) {
         return SHAPE.get(state.getValue(AXIS)).getShape();
+    }
+
+    @Override
+    public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
+        return this.getFieldShape(state).bounds().move(pos).intersects(box);
     }
 
     @Override

@@ -49,7 +49,10 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
         }
 
         // Indicator powered
-        IndicatorInfo indicatorInfo = this.checkIndicators(blockState, world, pos);
+        BlockPos otherFizzlerPos = pos.relative(facing, distance);
+        List<BlockPos> indicatorPositions = getIndicatorPositions(blockState, world, pos);
+        indicatorPositions.addAll(getIndicatorPositions(world.getBlockState(otherFizzlerPos), world, otherFizzlerPos));
+        IndicatorInfo indicatorInfo = IndicatorActivated.checkPositions(world, indicatorPositions);
         if (indicatorInfo.hasIndicators) {
             if (indicatorInfo.allIndicatorsActivated != activated) {
                 this.setActive(indicatorInfo.allIndicatorsActivated, distance, facing);
