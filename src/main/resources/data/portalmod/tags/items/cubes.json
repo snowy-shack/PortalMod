@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "portalmod:storage_cube",
+    "portalmod:companion_cube",
+    "portalmod:vintage_cube"
+  ]
+}

@@ -1,9 +1,0 @@
-{
-    "type": "minecraft:crafting_shapeless",
-    "ingredients": [
-        { "item": "portalmod:blackplate" },
-        { "tag": "minecraft:planks" }
-    ],
-    "result": { "item": "portalmod:vintage_blackplate" },
-    "category": "building"
-}

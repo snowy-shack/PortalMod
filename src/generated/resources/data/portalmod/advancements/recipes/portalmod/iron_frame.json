@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "portalmod:antline"
+      "portalmod:iron_frame"
     ]
   },
   "criteria": {
@@ -19,7 +19,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "portalmod:antline"
+        "recipe": "portalmod:iron_frame"
       }
     }
   },

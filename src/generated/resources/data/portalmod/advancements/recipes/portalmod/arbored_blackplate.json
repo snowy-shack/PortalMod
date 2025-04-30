@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "portalmod:antline"
+      "portalmod:arbored_blackplate"
     ]
   },
   "criteria": {
@@ -11,7 +11,7 @@
       "conditions": {
         "items": [
           {
-            "item": "minecraft:crafting_table"
+            "tag": "portalmod:blackplate"
           }
         ]
       }
@@ -19,7 +19,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "portalmod:antline"
+        "recipe": "portalmod:arbored_blackplate"
       }
     }
   },

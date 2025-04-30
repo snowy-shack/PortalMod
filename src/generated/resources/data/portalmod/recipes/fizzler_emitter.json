@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "Bi",
+    "Bd",
+    "Bi"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "B": {
+      "item": "portalmod:blackplate"
+    }
+  },
+  "result": {
+    "item": "portalmod:fizzler_emitter"
+  }
+}

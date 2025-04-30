@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "portalmod:forest_cake"
+    ]
+  },
+  "criteria": {
+    "kill_entity": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {}
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "portalmod:forest_cake"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "kill_entity",
+      "has_the_recipe"
+    ]
+  ]
+}

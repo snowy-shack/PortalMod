@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "bbb",
+    "iai"
+  ],
+  "key": {
+    "b": {
+      "item": "minecraft:blackstone"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "a": {
+      "item": "portalmod:antline"
+    }
+  },
+  "result": {
+    "item": "portalmod:chamber_door"
+  }
+}
