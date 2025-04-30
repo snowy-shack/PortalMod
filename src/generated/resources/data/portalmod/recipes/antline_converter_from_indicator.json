@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "antline_converter",
+  "ingredients": [
+    {
+      "item": "portalmod:antline_indicator"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "result": {
+    "item": "portalmod:antline_converter"
+  }
+}

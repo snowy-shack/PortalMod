@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "gg",
+    "ss",
+    "gg"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:glowstone"
+    },
+    "s": {
+      "tag": "minecraft:signs"
+    }
+  },
+  "result": {
+    "item": "portalmod:chamber_sign"
+  }
+}

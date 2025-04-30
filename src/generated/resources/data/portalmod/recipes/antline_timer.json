@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "portalmod:antline_indicator"
+    },
+    {
+      "item": "minecraft:clock"
+    }
+  ],
+  "result": {
+    "item": "portalmod:antline_timer"
+  }
+}

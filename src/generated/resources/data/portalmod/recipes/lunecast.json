@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "q#",
+    "#q"
+  ],
+  "key": {
+    "q": {
+      "item": "minecraft:quartz"
+    },
+    "#": {
+      "item": "minecraft:end_stone"
+    }
+  },
+  "result": {
+    "item": "portalmod:lunecast",
+    "count": 4
+  }
+}

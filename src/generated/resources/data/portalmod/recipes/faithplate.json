@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ggg",
+    "paa"
+  ],
+  "key": {
+    "g": {
+      "tag": "forge:glass_panes"
+    },
+    "p": [
+      {
+        "item": "minecraft:piston"
+      },
+      {
+        "item": "minecraft:sticky_piston"
+      }
+    ],
+    "a": {
+      "item": "portalmod:antline"
+    }
+  },
+  "result": {
+    "item": "portalmod:faithplate"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "lunecast",
+  "ingredients": [
+    {
+      "item": "portalmod:lunecast"
+    },
+    [
+      {
+        "item": "minecraft:grass"
+      },
+      {
+        "item": "minecraft:tall_grass"
+      },
+      {
+        "item": "minecraft:seagrass"
+      }
+    ]
+  ],
+  "result": {
+    "item": "portalmod:arbored_lunecast"
+  }
+}

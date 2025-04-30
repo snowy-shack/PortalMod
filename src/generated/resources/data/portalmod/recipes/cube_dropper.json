@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "gDg",
+    "iii"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "i": {
+      "item": "minecraft:iron_nugget"
+    },
+    "D": {
+      "item": "minecraft:dispenser"
+    },
+    "g": {
+      "tag": "forge:glass_panes"
+    }
+  },
+  "result": {
+    "item": "portalmod:cube_dropper"
+  }
+}
