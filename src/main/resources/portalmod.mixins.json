@@ -50,7 +50,6 @@
     "renderer.EntityRendererMixin",
     "renderer.FramebufferMixin",
     "renderer.GameRendererMixin",
-    "renderer.LevelRendererMixin",
     "renderer.LevelRendererMixinFinal",
     "renderer.LivingRendererMixin",
     "renderer.WorldRendererMixin"

@@ -464,6 +464,9 @@ public class ClientEvents {
 //        RenderUtil.disableClipPlane(0);
 //        RenderUtil.disableClipPlane(1);
         
+//        PortalEntityRenderer.renderHighlights();
+
+        // BEWARE: PORTAL RENDERING
         PortalRenderer.renderHighlights();
 
 

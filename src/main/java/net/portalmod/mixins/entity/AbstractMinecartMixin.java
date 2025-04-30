@@ -8,7 +8,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalPair;
 import net.portalmod.common.sorted.portal.PortalPairCache;
-import net.portalmod.common.sorted.portal.PortalRenderer;
+import net.portalmod.common.sorted.portal.PortalEntityRenderer;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.common.sorted.portal.ITeleportable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -88,14 +88,14 @@ public class AbstractMinecartMixin {
         Vector3f normal = new Vec3(portal.getDirection().getNormal()).to3f();
         Vector3f normal2 = new Vec3(portal.getDirection().getNormal()).to3f();
         normal.mul(.5f);
-        normal2.mul(PortalRenderer.OFFSET * 10);
+        normal2.mul(PortalEntityRenderer.OFFSET * 10);
         Vector3d portalPos = Vector3d.atCenterOf(portal.blockPosition())
                 .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
 
         Vector3f targetnormal = new Vec3(targetPortal.getDirection().getNormal()).to3f();
         Vector3f targetnormal2 = new Vec3(targetPortal.getDirection().getNormal()).to3f();
         targetnormal.mul(.5f);
-        targetnormal2.mul(PortalRenderer.OFFSET * 10);
+        targetnormal2.mul(PortalEntityRenderer.OFFSET * 10);
         Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
                 .subtract(new Vector3d(targetnormal)).add(new Vector3d(targetnormal2));
 
