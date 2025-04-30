@@ -1,9 +1,13 @@
 package net.portalmod.core.math;
 
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
+
+import javax.annotation.Nullable;
+import java.util.function.Function;
 
 public class Vec3 {
     public double x, y, z;
@@ -32,6 +36,52 @@ public class Vec3 {
 
     public Vec3(Vector3i v) {
         this(v.getX(), v.getY(), v.getZ());
+    }
+
+    public Vec3(Direction d) {
+        this(d.getNormal().getX(), d.getNormal().getY(), d.getNormal().getZ());
+    }
+
+    // constants
+
+    public static Vec3 origin() {
+        return new Vec3(0);
+    }
+
+    public static Vec3 infinity() {
+        return new Vec3(Double.POSITIVE_INFINITY);
+    }
+
+    public static Vec3 xAxis() {
+        return new Vec3(1, 0, 0);
+    }
+
+    public static Vec3 yAxis() {
+        return new Vec3(0, 1, 0);
+    }
+
+    public static Vec3 zAxis() {
+        return new Vec3(0, 0, 1);
+    }
+
+    public static Vec3 fromAxis(Direction.Axis axis) {
+        switch(axis) {
+            case X: return xAxis();
+            case Y: return yAxis();
+            case Z: return zAxis();
+            default: return new Vec3(0);
+        }
+    }
+
+    // choose
+
+    public double choose(Direction.Axis axis) {
+        switch(axis) {
+            case X: return this.x;
+            case Y: return this.y;
+            case Z: return this.z;
+            default: return 0;
+        }
     }
     
     //
@@ -251,6 +301,33 @@ public class Vec3 {
         this.z *= magnitude;
         return this;
     }
+
+    // compute
+
+    public Vec3 compute(Function<Double, Number> f) {
+        this.x = f.apply(this.x).doubleValue();
+        this.y = f.apply(this.y).doubleValue();
+        this.z = f.apply(this.z).doubleValue();
+        return this;
+    }
+
+    // math
+
+    public Vec3 round() {
+        return this.compute(Math::round);
+    }
+
+    public Vec3 floor() {
+        return this.compute(Math::floor);
+    }
+
+    public Vec3 ceil() {
+        return this.compute(Math::ceil);
+    }
+
+    public Vec3 abs() {
+        return this.compute(Math::abs);
+    }
     
     // transform
     
@@ -276,5 +353,10 @@ public class Vec3 {
     
     public Vector3i to3i() {
         return new Vector3i(this.x, this.y, this.z);
+    }
+
+    @Nullable
+    public Direction toDirection() {
+        return Direction.fromNormal((int)this.x, (int)this.y, (int)this.z);
     }
 }

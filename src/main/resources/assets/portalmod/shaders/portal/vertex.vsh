@@ -3,6 +3,7 @@
 attribute vec4 position;
 
 uniform mat4 modelViewProjection;
+uniform vec4 clipPlane;
 
 varying vec2 texCoord;
 

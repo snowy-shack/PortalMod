@@ -644,14 +644,14 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Vector3f normal = new Vec3(this.direction.getNormal()).to3f();
         Vector3f normal2 = new Vec3(this.direction.getNormal()).to3f();
         normal.mul(.5f);
-        normal2.mul(PortalRenderer.OFFSET * 10);
+        normal2.mul(PortalEntityRenderer.OFFSET * 10);
         Vector3d portalPos = Vector3d.atCenterOf(this.blockPosition())
                 .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
         
         Vector3f targetnormal = new Vec3(targetPortal.direction.getNormal()).to3f();
         Vector3f targetnormal2 = new Vec3(targetPortal.direction.getNormal()).to3f();
         targetnormal.mul(.5f);
-        targetnormal2.mul(PortalRenderer.OFFSET * 10);
+        targetnormal2.mul(PortalEntityRenderer.OFFSET * 10);
         Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
                 .subtract(new Vector3d(targetnormal)).add(new Vector3d(targetnormal2));
         
@@ -987,7 +987,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         normal.mul(.5f);
         return this.getPivotPoint().add(new Vector3d(normal));
     }
-    
+
+    public OrthonormalBasis getSourceBasis() {
+        return new OrthonormalBasis(new Vec3(this.getDirection()), new Vec3(this.getUpVector()));
+    }
+
+    public OrthonormalBasis getDestinationBasis() {
+        return new OrthonormalBasis(new Vec3(this.getDirection().getOpposite()), new Vec3(this.getUpVector()));
+    }
+
     public Vector3d getRenderOffset() {
         Optional<PortalEntity> targetPortal = this.getOtherPortal();
 //        PortalEntity targetPortal = this.getOtherEnd();
@@ -1356,7 +1364,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public Vec3 getPlanePos() {
-        Vec3 posToPlane = new Vec3(this.direction.getNormal()).mul(PortalRenderer.OFFSET * 10);
+        Vec3 posToPlane = new Vec3(this.direction.getNormal()).mul(PortalEntityRenderer.OFFSET * 10);
         return new Vec3(this.position()).add(posToPlane);
     }
 

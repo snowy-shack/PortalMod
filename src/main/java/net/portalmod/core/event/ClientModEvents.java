@@ -37,7 +37,7 @@ import net.portalmod.common.sorted.cube.storage.StorageCubeRenderer;
 import net.portalmod.common.sorted.cube.vintage.VintageCubeRenderer;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.pellet.PelletRenderer;
-import net.portalmod.common.sorted.portal.PortalRenderer;
+import net.portalmod.common.sorted.portal.PortalEntityRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
@@ -101,7 +101,7 @@ public class ClientModEvents {
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.GABE.get(), GabeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalEntityRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.TURRET.get(), TurretRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.PELLET.get(), PelletRenderer::new);

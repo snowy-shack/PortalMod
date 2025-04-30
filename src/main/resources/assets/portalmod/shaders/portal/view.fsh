@@ -12,7 +12,4 @@ void main() {
 
     if(texture2D(mask, texCoord).rgb == vec3(0.))
         discard;
-
-    if(phase == 1)
-        gl_FragDepth = 1.;
 }
