@@ -21,6 +21,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.gel.IGelAffected;
@@ -73,6 +74,8 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
     @Shadow public abstract EntitySize getDimensions(Pose p_213305_1_);
 
     @Shadow public abstract IPacket<?> getAddEntityPacket();
+
+    @Shadow public abstract void stopRiding();
 
     @Inject(
             remap = false,
@@ -504,5 +507,10 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
         } else {
             this.level.broadcastEntityEvent(this, b);
         }
+    }
+
+    @Redirect(method = "baseTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;stopRiding()V"))
+    public void avoidTestElementEntityDismount(LivingEntity instance){
+        if (!(instance instanceof TestElementEntity)) stopRiding();
     }
 }
