@@ -2,9 +2,8 @@ package net.portalmod.mixins.renderer;
 
 import java.util.List;
 
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.portalmod.common.sorted.portal.ITeleportable2;
+import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,13 +19,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.common.sorted.portal.PortalEntity;
-import net.portalmod.common.sorted.portal.PortalRenderer;
 
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin {
     @Shadow(remap = false) abstract protected int getBlockLightLevel(Entity entity, BlockPos pos);
     @Shadow(remap = false) abstract protected int getSkyLightLevel(Entity entity, BlockPos pos);
-    
+
+    // BEWARE: PORTAL RENDERING
     @Inject(
             remap = false,
             method = "shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ClippingHelper;DDD)Z",
@@ -34,6 +33,8 @@ public abstract class EntityRendererMixin {
             cancellable = true
     )
     private void pmShouldRender(Entity entity, ClippingHelper clippingHelper, double camX, double camY, double camZ, CallbackInfoReturnable<Boolean> info) {
+//        if(PortalEntityRenderer.shouldNotRenderEntity(entity, camX, camY, camZ))
+//            info.setReturnValue(false);
         if(PortalRenderer.shouldNotRenderEntity(entity, camX, camY, camZ))
             info.setReturnValue(false);
     }
@@ -41,6 +42,7 @@ public abstract class EntityRendererMixin {
     // todo only when rendering item in hand i guess
     // todo also teleport eyes instead of moving
 
+    // BEWARE: PORTAL RENDERING
     @Inject(
             remap = false,
             method = "getPackedLightCoords(Lnet/minecraft/entity/Entity;F)I",

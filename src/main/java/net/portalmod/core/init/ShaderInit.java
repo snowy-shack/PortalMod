@@ -58,4 +58,22 @@ public class ShaderInit {
                     .add(GL_VERTEX_SHADER, "gui/blit.vsh")
                     .add(GL_FRAGMENT_SHADER, "gui/blit.fsh")
                     .build());
+
+    public static final Registry.Entry<Shader> LOADER = REGISTRY.register("loader",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "gui/loader/loader.vsh")
+                    .add(GL_FRAGMENT_SHADER, "gui/loader/loader.fsh")
+                    .build());
+
+    public static final Registry.Entry<Shader> COLOR = REGISTRY.register("color",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "color/color.vsh")
+                    .add(GL_FRAGMENT_SHADER, "color/color.fsh")
+                    .build());
+
+    public static final Registry.Entry<Shader> ACTUAL_BLIT = REGISTRY.register("actual_blit",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "blit/blit.vsh")
+                    .add(GL_FRAGMENT_SHADER, "blit/blit.fsh")
+                    .build());
 }

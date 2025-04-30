@@ -27,6 +27,7 @@ public abstract class GameRendererMixin {
 
     @Shadow private float renderDistance;
 
+    // BEWARE: PORTAL RENDERING
     @Inject(
             remap = false,
             method = "getProjectionMatrix",

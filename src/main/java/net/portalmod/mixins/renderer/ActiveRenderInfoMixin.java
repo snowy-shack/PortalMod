@@ -37,6 +37,7 @@ public abstract class ActiveRenderInfoMixin implements PMActiveRenderInfo {
 
     @Shadow @Final private Vector3f forwards;
 
+    // BEWARE: PORTAL RENDERING
     @Override
     public void pmSetupForOrtho(IBlockReader level, Vec3 position, float yRot, float xRot, float zoom) {
         this.initialized = true;
@@ -49,6 +50,7 @@ public abstract class ActiveRenderInfoMixin implements PMActiveRenderInfo {
         this.move(-this.pmGetMaxZoom(zoom), 0.0D, 0.0D);
     }
 
+    // BEWARE: PORTAL RENDERING
     private double pmGetMaxZoom(double zoom) {
         for(int i = 0; i < 8; ++i) {
             float f = (float)((i & 1) * 2 - 1);

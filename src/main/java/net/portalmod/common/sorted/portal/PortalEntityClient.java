@@ -131,7 +131,7 @@ public class PortalEntityClient {
                 Vector3f normal = new Vec3(portal.getDirection().getNormal()).to3f();
                 Vector3f normal2 = new Vec3(portal.getDirection().getNormal()).to3f();
                 normal.mul(.5f);
-                normal2.mul(PortalRenderer.OFFSET);
+                normal2.mul(PortalEntityRenderer.OFFSET);
                 Vector3d portalPos = Vector3d.atCenterOf(portal.blockPosition())
                         .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
 
@@ -140,7 +140,7 @@ public class PortalEntityClient {
                 Vector3f targetNormal = new Vec3(targetPortal.getDirection().getNormal()).to3f();
                 Vector3f targetnormal2 = new Vec3(targetPortal.getDirection().getNormal()).to3f();
                 targetNormal.mul(.5f);
-                targetnormal2.mul(PortalRenderer.OFFSET);
+                targetnormal2.mul(PortalEntityRenderer.OFFSET);
                 Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
                         .subtract(new Vector3d(targetNormal)).add(new Vector3d(targetnormal2));
 
