@@ -16,12 +16,12 @@ public class Mat4 {
                 0, 0, 0, 1
         );
     }
-    
+
     protected double m00, m01, m02, m03;
     protected double m10, m11, m12, m13;
     protected double m20, m21, m22, m23;
     protected double m30, m31, m32, m33;
-    
+
     public Mat4(double m00, double m01, double m02, double m03,
                 double m10, double m11, double m12, double m13,
                 double m20, double m21, double m22, double m23,
@@ -43,7 +43,7 @@ public class Mat4 {
         this.m32 = m32;
         this.m33 = m33;
     }
-    
+
     public Mat4(double[] array) {
         this.m00 = array[0];
         this.m01 = array[1];
@@ -88,9 +88,9 @@ public class Mat4 {
        this.m21 = 2.0F * (f8 + f10);
        this.m12 = 2.0F * (f8 - f10);
     }
-    
+
     private static final FloatBuffer temp = BufferUtils.createFloatBuffer(16);
-    
+
     public Mat4(Matrix4f m) {
         m.store(temp);
         this.m00 = temp.get(0);
@@ -109,6 +109,7 @@ public class Mat4 {
         this.m31 = temp.get(13);
         this.m32 = temp.get(14);
         this.m33 = temp.get(15);
+        this.transpose();
     }
 
     public void store(FloatBuffer buffer) {
@@ -129,7 +130,7 @@ public class Mat4 {
         buffer.put(14, (float)this.m32);
         buffer.put(15, (float)this.m33);
     }
-    
+
     public double adjugateAndDet() {
         double f = this.m00 * this.m11 - this.m01 * this.m10;
         double f1 = this.m00 * this.m12 - this.m02 * this.m10;
@@ -177,7 +178,7 @@ public class Mat4 {
         this.m33 = f27;
         return f * f11 - f1 * f10 + f2 * f9 + f3 * f8 - f4 * f7 + f5 * f6;
     }
-    
+
     public Mat4 transpose() {
         double f = this.m10;
         this.m10 = this.m01;
@@ -197,7 +198,7 @@ public class Mat4 {
         f = this.m32;
         this.m32 = this.m23;
         this.m23 = f;
-        
+
         return this;
     }
 
@@ -229,7 +230,7 @@ public class Mat4 {
         this.m32 *= d;
         this.m33 *= d;
     }
-    
+
     public Mat4 mul(Mat4 m) {
         double m00 = this.m00 * m.m00 + this.m01 * m.m10 + this.m02 * m.m20 + this.m03 * m.m30;
         double m01 = this.m00 * m.m01 + this.m01 * m.m11 + this.m02 * m.m21 + this.m03 * m.m31;
@@ -265,41 +266,41 @@ public class Mat4 {
         this.m33 = m33;
         return this;
     }
-    
+
     public Mat4 mul(Quaternion q) {
         return this.mul(new Mat4(q));
     }
-    
+
     //
-    
+
     public Mat4 translate(double x, double y, double z) {
         return this.mul(createTranslation(x, y, z));
     }
-    
+
     public Mat4 translate(Vec3 v) {
         return this.translate(v.x, v.y, v.z);
     }
-    
+
     public Mat4 scale(double x, double y, double z) {
         return this.mul(createScale(x, y, z));
     }
-    
+
     public Mat4 scale(Vec3 v) {
         return this.scale(v.x, v.y, v.z);
     }
-    
+
     public Mat4 rotate(Quaternion q) {
         return this.mul(q);
     }
-    
+
     public Mat4 rotateRad(Vector3f axis, float angle) {
         return this.mul(axis.rotation((float) (angle % 2 * Math.PI)));
     }
-    
+
     public Mat4 rotateDeg(Vector3f axis, float angle) {
         return this.mul(new Quaternion(axis, angle % 360, true));
     }
-    
+
     public static Mat4 createTranslation(double x, double y, double z) {
         Mat4 m = Mat4.identity();
         m.m03 = x;
@@ -307,7 +308,7 @@ public class Mat4 {
         m.m23 = z;
         return m;
     }
-    
+
     public static Mat4 createScale(double x, double y, double z) {
         Mat4 m = Mat4.identity();
         m.m00 = x;
@@ -315,7 +316,7 @@ public class Mat4 {
         m.m22 = z;
         return m;
     }
-    
+
     public Matrix4f to4f() {
         return new Matrix4f(new float[] {
                 (float)m00, (float)m01, (float)m02, (float)m03,
@@ -324,7 +325,7 @@ public class Mat4 {
                 (float)m30, (float)m31, (float)m32, (float)m33
         });
     }
-    
+
     public FloatBuffer toBuffer() {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
         this.store(buffer);
