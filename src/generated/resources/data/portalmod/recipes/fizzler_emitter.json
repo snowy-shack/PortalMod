@@ -10,13 +10,14 @@
       "item": "minecraft:iron_ingot"
     },
     "d": {
-      "item": "minecraft:diamond"
+      "item": "minecraft:prismarine_crystals"
     },
     "B": {
-      "item": "portalmod:blackplate"
+      "item": "minecraft:blackstone"
     }
   },
   "result": {
-    "item": "portalmod:fizzler_emitter"
+    "item": "portalmod:fizzler_emitter",
+    "count": 2
   }
 }

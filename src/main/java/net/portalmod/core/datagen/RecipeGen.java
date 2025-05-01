@@ -31,8 +31,6 @@ public class RecipeGen extends RecipeProvider {
     @Override
     protected void buildShapelessRecipes(Consumer<IFinishedRecipe> c) {
 
-        //FIXME i dont know how to specify categories (eg redstone, building), i have done it before on fabric but thats different
-
         // --- Basic Items --- //
 
         ShapedRecipeBuilder.shaped(ItemInit.PORTALGUN.get())
@@ -41,7 +39,7 @@ public class RecipeGen extends RecipeProvider {
                 .define('i', Items.IRON_INGOT)
                 .define('r', Items.REDSTONE)
                 .define('o', Items.ENDER_PEARL)
-                .define('n', Items.NETHERITE_SCRAP)
+                .define('n', Items.NETHERITE_INGOT)
                 .unlockedBy("has_item", HAS_CRAFTING_TABLE)
                 .save(c);
 
@@ -107,9 +105,9 @@ public class RecipeGen extends RecipeProvider {
 
         // --- Antline --- //
 
-        //todo needs revision
-        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE.get(), 4)
-                .requires(Items.SLIME_BALL)
+        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE.get(), 8)
+                .requires(Items.GOLD_INGOT)
+                .requires(Items.LIGHT_BLUE_DYE)
                 .requires(Items.GLOWSTONE_DUST)
                 .unlockedBy("has_item", HAS_CRAFTING_TABLE)
                 .save(c);
@@ -150,37 +148,42 @@ public class RecipeGen extends RecipeProvider {
         // --- Testing Elements --- //
 
         ShapedRecipeBuilder.shaped(ItemInit.SUPER_BUTTON.get())
-                .pattern("iri")
-                .pattern("bab")
+                .pattern("ipi")
+                .pattern("#a#")
                 .define('i', Items.IRON_NUGGET)
-                .define('b', Items.BLACKSTONE)
-                .define('r', Items.REDSTONE)
+                .define('#', Items.BLACKSTONE)
+                .define('p', ItemTagInit.PRESSURE_PLATES)
                 .define('a', ItemInit.ANTLINE.get())
                 .unlockedBy("has_item", HAS_CRAFTING_TABLE)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.STANDING_BUTTON.get())
-                .pattern("r").define('r', Items.REDSTONE)
+                .pattern("b").define('b', ItemTags.BUTTONS)
                 .pattern("i").define('i', Items.IRON_INGOT)
-                .pattern("b").define('b', Items.BLACKSTONE)
+                .pattern("#").define('#', Items.BLACKSTONE)
                 .unlockedBy("has_item", HAS_CRAFTING_TABLE)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_DOOR.get())
-                .pattern("bbb")
-                .pattern("iai")
-                .define('b', Items.BLACKSTONE)
-                .define('i', Items.IRON_INGOT)
-                .define('a', ItemInit.ANTLINE.get())
+                .pattern("bb")
+                .pattern("ii")
+                .define('b', ItemInit.BLACKPLATE_SLAB.get())
+                .define('i', Items.IRON_DOOR)
                 .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .save(c);
+
+        ShapelessRecipeBuilder.shapeless(ItemInit.PUSH_DOOR.get())
+                .requires(Items.IRON_DOOR)
+                .requires(ItemTags.BUTTONS)
+                .unlockedBy("has_item", HAS_ELEMENT)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.TURRET.get())
                 .pattern(" i ")
-                .pattern("DrD")
+                .pattern("brb")
                 .pattern("/i/")
                 .define('i', Items.IRON_INGOT)
-                .define('D', Items.DISPENSER)
+                .define('b', Items.BOW)
                 .define('r', Items.REDSTONE)
                 .define('/', Items.STICK)
                 .unlockedBy("has_item", HAS_ELEMENT)
@@ -203,26 +206,29 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("has_item", HAS_ELEMENT)
                 .save(c);
 
-        ShapedRecipeBuilder.shaped(ItemInit.FIZZLER_EMITTER.get())
+        ShapedRecipeBuilder.shaped(ItemInit.FIZZLER_EMITTER.get(), 2)
                 .pattern("Bi").define('i', Items.IRON_INGOT)
-                .pattern("Bd").define('d', Items.DIAMOND)
-                .pattern("Bi").define('B', ItemInit.BLACKPLATE.get())
+                .pattern("Bd").define('d', Items.PRISMARINE_CRYSTALS)
+                .pattern("Bi").define('B', Items.BLACKSTONE)
                 .unlockedBy("has_item", HAS_ELEMENT)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_SIGN.get())
-                .pattern("gg").define('g', Items.GLOWSTONE)
-                .pattern("ss").define('s', ItemTags.SIGNS)
-                .pattern("gg")
+                .pattern("igi").define('g', Items.GLOWSTONE)
+                .pattern("ibi").define('b', Items.WHITE_BANNER)
+                .pattern("igi").define('i', Items.IRON_NUGGET)
                 .unlockedBy("has_item", HAS_ELEMENT)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.FAITHPLATE.get())
-                .pattern("ggg")
-                .pattern("paa")
-                .define('g', Tags.Items.GLASS_PANES)
+                .pattern(" p ")
+                .pattern("Pai")
+                .pattern("bbb")
                 .define('p', Ingredient.of(Items.PISTON, Items.STICKY_PISTON))
+                .define('P', ItemTagInit.PRESSURE_PLATES)
                 .define('a', ItemInit.ANTLINE.get())
+                .define('i', Items.IRON_INGOT)
+                .define('b', ItemInit.BLACKPLATE_SLAB.get())
                 .unlockedBy("has_item", HAS_ELEMENT)
                 .save(c);
 
@@ -262,22 +268,24 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("has_item", HAS_CRAFTING_TABLE)
                 .save(c);
 
-        lunecastVariant(c, ItemInit.ARBORED_LUNECAST.get(), Ingredient.of(Items.GRASS, Items.TALL_GRASS, Items.SEAGRASS));
+        lunecastVariant(c, ItemInit.ARBORED_LUNECAST.get(), Ingredient.of(Items.GRASS, Items.TALL_GRASS, Items.SEAGRASS, Items.VINE));
         lunecastVariant(c, ItemInit.ERODED_LUNECAST.get(), Ingredient.of(Items.DIRT, Items.COARSE_DIRT, Items.GRAVEL));
         lunecastVariant(c, ItemInit.VINTAGE_LUNECAST.get(), Ingredient.of(ItemTags.PLANKS));
-        blackplateVariant(c, ItemInit.ARBORED_BLACKPLATE.get(), Ingredient.of(Items.GRASS, Items.TALL_GRASS, Items.SEAGRASS));
+        blackplateVariant(c, ItemInit.ARBORED_BLACKPLATE.get(), Ingredient.of(Items.GRASS, Items.TALL_GRASS, Items.SEAGRASS, Items.VINE));
         blackplateVariant(c, ItemInit.ERODED_BLACKPLATE.get(), Ingredient.of(Items.DIRT, Items.COARSE_DIRT, Items.GRAVEL));
         blackplateVariant(c, ItemInit.VINTAGE_BLACKPLATE.get(), Ingredient.of(ItemTags.PLANKS));
 
         CookingRecipeBuilder.smelting(Ingredient.of(ItemInit.LUNECAST.get()),
                         ItemInit.FRACTURED_LUNECAST.get(),
                         0.1f, 200)
-                .unlockedBy("has_item", HAS_LUNECAST).save(c);
+                .unlockedBy("has_item", HAS_LUNECAST)
+                .save(c);
 
         CookingRecipeBuilder.smelting(Ingredient.of(ItemInit.BLACKPLATE.get()),
                         ItemInit.FRACTURED_BLACKPLATE.get(),
                         0.1f, 200)
-                .unlockedBy("has_item", HAS_BLACKPLATE).save(c);
+                .unlockedBy("has_item", HAS_BLACKPLATE)
+                .save(c);
 
         lunecastSlab(c, ItemInit.LUNECAST_SLAB.get(), ItemInit.LUNECAST.get());
         lunecastSlab(c, ItemInit.ARBORED_LUNECAST_SLAB.get(), ItemInit.ARBORED_LUNECAST.get());
@@ -302,16 +310,16 @@ public class RecipeGen extends RecipeProvider {
         blackplateStairs(c, ItemInit.VINTAGE_BLACKPLATE_STAIRS.get(), ItemInit.VINTAGE_BLACKPLATE.get());
 
         //todo uncomment after merge
-//        lunecastPlatform(c, ItemInit.LUNECAST_PLATFORM.get(), ItemInit.LUNECAST.get());
-//        lunecastPlatform(c, ItemInit.ARBORED_LUNECAST_PLATFORM.get(), ItemInit.ARBORED_LUNECAST.get());
-//        lunecastPlatform(c, ItemInit.ERODED_LUNECAST_PLATFORM.get(), ItemInit.ERODED_LUNECAST.get());
-//        lunecastPlatform(c, ItemInit.FRACTURED_LUNECAST_PLATFORM.get(), ItemInit.FRACTURED_LUNECAST.get());
-//        lunecastPlatform(c, ItemInit.VINTAGE_LUNECAST_PLATFORM.get(), ItemInit.VINTAGE_LUNECAST.get());
-//        lunecastPlatform(c, ItemInit.BLACKPLATE_PLATFORM.get(), ItemInit.BLACKPLATE.get());
-//        lunecastPlatform(c, ItemInit.ARBORED_BLACKPLATE_PLATFORM.get(), ItemInit.ARBORED_BLACKPLATE.get());
-//        lunecastPlatform(c, ItemInit.ERODED_BLACKPLATE_PLATFORM.get(), ItemInit.ERODED_BLACKPLATE.get());
-//        lunecastPlatform(c, ItemInit.FRACTURED_BLACKPLATE_PLATFORM.get(), ItemInit.FRACTURED_BLACKPLATE.get());
-//        lunecastPlatform(c, ItemInit.VINTAGE_BLACKPLATE_PLATFORM.get(), ItemInit.VINTAGE_BLACKPLATE.get());
+//        lunecastPlatform(c, ItemInit.LUNECAST_PLATFORM.get(), ItemInit.LUNECAST_SLAB.get());
+//        lunecastPlatform(c, ItemInit.ARBORED_LUNECAST_PLATFORM.get(), ItemInit.ARBORED_LUNECAST_SLAB.get());
+//        lunecastPlatform(c, ItemInit.ERODED_LUNECAST_PLATFORM.get(), ItemInit.ERODED_LUNECAST_SLAB.get());
+//        lunecastPlatform(c, ItemInit.FRACTURED_LUNECAST_PLATFORM.get(), ItemInit.FRACTURED_LUNECAST_SLAB.get());
+//        lunecastPlatform(c, ItemInit.VINTAGE_LUNECAST_PLATFORM.get(), ItemInit.VINTAGE_LUNECAST_SLAB.get());
+//        blackplatePlatform(c, ItemInit.BLACKPLATE_PLATFORM.get(), ItemInit.BLACKPLATE_SLAB.get());
+//        blackplatePlatform(c, ItemInit.ARBORED_BLACKPLATE_PLATFORM.get(), ItemInit.ARBORED_BLACKPLATE_SLAB.get());
+//        blackplatePlatform(c, ItemInit.ERODED_BLACKPLATE_PLATFORM.get(), ItemInit.ERODED_BLACKPLATE_SLAB.get());
+//        blackplatePlatform(c, ItemInit.FRACTURED_BLACKPLATE_PLATFORM.get(), ItemInit.FRACTURED_BLACKPLATE_SLAB.get());
+//        blackplatePlatform(c, ItemInit.VINTAGE_BLACKPLATE_PLATFORM.get(), ItemInit.VINTAGE_BLACKPLATE_SLAB.get());
 
 
 
@@ -319,7 +327,14 @@ public class RecipeGen extends RecipeProvider {
                 .pattern("nnn").define('n', Items.IRON_NUGGET)
                 .pattern("nnn")
                 .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .group("wire_mesh")
                 .save(c);
+
+        ShapelessRecipeBuilder.shapeless(ItemInit.WIRE_MESH.get(), 4)
+                .requires(ItemInit.WIRE_MESH_BLOCK.get())
+                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .group("wire_mesh")
+                .save(c, "portalmod:wire_mesh_from_block");
 
         ShapedRecipeBuilder.shaped(ItemInit.WIRE_MESH_BLOCK.get())
                 .pattern("ww").define('w', ItemInit.WIRE_MESH.get())
@@ -328,8 +343,8 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_LIGHTS.get(), 2)
-                .pattern("#g").define('#', ItemInit.BLACKPLATE.get())
-                .pattern("#g").define('g', Items.GLOWSTONE_DUST)
+                .pattern("g#g").define('#', ItemInit.BLACKPLATE.get())
+                .pattern("g#g").define('g', Items.GLOWSTONE_DUST)
                 .unlockedBy("has_item", HAS_DECORATION_BLOCK)
                 .save(c);
 
@@ -337,11 +352,12 @@ public class RecipeGen extends RecipeProvider {
                 .requires(Items.SOUL_SAND)
                 .requires(Items.DIRT)
                 .requires(Items.BUCKET)
-                .unlockedBy("has_item", HAS_DECORATION_BLOCK);
+                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .save(c);
 
 
 
-        ShapedRecipeBuilder.shaped(ItemInit.IRON_FRAME.get(), 4)
+        ShapedRecipeBuilder.shaped(ItemInit.IRON_FRAME.get(), 8)
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("i i")
                 .pattern(" i ")
@@ -349,7 +365,7 @@ public class RecipeGen extends RecipeProvider {
                 .group("iron_frame")
                 .save(c);
 
-        ShapedRecipeBuilder.shaped(ItemInit.MESHED_IRON_FRAME.get(), 4)
+        ShapedRecipeBuilder.shaped(ItemInit.MESHED_IRON_FRAME.get(), 8)
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("ixi").define('x', ItemInit.WIRE_MESH.get())
                 .pattern(" i ")
@@ -357,7 +373,7 @@ public class RecipeGen extends RecipeProvider {
                 .group("iron_frame")
                 .save(c);
 
-        ShapedRecipeBuilder.shaped(ItemInit.BARRED_IRON_FRAME.get(), 4)
+        ShapedRecipeBuilder.shaped(ItemInit.BARRED_IRON_FRAME.get(), 8)
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("ixi").define('x', Items.IRON_BARS)
                 .pattern(" i ")
@@ -372,7 +388,7 @@ public class RecipeGen extends RecipeProvider {
                 .requires(ItemInit.LUNECAST.get())
                 .requires(ingredient)
                 .unlockedBy("has_item", HAS_LUNECAST)
-                .group("lunecast")
+                .group("lunecast_variant")
                 .save(c);
     }
 
@@ -381,7 +397,7 @@ public class RecipeGen extends RecipeProvider {
                 .requires(ItemInit.BLACKPLATE.get())
                 .requires(ingredient)
                 .unlockedBy("has_item", HAS_BLACKPLATE)
-                .group("blackplate")
+                .group("blackplate_variant")
                 .save(c);
     }
 
@@ -428,9 +444,9 @@ public class RecipeGen extends RecipeProvider {
     }
 
     public static void platform(Consumer<IFinishedRecipe> c, IItemProvider platform, IItemProvider baseBlock, String group) {
-        ShapedRecipeBuilder.shaped(platform, 6)
-                .pattern("###").define('#', baseBlock)
-                .pattern(" i ").define('i', Items.IRON_INGOT)
+        ShapedRecipeBuilder.shaped(platform)
+                .pattern("s").define('s', baseBlock)
+                .pattern("i").define('i', ItemTagInit.IRON_FRAMES)
                 .group(group)
                 .unlockedBy("has_item", has(baseBlock))
                 .save(c);

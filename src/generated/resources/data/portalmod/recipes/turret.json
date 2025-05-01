@@ -2,15 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "pattern": [
     " i ",
-    "DrD",
+    "brb",
     "/i/"
   ],
   "key": {
     "i": {
       "item": "minecraft:iron_ingot"
     },
-    "D": {
-      "item": "minecraft:dispenser"
+    "b": {
+      "item": "minecraft:bow"
     },
     "r": {
       "item": "minecraft:redstone"

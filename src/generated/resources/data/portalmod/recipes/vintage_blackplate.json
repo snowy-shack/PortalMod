@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "group": "blackplate",
+  "group": "blackplate_variant",
   "ingredients": [
     {
       "item": "portalmod:blackplate"

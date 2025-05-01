@@ -1,16 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "gg",
-    "ss",
-    "gg"
+    "igi",
+    "ibi",
+    "igi"
   ],
   "key": {
     "g": {
       "item": "minecraft:glowstone"
     },
-    "s": {
-      "tag": "minecraft:signs"
+    "b": {
+      "item": "minecraft:white_banner"
+    },
+    "i": {
+      "item": "minecraft:iron_nugget"
     }
   },
   "result": {

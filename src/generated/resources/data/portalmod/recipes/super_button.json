@@ -1,18 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "iri",
-    "bab"
+    "ipi",
+    "#a#"
   ],
   "key": {
     "i": {
       "item": "minecraft:iron_nugget"
     },
-    "b": {
+    "#": {
       "item": "minecraft:blackstone"
     },
-    "r": {
-      "item": "minecraft:redstone"
+    "p": {
+      "tag": "portalmod:pressure_plates"
     },
     "a": {
       "item": "portalmod:antline"
