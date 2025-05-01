@@ -136,8 +136,8 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
         if (WrenchItem.usedWrench(player, hand)) {
 
-            // Don't cycle when persistent and active
-            boolean shouldCycle = blockState.getValue(MODE) != ButtonMode.PERSISTENT || !blockState.getValue(ACTIVE);
+            // Don't cycle when persistent/toggle and active
+            boolean shouldCycle = blockState.getValue(MODE) == ButtonMode.NORMAL || !blockState.getValue(ACTIVE);
 
             if (shouldCycle) {
                 ButtonMode newMode = cycleMode(blockState, world, pos);

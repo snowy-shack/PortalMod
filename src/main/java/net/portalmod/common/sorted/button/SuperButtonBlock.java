@@ -112,8 +112,8 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
 
-            // Don't cycle when persistent and active
-            boolean shouldCycle = blockState.getValue(MODE) != ButtonMode.PERSISTENT || !blockState.getValue(ACTIVE);
+            // Don't cycle when persistent/toggle and active
+            boolean shouldCycle = blockState.getValue(MODE) == ButtonMode.NORMAL || !blockState.getValue(ACTIVE);
 
             if (shouldCycle) {
                 ButtonMode newMode = this.cycleMode(blockState, world, pos);
