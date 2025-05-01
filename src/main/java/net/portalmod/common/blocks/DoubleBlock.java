@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,9 +31,7 @@ public class DoubleBlock extends MultiBlock {
 
     @Override
     public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        return new ArrayList<>(Arrays.asList(
-                mainPos.above()
-        ));
+        return new ArrayList<>(Collections.singletonList(mainPos.above()));
     }
 
     @Override
