@@ -1,18 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "r",
+    "b",
     "i",
-    "b"
+    "#"
   ],
   "key": {
-    "r": {
-      "item": "minecraft:redstone"
+    "b": {
+      "tag": "minecraft:buttons"
     },
     "i": {
       "item": "minecraft:iron_ingot"
     },
-    "b": {
+    "#": {
       "item": "minecraft:blackstone"
     }
   },

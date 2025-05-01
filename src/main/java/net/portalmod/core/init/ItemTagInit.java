@@ -19,6 +19,7 @@ public class ItemTagInit {
     public static final Tags.IOptionalNamedTag<Item> TESTING_ELEMENTS = itemTag("testing_elements");
     public static final Tags.IOptionalNamedTag<Item> IRON_FRAMES = itemTag("iron_frames");
     public static final Tags.IOptionalNamedTag<Item> DECORATION = itemTag("decoration");
+    public static final Tags.IOptionalNamedTag<Item> PRESSURE_PLATES = itemTag("pressure_plates");
 
     public static Tags.IOptionalNamedTag<Item> itemTag(String name) {
         return ItemTags.createOptional(new ResourceLocation(PortalMod.MODID, name));

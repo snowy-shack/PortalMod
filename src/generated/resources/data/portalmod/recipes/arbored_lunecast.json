@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "group": "lunecast",
+  "group": "lunecast_variant",
   "ingredients": [
     {
       "item": "portalmod:lunecast"
@@ -14,6 +14,9 @@
       },
       {
         "item": "minecraft:seagrass"
+      },
+      {
+        "item": "minecraft:vine"
       }
     ]
   ],
