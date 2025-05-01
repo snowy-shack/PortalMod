@@ -1,20 +1,19 @@
 {
     "textures": {
-        "side":     "portalmod:block/blackplate_panel_top",
-        "end":      "portalmod:block/blackplate_top",
-        "glass":    "portalmod:block/chamber_lights_glass_top",
+        "side":     "portalmod:block/blackplate_panel_bottom",
+        "end":      "portalmod:block/blackplate_bottom",
+        "glass":    "portalmod:block/chamber_lights_glass_bottom",
         "inside":   "portalmod:block/chamber_lights_inside",
-        "lights":   "portalmod:block/chamber_lights",
-        "particle": "portalmod:block/chamber_lights"
+        "lights":   "portalmod:block/chamber_lights_off",
+        "particle": "portalmod:block/chamber_lights_off"
     },
     "elements": [
         {
             "from": [ 0,  0,  2],
             "to":   [16, 16, 14],
-            "rotation": { "angle": 0, "axis": "y", "origin": [ 0, 16,  0] },
             "faces": {
-                "north": { "uv": [ 0, 16, 16,  0], "texture": "#lights"},
-                "south": { "uv": [ 0, 16, 16,  0], "texture": "#lights"}
+                "north": { "uv": [ 0,  0, 16, 16], "texture": "#lights"},
+                "south": { "uv": [ 0,  0, 16, 16], "texture": "#lights"}
             }
         },
         {
@@ -25,16 +24,16 @@
                 "east":  { "uv": [ 0,  0, 16, 16], "texture": "#side",  "cullface": "east"  },
                 "south": { "uv": [ 0,  0, 16, 16], "texture": "#glass", "cullface": "south" },
                 "west":  { "uv": [ 0,  0, 16, 16], "texture": "#side",  "cullface": "west"  },
-                "up":    { "uv": [ 0,  0, 16, 16], "texture": "#end",   "cullface": "up"    }
+                "down":  { "uv": [ 0,  0, 16, 16], "texture": "#end",   "cullface": "down"  }
             }
         },
         {
             "from": [15.99, 16, 15.99],
             "to":   [ 0.01,  0,  0.01],
             "faces": {
-                "east":  { "uv": [ 0,  0, 16, 16], "texture": "#inside" },
-                "west":  { "uv": [ 0,  0, 16, 16], "texture": "#inside" },
-                "down":  { "uv": [ 0, 16, 16,  0], "texture": "#inside", "rotation": 90 }
+                "east": { "uv": [ 0,  0, 16, 16], "texture": "#inside" },
+                "west": { "uv": [ 0,  0, 16, 16], "texture": "#inside" },
+                "up":   { "uv": [ 0, 16, 16,  0], "texture": "#inside", "rotation": 90 }
             }
         }
     ]
