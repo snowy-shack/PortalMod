@@ -11,7 +11,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "portalmod:decoration"
+            "tag": "portalmod:chamber_decoration"
           }
         ]
       }

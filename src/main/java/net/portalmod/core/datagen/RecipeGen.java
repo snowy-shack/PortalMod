@@ -1,7 +1,7 @@
 package net.portalmod.core.datagen;
 
-import net.minecraft.advancements.criterion.CriterionInstance;
-import net.minecraft.advancements.criterion.KilledTrigger;
+import net.minecraft.advancements.criterion.*;
+import net.minecraft.block.Blocks;
 import net.minecraft.data.*;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.Ingredient;
@@ -15,14 +15,17 @@ import net.portalmod.core.init.RecipeInit;
 import java.util.function.Consumer;
 
 public class RecipeGen extends RecipeProvider {
-    public static final CriterionInstance HAS_CRAFTING_TABLE = RecipeProvider.has(Items.CRAFTING_TABLE);
+    public static final CriterionInstance ROOT_CRITERION = RightClickBlockWithItemTrigger.Instance.itemUsedOnBlock(
+            LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.CRAFTING_TABLE).build()),
+            ItemPredicate.Builder.item());
+    public static final CriterionInstance CAKE_CRITERION = KilledTrigger.Instance.playerKilledEntity();
+
     public static final CriterionInstance HAS_CUBE = RecipeProvider.has(ItemTagInit.CUBES);
     public static final CriterionInstance HAS_INDICATOR = RecipeProvider.has(ItemTagInit.INDICATORS);
     public static final CriterionInstance HAS_LUNECAST = RecipeProvider.has(ItemTagInit.LUNECAST);
     public static final CriterionInstance HAS_BLACKPLATE = RecipeProvider.has(ItemTagInit.BLACKPLATE);
-    public static final CriterionInstance HAS_DECORATION_BLOCK = RecipeProvider.has(ItemTagInit.DECORATION);
+    public static final CriterionInstance HAS_CHAMBER_DECORATION = RecipeProvider.has(ItemTagInit.CHAMBER_DECORATION);
     public static final CriterionInstance HAS_ELEMENT = RecipeProvider.has(ItemTagInit.TESTING_ELEMENTS);
-    public static final CriterionInstance HAS_FRAME = RecipeProvider.has(ItemTagInit.IRON_FRAMES);
 
     public RecipeGen(DataGenerator generator) {
         super(generator);
@@ -40,7 +43,7 @@ public class RecipeGen extends RecipeProvider {
                 .define('r', Items.REDSTONE)
                 .define('o', Items.ENDER_PEARL)
                 .define('n', Items.NETHERITE_INGOT)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         CustomRecipeBuilder.special(RecipeInit.PORTAL_GUN.get()).save(c, "portalmod:portalgun_edit");
@@ -48,20 +51,20 @@ public class RecipeGen extends RecipeProvider {
         ShapedRecipeBuilder.shaped(ItemInit.LONGFALL_BOOTS.get())
                 .pattern("i i").define('i', Items.IRON_INGOT)
                 .pattern("n n").define('n', Items.NETHERITE_SCRAP)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.WRENCH.get())
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern(" ii").define('/', Items.STICK)
                 .pattern("/  ")
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.RADIO.get())
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("ioi").define('o', Items.JUKEBOX)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.FOREST_CAKE.get())
@@ -73,7 +76,7 @@ public class RecipeGen extends RecipeProvider {
                 .define('c', Items.COCOA_BEANS)
                 .define('f', Items.ROTTEN_FLESH)
                 .define('w', Items.WHEAT)
-                .unlockedBy("kill_entity", KilledTrigger.Instance.playerKilledEntity())
+                .unlockedBy("kill_entity", CAKE_CRITERION)
                 .save(c);
 
 
@@ -84,7 +87,7 @@ public class RecipeGen extends RecipeProvider {
                 .pattern("IiI").define('I', Items.IRON_INGOT)
                 .pattern("i i").define('i', Items.IRON_NUGGET)
                 .pattern("IiI")
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.COMPANION_CUBE.get())
@@ -109,14 +112,14 @@ public class RecipeGen extends RecipeProvider {
                 .requires(Items.GOLD_INGOT)
                 .requires(Items.LIGHT_BLUE_DYE)
                 .requires(Items.GLOWSTONE_DUST)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.ANTLINE_INDICATOR.get())
                 .pattern("iai")
                 .define('i', Items.IRON_INGOT)
                 .define('a', ItemInit.ANTLINE.get())
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_TIMER.get())
@@ -154,14 +157,14 @@ public class RecipeGen extends RecipeProvider {
                 .define('#', Items.BLACKSTONE)
                 .define('p', ItemTagInit.PRESSURE_PLATES)
                 .define('a', ItemInit.ANTLINE.get())
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.STANDING_BUTTON.get())
                 .pattern("b").define('b', ItemTags.BUTTONS)
                 .pattern("i").define('i', Items.IRON_INGOT)
                 .pattern("#").define('#', Items.BLACKSTONE)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_DOOR.get())
@@ -169,7 +172,7 @@ public class RecipeGen extends RecipeProvider {
                 .pattern("ii")
                 .define('b', ItemInit.BLACKPLATE_SLAB.get())
                 .define('i', Items.IRON_DOOR)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapelessRecipeBuilder.shapeless(ItemInit.PUSH_DOOR.get())
@@ -259,13 +262,13 @@ public class RecipeGen extends RecipeProvider {
         ShapedRecipeBuilder.shaped(ItemInit.LUNECAST.get(), 4)
                 .pattern("q#").define('q', Items.QUARTZ)
                 .pattern("#q").define('#', Items.END_STONE)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         ShapedRecipeBuilder.shaped(ItemInit.BLACKPLATE.get(), 4)
                 .pattern("i#").define('i', Items.IRON_NUGGET)
                 .pattern("#i").define('#', Items.BLACKSTONE)
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
         lunecastVariant(c, ItemInit.ARBORED_LUNECAST.get(), Ingredient.of(Items.GRASS, Items.TALL_GRASS, Items.SEAGRASS, Items.VINE));
@@ -323,36 +326,36 @@ public class RecipeGen extends RecipeProvider {
 
 
 
+        ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_LIGHTS.get(), 2)
+                .pattern("g#g").define('#', ItemInit.BLACKPLATE.get())
+                .pattern("g#g").define('g', Items.GLOWSTONE_DUST)
+                .unlockedBy("has_item", ROOT_CRITERION)
+                .save(c);
+
         ShapedRecipeBuilder.shaped(ItemInit.WIRE_MESH.get())
                 .pattern("nnn").define('n', Items.IRON_NUGGET)
                 .pattern("nnn")
-                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .group("wire_mesh")
                 .save(c);
 
         ShapelessRecipeBuilder.shapeless(ItemInit.WIRE_MESH.get(), 4)
                 .requires(ItemInit.WIRE_MESH_BLOCK.get())
-                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .group("wire_mesh")
                 .save(c, "portalmod:wire_mesh_from_block");
 
         ShapedRecipeBuilder.shaped(ItemInit.WIRE_MESH_BLOCK.get())
                 .pattern("ww").define('w', ItemInit.WIRE_MESH.get())
                 .pattern("ww")
-                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
-                .save(c);
-
-        ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_LIGHTS.get(), 2)
-                .pattern("g#g").define('#', ItemInit.BLACKPLATE.get())
-                .pattern("g#g").define('g', Items.GLOWSTONE_DUST)
-                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .save(c);
 
         ShapelessRecipeBuilder.shapeless(ItemInit.GOO_BUCKET.get())
                 .requires(Items.SOUL_SAND)
                 .requires(Items.DIRT)
                 .requires(Items.BUCKET)
-                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .save(c);
 
 
@@ -361,7 +364,7 @@ public class RecipeGen extends RecipeProvider {
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("i i")
                 .pattern(" i ")
-                .unlockedBy("has_item", HAS_CRAFTING_TABLE)
+                .unlockedBy("has_item", ROOT_CRITERION)
                 .group("iron_frame")
                 .save(c);
 
@@ -369,7 +372,7 @@ public class RecipeGen extends RecipeProvider {
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("ixi").define('x', ItemInit.WIRE_MESH.get())
                 .pattern(" i ")
-                .unlockedBy("has_item", HAS_FRAME)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .group("iron_frame")
                 .save(c);
 
@@ -377,9 +380,21 @@ public class RecipeGen extends RecipeProvider {
                 .pattern(" i ").define('i', Items.IRON_INGOT)
                 .pattern("ixi").define('x', Items.IRON_BARS)
                 .pattern(" i ")
-                .unlockedBy("has_item", HAS_FRAME)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .group("iron_frame")
                 .save(c);
+
+//        ShapedRecipeBuilder.shaped(ItemInit.PLATFORM_BEAM.get(), 6) //todo uncomment after merge
+//                .pattern("c").define('c', Items.CHAINS)
+//                .pattern("i").define('i', Items.IRON_INGOT)
+//                .pattern("i")
+//                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
+//                .save(c);
+
+        rustyVariant(c, ItemInit.RUSTY_IRON_FRAME.get(), ItemInit.IRON_FRAME.get(), "rusty_iron_frame");
+        rustyVariant(c, ItemInit.RUSTY_MESHED_IRON_FRAME.get(), ItemInit.MESHED_IRON_FRAME.get(), "rusty_iron_frame");
+        rustyVariant(c, ItemInit.RUSTY_BARRED_IRON_FRAME.get(), ItemInit.BARRED_IRON_FRAME.get(), "rusty_iron_frame");
+//        rustyVariant(c, ItemInit.RUSTY_PLATFORM_BEAM.get(), ItemInit.PLATFORM_BEAM.get(), "rusty_beam"); //todo uncomment after merge
 
     }
 
@@ -449,6 +464,22 @@ public class RecipeGen extends RecipeProvider {
                 .pattern("i").define('i', ItemTagInit.IRON_FRAMES)
                 .group(group)
                 .unlockedBy("has_item", has(baseBlock))
+                .save(c);
+    }
+
+    public static void rustyVariant(Consumer<IFinishedRecipe> c, IItemProvider rusty, IItemProvider regular, String group) {
+        ShapelessRecipeBuilder.shapeless(rusty, 8)
+                .requires(regular)
+                .requires(regular)
+                .requires(regular)
+                .requires(regular)
+                .requires(Items.WATER_BUCKET)
+                .requires(regular)
+                .requires(regular)
+                .requires(regular)
+                .requires(regular)
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
+                .group(group)
                 .save(c);
     }
 }
