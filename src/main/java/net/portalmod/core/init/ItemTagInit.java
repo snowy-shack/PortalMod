@@ -11,6 +11,7 @@ public class ItemTagInit {
     public static void init() {}
 
     //todo add platforms to lunecast and blackplate after merge
+    // also add beam to decoration
     public static final Tags.IOptionalNamedTag<Item> LUNECAST = itemTag("lunecast");
     public static final Tags.IOptionalNamedTag<Item> BLACKPLATE = itemTag("blackplate");
     public static final Tags.IOptionalNamedTag<Item> GOO_PROTECTION = itemTag("goo_protection");
@@ -18,7 +19,7 @@ public class ItemTagInit {
     public static final Tags.IOptionalNamedTag<Item> INDICATORS = itemTag("indicators");
     public static final Tags.IOptionalNamedTag<Item> TESTING_ELEMENTS = itemTag("testing_elements");
     public static final Tags.IOptionalNamedTag<Item> IRON_FRAMES = itemTag("iron_frames");
-    public static final Tags.IOptionalNamedTag<Item> DECORATION = itemTag("decoration");
+    public static final Tags.IOptionalNamedTag<Item> CHAMBER_DECORATION = itemTag("chamber_decoration");
     public static final Tags.IOptionalNamedTag<Item> PRESSURE_PLATES = itemTag("pressure_plates");
 
     public static Tags.IOptionalNamedTag<Item> itemTag(String name) {
