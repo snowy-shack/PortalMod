@@ -14,6 +14,8 @@ public class BlockTagInit {
     public static final Tags.IOptionalNamedTag<Block> UNPORTALABLE = blockTag("unportalable");
     public static final Tags.IOptionalNamedTag<Block> PORTAL_TRANSPARENT = blockTag("portal_transparent");
     public static final Tags.IOptionalNamedTag<Block> PORTAL_NONBLOCKING = blockTag("portal_nonblocking");
+    public static final Tags.IOptionalNamedTag<Block> PORTAL_INHERITING = blockTag("portal_inheriting");
+    public static final Tags.IOptionalNamedTag<Block> PORTALABLE_QUALITY = blockTag("portalable_quality");
     public static final Tags.IOptionalNamedTag<Block> BLOCK_TRANSPARENT = blockTag("block_transparent");
     public static final Tags.IOptionalNamedTag<Block> BLOCK_PERMEABLE = blockTag("block_permeable");
 

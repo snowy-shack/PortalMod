@@ -32,10 +32,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.entities.TestElementEntity;
-import net.portalmod.common.sorted.portal.PortalEnd;
-import net.portalmod.common.sorted.portal.PortalEntity;
-import net.portalmod.common.sorted.portal.PortalManager;
-import net.portalmod.common.sorted.portal.PortalPair;
+import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
@@ -148,105 +145,73 @@ public class PortalGun extends Item {
             return BlockRayTraceResult.miss(ctx.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(ctx.getTo()));
         });
     }
+
+    private static void triggerMoonAdvancement(World level, ServerPlayerEntity player) {
+        double timeOfDay = level.getTimeOfDay(0) + .25f;
+        double angle = (timeOfDay - (int)timeOfDay) * 2f * Math.PI;
+        Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
+        if(player.getLookAngle().dot(moonVector) <= -0.997)
+            CriteriaTriggerInit.SHOOT_MOON.get().trigger(player);
+    }
+
+    private static void triggerPortalAdvancements(World level, ServerPlayerEntity player, PortalEntity portal, double distance) {
+        boolean allQualityBlocks = portal.getBlocksBehind().stream().allMatch(pos ->
+                level.getBlockState(pos).is(BlockTagInit.PORTALABLE_QUALITY));
+
+        CriteriaTriggerInit.PLACE_PORTALS.get().trigger(player);
+
+        if(allQualityBlocks)
+            CriteriaTriggerInit.PORTAL_SURFACE.get().trigger(player);
+
+        if(distance > 100)
+            CriteriaTriggerInit.SHOOT_PORTAL_FAR.get().trigger(player);
+
+        player.awardStat(StatsInit.PORTALS_SHOT);
+    }
     
     public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
-        if (player.isSpectator()) return;
+        if(player.isSpectator() || level.isClientSide)
+            return;
 
-        gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
-
-        // Play shooting animation
+        // Play shooting animation and sound
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                 new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
-
         level.playSound(null, player.position().x, player.position().y, player.position().z,
                 (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
 
         Vector3d rayPath = player.getViewVector(0).scale(200);
         Vector3d from = player.getEyePosition(0);
         Vector3d to = from.add(rayPath);
-
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
         BlockRayTraceResult ray = customClip(level, rayCtx);
-        
-        if(ray.getType() == RayTraceResult.Type.MISS && !level.isClientSide) {
-            double timeOfDay = (level.getTimeOfDay(0) + .25f);
-            double angle = (timeOfDay - (int)timeOfDay) * 2f * Math.PI;
-            Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
-            double dot = player.getLookAngle().dot(moonVector);
-            if(dot <= -0.997) {
-                CriteriaTriggerInit.SHOOT_MOON.get().trigger((ServerPlayerEntity) player);
-            }
-        }
-        
-        Direction face = ray.getDirection();
-        BlockPos pos = ray.getBlockPos().relative(face);
-        PortalEntity portal = new PortalEntity(level);
-        
-        if(!face.getAxis().isHorizontal()) {
-            Direction upVector = player.getDirection();
-            portal.setUpVector(upVector);
+
+        if(ray.getType() == RayTraceResult.Type.MISS) {
+            triggerMoonAdvancement(level, (ServerPlayerEntity)player);
+            return;
         }
 
-        // todo .5
-//        Vec3 portalPos = new Vec3(pos).add(.5).sub(new Vec3(face.getNormal()).mul(.499));
-        Vec3 portalPos = new Vec3(pos).add(.5).sub(new Vec3(face.getNormal()).mul(.5));
-        portal.setPos(portalPos.x, portalPos.y, portalPos.z);
-        portal.setDirection(face);
-        portal.setEnd(end);
-        portal.setGunUUID(getUUID(gun));
+        Vec3 position = new Vec3(ray.getLocation());
+        Direction face = ray.getDirection();
+        Direction up = face.getAxis().isHorizontal() ? Direction.UP : player.getDirection();
 
         CompoundNBT nbt = gun.getOrCreateTag();
         boolean isPrimary = end == PortalEnd.PRIMARY;
+        String hue = "blue";
         if(nbt.contains(isPrimary ? "LeftColor" : "RightColor")) {
-            portal.setHue(nbt.getString(isPrimary ? "LeftColor" : "RightColor"));
+            hue = nbt.getString(isPrimary ? "LeftColor" : "RightColor");
         }
 
-//        portal.setOtherPortalPos();
-        if(!portal.adjustShot(ray))
+        PortalEntity portal = PortalPlacer.placePortal(level, end, hue, getUUID(gun), position, face, up);
+
+        if(portal == null)
             return;
 
-        // todo check if this is client or server side
-
-        boolean allQualityBlocks = true;
-        for(BlockPos blockPos : portal.getBlocksBehind()) {
-            // todo check any quality block
-            if(portal.level.getBlockState(blockPos).getBlock() != BlockInit.LUNECAST.get())
-                allQualityBlocks = false;
-        }
-
-        if(allQualityBlocks)
-            CriteriaTriggerInit.PORTAL_SURFACE.get().trigger((ServerPlayerEntity)player);
-
-        if(ray.getLocation().subtract(from).length() > 100)
-            CriteriaTriggerInit.SHOOT_PORTAL_FAR.get().trigger((ServerPlayerEntity)player);
-
-        CriteriaTriggerInit.PLACE_PORTALS.get().trigger((ServerPlayerEntity)player);
-        player.awardStat(StatsInit.PORTALS_SHOT);
-//        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)player),
-//                new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
-//        level.playSound(null, player.position().x, player.position().y, player.position().z,
-//                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
-//        PortalPairCache.SERVER.put(getUUID(gun), end, portal);
-        level.addFreshEntity(portal);
-        PortalManager.put(getUUID(gun), end, portal, level);
+        triggerPortalAdvancements(level, (ServerPlayerEntity)player, portal, ray.getLocation().subtract(from).length());
 
         // todo convert to string
+        gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
         player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());
     }
-
-//    public static void setPortal(PortalEnd end, @Nullable BlockPos pos) {
-//        CompoundNBT nbt = itemStack.getOrCreateTag();
-//        UUID uuid;
-//
-//        if(nbt.contains("gunUUID")) {
-//            uuid = nbt.getUUID("gunUUID");
-//        } else {
-//            uuid = UUID.randomUUID();
-//            nbt.putUUID("gunUUID", uuid);
-//        }
-//
-//        return uuid;
-//    }
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
