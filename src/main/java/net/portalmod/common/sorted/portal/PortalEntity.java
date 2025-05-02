@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.portal;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -496,6 +497,24 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 .transform(portal2Matrix)
                 .to3d());
 
+        if(portal.getDirection().getAxis().isHorizontal() && targetPortal.getDirection().getAxis().isHorizontal()) {
+            Vec3 forward = Vec3.zAxis().transform(new Mat4(Vector3f.YN.rotationDegrees(entity.yRot)));
+            OrthonormalBasis portalBasis = portal.getSourceBasis();
+            OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
+            Mat4 changeOfBasisMatrix = portalBasis.getChangeOfBasisMatrix(targetPortalBasis);
+            forward.transform(changeOfBasisMatrix);
+            float newYaw = (float)(-Math.signum(Vec3.zAxis().cross(forward).dot(Vec3.yAxis())) * Math.acos(forward.dot(Vec3.zAxis())) / Math.PI * 180);
+            entity.yRot = newYaw;
+            entity.yRotO = newYaw;
+
+            if(entity instanceof ClientPlayerEntity) {
+                ClientPlayerEntity player = (ClientPlayerEntity)entity;
+                player.xBobO = player.xRot;
+                player.yBobO = player.yRot;
+                player.xBob = player.xRot;
+                player.yBob = player.yRot;
+            }
+        }
 
 
 
