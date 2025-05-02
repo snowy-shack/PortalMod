@@ -155,11 +155,7 @@ public class PortalManager extends WorldSavedData {
         });
     }
 
-    public static void put(UUID gunUUID, PortalEnd end, PortalEntity portal, World level) {
-
-        level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
-                SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, 1);
-
+    public static void put(UUID gunUUID, PortalEnd end, PortalEntity portal) {
         PortalPair pair = PORTAL_MAP.getOrDefault(gunUUID, new PortalPair());
         pair.computeIfPresent(end, PortalEntity::onReplaced);
         pair.set(end, portal);

@@ -1,0 +1,7 @@
+{
+  "replace": true,
+  "values": [
+    "portalmod:repulsion_gel",
+    "portalmod:propulsion_gel"
+  ]
+}
