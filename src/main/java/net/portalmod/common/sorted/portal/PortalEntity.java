@@ -35,6 +35,7 @@ import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
+import net.portalmod.core.math.AABBUtil;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
@@ -56,7 +57,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     private Direction direction = Direction.SOUTH;
     private Direction up = Direction.UP;
     private UUID gunUUID;
-    @Nullable private BlockPos otherPortalPos;
 
     private String hue = "blue";
     private String primary_color = "blue";
@@ -840,11 +840,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 origin.clone()
                         .sub(normal)
                         .sub(right.clone().mul(1.5))
-                        .sub(up.clone().mul(1.5))
+                        .sub(up.clone().mul(2))
                         .to3d(),
                 origin.clone()
                         .add(right.clone().mul(1.5))
-                        .add(up.clone().mul(2.5))
+                        .sub(up.clone().mul(2))
                         .to3d()
         ));
 
@@ -852,11 +852,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 origin.clone()
                         .sub(normal)
                         .sub(right.clone().mul(.5))
-                        .sub(up.clone().mul(.5))
+                        .sub(up.clone().mul(1))
                         .to3d(),
                 origin.clone()
                         .add(right.clone().mul(.5))
-                        .add(up.clone().mul(1.5))
+                        .sub(up.clone().mul(1))
                         .to3d()
         ));
 
@@ -866,15 +866,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public List<BlockPos> getBlocksBehind() {
-        AxisAlignedBB aabb = this.getBoundingBox().deflate(0.01)
-                .move(new Vec3(this.getDirection().getOpposite().getNormal()).mul(.5).to3d());
-
-        List<BlockPos> blocks = Lists.newArrayList();
-        for(int z = (int)Math.floor(aabb.minZ); z <= (int)Math.floor(aabb.maxZ); z++)
-            for(int y = (int)Math.floor(aabb.minY); y <= (int)Math.floor(aabb.maxY); y++)
-                for(int x = (int)Math.floor(aabb.minX); x <= (int)Math.floor(aabb.maxX); x++)
-                    blocks.add(new BlockPos(x, y, z));
-        return blocks;
+        AxisAlignedBB aabb = this.getBoundingBox().deflate(.001)
+                .move(new Vec3(this.getDirection().getOpposite().getNormal()).mul(1/16f).to3d());
+        return AABBUtil.getBlocksWithin(aabb);
     }
 
     private List<BlockState> getBlockStates(List<BlockPos> blocks) {
@@ -892,25 +886,13 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(this.direction == null || this.up == null)
             return;
 
-//        Vector3d pos = Vector3d.atCenterOf(this.pos)
-//                .subtract(new Vector3d(this.direction.step()).multiply(.49f, .49f, .49f));
-//        this.setPosRaw(pos.x, pos.y, pos.z);
-//        Vector3d pos = this.position();
-//        Vector4f baseVertex = new Vector4f(0, 0, 0, 1);
-//        Vector4f endVertex = new Vector4f(WIDTH, HEIGHT, DEPTH, 1);
         Vec3 baseVertex = new Vec3(0);
         Vec3 endVertex = new Vec3(WIDTH, HEIGHT, DEPTH);
 
-//        MatrixStack matrix = new MatrixStack();
-//        setupMatrix(matrix, this.direction, this.up, getPivotPoint());
-//        baseVertex.transform(matrix.last().pose());
-//        endVertex.transform(matrix.last().pose());
         Mat4 matrix = setupMatrix(this.direction, this.up, this.getPivotPoint());
         baseVertex.transform(matrix);
         endVertex.transform(matrix);
 
-//        this.setBoundingBox(new AxisAlignedBB(baseVertex.x(), baseVertex.y(), baseVertex.z(),
-//                endVertex.x(), endVertex.y(), endVertex.z()));
         this.setBoundingBox(new AxisAlignedBB(baseVertex.to3d(), endVertex.to3d()));
     }
 
@@ -933,7 +915,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         matrix.translate(center.x, center.y, center.z);
         matrix.mulPose(Vector3f.YP.rotationDegrees(yRot));
         matrix.mulPose(Vector3f.XP.rotationDegrees(i * 90));
-        matrix.translate(-.5f, -.5f, .5f);
+        matrix.translate(-.5f, -1f, .5f);
     }
 
     public static Mat4 setupMatrix(Direction direction, Direction upVector, Vector3d center) {
@@ -953,39 +935,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         matrix.translate(center.x, center.y, center.z);
         matrix.rotateDeg(Vector3f.YP, yRot);
         matrix.rotateDeg(Vector3f.XP, i * 90);
-//        matrix.mulPose(Vector3f.YP.rotationDegrees(yRot));
-//        matrix.mulPose(Vector3f.XP.rotationDegrees(i * 90));
-        matrix.translate(-.5f, -.5f, .5f);
+        matrix.translate(-.5f, -1f, .5f);
         return matrix;
     }
 
-    public Matrix4f getPortalSpaceMatrix() {
-        Vector3f z1 = new Vec3(this.getDirection().getNormal()).to3f();
-        Vector3f y1 = new Vec3(this.getUpVector().getNormal()).to3f();
-        Vector3f x1 = y1.copy();
-        x1.cross(z1);
-
-        return new Matrix4f(new float[] {
-                x1.x(), x1.y(), x1.z(), 0,
-                y1.x(), y1.y(), y1.z(), 0,
-                z1.x(), z1.y(), z1.z(), 0,
-                0,      0,      0,      1
-        });
-    }
-    
-    @Nullable
-    public PortalEntity getOtherEnd() {
-        return PortalPairCache.CLIENT.get(this.gunUUID).get(this.end.other());
-    }
-    
     public Vector3f getNormal() {
         return new Vec3(this.direction.getNormal()).to3f();
-    }
-    
-    public Vector3d getCenter() {
-        Vector3f normal = this.getNormal();
-        normal.mul(.5f);
-        return this.getPivotPoint().add(new Vector3d(normal));
     }
 
     public OrthonormalBasis getSourceBasis() {
@@ -996,20 +951,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return new OrthonormalBasis(new Vec3(this.getDirection().getOpposite()), new Vec3(this.getUpVector()));
     }
 
-    public Vector3d getRenderOffset() {
-        Optional<PortalEntity> targetPortal = this.getOtherPortal();
-//        PortalEntity targetPortal = this.getOtherEnd();
-//        if(targetPortal == null || false)
-        if(!targetPortal.isPresent() || false)
-            return Vector3d.ZERO;
-        return targetPortal.get().getCenter().subtract(this.getCenter());
-    }
-
     public void onReplaced() {
         if(!this.level.isClientSide)
             ((ServerWorld)this.level).removeEntity(this, false);
-//        else
-//            this.remove();
     }
 
     public boolean isOpen() {
@@ -1071,10 +1015,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.recalculateBoundingBox();
     }
 
-    public void setOtherPortalPos(BlockPos pos) {
-        this.otherPortalPos = new BlockPos(pos);
-    }
-
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
@@ -1121,7 +1061,18 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         .and(up, BlockTagInit::isPortalable)
         .getResult();
     }
-    
+
+    public static boolean canSurviveOn(World level, BlockPos attachedBlockPos, Direction normal, boolean skipFrontBlock) {
+        BlockState attachedBlock = level.getBlockState(attachedBlockPos);
+        BlockState frontBlock = level.getBlockState(attachedBlockPos.relative(normal));
+        BlockState behindBlock = level.getBlockState(attachedBlockPos.relative(normal.getOpposite()));
+        boolean portalable = attachedBlock.is(BlockTagInit.PORTALABLE);
+        boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
+        boolean behindPortalable = behindBlock.is(BlockTagInit.PORTALABLE);
+        boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING);
+        return (portalable || (inheriting && behindPortalable)) && (skipFrontBlock || frontNonBlocking);
+    }
+
     private enum Intersection {
         UP, DOWN, BOTH, NONE
     }
