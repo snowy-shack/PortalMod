@@ -11,6 +11,7 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 
@@ -131,7 +132,7 @@ public class PortalEntityClient {
                 Vector3f normal = new Vec3(portal.getDirection().getNormal()).to3f();
                 Vector3f normal2 = new Vec3(portal.getDirection().getNormal()).to3f();
                 normal.mul(.5f);
-                normal2.mul(PortalEntityRenderer.OFFSET);
+                normal2.mul(0.001f);
                 Vector3d portalPos = Vector3d.atCenterOf(portal.blockPosition())
                         .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
 
@@ -140,7 +141,7 @@ public class PortalEntityClient {
                 Vector3f targetNormal = new Vec3(targetPortal.getDirection().getNormal()).to3f();
                 Vector3f targetnormal2 = new Vec3(targetPortal.getDirection().getNormal()).to3f();
                 targetNormal.mul(.5f);
-                targetnormal2.mul(PortalEntityRenderer.OFFSET);
+                targetnormal2.mul(0.001f);
                 Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
                         .subtract(new Vector3d(targetNormal)).add(new Vector3d(targetnormal2));
 
@@ -171,9 +172,24 @@ public class PortalEntityClient {
                 Vector3d normalBobbed = new Vector3d(normalBobbed4f.x(), normalBobbed4f.y(), normalBobbed4f.z());
                 normalBobbed = normalBobbed.subtract(portalPosBobbed);
 
+                OrthonormalBasis portalBasis = portal.getSourceBasis();
+                OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
+                Mat4 changeOfBasisMatrix = portalBasis.getChangeOfBasisMatrix(targetPortalBasis);
+
                 if(portalPosBobbed.dot(normalBobbed) < 0) {
-                    ((ActiveRenderInfoAccessor) event.getInfo()).pmSetPosition(cameraPos.add(targetPortalPos.subtract(portalPos)));
+                    Vec3 newCameraPos = new Vec3(cameraPos)
+                            .sub(portalPos.add(new Vec3(portal.getNormal()).mul(.001).to3d()))
+                            .transform(changeOfBasisMatrix)
+                            .add(targetPortalPos.add(new Vec3(targetPortal.getNormal()).mul(.001).to3d()));
+                    ((ActiveRenderInfoAccessor) event.getInfo()).pmSetPosition(newCameraPos.to3d());
 //                    event.getInfo().setAnglesInternal(90, 0);
+
+                    if(portal.getDirection().getAxis().isHorizontal() && targetPortal.getDirection().getAxis().isHorizontal()) {
+                        Vec3 forward = Vec3.zAxis().transform(new Mat4(Vector3f.YN.rotationDegrees(camera.getYRot())));
+                        forward.transform(changeOfBasisMatrix);
+                        float newYaw = (float)(-Math.signum(Vec3.zAxis().cross(forward).dot(Vec3.yAxis())) * Math.acos(forward.dot(Vec3.zAxis())) / Math.PI * 180);
+                        camera.setAnglesInternal(newYaw, camera.getXRot());
+                    }
                 }
             }
         }
