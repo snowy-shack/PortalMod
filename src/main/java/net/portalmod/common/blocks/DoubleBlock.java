@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.EnumProperty;
@@ -43,8 +44,8 @@ public class DoubleBlock extends MultiBlock {
     }
 
     @Override
-    public boolean isMainBlock(BlockState blockState) {
-        return blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
+    public StatePropertiesPredicate.Builder mainBlockPredicate() {
+        return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.LOWER);
     }
 
     @Nullable

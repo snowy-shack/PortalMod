@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.cubedropper;
 
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -160,8 +161,8 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public boolean isMainBlock(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.UPPER && state.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
+    public StatePropertiesPredicate.Builder mainBlockPredicate() {
+        return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.UPPER).hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
     @Nullable
