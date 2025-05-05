@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:step_pillar"
+          "name": "portalmod:vintage_lunecast_platform"
         }
       ],
       "conditions": [

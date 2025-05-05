@@ -312,19 +312,16 @@ public class RecipeGen extends RecipeProvider {
         blackplateStairs(c, ItemInit.FRACTURED_BLACKPLATE_STAIRS.get(), ItemInit.FRACTURED_BLACKPLATE.get());
         blackplateStairs(c, ItemInit.VINTAGE_BLACKPLATE_STAIRS.get(), ItemInit.VINTAGE_BLACKPLATE.get());
 
-        //todo uncomment after merge
-//        lunecastPlatform(c, ItemInit.LUNECAST_PLATFORM.get(), ItemInit.LUNECAST_SLAB.get());
-//        lunecastPlatform(c, ItemInit.ARBORED_LUNECAST_PLATFORM.get(), ItemInit.ARBORED_LUNECAST_SLAB.get());
-//        lunecastPlatform(c, ItemInit.ERODED_LUNECAST_PLATFORM.get(), ItemInit.ERODED_LUNECAST_SLAB.get());
-//        lunecastPlatform(c, ItemInit.FRACTURED_LUNECAST_PLATFORM.get(), ItemInit.FRACTURED_LUNECAST_SLAB.get());
-//        lunecastPlatform(c, ItemInit.VINTAGE_LUNECAST_PLATFORM.get(), ItemInit.VINTAGE_LUNECAST_SLAB.get());
-//        blackplatePlatform(c, ItemInit.BLACKPLATE_PLATFORM.get(), ItemInit.BLACKPLATE_SLAB.get());
-//        blackplatePlatform(c, ItemInit.ARBORED_BLACKPLATE_PLATFORM.get(), ItemInit.ARBORED_BLACKPLATE_SLAB.get());
-//        blackplatePlatform(c, ItemInit.ERODED_BLACKPLATE_PLATFORM.get(), ItemInit.ERODED_BLACKPLATE_SLAB.get());
-//        blackplatePlatform(c, ItemInit.FRACTURED_BLACKPLATE_PLATFORM.get(), ItemInit.FRACTURED_BLACKPLATE_SLAB.get());
-//        blackplatePlatform(c, ItemInit.VINTAGE_BLACKPLATE_PLATFORM.get(), ItemInit.VINTAGE_BLACKPLATE_SLAB.get());
-
-
+        lunecastPlatform(c, ItemInit.LUNECAST_PLATFORM.get(), ItemInit.LUNECAST_SLAB.get());
+        lunecastPlatform(c, ItemInit.ARBORED_LUNECAST_PLATFORM.get(), ItemInit.ARBORED_LUNECAST_SLAB.get());
+        lunecastPlatform(c, ItemInit.ERODED_LUNECAST_PLATFORM.get(), ItemInit.ERODED_LUNECAST_SLAB.get());
+        lunecastPlatform(c, ItemInit.FRACTURED_LUNECAST_PLATFORM.get(), ItemInit.FRACTURED_LUNECAST_SLAB.get());
+        lunecastPlatform(c, ItemInit.VINTAGE_LUNECAST_PLATFORM.get(), ItemInit.VINTAGE_LUNECAST_SLAB.get());
+        blackplatePlatform(c, ItemInit.BLACKPLATE_PLATFORM.get(), ItemInit.BLACKPLATE_SLAB.get());
+        blackplatePlatform(c, ItemInit.ARBORED_BLACKPLATE_PLATFORM.get(), ItemInit.ARBORED_BLACKPLATE_SLAB.get());
+        blackplatePlatform(c, ItemInit.ERODED_BLACKPLATE_PLATFORM.get(), ItemInit.ERODED_BLACKPLATE_SLAB.get());
+        blackplatePlatform(c, ItemInit.FRACTURED_BLACKPLATE_PLATFORM.get(), ItemInit.FRACTURED_BLACKPLATE_SLAB.get());
+        blackplatePlatform(c, ItemInit.VINTAGE_BLACKPLATE_PLATFORM.get(), ItemInit.VINTAGE_BLACKPLATE_SLAB.get());
 
         ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_LIGHTS.get(), 2)
                 .pattern("g#g").define('#', ItemInit.BLACKPLATE.get())
@@ -384,17 +381,17 @@ public class RecipeGen extends RecipeProvider {
                 .group("iron_frame")
                 .save(c);
 
-//        ShapedRecipeBuilder.shaped(ItemInit.PLATFORM_BEAM.get(), 6) //todo uncomment after merge
-//                .pattern("c").define('c', Items.CHAINS)
-//                .pattern("i").define('i', Items.IRON_INGOT)
-//                .pattern("i")
-//                .unlockedBy("has_item", HAS_DECORATION_BLOCK)
-//                .save(c);
+        ShapedRecipeBuilder.shaped(ItemInit.PLATFORM_BEAM.get(), 6)
+                .pattern("c").define('c', Items.CHAIN)
+                .pattern("i").define('i', Items.IRON_INGOT)
+                .pattern("i")
+                .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
+                .save(c);
 
         rustyVariant(c, ItemInit.RUSTY_IRON_FRAME.get(), ItemInit.IRON_FRAME.get(), "rusty_iron_frame");
         rustyVariant(c, ItemInit.RUSTY_MESHED_IRON_FRAME.get(), ItemInit.MESHED_IRON_FRAME.get(), "rusty_iron_frame");
         rustyVariant(c, ItemInit.RUSTY_BARRED_IRON_FRAME.get(), ItemInit.BARRED_IRON_FRAME.get(), "rusty_iron_frame");
-//        rustyVariant(c, ItemInit.RUSTY_PLATFORM_BEAM.get(), ItemInit.PLATFORM_BEAM.get(), "rusty_beam"); //todo uncomment after merge
+        rustyVariant(c, ItemInit.RUSTY_PLATFORM_BEAM.get(), ItemInit.PLATFORM_BEAM.get(), "rusty_beam");
 
     }
 
