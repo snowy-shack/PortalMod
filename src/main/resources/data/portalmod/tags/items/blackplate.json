@@ -1,0 +1,20 @@
+{
+  "replace": false,
+  "values": [
+    "portalmod:blackplate",
+    "portalmod:blackplate_stairs",
+    "portalmod:blackplate_slab",
+    "portalmod:arbored_blackplate",
+    "portalmod:arbored_blackplate_stairs",
+    "portalmod:arbored_blackplate_slab",
+    "portalmod:eroded_blackplate",
+    "portalmod:eroded_blackplate_stairs",
+    "portalmod:eroded_blackplate_slab",
+    "portalmod:fractured_blackplate",
+    "portalmod:fractured_blackplate_stairs",
+    "portalmod:fractured_blackplate_slab",
+    "portalmod:vintage_blackplate",
+    "portalmod:vintage_blackplate_stairs",
+    "portalmod:vintage_blackplate_slab"
+  ]
+}

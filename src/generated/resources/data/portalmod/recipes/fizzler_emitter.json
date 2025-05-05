@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "Bi",
+    "Bd",
+    "Bi"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "d": {
+      "item": "minecraft:prismarine_crystals"
+    },
+    "B": {
+      "item": "minecraft:blackstone"
+    }
+  },
+  "result": {
+    "item": "portalmod:fizzler_emitter",
+    "count": 2
+  }
+}

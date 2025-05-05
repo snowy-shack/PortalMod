@@ -7,13 +7,14 @@
   },
   "criteria": {
     "has_item": {
-      "trigger": "minecraft:inventory_changed",
+      "trigger": "minecraft:item_used_on_block",
       "conditions": {
-        "items": [
-          {
-            "item": "portalmod:super_button"
+        "location": {
+          "block": {
+            "block": "minecraft:crafting_table"
           }
-        ]
+        },
+        "item": {}
       }
     },
     "has_the_recipe": {

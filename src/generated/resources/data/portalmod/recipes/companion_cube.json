@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IiI",
+    "iai",
+    "IiI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "i": {
+      "item": "minecraft:iron_nugget"
+    },
+    "a": {
+      "item": "minecraft:golden_apple"
+    }
+  },
+  "result": {
+    "item": "portalmod:companion_cube"
+  }
+}

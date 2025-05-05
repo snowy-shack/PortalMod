@@ -1,5 +1,0 @@
-{
-    "type": "smelting",
-    "ingredient": { "item": "portalmod:lunecast" },
-    "result": "portalmod:fractured_lunecast"
-}

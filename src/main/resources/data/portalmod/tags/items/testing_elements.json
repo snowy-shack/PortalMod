@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "portalmod:super_button",
+    "portalmod:standing_button",
+    "portalmod:chamber_door",
+    "portalmod:fizzler_emitter",
+    "portalmod:chamber_sign",
+    "portalmod:turret",
+    "portalmod:propulsion_gel",
+    "portalmod:repulsion_gel"
+  ]
+}

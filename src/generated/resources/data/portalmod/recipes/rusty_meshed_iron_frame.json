@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "rusty_iron_frame",
+  "ingredients": [
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "minecraft:water_bucket"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    },
+    {
+      "item": "portalmod:meshed_iron_frame"
+    }
+  ],
+  "result": {
+    "item": "portalmod:rusty_meshed_iron_frame",
+    "count": 8
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "b",
+    "i",
+    "#"
+  ],
+  "key": {
+    "b": {
+      "tag": "minecraft:buttons"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "#": {
+      "item": "minecraft:blackstone"
+    }
+  },
+  "result": {
+    "item": "portalmod:standing_button"
+  }
+}

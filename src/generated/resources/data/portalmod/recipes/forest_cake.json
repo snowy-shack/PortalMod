@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "oio",
+    "cfc",
+    "www"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:torch"
+    },
+    "o": {
+      "item": "minecraft:sweet_berries"
+    },
+    "c": {
+      "item": "minecraft:cocoa_beans"
+    },
+    "f": {
+      "item": "minecraft:rotten_flesh"
+    },
+    "w": {
+      "item": "minecraft:wheat"
+    }
+  },
+  "result": {
+    "item": "portalmod:forest_cake"
+  }
+}

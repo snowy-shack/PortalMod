@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
@@ -74,8 +75,8 @@ public class QuadBlock extends MultiBlock {
     }
 
     @Override
-    public boolean isMainBlock(BlockState blockState) {
-        return blockState.getValue(CORNER) == QuadBlockCorner.UP_LEFT;
+    public StatePropertiesPredicate.Builder mainBlockPredicate() {
+        return StatePropertiesPredicate.Builder.properties().hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
     public boolean checkEachBlock(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing, Predicate<BlockState> p) {

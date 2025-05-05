@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.door;
 
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -110,8 +111,8 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public boolean isMainBlock(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(SIDE) == Side.LEFT;
+    public StatePropertiesPredicate.Builder mainBlockPredicate() {
+        return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.LOWER).hasProperty(SIDE, Side.LEFT);
     }
 
     @Override

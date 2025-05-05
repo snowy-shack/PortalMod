@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "g#g",
+    "g#g"
+  ],
+  "key": {
+    "#": {
+      "item": "portalmod:blackplate"
+    },
+    "g": {
+      "item": "minecraft:glowstone_dust"
+    }
+  },
+  "result": {
+    "item": "portalmod:chamber_lights",
+    "count": 2
+  }
+}

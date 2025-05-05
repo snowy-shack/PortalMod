@@ -30,6 +30,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
+//todo turn into MultiBlock
 public class FaithPlateBlock extends Block {
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
