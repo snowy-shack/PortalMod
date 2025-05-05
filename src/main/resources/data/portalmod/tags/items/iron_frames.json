@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "portalmod:iron_frame",
+    "portalmod:barred_iron_frame",
+    "portalmod:meshed_iron_frame",
+    "portalmod:rusty_iron_frame",
+    "portalmod:rusty_barred_iron_frame",
+    "portalmod:rusty_meshed_iron_frame"
+  ]
+}

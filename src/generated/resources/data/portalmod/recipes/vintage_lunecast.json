@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "lunecast_variant",
+  "ingredients": [
+    {
+      "item": "portalmod:lunecast"
+    },
+    {
+      "tag": "minecraft:planks"
+    }
+  ],
+  "result": {
+    "item": "portalmod:vintage_lunecast"
+  }
+}

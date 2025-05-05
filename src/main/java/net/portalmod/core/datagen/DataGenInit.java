@@ -16,5 +16,6 @@ public class DataGenInit {
 
         generator.addProvider(new BlockStateGen(generator, helper));
         generator.addProvider(new RecipeGen(generator));
+        generator.addProvider(new LootTableGen(generator));
     }
 }

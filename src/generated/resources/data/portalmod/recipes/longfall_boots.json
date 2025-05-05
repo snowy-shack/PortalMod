@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "i i",
+    "n n"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "n": {
+      "item": "minecraft:netherite_scrap"
+    }
+  },
+  "result": {
+    "item": "portalmod:longfall_boots"
+  }
+}

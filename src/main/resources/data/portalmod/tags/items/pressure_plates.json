@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:wooden_pressure_plates",
+    "portalmod:stone_pressure_plate",
+    "portalmod:polished_blackstone_pressure_plate",
+    "portalmod:heavy_weighted_pressure_plate",
+    "portalmod:light_weighted_pressure_plate"
+  ]
+}

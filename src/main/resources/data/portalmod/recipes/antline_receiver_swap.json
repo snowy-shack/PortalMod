@@ -1,8 +1,0 @@
-{
-    "type": "minecraft:crafting_shapeless",
-    "ingredients": [
-        { "item": "portalmod:antline_converter" }
-    ],
-    "result": { "item": "portalmod:antline_receiver" },
-    "category": "redstone"
-}

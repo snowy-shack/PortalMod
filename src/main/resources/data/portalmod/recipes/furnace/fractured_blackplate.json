@@ -1,5 +1,0 @@
-{
-    "type": "smelting",
-    "ingredient": { "item": "portalmod:blackplate" },
-    "result": "portalmod:fractured_blackplate"
-}

@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -18,6 +19,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class MultiBlock extends Block {
+
+    private final StatePropertiesPredicate predicate = mainBlockPredicate().build();
 
     public MultiBlock(Properties properties) {
         super(properties);
@@ -39,9 +42,13 @@ public abstract class MultiBlock extends Block {
     public abstract void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos);
 
     /**
-     * @return whether the blockstate is the main block.
+     * @return a predicate for determining whether a blockstate is the main block.
      */
-    public abstract boolean isMainBlock(BlockState blockState);
+    public abstract StatePropertiesPredicate.Builder mainBlockPredicate();
+
+    public boolean isMainBlock(BlockState blockState) {
+        return predicate.matches(blockState);
+    }
 
     public List<BlockPos> getAllPositions(BlockState blockState, BlockPos pos) {
         BlockPos mainPos = this.getMainPosition(blockState, pos);
