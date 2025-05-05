@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "lunecast_platform",
+  "pattern": [
+    "s",
+    "i"
+  ],
+  "key": {
+    "s": {
+      "item": "portalmod:arbored_lunecast_slab"
+    },
+    "i": {
+      "tag": "portalmod:iron_frames"
+    }
+  },
+  "result": {
+    "item": "portalmod:arbored_lunecast_platform"
+  }
+}

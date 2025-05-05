@@ -4,17 +4,22 @@
     "portalmod:lunecast",
     "portalmod:lunecast_stairs",
     "portalmod:lunecast_slab",
+    "portalmod:lunecast_platform",
     "portalmod:arbored_lunecast",
     "portalmod:arbored_lunecast_stairs",
     "portalmod:arbored_lunecast_slab",
+    "portalmod:arbored_lunecast_platform",
     "portalmod:eroded_lunecast",
     "portalmod:eroded_lunecast_stairs",
     "portalmod:eroded_lunecast_slab",
+    "portalmod:eroded_lunecast_platform",
     "portalmod:fractured_lunecast",
     "portalmod:fractured_lunecast_stairs",
     "portalmod:fractured_lunecast_slab",
+    "portalmod:fractured_lunecast_platform",
     "portalmod:vintage_lunecast",
     "portalmod:vintage_lunecast_stairs",
-    "portalmod:vintage_lunecast_slab"
+    "portalmod:vintage_lunecast_slab",
+    "portalmod:vintage_lunecast_platform"
   ]
 }

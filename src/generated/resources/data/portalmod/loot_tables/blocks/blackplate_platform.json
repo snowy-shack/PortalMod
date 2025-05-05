@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:blackplate_step"
+          "name": "portalmod:blackplate_platform"
         }
       ],
       "conditions": [

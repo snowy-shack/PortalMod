@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:rusty_blackplate_step"
+          "name": "portalmod:rusty_platform_beam"
         }
       ],
       "conditions": [

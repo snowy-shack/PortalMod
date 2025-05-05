@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:rusty_lunecast_step"
+          "name": "portalmod:eroded_blackplate_platform"
         }
       ],
       "conditions": [
