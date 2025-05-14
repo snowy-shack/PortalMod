@@ -41,6 +41,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
+import net.portalmod.common.sorted.portalgun.api.SkinLoader;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
@@ -114,6 +115,8 @@ public class ClientModEvents {
 
             ShaderInit.REGISTRY.registerAll();
         });
+
+        PortalGunISTER.TEST_TEXTURE = SkinLoader.loadSkin("booster");
     }
 
     private static void registerItemProperty(Item item, String name, IItemPropertyGetter getter) {
