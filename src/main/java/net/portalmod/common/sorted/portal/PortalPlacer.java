@@ -11,6 +11,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.*;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,14 +27,15 @@ public class PortalPlacer {
                 right.x, up.x, forward.x, 0,
                 right.y, up.y, forward.y, 0,
                 right.z, up.z, forward.z, 0,
-                0,    0,         0, 1
+                0, 0, 0, 1
         );
 
-        // boxes
+        // Portal hitbox AABB
         AxisAlignedBB smallAABB = new AxisAlignedBB(-.5, -1, 0,  .5,  1, 1/16f);
         smallAABB = AABBUtil.transform(smallAABB, toAbsolute);
         smallAABB = AABBUtil.translate(smallAABB, position);
 
+        // probably to get the blocks behind
         AxisAlignedBB largeAABB = new AxisAlignedBB(-1, -2, -(1/16f - .001),  1,  2, -.001);
         largeAABB = AABBUtil.transform(largeAABB, toAbsolute);
         largeAABB = AABBUtil.translate(largeAABB, position);
@@ -42,79 +44,84 @@ public class PortalPlacer {
                 .add(new Vec3(face.getNormal()).mul(1/16f - .001))
                 .to3i().equals(position.clone().sub(new Vec3(face.getNormal()).mul(.001)).to3i());
 
-        // get all blocks
+        // Get all blocks TODO surface / blocking?
         List<BlockPos> blocks = Lists.newArrayList();
-        for(int z = (int)Math.floor(largeAABB.minZ); z <= (int)Math.floor(largeAABB.maxZ); z++)
-            for(int y = (int)Math.floor(largeAABB.minY); y <= (int)Math.floor(largeAABB.maxY); y++)
-                for(int x = (int)Math.floor(largeAABB.minX); x <= (int)Math.floor(largeAABB.maxX); x++)
+        for (int z = (int) Math.floor(largeAABB.minZ); z <= (int) Math.floor(largeAABB.maxZ); z++)
+            for (int y = (int) Math.floor(largeAABB.minY); y <= (int) Math.floor(largeAABB.maxY); y++)
+                for (int x = (int) Math.floor(largeAABB.minX); x <= (int) Math.floor(largeAABB.maxX); x++)
                     blocks.add(new BlockPos(x, y, z));
 
-        // prepare surface
+        // Prepare a VoxelShape with all portalable surface blocks
         VoxelShape surface = VoxelShapes.empty();
-        for(BlockPos block : blocks) {
-            if(!PortalEntity.canSurviveOn(level, block, face, skipFrontBlock))
-                continue;
+        for (BlockPos block : blocks) {
+            // TODO ?? Why negate
+            if (!PortalEntity.canSurviveOn(level, block, face, skipFrontBlock)) continue;
 
+            // Get the VoxelShape of the block
             VoxelShape blockShape = level.getBlockState(block).getCollisionShape(level, block);
-            for(AxisAlignedBB aabb : blockShape.toAabbs()) {
+
+            // Find surface cubes in the Block shape, and add them to the surface VoxelShape
+            for (AxisAlignedBB aabb : blockShape.toAabbs()) {
                 aabb = aabb.move(block);
-                if(AABBUtil.getSide(aabb, face) == position.choose(face.getAxis())) {
+
+                if (AABBUtil.getSide(aabb, face) == position.choose(face.getAxis())) {
                     VoxelShape aabbShape = VoxelShapes.create(aabb);
                     surface = VoxelShapes.or(surface, aabbShape);
                 }
             }
         }
 
-        // prepare collision
+        // Create an extruded VoxelShape of invalid surface blocks to reposition the portal
+        // TODO add preexisting portals to this to add Portal bumping
         VoxelShape collision = VoxelShapes.empty();
-        for(BlockPos block : blocks) {
-            if(!PortalEntity.canSurviveOn(level, block, face, skipFrontBlock))
+        for (BlockPos block : blocks) {
+            if (!PortalEntity.canSurviveOn(level, block, face, skipFrontBlock))
                 collision = VoxelShapes.or(collision, VoxelShapes.create(new AxisAlignedBB(block)));
 
             VoxelShape blockShape = level.getBlockState(block).getCollisionShape(level, block);
-            for(AxisAlignedBB aabb : blockShape.toAabbs()) {
+            for (AxisAlignedBB aabb : blockShape.toAabbs()) {
                 aabb = aabb.move(block);
 
-                boolean isBump;
-                if(face.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-                    isBump = AABBUtil.getSide(aabb, face) > position.choose(face.getAxis());
-                } else {
-                    isBump = AABBUtil.getSide(aabb, face) < position.choose(face.getAxis());
-                }
+                // Check whether the AABB is extending beyond the surface (rather than being inset)
+                boolean isBump = face.getAxisDirection() == Direction.AxisDirection.POSITIVE
+                        ? AABBUtil.getSide(aabb, face) > position.choose(face.getAxis())
+                        : AABBUtil.getSide(aabb, face) < position.choose(face.getAxis());
 
-                if(isBump) {
-                    Vec3 extrusion = new Vec3(face.getNormal()).mul(1000);
-                    VoxelShape aabbShape = VoxelShapes.create(aabb
-                            .expandTowards(extrusion.to3d())
-                            .expandTowards(extrusion.negate().to3d()));
+                // If it's a bump, extrude it and add it to the collision shape
+                if (isBump) {
+//                    Vec3 extrusion = new Vec3(face.getNormal()).mul(1000);
+                    VoxelShape aabbShape = VoxelShapes.create(aabb);
+//                            .expandTowards(extrusion.to3d()) // TODO Re-enable if bumps aren't correctly recognized
+//                            .expandTowards(extrusion.negate().to3d()));
+
                     collision = VoxelShapes.or(collision, aabbShape);
                 }
             }
         }
 
-//        DebugRenderer.replaceDebugShape(gun + "1", collision, new Colour(1f, 0f, 0f, 1f));
-
-        // prepare surface holes
+        // Carve out the extruded invalid VoxelShapes from the surface shape
         surface = VoxelShapes.join(surface, collision, IBooleanFunction.ONLY_FIRST);
 
-//        DebugRenderer.replaceDebugShape(gun + "2", surface, new Colour(0f, 1f, 0f, 1f));
-
+        // # Bumping
         // get valid corners and largest reaction per direction
-        List<AABBVertex> corners = Collider.getFaceCorners(face.getOpposite(), smallAABB);
+        // reaction := movement of the portal to react to invalid surfaces
+        // tldr moving the portal towards the nearest valid surface
+        List<AABBVertex> corners = Collider.getFaceCorners(face.getOpposite(), smallAABB); // Size: 4, all DOWN
         Map<Direction, Double> largestReactionByDirection = new HashMap<>();
-        for(AxisAlignedBB box : collision.toAabbs()) {
-            for(int i = corners.size() - 1; i >= 0; i--)
-                if(Collider.pointInBoxExceptAxis(face.getAxis(), box, corners.get(i).getPosition()))
+        for (AxisAlignedBB box : collision.toAabbs()) {
+            for (int i = corners.size() - 1; i >= 0; i--)
+                if (Collider.pointInBoxExceptAxis(face.getAxis(), box, corners.get(i).getPosition()))
                     corners.remove(i);
 
             Optional<List<Vec3>> reactionsOptional = Collider.collideExceptAxis(face.getAxis(), box, smallAABB);
-            if(!reactionsOptional.isPresent())
-                continue;
+            if (!reactionsOptional.isPresent()) continue;
+
             List<Vec3> reactions = reactionsOptional.get();
-            for(Vec3 reaction : reactions) {
+
+            for (Vec3 reaction : reactions) {
                 Direction reactionDirection = reaction.clone().normalize().round().toDirection();
-                if(largestReactionByDirection.containsKey(reactionDirection)) {
-                    if(reaction.magnitude() > largestReactionByDirection.get(reactionDirection)) {
+                if (largestReactionByDirection.containsKey(reactionDirection)) {
+                    if (reaction.magnitude() > largestReactionByDirection.get(reactionDirection)) {
                         largestReactionByDirection.put(reactionDirection, reaction.magnitude());
                     }
                 } else {
@@ -128,52 +135,62 @@ public class PortalPlacer {
         List<List<Direction>> allNormals = corners.stream()
                 .map(corner -> corner.getCorner().getNormals())
                 .collect(Collectors.toList());
+
         allNormals.forEach(normals -> normals.remove(face.getOpposite()));
 
-        switch(corners.size()) {
+        ModUtil.sendChatSinglePlayer("Corners", corners.size());
+        switch (corners.size()) {
+            // One corner is unobstructed
             case 1: {
+//                for (Direction direction : Direction.values())
+//                    reaction.add(largestReactionByDirection.get(direction));
+
                 reaction = allNormals.get(0).stream().map(direction -> {
-                    if(largestReactionByDirection.containsKey(direction))
+                    if (largestReactionByDirection.containsKey(direction))
                         return new Vec3(direction).mul(largestReactionByDirection.get(direction));
                     return Vec3.origin();
                 }).reduce(Vec3.origin(), Vec3::add);
                 break;
             }
 
+            // Two corners are unobstructed
             case 2: {
                 List<Direction> reactionDirections = allNormals.get(0).stream().filter(allNormals.get(1)::contains).collect(Collectors.toList());
-                if(reactionDirections.isEmpty())
-                    return null;
+                if (reactionDirections.isEmpty()) return null;
+
                 Direction reactionDirection = reactionDirections.get(0);
                 reaction = new Vec3(reactionDirection).mul(largestReactionByDirection.get(reactionDirection));
                 break;
             }
 
+            // Three corners are unobstructed
             case 3: {
                 Stream<Direction> normals12 = allNormals.get(0).stream().filter(allNormals.get(1)::contains);
                 Stream<Direction> normals23 = allNormals.get(1).stream().filter(allNormals.get(2)::contains);
                 Stream<Direction> normals13 = allNormals.get(0).stream().filter(allNormals.get(2)::contains);
+
                 reaction = Stream.concat(Stream.concat(normals12, normals23), normals13)
                         .map(direction -> new Vec3(direction).mul(largestReactionByDirection.get(direction)))
-                        .reduce(Vec3.infinity(), (previous, next) -> {
-                            if(next.magnitude() < previous.magnitude())
-                                return next;
-                            return previous;
-                        });
+                        .reduce(Vec3.infinity(), (previous, next) ->
+                                next.magnitude() < previous.magnitude()
+                                        ? next : previous
+//                                next.add(previous) // TODO the wise Snipy said this caused bugs. INVESTIGATE!!
+                        );
                 break;
             }
 
-            case 4:
-                break;
-            default:
-                return null;
+            // All corners are unobstructed
+            case 4: break;
+            default: return null;
         }
 
-        if(reaction != null) {
+        // Move the Portal position
+        if (reaction != null) {
             position.add(reaction);
             smallAABB = AABBUtil.translate(smallAABB, reaction);
         }
 
+        // Check whether the new Portal position is still invalid
         Vec3 extrusion = new Vec3(face.getNormal()).mul(1000);
         surface = AABBUtil.forEachBox(surface, box ->
                 box.expandTowards(extrusion.to3d()).expandTowards(extrusion.negate().to3d()));
@@ -183,9 +200,7 @@ public class PortalPlacer {
 
         VoxelShape invertedSurface = VoxelShapes.join(surface, solid, IBooleanFunction.ONLY_SECOND);
 
-//        DebugRenderer.replaceDebugShape(gun + "3", solid, new Colour(0f, 0f, 1f, 1f));
-//        DebugRenderer.replaceDebugShape(gun + "4", invertedSurface, new Colour(1f, 1f, 0f, 1f));
-
+        // Snap the Portal position to texels
         position.mul(16).round().div(16);
 
         smallAABB = smallAABB.deflate(.001);
@@ -193,16 +208,17 @@ public class PortalPlacer {
         boolean stillCollides = invertedSurface.toAabbs().stream().anyMatch(box ->
                 Collider.collideExceptAxis(face.getAxis(), box, finalSmallAABB).isPresent());
 
-        if(stillCollides)
-            return null;
+        if (stillCollides) return null;
 
+        // Check if all blocks below the portal are still portalable
         boolean canSurvive = AABBUtil.checkBlocksWithin(level,
                 smallAABB.move(new Vec3(face.getNormal()).mul(-1/16f).to3d()),
-                (pos, state) -> PortalEntity.canSurviveOn(level, pos, face, skipFrontBlock));
+                (pos, state) -> PortalEntity.canSurviveOn(level, pos, face, skipFrontBlock)
+        );
 
-        if(!canSurvive)
-            return null;
+        if (!canSurvive) return null;
 
+        // Spawn the portal
         PortalEntity portal = new PortalEntity(level);
         position.add(new Vec3(face.getNormal()).mul(.001));
         portal.setPos(position.x, position.y, position.z);

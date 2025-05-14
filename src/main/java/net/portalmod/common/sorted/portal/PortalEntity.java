@@ -1058,37 +1058,37 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public boolean survives(World level) {
-//        if(true)
-//            return true;
+        if (true) return true;
 
-//        Vector3f normal = new Vec3(up.getNormal()).to3f();
-//        normal.mul(.5f);
         Vector3f normal = new Vec3(up.getNormal()).mul(.5f).to3f();
-        
-        if(getPortals(this.level, this.position().add(new Vector3d(normal)), .1f, portal ->
-            portal != this && portal.isAlive() && portal.direction == this.direction
-        ).size() > 0)
+
+        if (!getPortals(this.level, this.position().add(new Vector3d(normal)), .1f, portal ->
+                portal != this && portal.isAlive() && portal.direction == this.direction
+        ).isEmpty()) {
             return false;
-        
+        }
+
         return new BlockIterator(this.level, this.blockPosition(), true)
-//        .and(b -> b == Blocks.AIR)
-//        .and(up, b -> b == Blocks.AIR)
-        .and(b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
-        .and(up, b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
-        .move(this.direction.getOpposite())
-        .and(BlockTagInit::isPortalable)
-        .and(up, BlockTagInit::isPortalable)
-        .getResult();
+//            .and(b -> b == Blocks.AIR)
+//            .and(up, b -> b == Blocks.AIR)
+            .and(b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
+            .and(up, b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
+            .move(this.direction.getOpposite())
+            .and(BlockTagInit::isPortalable)
+            .and(up, BlockTagInit::isPortalable)
+            .getResult();
     }
 
     public static boolean canSurviveOn(World level, BlockPos attachedBlockPos, Direction normal, boolean skipFrontBlock) {
         BlockState attachedBlock = level.getBlockState(attachedBlockPos);
         BlockState frontBlock = level.getBlockState(attachedBlockPos.relative(normal));
         BlockState behindBlock = level.getBlockState(attachedBlockPos.relative(normal.getOpposite()));
+
         boolean portalable = attachedBlock.is(BlockTagInit.PORTALABLE);
         boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
         boolean behindPortalable = behindBlock.is(BlockTagInit.PORTALABLE);
-        boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING);
+        boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING); // TODO - multiple sides definitions
+
         return (portalable || (inheriting && behindPortalable)) && (skipFrontBlock || frontNonBlocking);
     }
 
