@@ -99,31 +99,31 @@
   "container.faithplate.select": "Select Target",
 
   "tooltip.portalmod.hold_control": "Hold Ctrl for info",
-  "tooltip.portalmod.wrench":       "Configures Testing Elements",
+  "tooltip.portalmod.wrench":       "Configures §cTesting Elements§7",
 
-  "tooltip.portalmod.cube_1": "Activates §3Super Buttons",
-  "tooltip.portalmod.cube_2": "- Can be picked up with a §6Wrench",
+  "tooltip.portalmod.cube_1": "Activates §3Super Buttons§7",
+  "tooltip.portalmod.cube_2": "- Can be picked up with a §6Wrench§7",
 
   "tooltip.portalmod.cube_dropper_1": "Auto-spawns §3Cubes§7 while active",
   "tooltip.portalmod.cube_dropper_2": "- Interact while holding a §3Cube item§7 to add it to the Dropper",
-  "tooltip.portalmod.cube_dropper_3": "- §6Wrench§7: Removes the current Cube",
-  "tooltip.portalmod.cube_dropper_4": "- Activated by adjacent §bAntline Indicators",
+  "tooltip.portalmod.cube_dropper_3": "- §6Wrench§7: Removes the current §3Cube§7",
+  "tooltip.portalmod.cube_dropper_4": "- Activated by adjacent §bAntline Indicators§7",
 
   "tooltip.portalmod.standing_button_1": "Can be pressed by Players",
   "tooltip.portalmod.standing_button_2": "- §6Wrench§7: Cycles through Button Modes:",
   "tooltip.portalmod.standing_button_3": "  - Normal",
   "tooltip.portalmod.standing_button_4": "  - Persistent",
   "tooltip.portalmod.standing_button_5": "  - Toggle",
-  "tooltip.portalmod.standing_button_6": "- Activates §bAntlines",
+  "tooltip.portalmod.standing_button_6": "- Activates §bAntlines§7",
 
   "tooltip.portalmod.super_button_1": "Can be pressed by heavy Entities",
   "tooltip.portalmod.super_button_2": "- §6Wrench§7: Cycles through Button Modes:",
   "tooltip.portalmod.super_button_3": "  - Normal",
   "tooltip.portalmod.super_button_4": "  - Persistent",
   "tooltip.portalmod.super_button_5": "  - Toggle",
-  "tooltip.portalmod.super_button_6": "- Activates §bAntlines §7when pressed",
+  "tooltip.portalmod.super_button_6": "- Activates §bAntlines§7 when pressed",
 
-  "tooltip.portalmod.antline_indicator_1": "Can activate adjacent §cTesting Elements §7when activated",
+  "tooltip.portalmod.antline_indicator_1": "Can activate adjacent §cTesting Elements§7 when activated",
   "tooltip.portalmod.antline_indicator_2": "- §6Wrench§7: Reverses the output",
   "tooltip.portalmod.antline_indicator_3": "- Combine with other §bAntline Indicators§7 to have multiple required inputs",
 
@@ -137,44 +137,44 @@
   "tooltip.portalmod.antline_converter_4": "- §6Wrench§7: Changes the appearance",
 
   "tooltip.portalmod.antline_receiver_1": "Converts redstone power to antline power",
-  "tooltip.portalmod.antline_receiver_2": "- Can be used in combination with §bAntline Converters§7 to power testing elements without a direct connection",
+  "tooltip.portalmod.antline_receiver_2": "- Can be used in combination with §bAntline Converters§7 to power §cTesting Elements§7 without a direct connection",
   "tooltip.portalmod.antline_receiver_3": "- §6Wrench§7: Changes the appearance",
 
-  "tooltip.portalmod.antline_1": "Connects §3Buttons§7 with §bAntline Indicators",
+  "tooltip.portalmod.antline_1": "Connects §3Buttons§7 with §bAntline Indicators§7",
   "tooltip.portalmod.antline_2": "- Cannot power §cTesting Elements§7 directly",
   "tooltip.portalmod.antline_3": "- Hold crouch to create branching connections",
 
   "tooltip.portalmod.chamber_door_1": "Entrance and exit to Test Chambers",
-  "tooltip.portalmod.chamber_door_2": "- Opens when activated by all adjacent §bAntline Indicators",
-  "tooltip.portalmod.chamber_door_3": "- Acts as an automatic one-way door if there are no §bAntline Indicators",
+  "tooltip.portalmod.chamber_door_2": "- Opens when activated by all adjacent §bAntline Indicators§7",
+  "tooltip.portalmod.chamber_door_3": "- Acts like an automatic one-way door if there are no §bAntline Indicators§7",
 
-  "tooltip.portalmod.fizzler_emitter_1": "Removes unwanted §cTesting Elements",
-  "tooltip.portalmod.fizzler_emitter_2": "- Fizzles §3Cubes§7 and §3Turrets",
+  "tooltip.portalmod.fizzler_emitter_1": "Removes unwanted §cTesting Elements§7",
+  "tooltip.portalmod.fizzler_emitter_2": "- Fizzles §3Cubes§7 and §3Turrets§7",
   "tooltip.portalmod.fizzler_emitter_3": "- Closes §9Portals§7 from all §9Portal Guns§7 in inventory",
 
   "tooltip.portalmod.faithplate_1": "Launches entities to a specified location",
-  "tooltip.portalmod.faithplate_2": "- §6Wrench§7: Configure the Faithplate",
+  "tooltip.portalmod.faithplate_2": "- §6Wrench§7: Configure the §3Faithplate§7",
 
   "tooltip.portalmod.chamber_sign_1": "Displays chamber information",
   "tooltip.portalmod.chamber_sign_2": "- §6Wrench§7: Modify individual elements of the display",
 
   "tooltip.portalmod.turret_1": "Shoots visible Players and Mobs",
-  "tooltip.portalmod.turret_2": "- Right click to stock with §aBullets",
+  "tooltip.portalmod.turret_2": "- Right click to stock with §aBullets§7",
   "tooltip.portalmod.turret_3": "- Has infinite ammo when placed in creative",
   "tooltip.portalmod.turret_4": "- Crouch while placing for finer control over the rotation of the turret",
-  "tooltip.portalmod.turret_5": "- Can be picked up with a §6Wrench",
+  "tooltip.portalmod.turret_5": "- Can be picked up with a §6Wrench§7",
 
-  "tooltip.portalmod.bullets_1": "Provides a Turret with ammo",
-  "tooltip.portalmod.bullets_2": "- Allows a Turret to shoot 20 times",
+  "tooltip.portalmod.bullets_1": "Provides a §3Turret§7 with ammo",
+  "tooltip.portalmod.bullets_2": "- Allows a §3Turret§7 to shoot 20 times",
   "tooltip.portalmod.bullets_3": "- Hold crouch to add a whole stack",
-  "tooltip.portalmod.bullets_4": "- Click with a §6Wrench§7 to take all §aBullets§7 from a Turret",
+  "tooltip.portalmod.bullets_4": "- Click with a §6Wrench§7 to take all §aBullets§7 from a §3Turret§7",
 
   "tooltip.portalmod.portalgun_1": "Shoots §9Portals§7",
-  "tooltip.portalmod.portalgun_2": "- Can pick up §3Cubes and §3Turrets",
+  "tooltip.portalmod.portalgun_2": "- Can pick up §3Cubes§7 and §3Turrets§7",
   "tooltip.portalmod.portalgun_3": "- Crafting: ",
   "tooltip.portalmod.portalgun_4": "  - §aDye§7 above the §9Portal Gun§7 to change accent color",
   "tooltip.portalmod.portalgun_5": "  - §aDyes§7 to the left or right to change §9Portal§7 colors",
-  "tooltip.portalmod.portalgun_6": "  - §aChain§7 below the §9Portal Gun§7 to make it §9single-Portaled§7",
+  "tooltip.portalmod.portalgun_6": "  - §aChain§7 below the §9Portal Gun§7 to make it single-Portaled",
 
   "tooltip.portalmod.portalgun.colors":  "§7Portal colors:",
   "tooltip.portalmod.colors.black":      "§0Black§r",
