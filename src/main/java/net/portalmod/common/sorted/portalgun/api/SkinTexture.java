@@ -43,6 +43,6 @@ public class SkinTexture extends Texture {
     }
 
     public int getFrameCount() {
-        return ni == null ? 0 : (ni.getHeight() / 16);
+        return ni == null ? 0 : (ni.getHeight() / ni.getWidth());
     }
 }
