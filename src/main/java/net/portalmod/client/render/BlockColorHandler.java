@@ -27,7 +27,8 @@ public class BlockColorHandler {
         event.getBlockColors().register(blockColorHandler,
                 BlockInit.ARBORED_BLACKPLATE.get(),
                 BlockInit.ARBORED_BLACKPLATE_SLAB.get(),
-                BlockInit.ARBORED_BLACKPLATE_STAIRS.get()
+                BlockInit.ARBORED_BLACKPLATE_STAIRS.get(),
+                BlockInit.ARBORED_BLACKPLATE_PLATFORM.get()
         );
     }
 
@@ -42,7 +43,8 @@ public class BlockColorHandler {
         event.getItemColors().register(blockItemColorHandler,
                 BlockInit.ARBORED_BLACKPLATE.get(),
                 BlockInit.ARBORED_BLACKPLATE_SLAB.get(),
-                BlockInit.ARBORED_BLACKPLATE_STAIRS.get()
+                BlockInit.ARBORED_BLACKPLATE_STAIRS.get(),
+                BlockInit.ARBORED_BLACKPLATE_PLATFORM.get()
         );
     }
 }
