@@ -1,8 +1,9 @@
 {
     "parent": "portalmod:item/template_platform",
     "textures": {
+        "pillar": "portalmod:block/platform_beam",
         "top": "portalmod:block/blackplate_top",
         "side": "portalmod:block/blackplate_platform_side",
-        "bottom": "portalmod:block/blackplate_bottom"
+        "bottom": "portalmod:block/platform_bottom"
     }
 }

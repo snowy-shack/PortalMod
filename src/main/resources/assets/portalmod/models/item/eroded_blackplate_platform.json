@@ -4,6 +4,6 @@
         "pillar": "portalmod:block/rusty_platform_beam",
         "top": "portalmod:block/eroded_blackplate_top",
         "side": "portalmod:block/eroded_blackplate_platform_side",
-        "bottom": "portalmod:block/rusty_blackplate_bottom"
+        "bottom": "portalmod:block/rusty_platform_bottom"
     }
 }

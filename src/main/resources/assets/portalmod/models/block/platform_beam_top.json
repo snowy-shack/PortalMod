@@ -1,5 +1,5 @@
 {
-	"parent": "block/thin_block",
+	"parent": "block/block",
 	"textures": {
 		"base": "portalmod:block/platform_beam",
 		"particle": "#base"
