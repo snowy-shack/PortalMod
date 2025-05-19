@@ -128,7 +128,7 @@ public class ClientModEvents {
         temp.add(SkinLoader.loadSkin("tintable"));
         temp.add(SkinLoader.loadSkin("default"));
 
-        PortalGunISTER.TEST_TEXTURE = temp.get((int) (new Random().nextFloat() * temp.size() - 1));
+        PortalGunISTER.TEST_TEXTURE = temp.get( new Random().nextInt(temp.size()) );
     }
 
     private static void registerItemProperty(Item item, String name, IItemPropertyGetter getter) {
