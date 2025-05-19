@@ -2,7 +2,7 @@
     "parent": "block/block",
     "textures": {
         "base": "portalmod:block/platform_beam",
-        "particle": "#pillar"
+        "particle": "#side"
     },
     "elements": [
         {
@@ -26,5 +26,12 @@
                 "down":  {"uv": [0, 0, 16, 16], "texture": "#bottom"}
             }
         }
-    ]
+    ],
+    "display": {
+        "gui": {
+            "rotation": [30, 225, 0],
+            "translation": [0, -1, 0],
+            "scale": [0.625, 0.625, 0.625]
+        }
+    }
 }

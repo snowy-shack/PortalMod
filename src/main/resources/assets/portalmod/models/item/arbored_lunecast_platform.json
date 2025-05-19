@@ -1,3 +1,9 @@
 {
-    "parent": "portalmod:block/arbored_lunecast_platform_bottom"
+    "parent": "portalmod:item/template_platform",
+    "textures": {
+        "pillar": "portalmod:block/rusty_platform_beam",
+        "top": "portalmod:block/arbored_lunecast_top",
+        "side": "portalmod:block/arbored_lunecast_platform_side",
+        "bottom": "portalmod:block/rusty_platform_bottom"
+    }
 }

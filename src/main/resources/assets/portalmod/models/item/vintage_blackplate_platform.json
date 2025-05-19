@@ -1,3 +1,9 @@
 {
-    "parent": "portalmod:block/vintage_blackplate_platform_bottom"
+    "parent": "portalmod:item/template_platform",
+    "textures": {
+        "pillar": "portalmod:block/rusty_platform_beam",
+        "top": "portalmod:block/vintage_blackplate_top",
+        "side": "portalmod:block/vintage_blackplate_platform_side",
+        "bottom": "portalmod:block/rusty_platform_bottom"
+    }
 }
