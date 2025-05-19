@@ -36,13 +36,13 @@ public class StencilUtil {
     
     public StencilUtil read(int func, int ref) {
         this.read();
-        this.func(func, ref, 0xFF);
+        this.func(func, ref, 0x7F);
         return this;
     }
     
     public StencilUtil write(int func, int ref, int sfail, int dpfail, int dppass) {
         this.write();
-        this.func(func, ref, 0xFF);
+        this.func(func, ref, 0x7F);
         this.op(sfail, dpfail, dppass);
         return this;
     }

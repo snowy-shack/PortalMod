@@ -478,7 +478,7 @@ public class ClientEvents {
 //        PortalEntityRenderer.renderHighlights();
 
         // BEWARE: PORTAL RENDERING
-        PortalRenderer.renderHighlights();
+//        PortalRenderer.renderHighlights();
 
 
 

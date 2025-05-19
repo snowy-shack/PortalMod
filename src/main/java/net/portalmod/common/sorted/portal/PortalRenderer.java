@@ -32,6 +32,8 @@ import net.portalmod.core.util.StencilUtil;
 import net.portalmod.core.util.VertexRenderer;
 import net.portalmod.mixins.accessors.FogRendererAccessor;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL43;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -39,6 +41,7 @@ import java.util.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
 
 public class PortalRenderer {
@@ -81,7 +84,7 @@ public class PortalRenderer {
         RenderSystem.activeTexture(GL_TEXTURE0);
         Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/portal/portal_mask.png"));
 
-        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.colorMask(false, false, false, false);
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
 
@@ -92,6 +95,8 @@ public class PortalRenderer {
         RenderSystem.depthMask(true);
         glDisable(GL_DEPTH_CLAMP);
         GL11.glDisable(GL_ALPHA_TEST);
+
+        RenderSystem.colorMask(true, true, true, true);
 
         RenderSystem.bindTexture(0);
         unbindBuffer();
@@ -251,6 +256,8 @@ public class PortalRenderer {
                     portalTempFBO.resize(w, h, Minecraft.ON_OSX);
 
                 portalTempFBO.enableStencil();
+                portalTempFBO.bindWrite(false);
+                GL11.glStencilMask(~0);
                 GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
                 portalTempFBO.setClearColor(0, 0, 0, 0);
                 portalTempFBO.clear(Minecraft.ON_OSX);
@@ -394,7 +401,12 @@ public class PortalRenderer {
         recursion++;
         StencilUtil.INSTANCE.enable();
 
+        glEnable(GL43.GL_DEBUG_OUTPUT);
+        glEnable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, "Rendering portal, recursion: " + recursion);
+
         Minecraft mc = Minecraft.getInstance();
+        Framebuffer mainRenderTarget = mc.getMainRenderTarget();
         Matrix4f modelView = getModelViewMatrix(portal, camera, PortalEntityRenderer.OFFSET);
         Optional<PortalEntity> otherPortalOptional = portal.getOtherPortal();
 
@@ -428,7 +440,6 @@ public class PortalRenderer {
             portalStack.pop();
         }
 
-        Framebuffer mainRenderTarget = mc.getMainRenderTarget();
         Matrix4f modelViewProjection = getModelViewProjectionMatrix(portal, camera, PortalEntityRenderer.OFFSET);
 
         if(fabulousGraphics) {
@@ -436,11 +447,16 @@ public class PortalRenderer {
             blitFBOtoFBO(mainRenderTarget, portalTempFBO);
         }
 
+        StencilUtil.INSTANCE.read(GL_EQUAL, recursion);
+        renderDepth(modelViewProjection);
+
+        StencilUtil.INSTANCE.read(GL_EQUAL, recursion);
+        renderBorder(portal, partialTicks, modelViewProjection);
+
         StencilUtil.INSTANCE.write(GL_EQUAL, recursion, GL_KEEP, GL_KEEP, GL_DECR);
         renderDepth(modelViewProjection);
 
         StencilUtil.INSTANCE.read(GL_EQUAL, recursion - 1);
-        renderBorder(portal, partialTicks, modelViewProjection);
 
         if(recursion > 1) {
             setClipPlane(0, clipMatrix.last().pose(), new Vec3(0, 0, -1));
@@ -452,6 +468,8 @@ public class PortalRenderer {
         if(fabulousGraphics)
             mainRenderTarget.bindWrite(false);
 
+        GL43.glPopDebugGroup();
+
         actuallyRenderedPortals++;
         recursion--;
     }
@@ -459,12 +477,48 @@ public class PortalRenderer {
     private static MatrixStack clipMatrix = new MatrixStack();
     private static PortalEntity currentPortal;
 
-    public static void renderHighlights() {
+    public static void renderHighlights(ActiveRenderInfo camera) {
+        GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, "Highlights");
+
         ClientWorld level = Minecraft.getInstance().level;
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if(level == null || player == null)
             return;
+
+        // todo no
+        int fb = GL11.glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING);
+        if(fabulousGraphics)
+            Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+
+        StencilUtil.INSTANCE.enable();
+        StencilUtil.INSTANCE.mask(0x80);
+        GL11.glClear(GL_STENCIL_BUFFER_BIT);
+
+        StencilUtil.INSTANCE.write();
+        StencilUtil.INSTANCE.mask(0x80);
+        StencilUtil.INSTANCE.func(GL_ALWAYS, 0x80, 0x80);
+        StencilUtil.INSTANCE.op(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+        for(Entity entity : level.entitiesForRendering()) {
+            if(!(entity instanceof PortalEntity))
+                continue;
+
+            PortalEntity portal = (PortalEntity)entity;
+            Matrix4f modelView = getModelViewMatrix(portal, camera, PortalEntityRenderer.OFFSET * 100);
+
+            renderMask(modelView);
+            GL11.glEnable(GL_ALPHA_TEST);
+        }
+
+        StencilUtil.INSTANCE.read();
+        if(fabulousGraphics) {
+            StencilUtil.INSTANCE.func(GL_NOTEQUAL, 0x80, 0x80);
+            StencilUtil.INSTANCE.op(GL_KEEP, GL_KEEP, GL_KEEP);
+        } else {
+            StencilUtil.INSTANCE.func(GL_EQUAL, recursion, 0xFF);
+            StencilUtil.INSTANCE.op(GL_KEEP, GL_KEEP, GL_KEEP);
+        }
 
         for(Entity entity : level.entitiesForRendering()) {
             if(!(entity instanceof PortalEntity))
@@ -482,10 +536,11 @@ public class PortalRenderer {
             RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             RenderSystem.enableDepthTest();
             RenderSystem.depthFunc(GL_GREATER);
+            RenderSystem.depthMask(false);
             RenderSystem.disableCull();
 
                 ShaderInit.PORTAL_HIGHLIGHT.get().bind()
-                    .setMatrix("modelViewProjection", getModelViewProjectionMatrix(portal, null, PortalEntityRenderer.OFFSET * 3));
+                    .setMatrix("modelViewProjection", getModelViewProjectionMatrix(portal, camera, PortalEntityRenderer.OFFSET * 100));
 
                 RenderUtil.bindTexture(ShaderInit.PORTAL_HIGHLIGHT.get(), "texture",
                         "textures/portal/highlight_" + portal.getColor() + ".png", 0);
@@ -494,12 +549,21 @@ public class PortalRenderer {
                 portalMesh.render();
 
             RenderSystem.enableCull();
-            RenderSystem.depthFunc(GL_LESS);
+            RenderSystem.depthFunc(GL_LEQUAL);
+            RenderSystem.depthMask(true);
             RenderSystem.bindTexture(0);
             RenderSystem.disableBlend();
             unbindBuffer();
             ShaderInit.PORTAL_HIGHLIGHT.get().unbind();
         }
+
+        StencilUtil.INSTANCE.read(GL_EQUAL, recursion);
+        GL30.glBindFramebuffer(GL_FRAMEBUFFER, fb);
+
+        if(fabulousGraphics)
+            StencilUtil.INSTANCE.disable();
+
+        GL43.glPopDebugGroup();
     }
     
     private static void unbindBuffer() {
