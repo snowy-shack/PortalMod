@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "side": "portalmod:block/arbored_blackplate_foliage",
-    "top": "portalmod:block/arbored_blackplate_top_foliage",
-    "bottom": "portalmod:block/arbored_blackplate_bottom_foliage"
-  }
-}
