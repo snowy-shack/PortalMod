@@ -411,6 +411,7 @@ public class PortalGun extends Item {
      * @return whether any portals got fizzled.
      */
     public static boolean fizzleGunItem(ItemStack itemStack) {
+        if (true) return false; // FIXME Temporary disable to prevent crashes
         UUID gunUUID = PortalGun.getUUID(itemStack);
         PortalPair pair = PortalManager.getPair(gunUUID);
 
