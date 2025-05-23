@@ -1,0 +1,10 @@
+{
+  "replace": true,
+  "values": [
+    "portalmod:lunecast_platform",
+    "portalmod:eroded_lunecast_platform",
+    "portalmod:arbored_lunecast_platform",
+    "portalmod:vintage_lunecast_platform",
+    "portalmod:fractured_lunecast_platform"
+  ]
+}

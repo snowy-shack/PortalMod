@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "c",
+    "i",
+    "i"
+  ],
+  "key": {
+    "c": {
+      "item": "minecraft:chain"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "portalmod:platform_beam",
+    "count": 6
+  }
+}
