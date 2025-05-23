@@ -12,9 +12,7 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.portalmod.PortalMod;
 import net.portalmod.client.screens.PortalModOptionsScreen;
@@ -25,6 +23,9 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class ModUtil {
+
+    public static final Style TOOLTIP_STYLE = Style.EMPTY.withColor(TextFormatting.GRAY);
+
     public static VoxelShape moveVoxelShape(VoxelShape shape, Direction direction, int multiplier) {
         Vector3i normal = direction.getNormal();
         return shape.move(normal.getX() * multiplier, normal.getY() * multiplier, normal.getZ() * multiplier);
@@ -53,23 +54,25 @@ public class ModUtil {
         }
 
         if (!Screen.hasControlDown()) {
-            list.add(new TranslationTextComponent("tooltip.portalmod.hold_control"));
+            list.add(new TranslationTextComponent("tooltip.portalmod.hold_control").setStyle(TOOLTIP_STYLE));
             return;
         }
 
         // Single line
         if (I18n.exists("tooltip.portalmod." + name)) {
-            list.add(new TranslationTextComponent("tooltip.portalmod." + name));
+            list.add(new TranslationTextComponent("tooltip.portalmod." + name).setStyle(TOOLTIP_STYLE));
             return;
         }
 
         // Multi line
-        for (int i = 1; i < 100; i++) {
+        int i = 1;
+        while (true) {
             String key = "tooltip.portalmod." + name + "_" + i;
             if (!I18n.exists(key)) {
                 break;
             }
-            list.add(new TranslationTextComponent(key));
+            list.add(new TranslationTextComponent(key).setStyle(TOOLTIP_STYLE));
+            i++;
         }
     }
 

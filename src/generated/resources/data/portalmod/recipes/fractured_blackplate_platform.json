@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "blackplate_platform",
+  "pattern": [
+    "s",
+    "i"
+  ],
+  "key": {
+    "s": {
+      "item": "portalmod:fractured_blackplate_slab"
+    },
+    "i": {
+      "tag": "portalmod:iron_frames"
+    }
+  },
+  "result": {
+    "item": "portalmod:fractured_blackplate_platform"
+  }
+}

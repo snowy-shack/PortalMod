@@ -3,9 +3,7 @@
     "textures": { "particle": "#base" },
     "elements": [
         {
-            "from": [ 7.5, 3, 7.5 ],
-            "to":   [  16, 5,  16 ],
-            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "from": [ 7.5, 3, 7.5 ], "to":   [  16, 5,  16 ],
             "faces": {
                 "north": { "uv": [ 0.5,  12,   9, 14 ], "texture": "#button" },
                 "west":  { "uv": [   0,  10, 8.5, 12 ], "texture": "#button" },
@@ -13,9 +11,7 @@
             }
         },
         {
-            "from": [  4, 0,  4 ],
-            "to":   [ 16, 3, 16 ],
-            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "from": [  4, 0,  4 ], "to":   [ 16, 3, 16 ],
             "faces": {
                 "north": { "uv": [  0, 12, 12, 15 ], "texture": "#base" },
                 "west":  { "uv": [ 12,  0, 15, 12 ], "texture": "#base",   "rotation":  90 },
@@ -24,9 +20,7 @@
             }
         },
         {
-            "from": [ 0, 0, 13.5 ],
-            "to":   [ 4, 2,   16 ],
-            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "from": [ 0, 0, 13.5 ], "to":   [ 4, 2,   16 ],
             "faces": {
                 "north": { "uv": [    5, 14,    9, 16 ], "texture": "#button" },
                 "west":  { "uv": [    9,  5, 11.5,  7 ], "texture": "#button", "cullface": "west" },
@@ -35,9 +29,7 @@
             }
         },
         {
-            "from": [ 13.5, 0, 0 ],
-            "to":   [   16, 2, 4 ],
-            "rotation": { "angle": 0, "axis": "y", "origin": [ 7.625, 2.5, 8.375 ] },
+            "from": [ 13.5, 0, 0 ], "to":   [   16, 2, 4 ],
             "faces": {
                 "north": { "uv": [ 11.5,  5,   14,  7 ], "texture": "#button", "cullface": "north" },
                 "west":  { "uv": [    4, 14,    0, 16 ], "texture": "#button" },

@@ -1,0 +1,9 @@
+{
+    "parent": "portalmod:item/template_platform",
+    "textures": {
+        "pillar": "portalmod:block/platform_beam",
+        "top": "portalmod:block/lunecast_top",
+        "side": "portalmod:block/lunecast_platform_side",
+        "bottom": "portalmod:block/platform_bottom"
+    }
+}

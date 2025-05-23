@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "portalmod:block/platform_beam"
+    },
+    "facing=north": {
+      "model": "portalmod:block/platform_beam",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "portalmod:block/platform_beam",
+      "x": 90,
+      "y": 90
+    },
+    "facing=south": {
+      "model": "portalmod:block/platform_beam",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "portalmod:block/platform_beam",
+      "x": 90,
+      "y": 270
+    },
+    "facing=down": {
+      "model": "portalmod:block/platform_beam",
+      "x": 180
+    }
+  }
+}

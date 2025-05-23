@@ -1,8 +1,0 @@
-{
-  "parent": "portalmod:block/template_step_bottom",
-  "textures": {
-    "top": "portalmod:block/lunecast_top",
-    "side": "portalmod:block/lunecast_step",
-    "bottom": "portalmod:block/step_bottom"
-  }
-}
