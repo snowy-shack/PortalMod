@@ -1,7 +1,26 @@
 {
-	"parent": "portalmod:block/pane_no_ao",
+	"ambientocclusion": false,
 	"textures": {
 		"left":     "portalmod:block/fizzler_field_bottom_left",
-		"right":    "portalmod:block/fizzler_field_bottom_right"
-	}
+		"right":    "portalmod:block/fizzler_field_bottom_right",
+		"particle": "#left"
+	},
+	"elements": [
+		{
+			"from": [ 8, 1, 0], "to": [ 8, 16, 12],
+			"faces": {
+				"east": {"uv": [ 4, 0, 16, 15], "texture": "#left"},
+				"west": {"uv": [ 0, 0, 12, 15], "texture": "#right"}
+			},
+			"shade": false
+		},
+		{
+			"from": [ 8, 0, 0], "to": [ 8, 1, 14],
+			"faces": {
+				"east": {"uv": [ 2, 15, 16, 16], "texture": "#left"},
+				"west": {"uv": [ 0, 15, 14, 16], "texture": "#right"}
+			},
+			"shade": false
+		}
+	]
 }
