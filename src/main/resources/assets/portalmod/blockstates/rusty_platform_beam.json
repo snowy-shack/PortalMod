@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "portalmod:block/rusty_platform_beam"
+    },
+    "facing=north": {
+      "model": "portalmod:block/rusty_platform_beam",
+      "x": 90
+    },
+    "facing=east": {
+      "model": "portalmod:block/rusty_platform_beam",
+      "x": 90,
+      "y": 90
+    },
+    "facing=south": {
+      "model": "portalmod:block/rusty_platform_beam",
+      "x": 90,
+      "y": 180
+    },
+    "facing=west": {
+      "model": "portalmod:block/rusty_platform_beam",
+      "x": 90,
+      "y": 270
+    },
+    "facing=down": {
+      "model": "portalmod:block/rusty_platform_beam",
+      "x": 180
+    }
+  }
+}

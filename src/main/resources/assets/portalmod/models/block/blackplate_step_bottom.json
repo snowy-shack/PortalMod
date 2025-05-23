@@ -1,8 +1,0 @@
-{
-  "parent": "portalmod:block/template_step_bottom",
-  "textures": {
-    "top": "portalmod:block/blackplate_top",
-    "side": "portalmod:block/blackplate_step",
-    "bottom": "portalmod:block/step_bottom"
-  }
-}
