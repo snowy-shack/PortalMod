@@ -2,9 +2,21 @@
   "multipart": [
     {
       "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_top"
+      },
+      "when": {"half": "top", "facing":  "up"}
+    },
+    {
+      "apply": {
         "model": "portalmod:block/arbored_blackplate_platform_top_foliage"
       },
       "when": {"half": "top", "facing":  "up"}
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_bottom"
+      },
+      "when": {"half": "bottom", "facing":  "up"}
     },
     {
       "apply": {
@@ -26,10 +38,24 @@
     },
     {
       "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_top",
+        "x": 90
+      },
+      "when": {"half": "top", "facing":  "north"}
+    },
+    {
+      "apply": {
         "model": "portalmod:block/arbored_blackplate_platform_top_foliage",
         "x": 90
       },
       "when": {"half": "top", "facing":  "north"}
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_bottom",
+        "x": 90
+      },
+      "when": {"half": "bottom", "facing":  "north"}
     },
     {
       "apply": {
@@ -54,11 +80,27 @@
     },
     {
       "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_top",
+        "x": 90,
+        "y": 90
+      },
+      "when": {"half": "top", "facing":  "east"}
+    },
+    {
+      "apply": {
         "model": "portalmod:block/arbored_blackplate_platform_top_foliage",
         "x": 90,
         "y": 90
       },
       "when": {"half": "top", "facing":  "east"}
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_bottom",
+        "x": 90,
+        "y": 90
+      },
+      "when": {"half": "bottom", "facing":  "east"}
     },
     {
       "apply": {
@@ -86,11 +128,27 @@
     },
     {
       "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_top",
+        "x": 90,
+        "y": 180
+      },
+      "when": {"half": "top", "facing":  "south"}
+    },
+    {
+      "apply": {
         "model": "portalmod:block/arbored_blackplate_platform_top_foliage",
         "x": 90,
         "y": 180
       },
       "when": {"half": "top", "facing":  "south"}
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_bottom",
+        "x": 90,
+        "y": 180
+      },
+      "when": {"half": "bottom", "facing":  "south"}
     },
     {
       "apply": {
@@ -118,11 +176,27 @@
     },
     {
       "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_top",
+        "x": 90,
+        "y": 270
+      },
+      "when": {"half": "top", "facing":  "west"}
+    },
+    {
+      "apply": {
         "model": "portalmod:block/arbored_blackplate_platform_top_foliage",
         "x": 90,
         "y": 270
       },
       "when": {"half": "top", "facing":  "west"}
+    },
+    {
+      "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_bottom",
+        "x": 90,
+        "y": 270
+      },
+      "when": {"half": "bottom", "facing":  "west"}
     },
     {
       "apply": {
@@ -150,6 +224,13 @@
     },
     {
       "apply": {
+        "model": "portalmod:block/arbored_blackplate_platform_top",
+        "x": 180
+      },
+      "when": {"half": "top", "facing":  "down"}
+    },
+    {
+      "apply": {
         "model": "portalmod:block/arbored_blackplate_platform_top_foliage",
         "x": 180
       },
@@ -157,183 +238,14 @@
     },
     {
       "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom_foliage",
+        "model": "portalmod:block/arbored_blackplate_platform_bottom",
         "x": 180
       },
       "when": {"half": "bottom", "facing":  "down"}
     },
     {
       "apply": {
-        "model": "portalmod:block/rusty_platform_beam_top",
-        "x": 180
-      },
-      "when": {"half": "top", "beam": "true", "facing":  "down"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_bottom",
-        "x": 180
-      },
-      "when": {"half": "bottom", "beam": "true", "facing":  "down"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_top"
-      },
-      "when": {"half": "top", "facing":  "up"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom"
-      },
-      "when": {"half": "bottom", "facing":  "up"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_top"
-      },
-      "when": {"half": "top", "beam": "true", "facing":  "up"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_bottom"
-      },
-      "when": {"half": "bottom", "beam": "true", "facing":  "up"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_top",
-        "x": 90
-      },
-      "when": {"half": "top", "facing":  "north"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom",
-        "x": 90
-      },
-      "when": {"half": "bottom", "facing":  "north"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_top",
-        "x": 90
-      },
-      "when": {"half": "top", "beam": "true", "facing":  "north"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_bottom",
-        "x": 90
-      },
-      "when": {"half": "bottom", "beam": "true", "facing":  "north"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_top",
-        "x": 90,
-        "y": 90
-      },
-      "when": {"half": "top", "facing":  "east"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom",
-        "x": 90,
-        "y": 90
-      },
-      "when": {"half": "bottom", "facing":  "east"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_top",
-        "x": 90,
-        "y": 90
-      },
-      "when": {"half": "top", "beam": "true", "facing":  "east"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_bottom",
-        "x": 90,
-        "y": 90
-      },
-      "when": {"half": "bottom", "beam": "true", "facing":  "east"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_top",
-        "x": 90,
-        "y": 180
-      },
-      "when": {"half": "top", "facing":  "south"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom",
-        "x": 90,
-        "y": 180
-      },
-      "when": {"half": "bottom", "facing":  "south"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_top",
-        "x": 90,
-        "y": 180
-      },
-      "when": {"half": "top", "beam": "true", "facing":  "south"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_bottom",
-        "x": 90,
-        "y": 180
-      },
-      "when": {"half": "bottom", "beam": "true", "facing":  "south"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_top",
-        "x": 90,
-        "y": 270
-      },
-      "when": {"half": "top", "facing":  "west"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom",
-        "x": 90,
-        "y": 270
-      },
-      "when": {"half": "bottom", "facing":  "west"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_top",
-        "x": 90,
-        "y": 270
-      },
-      "when": {"half": "top", "beam": "true", "facing":  "west"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/rusty_platform_beam_bottom",
-        "x": 90,
-        "y": 270
-      },
-      "when": {"half": "bottom", "beam": "true", "facing":  "west"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_top",
-        "x": 180
-      },
-      "when": {"half": "top", "facing":  "down"}
-    },
-    {
-      "apply": {
-        "model": "portalmod:block/arbored_blackplate_platform_bottom",
+        "model": "portalmod:block/arbored_blackplate_platform_bottom_foliage",
         "x": 180
       },
       "when": {"half": "bottom", "facing":  "down"}
