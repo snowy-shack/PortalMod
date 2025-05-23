@@ -77,9 +77,11 @@ public class ClientModEvents {
         RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_BARRED_IRON_FRAME.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_MESHED_IRON_FRAME.get(), RenderType.cutout());
 
+        // This is for rendering the vines
         RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_SLAB.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_STAIRS.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_PLATFORM.get(), RenderType.cutout());
 
 //        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),     RenderType.translucent());
         RenderTypeLookup.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),  RenderType.translucent());
