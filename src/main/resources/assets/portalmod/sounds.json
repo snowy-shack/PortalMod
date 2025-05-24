@@ -33,6 +33,13 @@
         "sounds": [ "portalmod:entity/turret/close" ],
         "subtitle": "subtitles.entity.turret.close"
     },
+    "entity.chamber_sign.place": {
+        "sounds": [
+            "portalmod:entity/chamber_sign/place1",
+            "portalmod:entity/chamber_sign/place2"
+        ],
+        "subtitle": "subtitles.chamber_sign.place"
+    },
     "entity.player.hurt_goo": {
         "sounds": [
             "portalmod:entity/player/hurt/goo_hurt1",
