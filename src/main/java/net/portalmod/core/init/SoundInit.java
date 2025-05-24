@@ -80,6 +80,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> TURRET_FIRE_FAIL = register("entity.turret.fire_fail");
     public static final RegistryObject<SoundEvent> TURRET_STOCK = register("entity.turret.stock");
 
+    public static final RegistryObject<SoundEvent> CHAMBER_SIGN_PLACE = register("entity.chamber_sign.place");
+
     private static RegistryObject<SoundEvent> register(String id) {
         return SOUNDS.register(id, () -> new SoundEvent(new ResourceLocation(PortalMod.MODID, id)));
     }
