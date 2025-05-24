@@ -106,11 +106,13 @@ public class ModUtil {
     }
 
     public static void sendChat(World level, String text) {
-        level.players().forEach(
-                player -> player.displayClientMessage(new StringTextComponent(
-                        (level.isClientSide() ? "§3§l[Client" : "§7§l[Server") + "]: §r" + ((text == null) ? "null" : text)
-                ), false)
-        );
+        try {
+            level.players().forEach(
+                    player -> player.displayClientMessage(new StringTextComponent(
+                            (level.isClientSide() ? "§3§l[Client" : "§7§l[Server") + "]: §r" + ((text == null) ? "null" : text)
+                    ), false)
+            );
+        } catch (Exception ignored) {}
     }
 
     public static void sendChat(World level, Object... text) {
