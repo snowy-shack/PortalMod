@@ -33,6 +33,8 @@ import net.portalmod.common.sorted.platform.PlatformBeamBlock;
 import net.portalmod.common.sorted.platform.PlatformBlock;
 import net.portalmod.common.sorted.radio.RadioBlock;
 
+import static net.portalmod.common.blocks.ChamberLightsBlock.POWERED;
+
 public class BlockInit {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, PortalMod.MODID);
     
@@ -156,13 +158,12 @@ public class BlockInit {
             () -> new SuperButtonBlock(stoneCopy(MaterialColor.COLOR_RED).noOcclusion()));
 
     public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
-            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> 15)));
+            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> i.getValue(POWERED) ? 0 : 15)));
 
 
-
+    // Making just Antlines emissive doesn't make sense as we can't make the indicators etc have emissive layers (not in 1.16 at least)
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
-            () -> new AntlineBlock(AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_LIGHT_BLUE).lightLevel(i -> 7).noCollission().instabreak()/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
-    // todo: this emissive rendering stuff likely doesnt work properly because it does not have a simple block model
+            () -> new AntlineBlock(AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_LIGHT_BLUE).lightLevel(i -> 2).noCollission().instabreak()));
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
             () -> new AntlineIndicatorBlock(AbstractBlock.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
