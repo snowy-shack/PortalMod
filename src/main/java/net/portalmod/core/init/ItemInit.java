@@ -1,11 +1,15 @@
 package net.portalmod.core.init;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.DispenserBlock;
+import net.minecraft.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.dispenser.IBlockSource;
+import net.minecraft.dispenser.IDispenseItemBehavior;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.Item;
+import net.minecraft.item.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -70,7 +74,7 @@ public class ItemInit {
                     properties().setISTER(() -> ISTERWrapper::new))); // todo remove ister
 
     public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
-            () -> new BucketItem(() -> FluidInit.GOO_FLUID.get(), properties().stacksTo(1)));
+            () -> new BucketItem(FluidInit.GOO_FLUID, properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CONTAINER = ITEMS.register("container",
             () -> new EmptyGelContainer(properties().stacksTo(16)));
@@ -190,6 +194,26 @@ public class ItemInit {
 
     public static RegistryObject<Item> registerSpawnEgg(String name, RegistryObject<? extends EntityType<?>> entity) {
         return registerSpawnEgg(name, entity, null);
+    }
+
+    // net.minecraft.dispenser.IDispenseItemBehavior:343
+    public static void registerFluidDispenserBehavior() {
+        IDispenseItemBehavior bucketDispense = new DefaultDispenseItemBehavior() {
+            private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
+
+            public ItemStack execute(IBlockSource p_82487_1_, ItemStack p_82487_2_) {
+                BucketItem bucketitem = (BucketItem)p_82487_2_.getItem();
+                BlockPos blockpos = p_82487_1_.getPos().relative(p_82487_1_.getBlockState().getValue(DispenserBlock.FACING));
+                World world = p_82487_1_.getLevel();
+                if (bucketitem.emptyBucket(null, world, blockpos, null)) {
+                    bucketitem.checkExtraContent(world, p_82487_2_, blockpos);
+                    return new ItemStack(Items.BUCKET);
+                } else {
+                    return this.defaultDispenseItemBehavior.dispense(p_82487_1_, p_82487_2_);
+                }
+            }
+        };
+        DispenserBlock.registerBehavior(ItemInit.GOO_BUCKET.get(), bucketDispense);
     }
 
     public static Item.Properties properties() {
