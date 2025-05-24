@@ -1,5 +1,14 @@
 package net.portalmod;
 
+import net.minecraft.block.DispenserBlock;
+import net.minecraft.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.dispenser.IBlockSource;
+import net.minecraft.dispenser.IDispenseItemBehavior;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -48,6 +57,8 @@ public class PortalMod {
 
     private void setup(final FMLCommonSetupEvent event) {
         CriteriaTriggerInit.REGISTRY.registerAll();
+
+        ItemInit.registerFluidDispenserBehavior();
     }
 
     private void createConfigs() {
