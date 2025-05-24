@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.packet.SSpawnChamberSignPacket;
 
 import javax.annotation.Nullable;
@@ -211,19 +212,17 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public void dropItem(@Nullable Entity entity) {
-        this.playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F); // TODO custom sound
+        this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1.0F, 1.0F);
 
         if (entity instanceof PlayerEntity && ((PlayerEntity) entity).isCreative()
-                || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-            return;
-        }
+                || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) return;
 
         this.spawnAtLocation(ItemInit.CHAMBER_SIGN.get());
     }
 
     @Override
     public void playPlacementSound() {
-        this.playSound(SoundEvents.PAINTING_PLACE, 1, 1);
+        this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1, 1);
     }
 
     @Override
