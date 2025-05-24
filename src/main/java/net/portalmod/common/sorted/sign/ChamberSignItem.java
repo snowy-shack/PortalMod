@@ -36,7 +36,12 @@ public class ChamberSignItem extends Item {
         }
 
         World world = context.getLevel();
-        ChamberSignEntity chamberSign = new ChamberSignEntity(world, blockpos1, direction);
+
+        boolean clickedBottomHalf = (context.getClickLocation().y % 1) < 0.25;
+        boolean clickedTopHalf = (context.getClickLocation().y % 1) > 0.75;
+
+        BlockPos placePos = clickedBottomHalf ? blockpos1.below() : blockpos1;
+        ChamberSignEntity chamberSign = new ChamberSignEntity(world, placePos, direction, !clickedBottomHalf && !clickedTopHalf);
 
         CompoundNBT compoundnbt = itemstack.getTag();
         if (compoundnbt != null) {

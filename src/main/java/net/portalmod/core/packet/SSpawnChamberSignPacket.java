@@ -19,12 +19,14 @@ public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
     private UUID uuid;
     private BlockPos pos;
     private Direction direction;
+    private boolean verticallyAligned;
 
-    public SSpawnChamberSignPacket(int id, UUID uuid, BlockPos pos, Direction direction) {
+    public SSpawnChamberSignPacket(int id, UUID uuid, BlockPos pos, Direction direction, boolean verticallyAligned) {
         this.id = id;
         this.uuid = uuid;
         this.pos = pos;
         this.direction = direction;
+        this.verticallyAligned = verticallyAligned;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
         this.uuid = buffer.readUUID();
         this.pos = buffer.readBlockPos();
         this.direction = Direction.from2DDataValue(buffer.readInt());
+        this.verticallyAligned = buffer.readBoolean();
     }
 
     @Override
@@ -41,6 +44,7 @@ public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
         buffer.writeUUID(this.uuid);
         buffer.writeBlockPos(this.pos);
         buffer.writeInt(this.direction.get2DDataValue());
+        buffer.writeBoolean(this.verticallyAligned);
     }
 
     @Override
@@ -52,7 +56,7 @@ public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
             PacketThreadUtil.ensureRunningOnSameThread(this, clientPlayNetHandler, minecraft);
 
             ClientWorld level = minecraft.level;
-            ChamberSignEntity entity = new ChamberSignEntity(level, this.pos, this.direction);
+            ChamberSignEntity entity = new ChamberSignEntity(level, this.pos, this.direction, this.verticallyAligned);
             entity.setId(this.id);
             entity.setUUID(this.uuid);
 
