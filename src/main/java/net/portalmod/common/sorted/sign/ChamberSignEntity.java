@@ -39,14 +39,19 @@ public class ChamberSignEntity extends HangingEntity {
     public static final DataParameter<Boolean> DATA_ICON_7 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
     public static final DataParameter<Boolean> DATA_ICON_8 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
     public static final DataParameter<Boolean> DATA_ENABLED = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
+//    public static final DataParameter<Boolean> VERT_ALIGNED = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
+    private boolean verticallyAligned;
 
     public ChamberSignEntity(EntityType<? extends HangingEntity> p_i48561_1_, World p_i48561_2_) {
         super(p_i48561_1_, p_i48561_2_);
     }
 
-    public ChamberSignEntity(World world, BlockPos pos, Direction direction) {
+    public ChamberSignEntity(World world, BlockPos pos, Direction direction, boolean verticallyAligned) {
         super(EntityInit.CHAMBER_SIGN.get(), world, pos);
         this.setDirection(direction);
+        this.setVerticallyAligned(verticallyAligned);
+
+        this.recalculateBoundingBox();
     }
 
     @Override
@@ -160,7 +165,7 @@ public class ChamberSignEntity extends HangingEntity {
             double z = (double)this.pos.getZ() + 0.5D;
 
             double widthOffset = this.offs(this.getWidth()) + 0.5;  // shift a lil
-            double heightOffset = this.offs(this.getHeight()) + 0.5;
+            double heightOffset = this.offs(this.getHeight()) + (this.verticallyAligned ? 0.0 : 0.5);
 
             x = x - (double)this.direction.getStepX() * (7.0 / 16.0);   // the middle is 7 pixels towards the wall
             z = z - (double)this.direction.getStepZ() * (7.0 / 16.0);
@@ -206,9 +211,10 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public void dropItem(@Nullable Entity entity) {
-        this.playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F);
+        this.playSound(SoundEvents.PAINTING_BREAK, 1.0F, 1.0F); // TODO custom sound
 
-        if (entity instanceof PlayerEntity && ((PlayerEntity) entity).isCreative() || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+        if (entity instanceof PlayerEntity && ((PlayerEntity) entity).isCreative()
+                || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
             return;
         }
 
@@ -222,7 +228,7 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public IPacket<?> getAddEntityPacket() {
-        return new SSpawnChamberSignPacket(this.getId(), this.getUUID(), this.getPos(), this.direction);
+        return new SSpawnChamberSignPacket(this.getId(), this.getUUID(), this.getPos(), this.direction, this.verticallyAligned);
     }
 
     @Override
@@ -240,6 +246,7 @@ public class ChamberSignEntity extends HangingEntity {
         nbt.putBoolean("Icon6", this.getIcon6());
         nbt.putBoolean("Icon7", this.getIcon7());
         nbt.putBoolean("Icon8", this.getIcon8());
+        nbt.putBoolean("Aligned", this.getVerticallyAligned());
     }
 
     @Override
@@ -257,6 +264,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.setIcon6(nbt.getBoolean("Icon6"));
         this.setIcon7(nbt.getBoolean("Icon7"));
         this.setIcon8(nbt.getBoolean("Icon8"));
+        this.setVerticallyAligned(nbt.getBoolean("Aligned"));
     }
 
 
@@ -354,5 +362,13 @@ public class ChamberSignEntity extends HangingEntity {
 
     public void setEnabled(boolean enabled) {
         this.getEntityData().set(DATA_ENABLED, enabled);
+    }
+
+    public boolean getVerticallyAligned() {
+        return this.verticallyAligned;
+    }
+
+    public void setVerticallyAligned(boolean verticallyAligned) {
+        this.verticallyAligned = verticallyAligned;
     }
 }
