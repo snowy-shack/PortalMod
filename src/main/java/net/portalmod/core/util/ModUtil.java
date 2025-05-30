@@ -112,7 +112,9 @@ public class ModUtil {
                             (level.isClientSide() ? "§3§l[Client" : "§7§l[Server") + "]: §r" + ((text == null) ? "null" : text)
                     ), false)
             );
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            PortalMod.LOGGER.error("Could not send debug chat message", e);
+        }
     }
 
     public static void sendChat(World level, Object... text) {
