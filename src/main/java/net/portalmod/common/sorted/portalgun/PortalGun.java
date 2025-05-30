@@ -31,7 +31,6 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -73,11 +72,6 @@ public class PortalGun extends Item {
 //        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
     }
 
-    public static boolean isHoldable(Entity entity) {
-        // todo this doesnt work for some reason, can still hold cube if fizzling
-        return entity instanceof TestElementEntity && !((TestElementEntity) entity).isFizzling();
-    }
-
     public static void pickCube(PlayerEntity player, ItemStack gun) {
         // Play lift animation
         World level = player.level;
@@ -93,35 +87,16 @@ public class PortalGun extends Item {
                 PortalGunGrabSoundClient.handlePacket(player, true));
     }
 
-    public static void dropCube(PlayerEntity player, boolean toBeThrown, ItemStack gun) {
+    public static void dropCube(PlayerEntity player, ItemStack gun) {
         player.level.playSound(player, player,
                 SoundInit.PORTALGUN_DROP.get(), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, false));
 
-        List<Entity> cubes = player.getPassengers();
-        for (int i = cubes.size() - 1; i >= 0; --i) {
-            Entity cube = cubes.get(0);
-            if (isHoldable(cube)) {
-                cube.stopRiding();
-
-                // Play drop animation
-                if (player.level instanceof ServerWorld)
-                    PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                            new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.DROP));
-
-                float maxSpeed = 0.5f;
-
-                boolean exceedsLimit = cube.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
-                if (exceedsLimit) cube.setDeltaMovement(cube.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
-
-                if (toBeThrown) {
-                    float strength = .3f;
-                    cube.setDeltaMovement(cube.getDeltaMovement().add(player.getViewVector(0)
-                            .multiply(strength, strength, strength)));
-                }
-            }
-        }
+        // Play drop animation
+        if (player.level instanceof ServerWorld && gun != null)
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                    new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.DROP));
     }
 
     private static BlockRayTraceResult customClip(World level, RayTraceContext context) {

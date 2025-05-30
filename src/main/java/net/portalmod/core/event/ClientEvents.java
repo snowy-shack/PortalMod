@@ -56,7 +56,6 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
-import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
@@ -68,7 +67,6 @@ import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
-import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemInit;
@@ -309,8 +307,9 @@ public class ClientEvents {
     
     @SubscribeEvent
     public static void clientTick(final TickEvent.ClientTickEvent event) {
-        if(event.phase != TickEvent.Phase.START)
+        if(event.phase != TickEvent.Phase.START) {
             return;
+        }
 
 //        System.out.println(MathHelper.floor(Minecraft.getInstance().player.getX()) >> 4);
 //        System.out.println(MathHelper.floor(Minecraft.getInstance().player.getZ()) >> 4);
@@ -325,76 +324,95 @@ public class ClientEvents {
 //        }
 
 //        World level = Minecraft.getInstance().level;
-        PlayerEntity player = Minecraft.getInstance().player;
 
         // STIK ER IN
 //        if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_J)) {
 //            ChunkViewer.getInstance().setVisible(true);
 //        }
 
-        if(KeyInit.PORTALGUN_INTERACT.isDown()) {
-            if(player.getMainHandItem().getItem() instanceof PortalGun && !wasPressed) {
-                float rayLength = Minecraft.getInstance().gameMode.getPickRange();
-                Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
-                Vector3d rayPath = playerRotation.scale(rayLength);
+        handleInteractKey();
+    }
 
-                Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
-                Vector3d to = from.add(rayPath);
+    public static void handleInteractKey() {
+        if (!KeyInit.PORTALGUN_INTERACT.isDown()) {
+            wasPressed = false;
+            return;
+        }
 
-                RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
-                BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
+        if (wasPressed) {
+            return;
+        }
 
-                // TODO ray trace on the server too
-                // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and then don't confirm anything
-                // which makes sense because there can be a desync between the two so the server just trusts the client
+        wasPressed = true;
+
+        float rayLength = Minecraft.getInstance().gameMode.getPickRange();
+        Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
+        Vector3d rayPath = playerRotation.scale(rayLength);
+
+        Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
+        Vector3d to = from.add(rayPath);
+
+        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
+        BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
+
+        // TODO ray trace on the server too
+        // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and then don't confirm anything
+        // which makes sense because there can be a desync between the two so the server just trusts the client
 
 //                if(rayHit.getType() == RayTraceResult.Type.MISS) {
 //                    return;
 //                }
 
-                // Drop cube
-                if (player.hasPassenger(Cube.class) || player.hasPassenger(TurretEntity.class)) {
-                    PortalGun.dropCube(player, false, player.getMainHandItem());
-                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
+        PlayerEntity player = Minecraft.getInstance().player;
 
-                    consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
-                }
-                // Press button
-                else if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < StandingButtonBlock.REACH) {
-                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
-                    consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
-                }
-                // Pick up cube
-                else {
-                    try {
-//                        Entity entity = Minecraft.getInstance().crosshairPickEntity;
+        // Drop entity
+        ItemStack itemStack = player.getMainHandItem();
+        if (player.hasPassenger(TestElementEntity.class)) {
+            TestElementEntity.dropHeldEntities(player, false, itemStack);
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
-                        // Use collision shapes to target the entity instead of visual shapes
-                        // todo: this increases the throwing lag even more ugh
-                        RayTraceContext collisionRayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
-                        BlockRayTraceResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
+            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            return;
+        }
 
-                        EntityRayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), PortalGun::isHoldable, rayLength * rayLength);
-                        if (entityRayTraceResult != null) {
-                            Entity entity = entityRayTraceResult.getEntity();
+        // Press button
+        if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < StandingButtonBlock.REACH) {
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
+            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            return;
+        }
 
-                            if (entityRayTraceResult.distanceTo(player) < collisionRayHit.distanceTo(player)) {
-                                entity.startRiding(player);
-                                PortalGun.pickCube(player, player.getMainHandItem());
+        // Pick up entity
+        try {
+//            Entity entity = Minecraft.getInstance().crosshairPickEntity;
 
-                                PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
+            // Use collision shapes to target the entity instead of visual shapes
+            // todo: this increases the throwing lag even more ugh
+//            RayTraceContext collisionRayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
+//            BlockRayTraceResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
 
-                                consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+            EntityRayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), TestElementEntity::isHoldable, rayLength * rayLength);
+
+            if (entityRayTraceResult == null) {
+                return;
             }
-            wasPressed = true;
-        } else {
-            wasPressed = false;
+
+            Entity entity = entityRayTraceResult.getEntity();
+
+            //fixme this doesnt make any sense to me so i commented this out, it causes you to not pick up cubes when they are very close
+//            if (entityRayTraceResult.distanceTo(player) >= collisionRayHit.distanceTo(player)) {
+//                return;
+//            }
+
+            entity.startRiding(player);
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
+            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+
+            if (itemStack.getItem() instanceof PortalGun) {
+                PortalGun.pickCube(player, itemStack);
+            }
+        } catch (Exception e) {
+            PortalMod.LOGGER.error("Error while picking up entity", e);
         }
     }
 

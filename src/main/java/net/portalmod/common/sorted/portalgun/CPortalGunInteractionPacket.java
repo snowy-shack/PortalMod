@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.portal.ITeleportable;
 import net.portalmod.common.sorted.portal.PortalEnd;
@@ -98,11 +99,11 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     break;
 
                 case DROP_ENTITY:
-                    PortalGun.dropCube(player, false, player.getMainHandItem());
+                    TestElementEntity.dropHeldEntities(player, false, player.getMainHandItem());
                     break;
 
                 case THROW_ENTITY:
-                    PortalGun.dropCube(player, true, player.getMainHandItem());
+                    TestElementEntity.dropHeldEntities(player, true, player.getMainHandItem());
                     break;
 
                 case SHOOT_PORTAL:
