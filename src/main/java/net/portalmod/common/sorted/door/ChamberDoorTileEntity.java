@@ -70,11 +70,18 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
 
     @Override
     public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
-        Direction facing = this.getBlockState().getValue(ChamberDoorBlock.FACING);
+        Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
+        boolean isLower = blockState.getValue(ChamberDoorBlock.HALF) == DoubleBlockHalf.LOWER;
+        boolean isLeft = blockState.getValue(ChamberDoorBlock.SIDE) == ChamberDoorBlock.Side.LEFT;
+
+        Direction verticalDirection = isLower ? Direction.UP : Direction.DOWN;
+        Direction horizontalDirection = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
+
         List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
-        possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockState(), pos));
-        possibleIndicatorPositions.addAll(getSurroundingPositions(this.getBlockState(), pos.relative(facing)));
-        possibleIndicatorPositions.addAll(getDoorPositions(this.getBlockState(), pos.relative(facing))); // fill the gap
+        possibleIndicatorPositions.addAll(getSurroundingPositions(pos.relative(facing), verticalDirection, horizontalDirection));
+        possibleIndicatorPositions.addAll(getDoorPositions(pos.relative(facing), verticalDirection, horizontalDirection)); // fill the gap
+        possibleIndicatorPositions.addAll(getOuterCornerPositions(pos, verticalDirection, horizontalDirection));
+        possibleIndicatorPositions.addAll(getOuterCornerPositions(pos.relative(facing.getOpposite()), verticalDirection, horizontalDirection));
         return possibleIndicatorPositions;
     }
 
@@ -84,18 +91,11 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
 
     5      6       7      8
     4     door    door    9
-    3   updated   door    10
+    3     main    door    10
     2      1       12     11
 
      */
-    public static List<BlockPos> getSurroundingPositions(BlockState blockState, BlockPos pos) {
-        Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
-        boolean isLower = blockState.getValue(ChamberDoorBlock.HALF) == DoubleBlockHalf.LOWER;
-        boolean isLeft = blockState.getValue(ChamberDoorBlock.SIDE) == ChamberDoorBlock.Side.LEFT;
-
-        Direction vertical = isLower ? Direction.UP : Direction.DOWN;
-        Direction horizontal = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
-
+    public static List<BlockPos> getSurroundingPositions(BlockPos pos, Direction vertical, Direction horizontal) {
         return new ArrayList<>(Arrays.asList(
                 pos.relative(vertical.getOpposite()),
                 pos.relative(horizontal.getOpposite()).relative(vertical.getOpposite()),
@@ -112,19 +112,29 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         ));
     }
 
-    public static List<BlockPos> getDoorPositions(BlockState blockState, BlockPos pos) {
-        Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
-        boolean isLower = blockState.getValue(ChamberDoorBlock.HALF) == DoubleBlockHalf.LOWER;
-        boolean isLeft = blockState.getValue(ChamberDoorBlock.SIDE) == ChamberDoorBlock.Side.LEFT;
-
-        Direction vertical = isLower ? Direction.UP : Direction.DOWN;
-        Direction horizontal = isLeft ? facing.getCounterClockWise() : facing.getClockWise();
-
+    public static List<BlockPos> getDoorPositions(BlockPos pos, Direction vertical, Direction horizontal) {
         return new ArrayList<>(Arrays.asList(
                 pos.relative(horizontal),
                 pos.relative(horizontal).relative(vertical),
                 pos.relative(vertical),
                 pos
+        ));
+    }
+
+    /*
+
+    2              3
+       door  door
+       main  door
+    1              4
+
+     */
+    public static List<BlockPos> getOuterCornerPositions(BlockPos pos, Direction vertical, Direction horizontal) {
+        return new ArrayList<>(Arrays.asList(
+                pos.relative(horizontal.getOpposite()).relative(vertical.getOpposite()),
+                pos.relative(horizontal.getOpposite()).relative(vertical, 2),
+                pos.relative(horizontal, 2).relative(vertical, 2),
+                pos.relative(horizontal, 2).relative(vertical.getOpposite())
         ));
     }
 }
