@@ -90,6 +90,80 @@ public class LevelRendererMixinFinal {
     }
 
     // BEWARE: PORTAL RENDERING
+    @ModifyArgs(
+            remap = false,
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/WorldRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/matrix/MatrixStack;DDD)V"
+            )
+    )
+    private void pmSwitchToPortalTransparency(Args args) {
+        RenderType renderType = args.get(0);
+        if(renderType == RenderType.translucent() && PortalRenderer.currentlyRenderingPortals)
+            args.set(0, PortalTransparencyHandler.PORTAL_TRANSLUCENT);
+    }
+
+    // BEWARE: PORTAL RENDERING
+    @Redirect(
+            remap = false,
+            method = "renderChunkLayer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
+                    ordinal = 1
+            )
+    )
+    private RenderType pmRenderPortalTransparencyBackwards() {
+        return PortalRenderer.currentlyRenderingPortals ? PortalTransparencyHandler.PORTAL_TRANSLUCENT : RenderType.translucent();
+    }
+
+    // BEWARE: PORTAL RENDERING
+    @Redirect(
+            remap = false,
+            method = "renderChunkLayer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$CompiledChunk;isEmpty(Lnet/minecraft/client/renderer/RenderType;)Z"
+            )
+    )
+    private boolean pmIsPortalTransparencyEmpty(ChunkRenderDispatcher.CompiledChunk compiledChunk, RenderType renderType) {
+        return compiledChunk.isEmpty(renderType == PortalTransparencyHandler.PORTAL_TRANSLUCENT ? RenderType.translucent() : renderType);
+    }
+
+    // BEWARE: PORTAL RENDERING
+    @Inject(
+            remap = false,
+            method = "renderChunkLayer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/RenderType;setupRenderState()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void pmResortPortalTransparency(RenderType renderType, MatrixStack matrixStack, double x, double y, double z, CallbackInfo ci) {
+        // todo probably optimize a bit
+        if(renderType == PortalTransparencyHandler.PORTAL_TRANSLUCENT) {
+            Minecraft.getInstance().getProfiler().push("pm_translucent_sort");
+            PortalTransparencyHandler.resortTransparency(PortalRenderer.currentCamera);
+            Minecraft.getInstance().getProfiler().pop();
+        }
+    }
+
+    // BEWARE: PORTAL RENDERING
+    @Redirect(
+            remap = false,
+            method = "setupRender",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;setCamera(Lnet/minecraft/util/math/vector/Vector3d;)V"
+            )
+    )
+    private void pmUseMainCameraForRebuilding(ChunkRenderDispatcher instance, Vector3d pos) {
+        instance.setCamera(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+    }
+
+    // BEWARE: PORTAL RENDERING
     @Inject(
             remap = false,
             method = "renderEntity(Lnet/minecraft/entity/Entity;DDDFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;)V",
