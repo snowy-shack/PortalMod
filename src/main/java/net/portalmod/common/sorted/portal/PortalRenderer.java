@@ -228,14 +228,18 @@ public class PortalRenderer {
             Minecraft.ON_OSX
     );
 
+    // todo create a state class and dump everything in idk
+    public static ActiveRenderInfo currentCamera;
     private static int recursionDepth = 0;
     public static int renderedPortals = 0;
+    public static boolean currentlyRenderingPortals = false;
     public static int actuallyRenderedPortals = 0;
     public static boolean canClear = true;
     private static boolean fabulousGraphics = false;
 
     public static boolean renderPortals(ClientWorld level, ActiveRenderInfo camera, ClippingHelper clippingHelper, float partialTicks) {
         if(recursionDepth == 0) {
+            currentlyRenderingPortals = true;
             fabulousGraphics = Minecraft.getInstance().options.graphicsMode == GraphicsFanciness.FABULOUS;
 
             PortalRenderer.canClear = fabulousGraphics;
@@ -299,6 +303,10 @@ public class PortalRenderer {
         }
 
         mainRenderTarget.bindWrite(false);
+
+        if(recursionDepth == 0)
+            currentlyRenderingPortals = false;
+
         return true;
     }
 
@@ -433,8 +441,12 @@ public class PortalRenderer {
             if(!fabulousGraphics)
                 StencilUtil.INSTANCE.enable().read(GL_EQUAL, recursion);
 
+            currentCamera = portalCamera;
+
             mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
                     mc.gameRenderer, mc.gameRenderer.lightTexture, getProjectionMatrix());
+
+            currentCamera = camera;
 
             clipMatrix.popPose();
             portalStack.pop();
