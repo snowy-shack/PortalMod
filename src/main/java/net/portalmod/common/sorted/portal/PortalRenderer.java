@@ -45,11 +45,31 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
 
 public class PortalRenderer {
-    public static int recursion = 0;
+    private static PortalRenderer instance;
 
     private static final VertexRenderer portalMesh = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
     private static final VertexRenderer screenQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
     private static final VertexRenderer blitQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
+
+    private final HashMap<ResourceLocation, Tuple<Integer, Integer>> TEXTURE_SIZES = new HashMap<>();
+
+    private static Framebuffer portalTempFBO = new Framebuffer(
+            Minecraft.getInstance().getWindow().getWidth(),
+            Minecraft.getInstance().getWindow().getHeight(),
+            true,
+            Minecraft.ON_OSX
+    );
+
+    // todo create a state class and dump everything in idk
+    public int recursion = 0;
+    public ActiveRenderInfo currentCamera;
+    public int renderedPortals = 0;
+    public boolean currentlyRenderingPortals = false;
+    public boolean canClear = true;
+    private boolean fabulousGraphics = false;
+    private final Deque<PortalEntity> portalStack = new ArrayDeque<>();
+    private MatrixStack clipMatrix = new MatrixStack();
+    private final float[] projectionBuffer = new float[16];
 
     static {
         portalMesh.reset();
@@ -77,7 +97,15 @@ public class PortalRenderer {
         });
     }
 
-    private static void renderMask(Matrix4f modelView) {
+    private PortalRenderer() { }
+
+    public static PortalRenderer getInstance() {
+        if(instance == null)
+            instance = new PortalRenderer();
+        return instance;
+    }
+
+    private void renderMask(Matrix4f modelView) {
         glUseProgram(0);
 
         glEnable(GL_TEXTURE_2D);
@@ -102,7 +130,7 @@ public class PortalRenderer {
         unbindBuffer();
     }
 
-    private static void renderBackground() {
+    private void renderBackground() {
         ShaderInit.COLOR.get().bind().setFloat(
                 "color",
                 FogRendererAccessor.pmGetFogRed(),
@@ -120,7 +148,7 @@ public class PortalRenderer {
         ShaderInit.COLOR.get().unbind();
     }
 
-    private static void renderDepth(Matrix4f modelViewProjection) {
+    private void renderDepth(Matrix4f modelViewProjection) {
         ShaderInit.PORTAL_VIEW.get().bind()
                 .setMatrix("modelViewProjection", modelViewProjection)
                 .setFloat("color", 1, 0, 0, 1);
@@ -143,9 +171,7 @@ public class PortalRenderer {
         ShaderInit.PORTAL_VIEW.get().unbind();
     }
 
-    private static final HashMap<ResourceLocation, Tuple<Integer, Integer>> TEXTURE_SIZES = new HashMap<>();
-
-    private static void renderBorder(PortalEntity portal, float partialTicks, Matrix4f modelViewProjection) {
+    private void renderBorder(PortalEntity portal, float partialTicks, Matrix4f modelViewProjection) {
         Minecraft mc = Minecraft.getInstance();
 
         if(mc.player == null)
@@ -192,7 +218,7 @@ public class PortalRenderer {
         ShaderInit.PORTAL_FRAME.get().unbind();
     }
 
-    private static Tuple<Mat4, Mat4> getPortalToPortalMatrix(PortalEntity portal, PortalEntity otherPortal) {
+    private Tuple<Mat4, Mat4> getPortalToPortalMatrix(PortalEntity portal, PortalEntity otherPortal) {
         Vector3d thisPos = portal.position();
         Vector3d otherPos = otherPortal.position();
 
@@ -207,7 +233,7 @@ public class PortalRenderer {
         return new Tuple<>(changeOfBasisMatrix, portalToPortalMatrixFull);
     }
 
-    private static void setClipPlane(int plane, Matrix4f matrix, Vec3 vector) {
+    private void setClipPlane(int plane, Matrix4f matrix, Vec3 vector) {
         glEnable(GL_CLIP_PLANE0 + plane);
         RenderSystem.matrixMode(GL_MODELVIEW);
         RenderSystem.pushMatrix();
@@ -217,32 +243,16 @@ public class PortalRenderer {
         RenderSystem.popMatrix();
     }
 
-    private static void disableClipPlane(int plane) {
+    private void disableClipPlane(int plane) {
         glDisable(GL_CLIP_PLANE0 + plane);
     }
 
-    private static Framebuffer portalTempFBO = new Framebuffer(
-            Minecraft.getInstance().getWindow().getWidth(),
-            Minecraft.getInstance().getWindow().getHeight(),
-            true,
-            Minecraft.ON_OSX
-    );
-
-    // todo create a state class and dump everything in idk
-    public static ActiveRenderInfo currentCamera;
-    private static int recursionDepth = 0;
-    public static int renderedPortals = 0;
-    public static boolean currentlyRenderingPortals = false;
-    public static int actuallyRenderedPortals = 0;
-    public static boolean canClear = true;
-    private static boolean fabulousGraphics = false;
-
-    public static boolean renderPortals(ClientWorld level, ActiveRenderInfo camera, ClippingHelper clippingHelper, float partialTicks) {
-        if(recursionDepth == 0) {
+    public boolean renderPortals(ClientWorld level, ActiveRenderInfo camera, ClippingHelper clippingHelper, float partialTicks) {
+        if(recursion == 0) {
             currentlyRenderingPortals = true;
             fabulousGraphics = Minecraft.getInstance().options.graphicsMode == GraphicsFanciness.FABULOUS;
 
-            PortalRenderer.canClear = fabulousGraphics;
+            PortalRenderer.getInstance().canClear = fabulousGraphics;
             Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
 
             FogRenderer.setupColor(camera, partialTicks, level,
@@ -266,18 +276,14 @@ public class PortalRenderer {
                 portalTempFBO.setClearColor(0, 0, 0, 0);
                 portalTempFBO.clear(Minecraft.ON_OSX);
             }
-
-            actuallyRenderedPortals = 0;
         }
 
         renderedPortals = 0;
 
         for(Entity entity : level.entitiesForRendering()) {
             if(entity instanceof PortalEntity) {
-                recursionDepth++;
                 renderPortal((PortalEntity) entity, camera, clippingHelper, partialTicks, fabulousGraphics);
                 renderedPortals++;
-                recursionDepth--;
             }
         }
 
@@ -304,15 +310,13 @@ public class PortalRenderer {
 
         mainRenderTarget.bindWrite(false);
 
-        if(recursionDepth == 0)
+        if(recursion == 0)
             currentlyRenderingPortals = false;
 
         return true;
     }
 
-    private static final Deque<PortalEntity> portalStack = new ArrayDeque<>();
-
-    private static boolean discardPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper) {
+    private boolean discardPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper) {
         Vec3 cameraPos = new Vec3(camera.getPosition());
         Vec3 portalPos = new Vec3(portal.position());
         Vec3 portalToCamera = cameraPos.sub(portalPos);
@@ -341,7 +345,7 @@ public class PortalRenderer {
         return portalToCamera.magnitude() > 1 && !clippingHelper.isVisible(portal.getBoundingBox());
     }
 
-    private static void setupClipPlane(int plane, MatrixStack clipMatrix, PortalEntity portal, ActiveRenderInfo camera) {
+    private void setupClipPlane(int plane, MatrixStack clipMatrix, PortalEntity portal, ActiveRenderInfo camera) {
         Vector3d cameraPos = camera.getPosition();
         clipMatrix.last().pose().setIdentity();
         if(camera instanceof PortalCamera)
@@ -354,7 +358,7 @@ public class PortalRenderer {
         setClipPlane(plane, clipMatrix.last().pose(), new Vec3(0, 0, -1));
     }
 
-    private static ActiveRenderInfo setupCameraAndMatrix(ActiveRenderInfo camera, MatrixStack matrixStack, PortalEntity portal, float partialTicks) {
+    private ActiveRenderInfo setupCameraAndMatrix(ActiveRenderInfo camera, MatrixStack matrixStack, PortalEntity portal, float partialTicks) {
         if(!portal.getOtherPortal().isPresent())
             return camera;
 
@@ -381,7 +385,7 @@ public class PortalRenderer {
         return portalCamera;
     }
 
-    private static void blitFBOtoFBO(Framebuffer src, Framebuffer dest) {
+    private void blitFBOtoFBO(Framebuffer src, Framebuffer dest) {
         ShaderInit.ACTUAL_BLIT.get().bind()
                 .setMatrix("projection", Matrix4f.createScaleMatrix(1, 1, 1))
                 .setInt("texture", 0);
@@ -394,7 +398,7 @@ public class PortalRenderer {
         ShaderInit.ACTUAL_BLIT.get().unbind();
     }
 
-    private static void setupSkyColor(ActiveRenderInfo camera, float partialTicks) {
+    private void setupSkyColor(ActiveRenderInfo camera, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
         if(mc.level != null) {
             FogRenderer.setupColor(camera, partialTicks, mc.level, mc.options.renderDistance,
@@ -402,7 +406,7 @@ public class PortalRenderer {
         }
     }
 
-    private static void renderPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper, float partialTicks, boolean fabulousGraphics) {
+    private void renderPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper, float partialTicks, boolean fabulousGraphics) {
         if(discardPortal(portal, camera, clippingHelper))
             return;
 
@@ -482,14 +486,10 @@ public class PortalRenderer {
 
         GL43.glPopDebugGroup();
 
-        actuallyRenderedPortals++;
         recursion--;
     }
 
-    private static MatrixStack clipMatrix = new MatrixStack();
-    private static PortalEntity currentPortal;
-
-    public static void renderHighlights(ActiveRenderInfo camera) {
+    public void renderHighlights(ActiveRenderInfo camera) {
         GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, "Highlights");
 
         ClientWorld level = Minecraft.getInstance().level;
@@ -578,7 +578,7 @@ public class PortalRenderer {
         GL43.glPopDebugGroup();
     }
     
-    private static void unbindBuffer() {
+    private void unbindBuffer() {
         DefaultVertexFormats.POSITION_TEX.clearBufferState();
         VertexBuffer.unbind();
     }
@@ -601,7 +601,7 @@ public class PortalRenderer {
         return false;
     }
     
-    public static void renderDuplicateFirstPersonEntity(float partialTicks, MatrixStack matrixStack) {
+    public void renderDuplicateFirstPersonEntity(float partialTicks, MatrixStack matrixStack) {
         return;
         
 //        Minecraft mc = Minecraft.getInstance();
@@ -619,7 +619,7 @@ public class PortalRenderer {
 //                mc.levelRenderer.entityRenderDispatcher);
     }
     
-    public static void renderDuplicateEntity(Entity entity, double x, double y, double z, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, EntityRendererManager erm) {
+    public void renderDuplicateEntity(Entity entity, double x, double y, double z, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, EntityRendererManager erm) {
 ////        if(true)
 ////            return;
 //        if(entity instanceof PlayerEntity)
@@ -729,13 +729,13 @@ public class PortalRenderer {
 //        }
     }
     
-    private static Matrix4f getModelViewProjectionMatrix(PortalEntity portal, @Nullable ActiveRenderInfo camera, float offset) {
+    private Matrix4f getModelViewProjectionMatrix(PortalEntity portal, @Nullable ActiveRenderInfo camera, float offset) {
         Matrix4f projection = getProjectionMatrix();
         projection.multiply(getModelViewMatrix(portal, camera, offset));
         return projection;
     }
     
-    private static Matrix4f getModelViewMatrix(PortalEntity portal, @Nullable ActiveRenderInfo camera, float offset) {
+    private Matrix4f getModelViewMatrix(PortalEntity portal, @Nullable ActiveRenderInfo camera, float offset) {
         if(camera == null)
             camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         
@@ -754,7 +754,7 @@ public class PortalRenderer {
         return matrix.last().pose();
     }
     
-    private static Matrix4f getModelViewProjectionMatrix(PortalEntity portal, @Nullable PortalCamera camera, float offset) {
+    private Matrix4f getModelViewProjectionMatrix(PortalEntity portal, @Nullable PortalCamera camera, float offset) {
         if(camera == null)
             return getModelViewProjectionMatrix(portal, (ActiveRenderInfo)null, offset);
         
@@ -763,7 +763,7 @@ public class PortalRenderer {
         return projection;
     }
     
-    private static Matrix4f getModelViewMatrix(PortalEntity portal, @Nullable PortalCamera camera, float offset) {
+    private Matrix4f getModelViewMatrix(PortalEntity portal, @Nullable PortalCamera camera, float offset) {
         if(camera == null)
             return getModelViewMatrix(portal, (ActiveRenderInfo)null, offset);
         
@@ -781,10 +781,8 @@ public class PortalRenderer {
         matrix.scale(1, 2, 1);
         return matrix.last().pose();
     }
-    
-    private static final float[] projectionBuffer = new float[16];
-    
-    private static Matrix4f getProjectionMatrix() {
+
+    private Matrix4f getProjectionMatrix() {
         glGetFloatv(GL_PROJECTION_MATRIX, projectionBuffer);
         Matrix4f proj = new Matrix4f(projectionBuffer);
         proj.transpose();

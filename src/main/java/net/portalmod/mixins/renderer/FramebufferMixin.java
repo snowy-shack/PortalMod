@@ -32,7 +32,7 @@ public class FramebufferMixin {
             cancellable = true
     )
     private void pmClear(boolean resize, CallbackInfo info) {
-        if(Minecraft.getInstance().level != null && !PortalRenderer.canClear)
+        if(Minecraft.getInstance().level != null && !PortalRenderer.getInstance().canClear)
             info.cancel();
     }
 }
