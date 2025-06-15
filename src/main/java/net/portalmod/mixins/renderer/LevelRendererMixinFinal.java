@@ -85,7 +85,7 @@ public class LevelRendererMixinFinal {
         ClippingHelper clippinghelper = new ClippingHelper(matrix4f, matrix);
         clippinghelper.prepare(d0, d1, d2);
 
-        if(!PortalRenderer.renderPortals(level, camera, clippinghelper, partialTicks))
+        if(!PortalRenderer.getInstance().renderPortals(level, camera, clippinghelper, partialTicks))
             info.cancel();
     }
 
@@ -100,7 +100,7 @@ public class LevelRendererMixinFinal {
     )
     private void pmSwitchToPortalTransparency(Args args) {
         RenderType renderType = args.get(0);
-        if(renderType == RenderType.translucent() && PortalRenderer.currentlyRenderingPortals)
+        if(renderType == RenderType.translucent() && PortalRenderer.getInstance().currentlyRenderingPortals)
             args.set(0, PortalTransparencyHandler.PORTAL_TRANSLUCENT);
     }
 
@@ -115,7 +115,7 @@ public class LevelRendererMixinFinal {
             )
     )
     private RenderType pmRenderPortalTransparencyBackwards() {
-        return PortalRenderer.currentlyRenderingPortals ? PortalTransparencyHandler.PORTAL_TRANSLUCENT : RenderType.translucent();
+        return PortalRenderer.getInstance().currentlyRenderingPortals ? PortalTransparencyHandler.PORTAL_TRANSLUCENT : RenderType.translucent();
     }
 
     // BEWARE: PORTAL RENDERING
@@ -145,7 +145,7 @@ public class LevelRendererMixinFinal {
         // todo probably optimize a bit
         if(renderType == PortalTransparencyHandler.PORTAL_TRANSLUCENT) {
             Minecraft.getInstance().getProfiler().push("pm_translucent_sort");
-            PortalTransparencyHandler.resortTransparency(PortalRenderer.currentCamera);
+            PortalTransparencyHandler.resortTransparency(PortalRenderer.getInstance().currentCamera);
             Minecraft.getInstance().getProfiler().pop();
         }
     }
@@ -171,7 +171,7 @@ public class LevelRendererMixinFinal {
     )
     private void pmRenderDuplicateEntity(Entity entity, double x, double y, double z, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, CallbackInfo info) {
 //        PortalEntityRenderer.renderDuplicateEntity(entity, x, y, z, partialTicks, matrixStack, renderTypeBuffer, ((WorldRenderer)(Object)this).entityRenderDispatcher);
-        PortalRenderer.renderDuplicateEntity(entity, x, y, z, partialTicks, matrixStack, renderTypeBuffer, ((WorldRenderer)(Object)this).entityRenderDispatcher);
+        PortalRenderer.getInstance().renderDuplicateEntity(entity, x, y, z, partialTicks, matrixStack, renderTypeBuffer, ((WorldRenderer)(Object)this).entityRenderDispatcher);
     }
 
     // BEWARE: PORTAL RENDERING
@@ -186,6 +186,6 @@ public class LevelRendererMixinFinal {
             )
     )
     private void pmRenderPortalHighlights(MatrixStack matrixStack, float f, long l, boolean b, ActiveRenderInfo camera, GameRenderer gr, LightTexture lt, Matrix4f m, CallbackInfo ci) {
-        PortalRenderer.renderHighlights(camera);
+        PortalRenderer.getInstance().renderHighlights(camera);
     }
 }
