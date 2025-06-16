@@ -31,6 +31,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.portalmod.PMGlobals;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.PacketInit;
@@ -41,11 +42,14 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
 import net.portalmod.core.util.BlockIterator;
+import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.EntityAccessor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -824,36 +828,26 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public static VoxelShape getCollisionShape(Entity entity) {
-//        if(true)
-//            return VoxelShapes.empty();
-
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
 
-        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> {
-            PortalEntity justExited = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
-            return portal != justExited;
-        });
+//        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> {
+//            PortalEntity justExited = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
+//            return portal != justExited;
+//        });
+
+        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> true);
 
         if(portals.isEmpty())
             return VoxelShapes.empty();
 
-        // todo nearest portal gets selected
-        PortalEntity portal = portals.get(0);
-//        Vec3 origin = new Vec3(0);
+        Optional<PortalEntity> portalOptional = portals.stream().reduce((o, n) ->
+            n.position().subtract(entity.position()).length() < o.position().subtract(entity.position()).length() ? n : o);
+
+        PortalEntity portal = portalOptional.get();
         Vec3 origin = new Vec3(portal.position()).add(new Vec3(portal.getNormal()).mul(.001));
         Vec3 normal = new Vec3(portal.getDirection().getNormal());
         Vec3 right = new Vec3(portal.getRightVector().getNormal());
         Vec3 up = new Vec3(portal.getUpVector().getNormal());
-
-//        VoxelShape boundingBox = VoxelShapes.create(new AxisAlignedBB(
-//                origin.clone().sub(normal).sub(right).sub(up).to3d(),
-//                origin.clone().add(right.clone().mul(2)).add(up.clone().mul(3)).to3d()
-//        ));
-//
-//        VoxelShape carving = VoxelShapes.create(new AxisAlignedBB(
-//                origin.clone().sub(normal).to3d(),
-//                origin.clone().add(right).add(up.clone().mul(2)).to3d()
-//        ));
 
         VoxelShape boundingBox = VoxelShapes.create(new AxisAlignedBB(
                 origin.clone()
@@ -863,7 +857,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                         .to3d(),
                 origin.clone()
                         .add(right.clone().mul(1.5))
-                        .sub(up.clone().mul(2))
+                        .add(up.clone().mul(2))
                         .to3d()
         ));
 
@@ -875,13 +869,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                         .to3d(),
                 origin.clone()
                         .add(right.clone().mul(.5))
-                        .sub(up.clone().mul(1))
+                        .add(up.clone().mul(1))
                         .to3d()
         ));
 
-//        FaithPlateTER.DEBUG_SHAPE = VoxelShapes.join(boundingBox, carving, IBooleanFunction.ONLY_FIRST);
-//        return FaithPlateTER.DEBUG_SHAPE;
-        return VoxelShapes.join(boundingBox, carving, IBooleanFunction.ONLY_FIRST);
+        VoxelShape shape = VoxelShapes.join(boundingBox, carving, IBooleanFunction.ONLY_FIRST);
+        if(PMGlobals.DEBUG)
+            DebugRenderer.putShape(portal.toString(), shape, Color.GREEN);
+
+        return shape;
     }
 
     public List<BlockPos> getBlocksBehind() {
