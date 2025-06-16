@@ -77,6 +77,7 @@ import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.core.util.ChangeDetector;
+import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor;
 import org.lwjgl.glfw.GLFW;
 
@@ -579,6 +580,7 @@ public class ClientEvents {
 //
 //        }
 //        DEBUG_SHAPES.clear();
+        DebugRenderer.renderAllShapes(event.getMatrixStack());
     }
 
     @SubscribeEvent
