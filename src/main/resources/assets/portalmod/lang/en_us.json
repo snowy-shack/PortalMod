@@ -195,7 +195,7 @@
   "tooltip.portalmod.colors.white":      "§fWhite§r",
 
   "tooltip.portalmod.platform_1": "Connects to Platform Beams",
-  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the platform, useful for creating stairs",
+  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the platform — useful for creating stairs",
   "tooltip.portalmod.platform_3": "  - Power with redstone to force the upper variant to appear",
   "tooltip.portalmod.platform_4": "- Click with a §6Wrench§7 or Platform Beam to manually add a beam to the platform",
 
