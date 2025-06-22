@@ -113,7 +113,7 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
 
         List<BakedQuad> quads = new ArrayList<>();
         addQuad(quads, side, Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS)
-                .apply(side.getAxis() == Direction.Axis.Y ? TextureInit.FAITHPLATE_TARGET_FLAT : TextureInit.FAITHPLATE_TARGET));
+                .apply(TextureInit.FAITHPLATE_TARGET));
         return quads;
     }
 

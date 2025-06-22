@@ -16,7 +16,6 @@ public class TextureInit {
     private TextureInit() {}
     
     public static final ResourceLocation FAITHPLATE_TARGET = BLOCKS.register("block/faithplate_target");
-    public static final ResourceLocation FAITHPLATE_TARGET_FLAT = BLOCKS.register("block/faithplate_target_flat");
     
     public static void register(TextureStitchEvent.Pre event) {
         Registry.register(event);
