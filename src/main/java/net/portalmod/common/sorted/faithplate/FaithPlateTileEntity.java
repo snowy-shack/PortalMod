@@ -28,6 +28,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private BlockPos targetPos;
     private Direction targetFace;
     private float height;
+    private int cooldown = 0;
 //    private static final AxisAlignedBB TRIGGER = new AxisAlignedBB(0, 0, 0, 1, 1 / 16f, 1).move(0, 1, 0);
 
     private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
@@ -52,17 +53,19 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     
     @Override
     public void tick() {
+        // Keep track of how long it's been since the last launch
+        if (cooldown > 0) cooldown--;
+
         if(targetPos == null || targetFace == null || !enabled)
             return;
-        
-        for(Entity entity : level.getEntitiesOfClass(LivingEntity.class, this.getTrigger())) {
-            if(entity.isPassenger())
-                continue;
 
-            if(entity instanceof PlayerEntity) {
+        if (cooldown > 0) return;
+        for(Entity entity : level.getEntitiesOfClass(LivingEntity.class, this.getTrigger())) {
+            if (entity.isPassenger()) continue;
+
+            if (entity instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity)entity;
-                if(player.abilities.flying)
-                    continue;
+                if (player.abilities.flying) continue;
             }
 
             BlockPos targetPos = getTargetPos();
@@ -86,6 +89,8 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
             entity.setShiftKeyDown(false);
             ((IFaithPlateLaunchable)entity).setLaunched(true);
+
+            this.cooldown = 10;
 
             if(!level.isClientSide) {
                 if(entity.isControlledByLocalInstance() && !(entity instanceof PlayerEntity)) {
@@ -212,7 +217,11 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     public float getHeight() {
         return height;
     }
-    
+
+    public int getCooldown() {
+        return cooldown;
+    }
+
     // chunk update
     
     @Override
