@@ -23,8 +23,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
@@ -37,17 +35,18 @@ import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
 public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
-    public static final ResourceLocation FAITHPLATE_TEXTURE = new ResourceLocation(PortalMod.MODID, "entity/faithplate");
-    public static RenderMaterial FAITHPLATE_MATERIAL;
+    public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate");
+    public static final ResourceLocation TEXTURE_ORANGE = new ResourceLocation(PortalMod.MODID, "entity/faithplate_active");
+    public static RenderMaterial MATERIAL_BLUE;
+    public static RenderMaterial MATERIAL_ORANGE;
     private final FaithPlatePlateModel plateModel;
     public static BlockPos selected;
-
-    public static VoxelShape DEBUG_SHAPE = VoxelShapes.empty();
 
     public FaithPlateTER(TileEntityRendererDispatcher terd) {
         super(terd);
         plateModel = new FaithPlatePlateModel();
-        FAITHPLATE_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, FAITHPLATE_TEXTURE);
+        MATERIAL_BLUE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_BLUE);
+        MATERIAL_ORANGE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_ORANGE);
     }
 
     private void renderPlate(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int combinedOverlay) {
@@ -70,7 +69,10 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.mulPose(Vector3f.XP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
-        IVertexBuilder ivertexbuilder = FAITHPLATE_MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);
+        IVertexBuilder ivertexbuilder = be.isEnabled() && be.getCooldown() < 9
+                ? MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent)
+                : MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent);
+
         int light = WorldRenderer.getLightColor(be.getLevel(),
                 onWall ? pos.relative(state.getValue(FaithPlateBlock.FACING)) : pos.above());
 
