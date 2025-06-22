@@ -141,8 +141,12 @@
   "tooltip.portalmod.antline_receiver_3": "- §6Wrench§7: Changes the appearance",
 
   "tooltip.portalmod.antline_1": "Connects §3Buttons§7 with §bAntline Indicators§7",
-  "tooltip.portalmod.antline_2": "- Cannot power §cTesting Elements§7 directly",
+  "tooltip.portalmod.antline_2": "- Cannot power §cTesting Elements§7 without §bAntline Indicator§7",
   "tooltip.portalmod.antline_3": "- Hold crouch to create branching connections",
+
+  "tooltip.portalmod.chamber_lights_1": "Lights up Test Chambers",
+  "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by redstone",
+  "tooltip.portalmod.chamber_lights_3": "- Hold crouch to place horizontally",
 
   "tooltip.portalmod.chamber_door_1": "Entrance and exit to Test Chambers",
   "tooltip.portalmod.chamber_door_2": "- Opens when activated by all adjacent §bAntline Indicators§7",

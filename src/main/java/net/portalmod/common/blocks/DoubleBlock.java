@@ -9,6 +9,7 @@ import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -46,37 +47,38 @@ public class DoubleBlock extends MultiBlock {
         return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.LOWER);
     }
 
+    protected Boolean shouldBeTopHalf(BlockItemUseContext context, Direction.Axis axis) {
+        World world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        boolean placedOnLowerSide = false;
+        if (axis == Direction.Axis.X) placedOnLowerSide = context.getClickLocation().x - pos.getX() < 0.5;
+        if (axis == Direction.Axis.Y) placedOnLowerSide = context.getClickLocation().y - pos.getY() < 0.5;
+        if (axis == Direction.Axis.Z) placedOnLowerSide = context.getClickLocation().z - pos.getZ() < 0.5;
+
+        boolean canBeLower = world.getBlockState(pos.relative(
+                Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE))).canBeReplaced(context);
+        boolean canBeUpper = world.getBlockState(pos.relative(
+                Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE))).canBeReplaced(context);
+
+        // Placement preference
+        if (placedOnLowerSide && canBeUpper) return true;
+        if (!placedOnLowerSide && canBeLower) return false;
+
+        // Placement fallback
+        if (canBeUpper) return true;
+        if (canBeLower) return false;
+
+        return null;
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        World world = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-        boolean placedOnLowerSide = context.getClickLocation().y - pos.getY() < 0.5;
-        boolean canBeLower = world.getBlockState(pos.above()).canBeReplaced(context);
-        boolean canBeUpper = world.getBlockState(pos.below()).canBeReplaced(context);
+        Boolean half = shouldBeTopHalf(context, Direction.Axis.Y);
+        if (half == null) return null;
 
-        // Placement preference
-
-        if (placedOnLowerSide) {
-            if (canBeUpper) {
-                return this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER);
-            }
-        } else {
-            if (canBeLower) {
-                return this.defaultBlockState().setValue(HALF, DoubleBlockHalf.LOWER);
-            }
-        }
-
-        // Placement fallback
-
-        if (canBeLower) {
-            return this.defaultBlockState().setValue(HALF, DoubleBlockHalf.LOWER);
-        }
-
-        if (canBeUpper) {
-            return this.defaultBlockState().setValue(HALF, DoubleBlockHalf.UPPER);
-        }
-
-        return null;
+        return this.defaultBlockState().setValue(
+                HALF, half ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER
+        );
     }
 }
