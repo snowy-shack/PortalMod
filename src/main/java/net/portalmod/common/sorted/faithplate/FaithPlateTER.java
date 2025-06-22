@@ -69,7 +69,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.mulPose(Vector3f.XP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
-        IVertexBuilder ivertexbuilder = be.isEnabled() && be.getCooldown() < 9
+        IVertexBuilder ivertexbuilder = be.isEnabled() && be.getCooldown() < 2
                 ? MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent)
                 : MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent);
 
