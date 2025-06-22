@@ -3,7 +3,7 @@
         "side":   "portalmod:block/faithplate_side",
         "front":  "portalmod:block/faithplate_front",
         "bottom": "portalmod:block/faithplate_bottom",
-        "top":    "portalmod:block/faithplate_top",
+        "top":    "portalmod:block/blackplate_top",
         "inner_side": "portalmod:block/faithplate_inner_side",
         "inner":      "portalmod:block/faithplate_inner",
         "particle": "#front"
