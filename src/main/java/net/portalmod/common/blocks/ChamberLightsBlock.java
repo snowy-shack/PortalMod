@@ -123,9 +123,7 @@ public class ChamberLightsBlock extends DoubleBlock {
                 : Direction.Axis.X;
 
         // See if the player wants to place horizontally
-        boolean shift = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
-        boolean prefersHorizontal = shift != // XOR
-                (context.getPlayer() != null && context.getNearestLookingDirection().getAxis() == Direction.Axis.Y);
+        boolean prefersHorizontal = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
 
         // Check what placements are possible, and decide what placement will be picked.
         Boolean verticalTopHalf = shouldBeTopHalf(context, Direction.Axis.Y);
