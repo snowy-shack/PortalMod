@@ -212,21 +212,31 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     @Override
     public void render(FaithPlateTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
         renderPlate(be, matrixStack, renderBuffer, overlay);
-        if(be.getTargetPos() != null && be.getTargetFace() != null && (selected == null || !selected.equals(be.getBlockPos())))
-            renderTarget(matrixStack, renderBuffer, be.getTargetPos(), be.getTargetFace(), getTargetLight(be.getLevel(), be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace()), overlay);
+        
         renderPointedPath(be, matrixStack, renderBuffer, overlay);
 
-        if(Minecraft.getInstance().options.renderDebug) {
-            if(be.getTargetPos() != null && be.getTargetFace() != null && (selected == null || !selected.equals(be.getBlockPos())))
+        if (be.getTargetFace() == null || be.getTargetPos() == null) return;
+
+        FaithPlateParabola parabola = new FaithPlateParabola(new Vec3(be.getTargetPos()).to3d(), be.getHeight());
+        BlockRayTraceResult tr = parabola.findFirstBlockHit(be.getLevel(), be);
+
+        if (tr != null) {
+            Direction face = tr.getDirection().getOpposite();
+            BlockPos pos = tr.getBlockPos();
+
+            if ((selected == null || !selected.equals(be.getBlockPos()))) {
+                renderTarget(matrixStack, renderBuffer, pos, face, getTargetLight(be.getLevel(), pos.offset(be.getBlockPos()), face), overlay);
+            }
+        } else {
+            renderTarget(matrixStack, renderBuffer, be.getBlockPos(), be.getTargetFace(),
+                    getTargetLight(be.getLevel(), be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace()), overlay);
+        }
+
+        if (Minecraft.getInstance().options.renderDebug) {
+            if ((selected == null || !selected.equals(be.getBlockPos())))
                 renderPath(be, matrixStack, renderBuffer, be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace(), overlay);
             renderTrigger(be, matrixStack);
         }
-
-//        IVertexBuilder vertexBuilder = renderBuffer.getBuffer(RenderType.lines());
-//        matrixStack.pushPose();
-//        matrixStack.translate(-be.getBlockPos().getX(), -be.getBlockPos().getY(), -be.getBlockPos().getZ());
-//        WorldRenderer.renderVoxelShape(matrixStack, vertexBuilder, DEBUG_SHAPE, 0, 0, 0, 1, 1, 1, 1);
-//        matrixStack.popPose();
     }
 
     public Model getPlateModel() {
