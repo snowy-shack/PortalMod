@@ -72,6 +72,7 @@ import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.init.*;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.injectors.MainMenuInjector;
+import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ChangeDetector;
 import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor;
@@ -604,8 +605,8 @@ public class ClientEvents {
 //            event.setPitch(event.getPitch() - animation * 3);
 //            event.setYaw(event.getYaw() - animation * 3);
 //        }
-        
-        PortalEntityClient.teleportCamera(event);
+
+        PortalEntityClient.teleportCamera(event.getInfo(), (float)event.getRenderPartialTicks());
         
         float xRot = event.getInfo().getXRot();
         float yRot = event.getInfo().getYRot();
@@ -615,6 +616,11 @@ public class ClientEvents {
         if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_G)) {
 
         }
+    }
+
+    @SubscribeEvent
+    public static void onFogSetup(final EntityViewRenderEvent.FogColors event) {
+        PortalRenderer.getInstance().clearColor = new Vec3(event.getRed(), event.getGreen(), event.getBlue());
     }
 
     @SubscribeEvent

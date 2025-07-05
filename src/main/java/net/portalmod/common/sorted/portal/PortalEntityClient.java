@@ -5,12 +5,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
@@ -22,117 +22,29 @@ public class PortalEntityClient {
 //        return Minecraft.getInstance().getConnection() != null;
 //    }
 
-    public static void teleportCamera(final EntityViewRenderEvent.CameraSetup event) {
-//        if(true)
-//            return;
+    // todo teleport player in spectator
 
+    public static ActiveRenderInfo teleportCamera(ActiveRenderInfo camera, float partialTicks, boolean useBobbing) {
         Minecraft minecraft = Minecraft.getInstance();
         PlayerEntity player = minecraft.player;
-        ActiveRenderInfo camera = event.getInfo();
         World level = player.level;
 
-//        if(minecraft.gameMode.getPlayerMode() == GameType.SPECTATOR || camera.isDetached())
-//            return;
-//
-//        Vector3d delta = player.getPosition(0).subtract(player.getPosition(1));
-//
-////        Vector3d eyePos = player.getEyePosition(1);
-//        Vector3d pos = player.getPosition(1);
-//        AxisAlignedBB bb = player.getBoundingBox();
-//
-//        while(true) {
-//            AxisAlignedBB travelAABB = bb.expandTowards(delta);
-////            AxisAlignedBB travelAABB = new AxisAlignedBB(eyePos, eyePos)
-////                    .inflate(1).expandTowards(delta);
-//
-//            List<PortalEntity> portals = getOpenPortals(level, travelAABB, portal ->
-//                    portal.isEntityAlignedToPortal(player)
-//                    && camera.getPosition().subtract(portal.getCenter()).dot(new Vector3d(portal.getNormal())) < 0);
-//
-//            if(portals.isEmpty())
-//                break;
-//
-//            PortalEntity portal = portals.get(0);
-//            camera.setPosition(portal.teleportPoint(new Vec3(camera.getPosition())).to3d());
-////            eyePos = portal.teleportPoint(new Vec3(eyePos)).to3d();
-//            Vector3d newPos = portal.teleportPoint(new Vec3(pos)).to3d();
-//            bb = bb.move(newPos.subtract(pos));
-//            pos = newPos;
-//        }
-
-
-
-
-
-//        Vector3d delta = player.getPosition(0).subtract(player.getPosition(1));
-//        AxisAlignedBB travelAABB = player.getBoundingBox().expandTowards(delta);
-//
-//        List<PortalEntity> portals = getOpenPortals(level, travelAABB, portal ->
-//                portal.isEntityAlignedToPortal(player)
-//                        && camera.getPosition().subtract(portal.position()).dot(new Vector3d(portal.getNormal())) < 0);
-//
-//        if(portals.isEmpty())
-//            return;
-//
-//        PortalEntity portal = portals.get(0);
-//        camera.setPosition(portal.teleportPoint(new Vec3(camera.getPosition())).to3d());
-
-
-
-
-
-
-
-
-
-//        if(true)
-//            return;
+        ActiveRenderInfo newCamera = new ActiveRenderInfo();
+        ((ActiveRenderInfoAccessor)newCamera).pmSetPosition(new Vec3(camera.getPosition()).to3d());
+        newCamera.setAnglesInternal(camera.getYRot(), camera.getXRot());
 
         List<PortalEntity> entities = PortalEntity.getOpenPortals(level, player.getBoundingBox(), portal -> true);
 
-//        List<Entity> entities = minecraft.level.getEntities(player, player.getBoundingBox());
         for(Entity entity : entities) {
             if(entity instanceof PortalEntity) {
                 if(!((PortalEntity)entity).isOpen() || !((PortalEntity)entity).getOtherPortal().isPresent())
                     continue;
-//                {
-//                    PortalEntity portal = (PortalEntity)entity;
-//                    Vec3 normal = new Vec3(portal.direction.step());
-//                    Vec3 portalPos = new Vec3(portal.blockPosition()).add(.5)
-//                            .sub(normal.clone().mul(.5))
-//                            .add(normal.clone().mul(PortalEntityRenderer.OFFSET));
-//
-//                    PortalEntity targetPortal = PortalPairManager.CLIENT.get(portal.gunUUID).get(portal.end.other());
-//                    Vec3 targetNormal = new Vec3(targetPortal.direction.step());
-//                    Vec3 targetPortalPos = new Vec3(targetPortal.blockPosition()).add(.5)
-//                            .sub(targetNormal.clone().mul(.5))
-//                            .add(targetNormal.clone().mul(PortalEntityRenderer.OFFSET));
-//
-//                    Vec3 cameraPos = new Vec3(camera.getPosition());
-//
-//                    MatrixStack bobStack = new MatrixStack();
-//                    minecraft.gameRenderer.bobHurt(bobStack, (float)event.getRenderPartialTicks());
-//                    if(minecraft.options.bobView)
-//                        minecraft.gameRenderer.bobView(bobStack, (float)event.getRenderPartialTicks());
-//                    Mat4 bob = new Mat4(bobStack.last().pose());
-//
-//                    Mat4 view = Mat4.IDENTITY
-//                            .mul(Vector3f.XP.rotationDegrees(camera.getXRot()))
-//                            .mul(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F))
-//                            .translate(cameraPos.clone().negate());
-//
-//                    Vec3 portalPosBob = portalPos.clone().transform(view).transform(bob);
-//                    Vec3 normalBob = portalPos.clone().add(normal.clone().negate()).transform(view).transform(bob).sub(portalPosBob);
-//
-//                    if(portalPosBob.dot(normalBob) < 0)
-//                        ((ActiveRenderInfoAccessor)event.getInfo()).pmSetPosition(cameraPos.add(targetPortalPos.sub(portalPos)).to3d());
-//                }
 
                 PortalEntity portal = (PortalEntity)entity;
                 Vector3f normal = new Vec3(portal.getDirection().getNormal()).to3f();
                 Vector3f normal2 = new Vec3(portal.getDirection().getNormal()).to3f();
                 normal.mul(.5f);
-                normal2.mul(0.001f);
+                normal2.mul(0.0005f);
                 Vector3d portalPos = Vector3d.atCenterOf(portal.blockPosition())
                         .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
 
@@ -141,16 +53,16 @@ public class PortalEntityClient {
                 Vector3f targetNormal = new Vec3(targetPortal.getDirection().getNormal()).to3f();
                 Vector3f targetnormal2 = new Vec3(targetPortal.getDirection().getNormal()).to3f();
                 targetNormal.mul(.5f);
-                targetnormal2.mul(0.001f);
+                targetnormal2.mul(0.0005f);
                 Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
                         .subtract(new Vector3d(targetNormal)).add(new Vector3d(targetnormal2));
 
                 Vector3d cameraPos = camera.getPosition();
 
                 MatrixStack bob = new MatrixStack();
-                minecraft.gameRenderer.bobHurt(bob, (float)event.getRenderPartialTicks());
+                minecraft.gameRenderer.bobHurt(bob, partialTicks);
                 if(minecraft.options.bobView)
-                    minecraft.gameRenderer.bobView(bob, (float)event.getRenderPartialTicks());
+                    minecraft.gameRenderer.bobView(bob, partialTicks);
                 Matrix4f bob4f = bob.last().pose();
 
                 MatrixStack view = new MatrixStack();
@@ -161,14 +73,16 @@ public class PortalEntityClient {
 
                 Vector4f portalPosBobbed4f = new Vector4f(new Vector3f(portalPos));
                 portalPosBobbed4f.transform(view4f);
-                portalPosBobbed4f.transform(bob4f);
+                if(useBobbing)
+                    portalPosBobbed4f.transform(bob4f);
                 Vector3d portalPosBobbed = new Vector3d(portalPosBobbed4f.x(), portalPosBobbed4f.y(), portalPosBobbed4f.z());
 
                 Vector3f normal3 = new Vec3(portal.getDirection().getOpposite().getNormal()).to3f();
                 normal3.add(new Vector3f(portalPos));
                 Vector4f normalBobbed4f = new Vector4f(normal3);
                 normalBobbed4f.transform(view4f);
-                normalBobbed4f.transform(bob4f);
+                if(useBobbing)
+                    normalBobbed4f.transform(bob4f);
                 Vector3d normalBobbed = new Vector3d(normalBobbed4f.x(), normalBobbed4f.y(), normalBobbed4f.z());
                 normalBobbed = normalBobbed.subtract(portalPosBobbed);
 
@@ -178,20 +92,35 @@ public class PortalEntityClient {
 
                 if(portalPosBobbed.dot(normalBobbed) < 0) {
                     Vec3 newCameraPos = new Vec3(cameraPos)
-                            .sub(portalPos.add(new Vec3(portal.getNormal()).mul(.001).to3d()))
+                            .sub(portalPos.add(new Vec3(portal.getNormal()).mul(0.0005f).to3d()))
                             .transform(changeOfBasisMatrix)
-                            .add(targetPortalPos.add(new Vec3(targetPortal.getNormal()).mul(.001).to3d()));
-                    ((ActiveRenderInfoAccessor) event.getInfo()).pmSetPosition(newCameraPos.to3d());
-//                    event.getInfo().setAnglesInternal(90, 0);
+                            .add(targetPortalPos.add(new Vec3(targetPortal.getNormal()).mul(0.0005f).to3d()));
+                    ((ActiveRenderInfoAccessor)newCamera).pmSetPosition(newCameraPos.to3d());
 
+                    // todo other axes
                     if(portal.getDirection().getAxis().isHorizontal() && targetPortal.getDirection().getAxis().isHorizontal()) {
                         Vec3 forward = Vec3.zAxis().transform(new Mat4(Vector3f.YN.rotationDegrees(camera.getYRot())));
                         forward.transform(changeOfBasisMatrix);
                         float newYaw = (float)(-Math.signum(Vec3.zAxis().cross(forward).dot(Vec3.yAxis())) * Math.acos(forward.dot(Vec3.zAxis())) / Math.PI * 180);
-                        camera.setAnglesInternal(newYaw, camera.getXRot());
+                        ((ActiveRenderInfoAccessor)newCamera).pmSetRotation(newYaw, camera.getXRot());
                     }
                 }
             }
         }
+
+        return newCamera;
+    }
+
+    public static void teleportCamera(ActiveRenderInfo camera, float partialTicks) {
+        ActiveRenderInfo newCamera = teleportCamera(camera, partialTicks, true);
+        ActiveRenderInfo cameraForLight = PortalEntityClient.teleportCamera(camera, partialTicks, false);
+
+        // todo or just dont teleport the block position at all to prevent flickering
+
+        BlockPos lightPos = new BlockPos(new Vec3(cameraForLight.getPosition()).to3i());
+        ((ActiveRenderInfoAccessor)camera).pmGetBlockPosition().set(lightPos);
+
+        ((ActiveRenderInfoAccessor)camera).pmSetPosition(new Vec3(newCamera.getPosition()).to3d());
+        ((ActiveRenderInfoAccessor)camera).pmSetRotation(newCamera.getYRot(), newCamera.getXRot());
     }
 }
