@@ -23,5 +23,5 @@ void main() {
                         + texture2D(texture, nextFrameCoord) * interpolation;
 
     gl_FragColor = portalFragment;
-    gl_FragDepth = gl_FragCoord.z - 0.00002 * gl_FragCoord.w;
+//    gl_FragDepth = gl_FragCoord.z - 0.00002 * gl_FragCoord.w;
 }

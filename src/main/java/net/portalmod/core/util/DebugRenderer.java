@@ -28,7 +28,9 @@ public class DebugRenderer {
     }
 
     public static void renderAllShapes(MatrixStack matrixStack) {
-        for(Tuple<VoxelShape, Color> shape : SHAPES.values())
+        HashMap<String, Tuple<VoxelShape, Color>> temp = new HashMap<>(SHAPES);
+
+        for(Tuple<VoxelShape, Color> shape : temp.values())
             for(AxisAlignedBB aabb : shape.getA().toAabbs())
                 renderBox(matrixStack.last().pose(), aabb, shape.getB());
     }

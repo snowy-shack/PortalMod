@@ -39,7 +39,6 @@
     "accessors.ChunkRenderDispatcherAccessor",
     "accessors.CompiledChunkAccessor",
     "accessors.FlameParticleAccessor",
-    "accessors.FogRendererAccessor",
     "accessors.GameRendererAccessor",
     "accessors.MainMenuScreenAccessor",
     "accessors.MinecraftAccessor",
