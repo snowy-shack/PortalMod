@@ -1,9 +1,9 @@
 package net.portalmod.common.sorted.portal;
 
-import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,7 +22,6 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
@@ -912,7 +911,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public Vector3d getPivotPoint() {
-        return this.position().add(new Vec3(this.direction.getOpposite().getNormal()).mul(.5).to3d());
+        return this.position().add(new Vec3(this.direction.getOpposite().getNormal()).mul(.501).to3d());
     }
 
     public static void setupMatrix(MatrixStack matrix, Direction direction, Direction upVector, Vector3d center) {
@@ -956,6 +955,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     public Vector3f getNormal() {
         return new Vec3(this.direction.getNormal()).to3f();
+    }
+
+    public float getWallAttachmentDistance(ActiveRenderInfo camera) {
+        double distance = camera.getPosition().subtract(this.position()).length();
+        return (float)Math.min(0.0001 + Math.max(0.1 / 98 * (distance - 2), 0), 0.1);
     }
 
     public OrthonormalBasis getSourceBasis() {
