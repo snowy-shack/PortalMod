@@ -28,19 +28,7 @@ public class ShaderInit {
             .add(GL_VERTEX_SHADER, "portal/vertex.vsh")
             .add(GL_FRAGMENT_SHADER, "portal/highlight.fsh")
             .build());
-    
-    public static final Registry.Entry<Shader> PORTAL_INNER = REGISTRY.register("portal_inner",
-            () -> new Shader.Builder()
-            .add(GL_VERTEX_SHADER, "portal/inner.vsh")
-            .add(GL_FRAGMENT_SHADER, "portal/inner.fsh")
-            .build());
-    
-    public static final Registry.Entry<Shader> PORTAL_VIEW = REGISTRY.register("portal_view",
-            () -> new Shader.Builder()
-            .add(GL_VERTEX_SHADER, "portal/vertex.vsh")
-            .add(GL_FRAGMENT_SHADER, "portal/view.fsh")
-            .build());
-    
+
     public static final Registry.Entry<Shader> FAITHPLATE_GUI = REGISTRY.register("faithplate_gui",
             () -> new Shader.Builder()
             .add(GL_VERTEX_SHADER, "gui/vertex.vsh")
