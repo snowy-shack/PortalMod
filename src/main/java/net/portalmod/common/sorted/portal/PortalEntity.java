@@ -18,6 +18,7 @@ import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -33,6 +34,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import net.portalmod.PMGlobals;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.EntityInit;
+import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -1400,6 +1402,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     public String getColor() {
         return this.hue;
+    }
+
+    @Override
+    public ItemStack getPickedResult(RayTraceResult target) {
+        CompoundNBT nbt = new CompoundNBT();
+        nbt.putUUID("gunUUID", this.gunUUID);
+        ItemStack item = new ItemStack(ItemInit.PORTALGUN.get());
+        item.setTag(nbt);
+        return item;
     }
 
     @Override
