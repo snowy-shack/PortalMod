@@ -1,5 +1,5 @@
 {
-  "parent": "portalmod:portalmod/cube_on_button",
+  "parent": "portalmod:portalmod/grab_entity",
   "criteria": {
     "requirement": {
       "trigger": "minecraft:player_killed_entity",

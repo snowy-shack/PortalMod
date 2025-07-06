@@ -152,7 +152,19 @@ public abstract class TestElementEntity extends LivingEntity {
     public void fizzleInit() {
         this.setNoGravity(true);
         this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
+    }
 
+    /**
+     * On the last tick of fizzling
+     */
+    public void fizzleKill() {
+        if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
+            this.dropAllDeathLoot(new DamageSource("fizzle"));
+        }
+        this.remove();
+    }
+
+    public void awardKill() {
         Entity holder = this.getVehicle();
 
         if (this.isPassenger() && holder instanceof PlayerEntity) {
@@ -166,16 +178,6 @@ public abstract class TestElementEntity extends LivingEntity {
                 );
             }
         }
-    }
-
-    /**
-     * On the last tick of fizzling
-     */
-    public void fizzleKill() {
-        if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
-            this.dropAllDeathLoot(new DamageSource("fizzle"));
-        }
-        this.remove();
     }
 
     @Override
@@ -237,6 +239,7 @@ public abstract class TestElementEntity extends LivingEntity {
         PortalGunSparkParticle.createParticles(this.level, player);
 
         if (this.isFizzling()) {
+            this.awardKill();
             this.tryDropAnim();
             this.stopRiding();
         }
