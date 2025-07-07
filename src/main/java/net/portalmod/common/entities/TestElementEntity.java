@@ -264,7 +264,7 @@ public abstract class TestElementEntity extends LivingEntity {
         this.setDeltaMovement(momentum);
     }
 
-    public static void dropHeldEntities(PlayerEntity player, boolean toBeThrown, ItemStack itemStack) {
+    public static void dropHeldEntities(PlayerEntity player, boolean yeet, ItemStack itemStack) {
         List<Entity> passengers = player.getPassengers();
         for (int i = passengers.size() - 1; i >= 0; --i) {
             Entity entity = passengers.get(0);
@@ -283,7 +283,7 @@ public abstract class TestElementEntity extends LivingEntity {
             boolean exceedsLimit = entity.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
             if (exceedsLimit) entity.setDeltaMovement(entity.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
 
-            if (toBeThrown) {
+            if (yeet) {
                 float strength = .3f;
                 entity.setDeltaMovement(entity.getDeltaMovement().add(player.getViewVector(0)
                         .multiply(strength, strength, strength)));
