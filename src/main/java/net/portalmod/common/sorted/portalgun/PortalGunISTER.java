@@ -29,13 +29,11 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
     public static RenderMaterial PORTALGUN_MATERIAL;
     public static RenderMaterial PORTALGUN_MATERIAL2;
     public static RenderMaterial MISSINGNO_MATERIAL;
-    public static PortalGunModel PORTALGUN_MODEL;
     public final AnimatedTexture TEX = new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS,
             new ResourceLocation(PortalMod.MODID, "gun/portalgun"), 1 /*3*/, 1); //FIXME
     public static AnimatedTexture TEST_TEXTURE;
 
     public PortalGunISTER() {
-        PORTALGUN_MODEL = new PortalGunModel();
         PORTALGUN_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE);
         PORTALGUN_MATERIAL2 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE2);
         MISSINGNO_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, MISSINGNO_TEXTURE);
@@ -174,17 +172,18 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         }
 
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
+        PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
 
 //        TEX.setupAnimation();
         TEST_TEXTURE.setupAnimation();
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
+        model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
+        model.render(gunUUID, model.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
         irendertypebuffer$impl.endBatch();
 //        TEX.endAnimation();
         TEST_TEXTURE.endAnimation();
 
         ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
-        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);
+        model.render(gunUUID, model.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);
 
 //        ivertexbuilder = PORTALGUN_MATERIAL.buffer(renderTypeBuffer, RenderType::entityTranslucent);
 //        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, currentColour, !animate);
@@ -193,7 +192,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
     }
 
     public static void startShootAnimation(UUID gunUUID) {
-        PORTALGUN_MODEL.startAnimation(gunUUID, "shoot");
+        PortalGun.getModel(gunUUID).startAnimation(gunUUID, "shoot");
         AnimationInit.RECOIL_X.start();
         AnimationInit.RECOIL_Y.start();
     }
@@ -203,12 +202,12 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
     }
 
     public static void startLiftAnimation(UUID gunUUID) {
-        PORTALGUN_MODEL.startAnimation(gunUUID, "lift");
+        PortalGun.getModel(gunUUID).startAnimation(gunUUID, "lift");
         AnimationInit.LIFT.start();
     }
 
     public static void stopLiftAnimation(UUID gunUUID) {
-        PORTALGUN_MODEL.startAnimation(gunUUID, "drop");
+        PortalGun.getModel(gunUUID).startAnimation(gunUUID, "drop");
         AnimationInit.LIFT.stop();
     }
 }
