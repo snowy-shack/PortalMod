@@ -39,6 +39,7 @@ import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -48,17 +49,21 @@ public class PortalGun extends Item {
     public String defaultLeftColor;
     public String defaultRightColor;
     public String defaultAccentColor;
+    private final PortalGunModel model;
+
+    private static final HashMap<UUID, Item> BY_UUID = new HashMap<>();
 
     public PortalGun(Properties properties) {
-        this(properties, "blue", "orange", "none");
+        this(properties, new PortalGunModel(), "blue", "orange", "none");
     }
 
     // Use for custom portal guns
-    public PortalGun(Properties properties, String defaultLeftColor, String defaultRightColor, String defaultAccentColor) {
+    public PortalGun(Properties properties, PortalGunModel model, String defaultLeftColor, String defaultRightColor, String defaultAccentColor) {
         super(properties);
         this.defaultLeftColor = defaultLeftColor;
         this.defaultRightColor = defaultRightColor;
         this.defaultAccentColor = defaultAccentColor;
+        this.model = model;
     }
 
     public static void handleLeftClick() {
@@ -308,6 +313,7 @@ public class PortalGun extends Item {
             nbt.putUUID("gunUUID", uuid);
         }
 
+        BY_UUID.put(uuid, itemStack.getItem());
         return uuid;
     }
 
@@ -341,6 +347,14 @@ public class PortalGun extends Item {
             color = DyeColor.byName(nbt.getString("RightColor"), color);
         }
         return color;
+    }
+
+    public PortalGunModel getModel() {
+        return this.model;
+    }
+
+    public static PortalGunModel getModel(UUID gunUUID) {
+        return ((PortalGun)BY_UUID.get(gunUUID)).getModel();
     }
 
     public static Colour getAccentColour(CompoundNBT nbt) {
