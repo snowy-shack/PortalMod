@@ -109,8 +109,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         PortalEntity targetPortal = targetPortalOptional.get();
 //        Vec3 portalPos = new Vec3(this.position());
 //        Vec3 targetPortalPos = new Vec3(targetPortal.position());
-        Vec3 portalPos = new Vec3(this.blockPosition()).add(.5).sub(new Vec3(this.getNormal()).mul(.5));
-        Vec3 targetPortalPos = new Vec3(targetPortal.blockPosition()).add(.5).sub(new Vec3(targetPortal.getNormal()).mul(.5));
+        Vec3 portalPos = new Vec3(this.blockPosition()).add(.5).sub(new Vec3(this.getNormal()).mul(.5))
+                .add(new Vec3(this.getNormal()).mul(.001));
+        Vec3 targetPortalPos = new Vec3(targetPortal.blockPosition()).add(.5).sub(new Vec3(targetPortal.getNormal()).mul(.5))
+                .add(new Vec3(targetPortal.getNormal()).mul(.001));
 //        Vec3 portalPos = new Vec3(this.getBoundingBox().getCenter());
 //        Vec3 targetPortalPos = new Vec3(targetPortal.getBoundingBox().getCenter());
 

@@ -290,13 +290,15 @@
   "death.attack.goo":                    "%1$s dissolved in goo",
   "death.attack.goo.player":             "%1$s dissolved in goo whilst trying to escape %2$s",
 
-  "options.portalmod.button":     "PortalMod Options...",
-  "options.portalmod.title":      "PortalMod Options",
-  "options.portalmod.crosshair":  "Portal 1 Crosshair",
-  "options.portalmod.skins":      "Portal Gun Skin",
-  "options.portalmod.tooltips":   "Tooltips",
-  "options.portalmod.menu":       "Portal Themed Menu",
-  "options.portalmod.recursion":  "Portal Render Depth",
+  "options.portalmod.button":       "PortalMod Options...",
+  "options.portalmod.title":        "PortalMod Options",
+  "options.portalmod.crosshair":    "Portal 1 Crosshair",
+  "options.portalmod.skins":        "Portal Gun Skin",
+  "options.portalmod.tooltips":     "Tooltips",
+  "options.portalmod.menu":         "Portal Themed Menu",
+  "options.portalmod.recursion":    "Portal Render Depth",
+  "options.portalmod.render_self":  "Render Self Player",
+  "options.portalmod.highlights":   "Portal Highlights",
 
   "options.portalmod.skins.title": "Select your Portal Gun skin:",
 
