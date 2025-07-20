@@ -424,6 +424,7 @@ public class PortalRenderer {
 
             glDisable(GL_CLIP_PLANE0);
             GL11.glEnable(GL_STENCIL_TEST);
+            RenderSystem.color4f(1, 1, 1, 1);
 
             RenderSystem.stencilMask(0x80);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0xFF);
