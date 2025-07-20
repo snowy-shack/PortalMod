@@ -328,6 +328,25 @@ public class Vec3 {
     public Vec3 abs() {
         return this.compute(Math::abs);
     }
+
+    public Vec3 lerp(Vec3 v, double factor) {
+        this.x = this.x * (1 - factor) + v.x * factor;
+        this.y = this.y * (1 - factor) + v.y * factor;
+        this.z = this.z * (1 - factor) + v.z * factor;
+        return this;
+    }
+
+    public Vec3 lerp(Vector3d v, double factor) {
+        return this.lerp(new Vec3(v), factor);
+    }
+
+    public Vec3 lerp(Vector3f v, double factor) {
+        return this.lerp(new Vec3(v), factor);
+    }
+
+    public Vec3 lerp(Vector3i v, double factor) {
+        return this.lerp(new Vec3(v), factor);
+    }
     
     // transform
     

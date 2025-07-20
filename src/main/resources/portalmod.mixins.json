@@ -52,6 +52,7 @@
     "network.ClientPlayNetHandlerMixin",
     "renderer.ActiveRenderInfoMixin",
     "renderer.ChunkRenderMixin",
+    "renderer.EntityRendererManagerMixin",
     "renderer.EntityRendererMixin",
     "renderer.FramebufferMixin",
     "renderer.GameRendererMixin",

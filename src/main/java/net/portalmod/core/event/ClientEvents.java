@@ -50,6 +50,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.portalmod.PMGlobals;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
@@ -409,6 +410,12 @@ public class ClientEvents {
         } catch (Exception e) {
             PortalMod.LOGGER.error("Error while picking up entity", e);
         }
+    }
+
+    @SubscribeEvent
+    public static void onRenderTickStart(TickEvent.RenderTickEvent event) {
+        if(event.phase == Phase.START)
+            PMGlobals.partialTicks = event.renderTickTime;
     }
 
     private static void consumeAllKeyPresses(InputMappings.Input k) {
