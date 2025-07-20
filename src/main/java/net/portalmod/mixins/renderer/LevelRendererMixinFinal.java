@@ -6,11 +6,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.culling.ClippingHelper;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
+import net.portalmod.PMGlobals;
+import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.portal.*;
+import net.portalmod.core.math.Vec3;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
@@ -42,9 +46,7 @@ public class LevelRendererMixinFinal {
             method = "renderLevel",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;pushMatrix()V",
-                    ordinal = 0,
-                    shift = At.Shift.BEFORE
+                    target = "Lnet/minecraft/client/world/DimensionRenderInfo;constantAmbientLight()Z"
             )
     )
     private void pmRenderPortals(MatrixStack matrixStack, float partialTicks, long l, boolean b, ActiveRenderInfo camera, GameRenderer gr, LightTexture lt, Matrix4f matrix, CallbackInfo info) {
@@ -137,13 +139,72 @@ public class LevelRendererMixinFinal {
     }
 
     // BEWARE: PORTAL RENDERING
+    @Redirect(
+            remap = false,
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/Minecraft;shouldEntityAppearGlowing(Lnet/minecraft/entity/Entity;)Z"
+            )
+    )
+    private boolean pmAvoidRenderingOutlineInFakeEntities(Minecraft instance, Entity entity) {
+        if(PortalRenderer.getInstance().recursion > 0)
+            return false;
+        return instance.shouldEntityAppearGlowing(entity);
+    }
+
+    // BEWARE: PORTAL RENDERING
+    @Redirect(
+            remap = false,
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;isDetached()Z"
+            )
+    )
+    private boolean pmRenderSelf(ActiveRenderInfo instance) {
+        if(!PortalModOptionsScreen.RENDER_SELF.get())
+            return instance.isDetached();
+        return true;
+    }
+
+    // BEWARE: PORTAL RENDERING
+    @Redirect(
+            remap = false,
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/entity/EntityRendererManager;shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ClippingHelper;DDD)Z"
+            )
+    )
+    private boolean pmShouldRenderSelf(EntityRendererManager erm, Entity entity, ClippingHelper clippingHelper, double camX, double camY, double camZ) {
+        if(!PortalModOptionsScreen.RENDER_SELF.get())
+            return erm.shouldRender(entity, clippingHelper, camX, camY, camZ);
+
+        Vec3 entityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks);
+        double d = entityPos.clone().sub(PortalRenderer.getInstance().getCurrentCamera().getPosition()).magnitudeSqr();
+        return erm.shouldRender(entity, clippingHelper, camX, camY, camZ) && d >= 0.001;
+    }
+
+    // BEWARE: PORTAL RENDERING
     @Inject(
             remap = false,
-            method = "renderEntity(Lnet/minecraft/entity/Entity;DDDFLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;)V",
-            at = @At("TAIL")
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/profiler/IProfiler;popPush(Ljava/lang/String;)V",
+                    ordinal = 10
+            )
     )
-    private void pmRenderDuplicateEntity(Entity entity, double x, double y, double z, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, CallbackInfo info) {
-//        PortalEntityRenderer.renderDuplicateEntity(entity, x, y, z, partialTicks, matrixStack, renderTypeBuffer, ((WorldRenderer)(Object)this).entityRenderDispatcher);
-        PortalRenderer.getInstance().renderDuplicateEntity(entity, x, y, z, partialTicks, matrixStack, renderTypeBuffer, ((WorldRenderer)(Object)this).entityRenderDispatcher);
+    private void pmRenderDuplicateEntities(MatrixStack matrixStack, float partialTicks, long l, boolean b, ActiveRenderInfo camera, GameRenderer gr, LightTexture lt, Matrix4f projectionMatrix, CallbackInfo info) {
+        Vector3d vector3d = camera.getPosition();
+        double camX = vector3d.x();
+        double camY = vector3d.y();
+        double camZ = vector3d.z();
+
+        ClippingHelper clippinghelper = new ClippingHelper(matrixStack.last().pose(), projectionMatrix);
+        clippinghelper.prepare(camX, camY, camZ);
+
+        DuplicateEntityRenderer.renderDuplicateEntities(clippinghelper, camX, camY, camZ, partialTicks, matrixStack, camera);
     }
 }
