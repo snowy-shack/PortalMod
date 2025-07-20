@@ -19,6 +19,12 @@ public interface ActiveRenderInfoAccessor {
     @Accessor(remap = false, value = "blockPosition")
     BlockPos.Mutable pmGetBlockPosition();
 
+    @Accessor(remap = false, value = "eyeHeight")
+    float pmGetEyeHeight();
+
+    @Accessor(remap = false, value = "eyeHeightOld")
+    float pmGetEyeHeightOld();
+
     @Invoker(remap = false, value = "setRotation")
     void pmSetRotation(float yaw, float pitch);
 }
