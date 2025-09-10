@@ -178,21 +178,18 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     }
 
     private void renderPointedPath(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int overlay) {
-        PlayerEntity player = Minecraft.getInstance().player;
+        PlayerEntity player = Minecraft.getInstance().player; // TODO check functionality in multiplayer
 
-        if(!be.getBlockPos().equals(selected) || player == null || player.noPhysics)
-            return;
+        if (!be.getBlockPos().equals(selected) || player == null || player.noPhysics) return;
 
         Item mainHandItem = player.getItemInHand(Hand.MAIN_HAND).getItem();
         Item offHandItem = player.getItemInHand(Hand.OFF_HAND).getItem();
 
-        if(!(mainHandItem == ItemInit.WRENCH.get() || offHandItem == ItemInit.WRENCH.get()))
-            return;
+        if (!(mainHandItem == ItemInit.WRENCH.get() || offHandItem == ItemInit.WRENCH.get())) return;
 
         BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, be.getLevel(), 64);
 
-        if(rayHit.getType() == RayTraceResult.Type.MISS)
-            return;
+        if (rayHit.getType() == RayTraceResult.Type.MISS) return;
 
         renderPath(be, matrixStack, renderBuffer, rayHit.getBlockPos(), rayHit.getDirection(), overlay);
 
