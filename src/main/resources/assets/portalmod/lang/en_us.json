@@ -94,9 +94,11 @@
   "entity.portalmod.turret":         "Sentry Turret",
   "entity.portalmod.chamber_sign":   "Chamber Sign",
 
-  "container.faithplate":        "Aperture Science Aerial Faith Plate",
-  "container.faithplate.height": "Height:",
-  "container.faithplate.select": "Select Target",
+  "container.faithplate":          "Aperture Science Aerial Faith Plate",
+  "container.faithplate.height":   "Height:",
+  "container.faithplate.select":   "Select Target",
+  "container.faithplate.enabled":  "Enabled",
+  "container.faithplate.noTarget": "No Target Selected",
 
   "tooltip.portalmod.hold_control": "Hold Ctrl for info",
   "tooltip.portalmod.wrench":       "Configures §cTesting Elements§7",
