@@ -3,14 +3,12 @@ package net.portalmod.common.sorted.faithplate;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.CheckboxButton;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
@@ -19,12 +17,10 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -32,7 +28,6 @@ import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.ShaderInit;
-import net.portalmod.core.interfaces.PMActiveRenderInfo;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.mixins.accessors.MinecraftAccessor;
@@ -41,8 +36,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 
 public class FaithPlateConfigScreen extends Screen {
@@ -54,71 +48,76 @@ public class FaithPlateConfigScreen extends Screen {
     private static final int imageWidth = 230;
     private static final int imageHeight = 239;
     private int pitch = 18;
-    
+
+    public static final int MAX_HEIGHT = 100;
+
     private RenderWidget panel;
     private ExtendedButton selector;
     private NumberInputField heightField;
-    private CheckboxButton enable;
-    
+    private FaithplateCheckboxButton enable;
+
     private BlockPos selected;
     private FaithPlateParabola parabola;
-    
+
     public FaithPlateConfigScreen(BlockPos selected) {
         super(new TranslationTextComponent("screen." + PortalMod.MODID + ".faithplate"));
         this.selected = selected;
     }
-    
+
     private int getX() {
         return (width - imageWidth - 100) / 2;
     }
-    
+
     private int getY() {
         return (height - imageHeight + 55) / 2;
     }
-    
+
     @Override
     protected void init() {
         FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
-        
+
         panel = addWidget(new RenderWidget(this, getX() + 10, getY() + 22, 210, 121, new StringTextComponent("Render Panel")));
         selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, 216, 20, new TranslationTextComponent("container.faithplate.select"), button -> {
             FaithPlateTER.selected = selected;
             this.onClose();
         }));
-        enable = addButton(new CheckboxButton(getX() + 230, getY() + 25, 20, 20, new StringTextComponent("Enable"), be.isEnabled()));
-        heightField = addWidget(new NumberInputField(this, font, getX() + 230 + 35, getY() + 50, 55, 20, new StringTextComponent("Height")));
-        
+
+        enable = addButton(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, new TranslationTextComponent("container.faithplate.enabled"), be.isEnabled()));
+        enable.setUnavailable(false); // TODO detect unavailableness
+
+        heightField = addWidget(new NumberInputField(this, font, getX() + 230, getY() + 70 + verticalOffset, 85, 20, new StringTextComponent("Height")));
+
         float middle = 0;
         float target = 0;
-        
-        if(be.getTargetPos() != null && be.getTargetFace() != null) {
+
+        if (be.getTargetPos() != null && be.getTargetFace() != null) {
             Vec3 normal = new Vec3(be.getTargetFace().getNormal()).mul(.5);
             Vec3 pos = new Vec3(be.getTargetPos()).add(0, -.5, 0).add(normal);
-            
+
             parabola = new FaithPlateParabola(pos);
             parabola.setHeight(be.getHeight());
-            
+
             middle = (float)parabola.getMiddlePoint();
             target = (float)parabola.getProjectedTarget().x;
         } else {
             panel.setEnabled(false);
             heightField.setEditable(false);
         }
-        
+
         this.updateField();
-        
+
         ShaderInit.FAITHPLATE_GUI.get().bind()
-        .setMatrix("modelViewProjection", Mat4.createScale(pitch * 2f / (float)panel.getWidth(), pitch * 2f / (float)panel.getHeight(), 1).toBuffer())
-        .unbind();
-        
+            .setMatrix("modelViewProjection", Mat4.createScale(pitch * 2f / (float) panel.getWidth(), pitch * 2f / (float) panel.getHeight(), 1).toBuffer())
+            .unbind();
+
         ShaderInit.FAITHPLATE_GRID.get().bind()
-        .setMatrix("modelViewProjection", Mat4.identity().toBuffer())
-        .setInt("res", panel.getWidth(), panel.getHeight())
-        .setInt("pitch", pitch)
-        .setFloat("middle", middle)
-        .setFloat("target", target)
-        .setInt("offset", -90, -45)
-        .unbind();
+            .setMatrix("modelViewProjection", Mat4.identity().toBuffer())
+            .setInt("res", panel.getWidth(), panel.getHeight())
+            .setInt("pitch", pitch)
+            .setFloat("middle", middle)
+            .setFloat("target", target)
+            .setInt("offset", -90, -45)
+            .unbind();
     }
 
     @Override
@@ -146,9 +145,8 @@ public class FaithPlateConfigScreen extends Screen {
     }
     
     private void updateField() {
-        if(!panel.enabled)
-            return;
-        
+        if (!panel.enabled) return;
+
         String text = "";
         Matcher matcher = DIGIT_REGEX.matcher(parabola.getHeight() + "");
         if(parabola.getHeight() == (int)parabola.getHeight())
@@ -164,9 +162,8 @@ public class FaithPlateConfigScreen extends Screen {
     }
     
     private void updateParabola() {
-        if(!panel.enabled)
-            return;
-        
+        if (!panel.enabled) return;
+
         double height;
         
         try {
@@ -194,9 +191,14 @@ public class FaithPlateConfigScreen extends Screen {
         
         RenderSystem.color4f(1, 1, 1, 1);
         this.minecraft.getTextureManager().bind(TEXTURE);
-        blit(matrixStack, getX(), getY(), 0, 0, 330, 219, 512, 512);
+
+        glEnable(GL_BLEND);
+        blit(matrixStack, getX(), getY(), 0, 0, 330, 179, 512, 512);
+        glDisable(GL_BLEND);
     }
-    
+
+    int verticalOffset = 75;
+
     @Override
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(matrixStack);
@@ -206,16 +208,12 @@ public class FaithPlateConfigScreen extends Screen {
         heightField.render(matrixStack, mouseX, mouseY, partialTicks);
         
         FontRenderer fontRenderer = Minecraft.getInstance().font;
-        
-        fontRenderer.draw(matrixStack, new TranslationTextComponent("container.faithplate"), getX() + 8, getY() + 7, 4210752);
-//        drawString(matrixStack, fontRenderer, "Aerial Faith Plate", getX(), getY(), 4210752);
-        drawString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.height"), getX() + 230, getY() + 50 + 5, 16777215 | 0xFF << 24);
-        drawString(matrixStack, fontRenderer, enable.getMessage(), enable.x + 24, enable.y + (20 - 8) / 2, 16777215 | 0xFF << 24);
-        drawCenteredString(matrixStack, fontRenderer, "Here will go", (width + 220) / 2, getY() + (panel.y + panel.getHeight()) / 2 + 10, 0xFFFF5555);
-        drawCenteredString(matrixStack, fontRenderer, "render toggles", (width + 220) / 2, getY() + (panel.y + panel.getHeight()) / 2 + 20, 0xFFFF5555);
-        
-        if(!panel.enabled)
-            drawCenteredString(matrixStack, fontRenderer, "No target selected", (width - 100) / 2, (getY() + panel.y + panel.getHeight()) / 2, 0xFFFF5555);
+
+        fontRenderer.draw(matrixStack, new TranslationTextComponent("container.faithplate"), getX() + 10, getY() + 7, 0xFFFFFF);
+        drawString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.height"), getX() + 230, getY() + 53 + verticalOffset, 16777215 | 0xFF << 24);
+
+        if (!panel.enabled)
+            drawCenteredString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.noTarget"), (width - 100) / 2, (getY() + panel.y + panel.getHeight()) / 2, 0xFFFF5555);
     }
     
     private static class RenderWidget extends Widget {
@@ -223,6 +221,7 @@ public class FaithPlateConfigScreen extends Screen {
         private boolean handleClicked = false;
         private boolean enabled = true;
         private Vector2f offset = new Vector2f(0, 0);
+        private Vector2f baseOffset = new Vector2f(-90, 45); // TODO replace
         private static Framebuffer frameBuffer;
         private static VertexBuffer vbo;
         
@@ -231,30 +230,23 @@ public class FaithPlateConfigScreen extends Screen {
             this.parent = parent;
 
             MainWindow window = Minecraft.getInstance().getWindow();
-            int wWidth = window.getWidth();
-            int wHeight = window.getHeight();
             double guiScale = window.getGuiScale();
 
-            if(frameBuffer != null)
-                frameBuffer.destroyBuffers();
+            if (frameBuffer != null) frameBuffer.destroyBuffers();
 
             frameBuffer = new Framebuffer(
                     (int)(getWidth() * guiScale),
                     (int)(getHeight() * guiScale),
                     true, Minecraft.ON_OSX);
 
-            if(vbo != null)
-                vbo.close();
+            if (vbo != null) vbo.close();
 
             vbo = new VertexBuffer(DefaultVertexFormats.POSITION_TEX);
             float fbx = (float)((parent.width - getWidth() - 100) / 2 * guiScale);
             float fby = (float)((parent.height - (y + getHeight())) * guiScale);
-            float fbw = (float)fbx + frameBuffer.width;
-            float fbh = (float)fby + frameBuffer.height;
-            float f2 = (float)frameBuffer.viewWidth / (float)frameBuffer.width;
-            float f3 = (float)frameBuffer.viewHeight / (float)frameBuffer.height;
-//            float u = wWidth / (float)frameBuffer.width;
-//            float v = wHeight / (float)frameBuffer.height;
+            float fbw = fbx + frameBuffer.width;
+            float fbh = fby + frameBuffer.height;
+
             BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
             bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX);
             bufferbuilder.vertex(fbx, fby, 0).uv(0.0F, 1).endVertex();
@@ -269,133 +261,76 @@ public class FaithPlateConfigScreen extends Screen {
             this.enabled = enabled;
         }
 
+        // Hours wasted here: 5
+        // TODO: Main quest - Eliminate the white rectangle
         @Override
         public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-            if(!this.enabled)
-                return;
+            if (!this.enabled) return;
 
             double a = 0;
             double b = 0;
-            if(parent.parabola != null) {
+            if (parent.parabola != null) {
                 a = parent.parabola.getA();
                 b = parent.parabola.getB();
             }
 
-            MainWindow window = Minecraft.getInstance().getWindow();
+            Minecraft mc = Minecraft.getInstance();
+            MainWindow window = mc.getWindow();
             int wWidth = window.getWidth();
             int wHeight = window.getHeight();
             double guiScale = window.getGuiScale();
 
-            int fbX = (int)((parent.width - getWidth() - 100) / 2 * guiScale);
-            int fbY = (int)((parent.height - (y + getHeight())) * guiScale);
-            int fbW = (int)(getWidth() * guiScale);
-            int fbH = (int)(getHeight() * guiScale);
+            int fbX = (int) ((parent.width - getWidth() - 100) / 2 * guiScale);
+            int fbY = (int) ((parent.height - (y + getHeight())) * guiScale);
+            int fbW = (int) (getWidth() * guiScale);
+            int fbH = (int) (getHeight() * guiScale);
 
-//            glViewport(
-//                    0, 0,
-//                (int)(getWidth() * guiScale),
-//                (int)(getHeight() * guiScale)
-//            );
-//
-//            {
-//                RenderSystem.enableBlend();
-//                ShaderInit.FAITHPLATE_GRID.get().bind()
-//                .setInt("offset", (int)offset.x - 90, (int)offset.y - 45)
-//                .setFloat("a", (float)a)
-//                .setFloat("b", (float)b)
-//                .setFloat("height", (float)parent.parabola.getHeight());
-//                glBegin(GL_QUADS);
-//                    glVertex2f(-1, -1);
-//                    glVertex2f( 1, -1);
-//                    glVertex2f( 1,  1);
-//                    glVertex2f(-1,  1);
-//                glEnd();
-//                ShaderInit.FAITHPLATE_GRID.get().unbind();
-//                RenderSystem.disableBlend();
-//            }
+            int[] prevViewport = new int[4];
+            glGetIntegerv(GL_VIEWPORT, prevViewport);
 
-            Minecraft mc = Minecraft.getInstance();
-            GameRenderer gr = mc.gameRenderer;
+            glViewport(fbX, fbY, fbW, fbH);
+//            GlStateManager._color4f(0.0F, 0.0F, 0.0F, 1.0F);
+
+            {
+                RenderSystem.activeTexture(GL_TEXTURE0);
+                mc.getTextureManager().bind(TEXTURE);
+
+                RenderSystem.enableBlend();
+                ShaderInit.FAITHPLATE_GRID.get().bind()
+                        .setInt("sprite", 0)
+                        .setInt("offset",  (int) offset.x - 90, (int) offset.y - 45)
+                        .setInt("guisize", (int) guiScale)
+                        .setFloat("a", (float) a)
+                        .setFloat("b", (float) b)
+                        .setFloat("atlasSize", 512, 512)
+                        .setFloat("height", (float) parent.parabola.getHeight());
+
+                glBegin(GL_QUADS);
+                glVertex2f(-1, -1);
+                glVertex2f( 1, -1);
+                glVertex2f( 1,  1);
+                glVertex2f(-1,  1);
+                glEnd();
+
+                ShaderInit.FAITHPLATE_GRID.get().unbind();
+                RenderSystem.disableBlend();
+            }
+
             IProfiler profiler = mc.getProfiler();
-            long nanos = Util.getNanos();
 
             profiler.push("[" + PortalMod.MODID + "] faithplate screen preview");
             profiler.push("render");
 
-            Framebuffer previousFB = Minecraft.getInstance().getMainRenderTarget();
-            ((MinecraftAccessor)Minecraft.getInstance()).pmSetMainRenderTarget(frameBuffer);
+            Framebuffer previousFB = mc.getMainRenderTarget();
+            ((MinecraftAccessor) mc).pmSetMainRenderTarget(frameBuffer);
             frameBuffer.bindWrite(true);
-
-            RenderSystem.matrixMode(5888);
-            RenderSystem.pushMatrix();
-            RenderSystem.loadIdentity();
-            RenderSystem.matrixMode(5889);
-            RenderSystem.pushMatrix();
-            RenderSystem.loadIdentity();
-
-
-
-
-
-
-
-
-
-            ActiveRenderInfo camera = gr.getMainCamera();
-            MatrixStack projectionMatrixStack = new MatrixStack();
-            projectionMatrixStack.last().pose().multiply(Matrix4f.perspective(30, (float)mc.getWindow().getWidth() / (float)mc.getWindow().getHeight(), 0.05F, gr.getRenderDistance() * 4.0F));
-//            projectionMatrixStack.last().pose().multiply(Matrix4f.orthographic(fbW / 50f, fbH / 50f, 0.05F, gr.getRenderDistance() * 4.0F));
-
-            Matrix4f projectionMatrix = projectionMatrixStack.last().pose();
-            gr.resetProjectionMatrix(projectionMatrix);
-//            camera.setup(mc.level, (Entity)(mc.getCameraEntity() == null ? mc.player : mc.getCameraEntity()), !mc.options.getCameraType().isFirstPerson(), mc.options.getCameraType().isMirrored(), p_228378_1_);
-
-            BlockPos pos = parent.selected;
-            BlockState state = mc.level.getBlockState(pos);
-            boolean onFloor = state.getValue(FaithPlateBlock.FACE) == FaithPlateBlock.Face.FLOOR;
-
-            // todo make it point to/at target
-            float yRot = 180 + state.getValue(FaithPlateBlock.FACING).toYRot() + offset.x % 360;
-            float xRot = MathHelper.clamp((onFloor ? 30 : 0) - offset.y, -90, 90);
-            float zoom = (50 - parent.pitch) / 45f;
-            zoom = (float)Math.pow(zoom, 3) * 50;
-
-            ((PMActiveRenderInfo)camera).pmSetupForOrtho(mc.level,
-                    new Vec3(pos).add(.5).add(FaithPlateBlock.getNormal(state).getNormal()), yRot, xRot, zoom);
-
-//            EntityViewRenderEvent.CameraSetup cameraSetup = ForgeHooksClient.onCameraSetup(this, camera, p_228378_1_);
-//            camera.setAnglesInternal(cameraSetup.getYaw(), cameraSetup.getPitch());
-//            modelViewMatrixStack.mulPose(Vector3f.ZP.rotationDegrees(cameraSetup.getRoll()));
-            MatrixStack modelViewMatrixStack = new MatrixStack();
-            modelViewMatrixStack.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
-            modelViewMatrixStack.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
-            mc.levelRenderer.renderLevel(modelViewMatrixStack, partialTicks, nanos, false, camera, gr, gr.lightTexture, projectionMatrix);
-//            mc.getProfiler().popPush("forge_render_last");
-//            ForgeHooksClient.dispatchRenderLast(mc.levelRenderer, modelViewMatrixStack, partialTicks, projectionMatrix, nanos);
-
-
-
-
-
-
-
-
-
-
-
-
-//            Minecraft.getInstance().gameRenderer.renderLevel(partialTicks, nanos, new MatrixStack());
-            RenderSystem.matrixMode(5888);
-            RenderSystem.popMatrix();
-            RenderSystem.matrixMode(5889);
-            RenderSystem.popMatrix();
 
             profiler.popPush("blit");
 
-            ((MinecraftAccessor)Minecraft.getInstance()).pmSetMainRenderTarget(previousFB);
+            ((MinecraftAccessor) mc).pmSetMainRenderTarget(previousFB);
             previousFB.bindWrite(true);
 
-//            GlStateManager._viewport(fbX, fbY, frameBuffer.width, frameBuffer.height);
+            GlStateManager._viewport(fbX, fbY, wWidth, wHeight);
             RenderSystem.disableCull();
             RenderSystem.enableBlend();
 
@@ -403,19 +338,19 @@ public class FaithPlateConfigScreen extends Screen {
 
             ShaderInit.BLIT.get().bind();
             ShaderInit.BLIT.get().setInt("texture", 0);
-            ShaderInit.BLIT.get().setMatrix("projection", Matrix4f.orthographic(previousFB.width, previousFB.height, -1, 1));
-//            ShaderInit.BLIT.get().setMatrix("projection", new Matrix4f(new float[] {
-//                    2f / frameBuffer.width, 0, 0, -1,
-//                    0, 2f / frameBuffer.height, 0, -1,
-//                    0, 0, 1, 0,
-//                    0, 0, 0, 1
-//            }));
+            ShaderInit.BLIT.get().setMatrix("projection", new Matrix4f(new float[]{
+                    2f / frameBuffer.width, 0, 0, -1,
+                    0, 2f / frameBuffer.height, 0, -1,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+            }));
 
-            GlStateManager._color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            glViewport(0, 0, getWidth(), getHeight());
+
             frameBuffer.bindRead();
             vbo.bind();
             DefaultVertexFormats.POSITION_TEX.setupBufferState(0L);
-            RenderSystem.drawArrays(7, 0, 4);
+            RenderSystem.drawArrays(GL_QUADS, 0, 4);
             VertexBuffer.unbind();
             frameBuffer.unbindRead();
 
@@ -424,7 +359,7 @@ public class FaithPlateConfigScreen extends Screen {
             profiler.popPush("render state restore");
 
             RenderHelper.setupFor3DItems();
-            glViewport(0, 0, wWidth, wHeight);
+            glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 
             profiler.pop();
             profiler.pop();
@@ -432,52 +367,47 @@ public class FaithPlateConfigScreen extends Screen {
         
         @Override
         protected boolean clicked(double mouseX, double mouseY) {
-            if(this.enabled)
+            if (this.enabled)
                 return super.clicked(mouseX, mouseY);
             return false;
         }
         
         @Override
         public void onClick(double mouseX, double mouseY) {
-            if(!this.enabled)
-                return;
-            
-            int offsetX = (int)offset.x + width / 2;
-            int offsetY = -(int)offset.y + height / 2;
-            int x = (int)(mouseX - this.x - offsetX - parent.pitch * parent.parabola.getMiddlePoint());
-            int y = (int)(mouseY - this.y - offsetY + parent.pitch * parent.parabola.getHeight());
-            
-            handleClicked = Math.sqrt(x * x + y * y) < (float)parent.pitch / 4.;
-            
-            if(handleClicked)
-                parent.setCursor(VRESIZE_CURSOR);
+            if (!this.enabled) return;
+
+            int offsetX = (int) (baseOffset.x + offset.x) + width  / 2;
+            int offsetY = (int) (baseOffset.y - offset.y) + height / 2;
+            int x = (int) (mouseX - this.x - offsetX - parent.pitch * parent.parabola.getMiddlePoint());
+            int y = (int) (mouseY - this.y - offsetY + parent.pitch * parent.parabola.getHeight());
+
+            handleClicked = Math.sqrt(x * x + y * y) < (float) parent.pitch / 4.0;
+
+            if (handleClicked) parent.setCursor(VRESIZE_CURSOR);
         }
         
         @Override
         public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-            if(!this.enabled)
-                return false;
-            
+            if (!this.enabled) return false;
+
             parent.pitch += amount;
             parent.pitch = MathHelper.clamp(parent.pitch, 5, 50);
             ShaderInit.FAITHPLATE_GRID.get().bind().setInt("pitch", parent.pitch).unbind();
             return true;
         }
 
-        // todo use right click
         @Override
         protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY) {
-            if(!this.enabled)
-                return;
-            
-            if(handleClicked) {
-                if(Screen.hasAltDown() || Screen.hasControlDown() || Screen.hasShiftDown()) {
-                    parent.parabola.setHeight(-Math.round((mouseY - this.y - this.height / 2 + offset.y) / parent.pitch));
+            if (!this.enabled) return;
+
+            if (handleClicked) {
+                if (Screen.hasAltDown() || Screen.hasControlDown() || Screen.hasShiftDown()) {
+                    parent.parabola.setHeight(-Math.round((mouseY - this.y - baseOffset.y - this.height / 2 + offset.y) / parent.pitch));
                 } else {
-                    parent.parabola.setHeight(-(mouseY - this.y - this.height / 2 + offset.y) / parent.pitch);
+                    parent.parabola.setHeight(-(mouseY - this.y - baseOffset.y - this.height / 2 + offset.y) / parent.pitch);
                 }
             } else {
-                offset = new Vector2f(offset.x + (float)deltaX, offset.y - (float)deltaY);
+                offset = new Vector2f(offset.x + (float) deltaX, offset.y - (float)deltaY);
             }
             
             parent.updateField();

@@ -10,6 +10,8 @@ import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.World;
 import net.portalmod.core.math.Vec3;
 
+import static net.portalmod.common.sorted.faithplate.FaithPlateConfigScreen.MAX_HEIGHT;
+
 public class FaithPlateParabola {
     private static final double GRAVITY = 0.08;
     private final Vec3 target;
@@ -37,7 +39,7 @@ public class FaithPlateParabola {
     }
     
     public void setHeight(double height) {
-        this.height = Math.max(height, this.minHeight);
+        this.height = Math.min(MAX_HEIGHT, Math.max(height, this.minHeight));
     }
     
     public double getHeight() {
