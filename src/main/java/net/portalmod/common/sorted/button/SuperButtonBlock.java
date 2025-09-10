@@ -172,25 +172,21 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
-        if(level.isClientSide)
-            return;
-        
-//        if(!this.isMultiblockComplete(level, pos, state))
-//            level.destroyBlock(pos, false, null, 0);
+    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        if (level.isClientSide) return;
+
         if(!state.canSurvive(level, pos))
             level.destroyBlock(pos, true, null, 0);
 
         if ((state.getValue(MODE) == ButtonMode.PERSISTENT || state.getValue(MODE) == ButtonMode.TOGGLE) && state.getValue(ACTIVE)) {
             boolean isPowered = false;
             for (BlockPos checkingPos : getAllPositions(state, pos)) {
-                if (level.hasNeighborSignal(checkingPos)) {
-                    isPowered = true;
-                }
+                // Only allow resetting if the redstone signal is coming from "below"
+                if (!ModUtil.isInDirection(pos, neighborPos, getHorsedOn(state))) continue;
+
+                if (level.hasNeighborSignal(checkingPos)) isPowered = true;
             }
-            if (isPowered) {
-                this.setBlockStateValue(ACTIVE, false, state, level, pos);
-            }
+            if (isPowered) this.setBlockStateValue(ACTIVE, false, state, level, pos);
         }
     }
     
