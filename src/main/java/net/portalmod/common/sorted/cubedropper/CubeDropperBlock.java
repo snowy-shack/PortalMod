@@ -30,6 +30,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.sorted.button.ButtonMode;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -244,6 +245,29 @@ public class CubeDropperBlock extends MultiBlock {
             }
         }
         return true;
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        super.neighborChanged(state, world, pos, block, neighborPos, b);
+
+        boolean isPowered = false;
+        for (BlockPos checkingPos : getAllPositions(state, pos)) {
+            // Only allow resetting if the redstone signal is coming from above"
+            if (!ModUtil.isInDirection(pos, neighborPos, Direction.UP)) continue;
+            if (state.getValue(HALF) == DoubleBlockHalf.LOWER) continue;
+
+            ModUtil.sendChatSinglePlayer(pos, neighborPos, ModUtil.isInDirection(pos, neighborPos, Direction.UP));
+
+            if (world.hasNeighborSignal(checkingPos)) isPowered = true;
+        }
+        if (isPowered) {
+            TileEntity entity = world.getBlockEntity(getMainPosition(state, pos));
+            if (entity instanceof CubeDropperTileEntity) {
+                ((CubeDropperTileEntity) entity).fizzleCube(((CubeDropperTileEntity) entity).entityUUIDs.get(0));
+            }
+        }
+
     }
 
     @Override
