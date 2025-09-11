@@ -320,4 +320,8 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     public void setOverride(boolean override) {
         this.override = override;
     }
+
+    public void setHeight(float height) {
+        this.height = height;
+    }
 }

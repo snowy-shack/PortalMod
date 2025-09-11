@@ -52,7 +52,6 @@ public class WrenchItem extends Item {
 
     @Override
     public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
-
         BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, level, 64);
         Direction face = rayHit.getDirection();
         BlockPos pos = rayHit.getBlockPos();
@@ -63,8 +62,6 @@ public class WrenchItem extends Item {
         // my bad this was naive, we need to detect if you are choosing a target at the moment and idk how yet :)
         // TODO: Why?
 
-        if (!level.isClientSide) return ActionResult.success(itemStack);
-
         if (selected != null) {
             TileEntity blockEntity = level.getBlockEntity(selected);
 
@@ -73,10 +70,19 @@ public class WrenchItem extends Item {
             }
             FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
+            if (level.isClientSide) return ActionResult.success(itemStack);
+
+            boolean enabled = false;
+            // Set the default height to dist / n
+            if (be.getTargetPos() == null) {
+                be.setHeight((float) (pos.distManhattan(selected) / 4.0));
+                enabled = true;
+            }
+
             CompoundNBT nbt = new CompoundNBT();
             CompoundNBT target = new CompoundNBT();
             target.putFloat("height", be.getHeight());
-            nbt.putBoolean("enabled", be.isEnabled());
+            nbt.putBoolean("enabled", enabled || be.isEnabled());
 
             target.putByte("side", (byte) face.get3DDataValue());
             target.putInt("x", pos.getX() - selected.getX());
