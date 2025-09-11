@@ -12,7 +12,7 @@ uniform sampler2D atlas;
 uniform vec2 atlasSize;
 varying vec2 coords;
 const vec4 yellowSpr = vec4(0,  179, 12, 191);
-const vec4 targetSpr = vec4(13, 179, 23, 189);
+const vec4 targetSpr = vec4(14, 180, 24, 190);
 
 float sdParabola(in vec2 pos, in float k) {
     pos.x = abs(pos.x);
@@ -84,21 +84,21 @@ void main() {
             1.0 - smoothstep(0.0, 0.01, abs(d)));
         }
 
-        vec2 yellowCenter = float(pitch) * vec2(middle, a * middle * middle + b * middle);
-        gl_FragColor.rgb = drawSprite(cord, yellowSpr, yellowCenter, gl_FragColor.rgb);
-
         vec2 targetCenter = float(pitch) * vec2(target, a * target * target + b * target);
         gl_FragColor.rgb = drawSprite(cord, targetSpr, targetCenter, gl_FragColor.rgb);
+
+        vec2 yellowCenter = float(pitch) * vec2(middle, a * middle * middle + b * middle);
+        gl_FragColor.rgb = drawSprite(cord, yellowSpr, yellowCenter, gl_FragColor.rgb);
 
     } else {
         float d = dLine(coords - vec2(offset) / vec2(res).xy * 2.0,
         vec2(0.0), vec2(0.0, height) / vec2(res.xy) * 2.0 * float(pitch));
         gl_FragColor.xyz = mix(gl_FragColor.xyz, vec3(1.0), 1.0 - smoothstep(0.0, 0.01, abs(d)));
 
-        vec2 yellowCenter = float(pitch) * vec2(middle, height);
-        gl_FragColor.rgb = drawSprite(cord, yellowSpr, yellowCenter, gl_FragColor.rgb);
-
         vec2 targetCenter = float(pitch) * vec2(target, height);
         gl_FragColor.rgb = drawSprite(cord, targetSpr, targetCenter, gl_FragColor.rgb);
+
+        vec2 yellowCenter = float(pitch) * vec2(middle, height);
+        gl_FragColor.rgb = drawSprite(cord, yellowSpr, yellowCenter, gl_FragColor.rgb);
     }
 }

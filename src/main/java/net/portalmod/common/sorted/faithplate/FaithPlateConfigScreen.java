@@ -83,7 +83,7 @@ public class FaithPlateConfigScreen extends Screen {
         }));
 
         enable = addButton(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, new TranslationTextComponent("container.faithplate.enabled"), be.isEnabled()));
-        enable.setUnavailable(false); // TODO detect unavailableness
+        enable.setUnavailable(be.isIndicatorControlled());
 
         heightField = addWidget(new NumberInputField(this, font, getX() + 230, getY() + 70 + verticalOffset, 85, 20, new StringTextComponent("Height")));
 
@@ -209,7 +209,7 @@ public class FaithPlateConfigScreen extends Screen {
         
         FontRenderer fontRenderer = Minecraft.getInstance().font;
 
-        fontRenderer.draw(matrixStack, new TranslationTextComponent("container.faithplate"), getX() + 10, getY() + 7, 0xFFFFFF);
+        fontRenderer.draw(matrixStack, new TranslationTextComponent("container.faithplate"), getX() + 11, getY() + 8, 0xFFFFFF);
         drawString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.height"), getX() + 230, getY() + 53 + verticalOffset, 16777215 | 0xFF << 24);
 
         if (!panel.enabled)
