@@ -22,6 +22,7 @@ public class FaithplateCheckboxButton extends AbstractButton {
     }
 
     public void onPress() {
+        if (this.unavailable) return;
         this.ticked = !this.ticked;
     }
 
@@ -42,9 +43,11 @@ public class FaithplateCheckboxButton extends AbstractButton {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        blit(matrixStack, this.x, this.y, this.isFocused() ? 20.0F : 0.0F, this.ticked ? 20.0F : 0.0F, 20, this.height, 64, 64);
+
+        blit(matrixStack, this.x, this.y, this.unavailable ? 20.0F : 0.0F,
+                this.ticked ? 20.0F : 0.0F, 20, this.height, 64, 64);
 
         drawString(matrixStack, fontRenderer, this.getMessage(),
-                this.x + 24, this.y + (this.height - 8) / 2, unavailable ? 0x404040 : 0xFFFFFF);
+                this.x + 24, this.y + (this.height - 8) / 2, unavailable ? 0x7e7e7e : 0xFFFFFF);
     }
 }

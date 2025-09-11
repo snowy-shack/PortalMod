@@ -70,8 +70,8 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.translate(0, -1.5, 0);
 
         IVertexBuilder ivertexbuilder = be.isEnabled() && be.getCooldown() < 2
-                ? MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent)
-                : MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent);
+                ? MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent)
+                : MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent);
 
         int light = WorldRenderer.getLightColor(be.getLevel(),
                 onWall ? pos.relative(state.getValue(FaithPlateBlock.FACING)) : pos.above());
