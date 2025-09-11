@@ -13,7 +13,7 @@ import net.portalmod.core.math.Vec3;
 import static net.portalmod.common.sorted.faithplate.FaithPlateConfigScreen.MAX_HEIGHT;
 
 public class FaithPlateParabola {
-    private static final double GRAVITY = 0.08;
+    public static final double GRAVITY = 0.08;
     private final Vec3 target;
     private final Vec3 projectedTarget;
     private final double minHeight;
