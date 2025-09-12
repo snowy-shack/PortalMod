@@ -44,6 +44,7 @@
     "accessors.SplashesAccessor",
     "entity.CatRendererMixin",
     "entity.RabbitRendererMixin",
+    "entity.KeyBindingMixin",
     "level.ChunkArrayMixin",
     "level.ClientLevelMixin",
     "network.ClientPlayNetHandlerMixin",

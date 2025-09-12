@@ -124,7 +124,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         boolean bounceFromJump = gelAffected.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
 
         double heightInBlock = entity.getPosition(1).y % 1;
-        if (heightInBlock > 0.5) return; // Fix #51
+        if (heightInBlock > 0.5) return; // Fix (#51)
 
         // Vertical bounce
         if (state.getBlock() == BlockInit.REPULSION_GEL.get() && bounceVertical &&
@@ -142,7 +142,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             // This function is the result of fine-tuning an approximation of the inverse of Minecraft's gravity and drag
             // calculations. See https://www.geogebra.org/calculator/qkdz2b9x.
 
-            // If air friction is turned off, use a different bounce speed
+            // If air friction is turned off, use a different bounce speed (#83)
             if (entity instanceof IFaithPlateLaunchable) {
                 boolean launched = ((IFaithPlateLaunchable) entity).isLaunched();
                 if (launched) velocity = (float) Math.sqrt(2 * GRAVITY * x);
