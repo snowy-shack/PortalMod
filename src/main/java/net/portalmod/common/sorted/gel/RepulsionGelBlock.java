@@ -145,7 +145,6 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             // If air friction is turned off, use a different bounce speed
             if (entity instanceof IFaithPlateLaunchable) {
                 boolean launched = ((IFaithPlateLaunchable) entity).isLaunched();
-                ModUtil.sendChatSinglePlayer(launched);
                 if (launched) velocity = (float) Math.sqrt(2 * GRAVITY * x);
             }
 
