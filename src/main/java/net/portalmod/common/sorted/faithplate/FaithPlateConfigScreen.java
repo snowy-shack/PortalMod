@@ -261,7 +261,7 @@ public class FaithPlateConfigScreen extends Screen {
             this.enabled = enabled;
         }
 
-        // Hours wasted here: 5
+        // Hours wasted here: 6
         // TODO: Main quest - Eliminate the white rectangle
         @Override
         public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
