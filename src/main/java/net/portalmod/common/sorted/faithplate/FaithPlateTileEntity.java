@@ -44,6 +44,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private Direction targetFace;
     private float height;
     private int cooldown = 0;
+    public static int COOLDOWN_DURATION = 10;
 
     private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
             .add(0, 16, 0, 16, 17, 16)
@@ -105,7 +106,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
             entity.setShiftKeyDown(false);
             ((IFaithPlateLaunchable)entity).setLaunched(true);
 
-            this.cooldown = 10;
+            this.cooldown = COOLDOWN_DURATION;
 
             if(!level.isClientSide) {
                 if(entity.isControlledByLocalInstance() && !(entity instanceof PlayerEntity)) {
