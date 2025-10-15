@@ -48,6 +48,7 @@ import net.portalmod.common.sorted.sign.ChamberSignRenderer;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
+import net.portalmod.skins.ClientSkinConfig;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -62,6 +63,8 @@ public class ClientModEvents {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
 //        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PortalModOptionsScreen.CONFIG, "portalmod-client.toml");
+
+        ClientSkinConfig.init();
 
         KeyInit.init();
         Minecraft.getInstance().getMainRenderTarget().enableStencil();
