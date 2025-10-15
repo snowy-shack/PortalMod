@@ -9,31 +9,43 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class ClientSkinConfig {
     private static final Gson GSON = new Gson();
 
     private static boolean initialized = false;
     public static void init() {
-        try {
-            List<PortalGunSkin> allSkins = APIWrapper.getAllSkins();
+        // Already initialised
+        if (!PortalModOptionsScreen.AVAILABLE_SKINS.get().isEmpty()) return;
 
-            String playerUUID = Minecraft.getInstance().getUser().getUuid();
+        load().thenRun(() -> {
+            System.out.println("Loaded skins");
+        });
+    }
 
-            Pair<Integer, List<String>> userData = APIWrapper.getUserData(playerUUID);
-            List<String> skinNames = userData.getSecond();
+    public static CompletableFuture<Void> load() {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                List<PortalGunSkin> allSkins = APIWrapper.getAllSkins();
 
-            for (PortalGunSkin skin : allSkins) {
-                skin.unlocked = skinNames.contains(skin.skin_id);
+                String playerUUID = Minecraft.getInstance().getUser().getUuid();
+
+                Pair<Integer, List<String>> userData = APIWrapper.getUserData(playerUUID);
+                List<String> skinNames = userData.getSecond();
+
+                for (PortalGunSkin skin : allSkins) {
+                    skin.unlocked = skinNames.contains(skin.skin_id) || Objects.equals(skin.skin_id, "default");
+                }
+
+                if (!allSkins.isEmpty()) setSkins(allSkins);
+                setColDefault(userData.getFirst()); // If no value is already set
+
+                initialized = true;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-
-            setSkins(allSkins);
-            setColDefault(userData.getFirst()); // If no value is already set
-
-            initialized = true;
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     public static List<PortalGunSkin> getSkins() {
