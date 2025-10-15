@@ -14,6 +14,9 @@ import net.portalmod.client.screens.widgets.ToggleButton;
 import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.skins.SkinSelectorScreen;
 
+import java.util.Collections;
+import java.util.List;
+
 public class PortalModOptionsScreen extends Screen {
     public static final ForgeConfigSpec CONFIG;
     public static final ForgeConfigSpec.ConfigValue<Boolean> CROSSHAIR;
@@ -24,6 +27,10 @@ public class PortalModOptionsScreen extends Screen {
     public static final ForgeConfigSpec.ConfigValue<Integer> RECURSION;
     public static final ForgeConfigSpec.ConfigValue<Boolean> RENDER_SELF;
     public static final ForgeConfigSpec.ConfigValue<Boolean> HIGHLIGHTS;
+
+    public static final ForgeConfigSpec.ConfigValue<String> SET_SKIN;
+    public static final ForgeConfigSpec.ConfigValue<String> SKIN_COL;
+    public static final ForgeConfigSpec.ConfigValue<List<String>> AVAILABLE_SKINS;
 
     private final Screen lastScreen;
     private ToggleButton CROSSHAIR_BUTTON;
@@ -38,14 +45,18 @@ public class PortalModOptionsScreen extends Screen {
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
-        CROSSHAIR = builder.define("crosshair", false);
+        CROSSHAIR =    builder.define("crosshair", false);
         ADHESION_GEL = builder.define("adhesion_gel", false);
-        CUSTOM_GUN = builder.define("custom_gun", true);
-        MENU = builder.define("menu", true);
-        TOOLTIPS = builder.define("tooltips", true);
-        RECURSION = builder.define("recursion", 3);
-        RENDER_SELF = builder.define("render_self", true);
-        HIGHLIGHTS = builder.define("highlights", true);
+        CUSTOM_GUN =   builder.define("custom_gun", true);
+        MENU =         builder.define("menu", true);
+        TOOLTIPS =     builder.define("tooltips", true);
+        RECURSION =    builder.define("recursion", 3);
+        RENDER_SELF =  builder.define("render_self", true);
+        HIGHLIGHTS =   builder.define("highlights", true);
+
+        SET_SKIN = builder.define("selectedSkin", "default");
+        SKIN_COL = builder.define("skinColor", "");
+        AVAILABLE_SKINS = builder.define("availableSkins", Collections.emptyList());
 
         CONFIG = builder.build();
     }

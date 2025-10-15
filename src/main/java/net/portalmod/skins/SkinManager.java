@@ -13,17 +13,18 @@ import java.util.UUID;
 
 public class SkinManager {
     private static final Gson gson = new GsonBuilder().create();
-    private static final Map<UUID, PortalGunSkin> REGISTRY = new HashMap<>();
+    private static final Map<String, PortalGunSkin> REGISTRY = new HashMap<>();
     private static boolean initialized = false;
 
     public static void init() {
+        System.out.println("[PortalMod] Initializing SkinManager");
         try {
             HttpPost request = new HttpPost(APIWrapper.API_URL + "/skins");
             request.addHeader("Authorization", "Bearer " + APIWrapper.getBearer());
             List<PortalGunSkin> skins = gson.fromJson(APIWrapper.makeRequest(request), PortalGunSkin.Deserializer.class);
 
             for(PortalGunSkin skin : skins)
-                REGISTRY.put(skin.id, skin);
+                REGISTRY.put(skin.skin_id, skin);
             initialized = true;
         } catch(IOException e) {
             throw new RuntimeException(e);
