@@ -29,7 +29,8 @@ public class AnimatedTexture {
     
     public void setupAnimation() {
         float height = material.sprite().getV1();
-        float index = (System.currentTimeMillis() / (1000 / framerate) % frames);
+        float index = framerate == 0  || frames == 0
+                ? 0 : (System.currentTimeMillis() / (1000 / framerate) % frames);
         RenderSystem.matrixMode(GL11.GL_TEXTURE);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
