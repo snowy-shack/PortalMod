@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -19,26 +20,30 @@ import net.portalmod.PortalMod;
 import net.portalmod.client.animation.AnimatedTexture;
 import net.portalmod.core.init.AnimationInit;
 import net.portalmod.core.util.Colour;
+import net.portalmod.skins.ClientSkinConfig;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.UUID;
 
 public class PortalGunISTER extends ItemStackTileEntityRenderer {
-    public static final ResourceLocation PORTALGUN_TEXTURE = new ResourceLocation(PortalMod.MODID, "gun/portalgun");
-    public static final ResourceLocation PORTALGUN_TEXTURE2 = new ResourceLocation(PortalMod.MODID, "gun/portalgun_color");
+    public static final ResourceLocation PGUN_TEXTURE_BASE = new ResourceLocation(PortalMod.MODID, "gun/default");
+    public static final ResourceLocation PGUN_TEXTURE_IDK = new ResourceLocation(PortalMod.MODID, "gun/default");
     public static final ResourceLocation MISSINGNO_TEXTURE = new ResourceLocation("missingno");
     public static RenderMaterial PORTALGUN_MATERIAL;
     public static RenderMaterial PORTALGUN_MATERIAL2;
     public static RenderMaterial MISSINGNO_MATERIAL;
-    public final AnimatedTexture TEX = new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS,
-            new ResourceLocation(PortalMod.MODID, "gun/portalgun"), 1 /*3*/, 1); //FIXME
-    public static AnimatedTexture TEST_TEXTURE;
+    public static AnimatedTexture DEFAULT = new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS,
+            PGUN_TEXTURE_BASE, 1, 1);
+    public static AnimatedTexture SKIN_TEXTURE = DEFAULT;
     
     public PortalGunISTER() {
-        PORTALGUN_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE);
-        PORTALGUN_MATERIAL2 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE2);
+        PORTALGUN_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PGUN_TEXTURE_BASE);
+        PORTALGUN_MATERIAL2 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PGUN_TEXTURE_IDK);
         MISSINGNO_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, MISSINGNO_TEXTURE);
     }
-    
+
+    boolean hDownTemp = false;
+
     @Override
     public void renderByItem(ItemStack itemStack, TransformType transformType, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
@@ -97,10 +102,18 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
 //                AnimationInit.RECOIL_X.start();
 //                AnimationInit.RECOIL_Y.start();
 //            }
-            
-//            if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_H)) {
-//                AnimationInit.FIZZLE_BODY.start();
-//            }
+
+            boolean currHDown = InputMappings.isKeyDown(
+                    Minecraft.getInstance().getWindow().getWindow(),
+                    GLFW.GLFW_KEY_H
+            );
+
+            // Rising edge: was not down, now is down
+            if (currHDown && !hDownTemp) {
+                ClientSkinConfig.loadCurrentSkin();
+            }
+
+            hDownTemp = currHDown;
             
             float xRot = (float) ((float) AnimationInit.RECOIL_X.compute(System.currentTimeMillis())
                     + 1.5 * AnimationInit.LIFT.compute(System.currentTimeMillis()));
@@ -127,7 +140,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         irendertypebuffer$impl.endBatch();
 //        IVertexBuilder ivertexbuilder = TEX.buffer(renderTypeBuffer, RenderType::entityCutoutNoCull);
         IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(
-                RenderType.entityCutoutNoCull(new ResourceLocation(PortalMod.MODID, "gun/test")));
+                RenderType.entityCutoutNoCull(PGUN_TEXTURE_BASE));
         
 //        ResourceLocation gun = new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim");
 
@@ -175,13 +188,14 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
 
         PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
 
-//        TEX.setupAnimation();
-        TEST_TEXTURE.setupAnimation();
-        model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
+        AnimatedTexture texture = ClientSkinConfig.isDefaultSkin() ? DEFAULT : SKIN_TEXTURE;
+        texture.setupAnimation();
+
+        model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, ClientSkinConfig.tintColor, !animate);
         model.render(gunUUID, model.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
         irendertypebuffer$impl.endBatch();
-//        TEX.endAnimation();
-        TEST_TEXTURE.endAnimation();
+
+        texture.endAnimation();
 
         ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
         model.render(gunUUID, model.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);

@@ -1,6 +1,7 @@
 package net.portalmod.core.util;
 
 import net.minecraft.util.math.MathHelper;
+import net.portalmod.client.screens.PortalModOptionsScreen;
 
 public class Colour {
 
@@ -66,7 +67,16 @@ public class Colour {
         
         return new Colour(r, g, b, 1);
     }
-    
+
+    /**
+     * Expects no # prefix
+     */
+    public static Colour fromHex(String hex) {
+        int color = Integer.parseInt(hex, 16);
+        // Extract RGB components
+        return new Colour((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 255);
+    }
+
     public int getValue() {
         return (a & 0xFF << 24) | (r & 0xFF << 16) | (g & 0xFF << 8) | (b & 0xFF);
     }

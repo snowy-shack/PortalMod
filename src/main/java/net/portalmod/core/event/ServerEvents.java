@@ -3,6 +3,7 @@ package net.portalmod.core.event;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -14,6 +15,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -28,6 +30,7 @@ import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.portal.PortalPairCache;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
+import net.portalmod.skins.DedicatedServerSkinManager;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.DEDICATED_SERVER)
 public class ServerEvents {
@@ -122,5 +125,15 @@ public class ServerEvents {
         // TODO add to present method
 //        if(event.phase == TickEvent.Phase.END)
 //            PortalFirstPersonRenderer.updateSwingTime();
+    }
+
+    @SubscribeEvent
+    public static void onEntityJoinWorld(final EntityJoinWorldEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayerEntity)) return;
+
+        DedicatedServerSkinManager manager = DedicatedServerSkinManager.get((ServerWorld) event.getWorld());
+        manager.init();
+
+        manager.savePlayerSkins((ServerPlayerEntity) event.getEntity());
     }
 }

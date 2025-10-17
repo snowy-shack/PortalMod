@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClients;
@@ -32,11 +33,12 @@ public class APIWrapper {
     }
 
     public static String makeRequest(HttpUriRequest request) throws IOException {
-        HttpEntity response = httpClient.execute(request).getEntity();
-        if(response == null)
-            throw new IOException("Server didn't respond");
-        InputStream istream = response.getContent();
-        return IOUtils.toString(istream, StandardCharsets.UTF_8);
+        try (CloseableHttpResponse response = (CloseableHttpResponse) httpClient.execute(request)) {
+            if (response.getEntity() == null)
+                throw new IOException("Server didn't respond");
+
+            return IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
+        }
     }
 
     public static List<PortalGunSkin> getAllSkins() throws IOException {

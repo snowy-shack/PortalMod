@@ -1,7 +1,8 @@
 package net.portalmod.skins;
 
+import net.minecraft.nbt.CompoundNBT;
+
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class PortalGunSkin {
     public String skin_id;
@@ -24,6 +25,31 @@ public class PortalGunSkin {
         this.checksum = checksum;
         this.artist = artist;
         this.unlocked = unlocked;
+    }
+
+    public CompoundNBT toNBT() {
+        CompoundNBT tag = new CompoundNBT();
+        tag.putString("SkinId", skin_id);
+        tag.putString("Name", name);
+        tag.putString("Description", description);
+        tag.putInt("Framerate", framerate);
+        tag.putBoolean("Tintable", tintable);
+        tag.putString("Checksum", checksum);
+        tag.putString("Artist", artist);
+        return tag;
+    }
+
+    public static PortalGunSkin fromNBT(CompoundNBT tag) {
+        return new PortalGunSkin(
+            tag.getString("SkinId"),
+            tag.getString("Name"),
+            tag.getString("Description"),
+            tag.getInt("Framerate"),
+            tag.getBoolean("Tintable"),
+            tag.getString("Checksum"),
+            tag.getString("Artist"),
+            false
+        );
     }
 
     protected static final class Deserializer extends ArrayList<PortalGunSkin> {}

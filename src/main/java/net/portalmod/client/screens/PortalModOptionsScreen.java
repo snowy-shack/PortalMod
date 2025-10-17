@@ -30,7 +30,7 @@ public class PortalModOptionsScreen extends Screen {
 
     public static final ForgeConfigSpec.ConfigValue<String> SET_SKIN;
     public static final ForgeConfigSpec.ConfigValue<String> SKIN_COL;
-    public static final ForgeConfigSpec.ConfigValue<List<String>> AVAILABLE_SKINS;
+    public static final ForgeConfigSpec.ConfigValue<String> AVAILABLE_SKINS;
 
     private final Screen lastScreen;
     private ToggleButton CROSSHAIR_BUTTON;
@@ -56,7 +56,7 @@ public class PortalModOptionsScreen extends Screen {
 
         SET_SKIN = builder.define("selectedSkin", "default");
         SKIN_COL = builder.define("skinColor", "");
-        AVAILABLE_SKINS = builder.define("availableSkins", Collections.emptyList());
+        AVAILABLE_SKINS = builder.define("availableSkins", "");
 
         CONFIG = builder.build();
     }

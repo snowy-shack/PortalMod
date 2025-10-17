@@ -26,7 +26,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.portalmod.PortalMod;
-import net.portalmod.client.animation.AnimatedTexture;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
 import net.portalmod.common.sorted.antline.AntlineLoader;
@@ -43,7 +42,6 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
-import net.portalmod.common.sorted.portalgun.api.SkinLoader;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
@@ -51,8 +49,6 @@ import net.portalmod.core.init.*;
 import net.portalmod.skins.ClientSkinConfig;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Random;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientModEvents {
@@ -124,14 +120,7 @@ public class ClientModEvents {
             ShaderInit.REGISTRY.registerAll();
         });
 
-        ArrayList<AnimatedTexture> temp = new ArrayList<>();
-        temp.add(SkinLoader.loadSkin("supporter"));
-        temp.add(SkinLoader.loadSkin("booster"));
-        temp.add(SkinLoader.loadSkin("potatos"));
-        temp.add(SkinLoader.loadSkin("tintable"));
-        temp.add(SkinLoader.loadSkin("default"));
-
-        PortalGunISTER.TEST_TEXTURE = temp.get( new Random().nextInt(temp.size()) );
+        ClientSkinConfig.loadCurrentSkin();
     }
 
     private static void registerItemProperty(Item item, String name, IItemPropertyGetter getter) {
@@ -178,9 +167,8 @@ public class ClientModEvents {
 //                event.addSprite(texture);
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
-            event.addSprite(PortalGunISTER.PORTALGUN_TEXTURE);
-//            event.addSprite(PortalGunISTER.PORTALGUN_TEXTURE2);
-            event.addSprite(new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim"));
+            event.addSprite(PortalGunISTER.PGUN_TEXTURE_BASE);
+            event.addSprite(PortalGunISTER.PGUN_TEXTURE_IDK);
         }
     }
 }
