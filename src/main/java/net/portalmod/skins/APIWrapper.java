@@ -66,6 +66,31 @@ public class APIWrapper {
         return new Pair<>(def_color, skinNames);
     }
 
+    public static List<PortalGunSkin> getAllSkins() throws IOException {
+        HttpGet request = new HttpGet(APIWrapper.API_URL + "/skins");
+
+        String response = APIWrapper.makeRequest(request);
+        return GSON.fromJson(response, PortalGunSkin.Deserializer.class);
+    }
+
+    public static Pair<Integer, List<String>> getUserData(String uuid) throws IOException {
+        HttpGet request = new HttpGet(APIWrapper.API_URL + "/player/" + uuid);
+        String response = APIWrapper.makeRequest(request);
+
+        JsonObject unlocked = GSON.fromJson(response, JsonObject.class);
+
+        JsonArray arr = unlocked.getAsJsonArray("skins");
+        int def_color = unlocked.getAsJsonPrimitive("default_color").getAsInt();
+
+        List<String> skinNames = arr == null
+                ? Collections.emptyList()
+                : StreamSupport.stream(arr.spliterator(), false)
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toList());
+
+        return new Pair<>(def_color, skinNames);
+    }
+
     public static String getBearer() throws IOException {
         if(!initialized)
             init();
