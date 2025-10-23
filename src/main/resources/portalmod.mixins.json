@@ -43,6 +43,7 @@
     "accessors.MinecraftAccessor",
     "accessors.SplashesAccessor",
     "entity.CatRendererMixin",
+    "entity.RabbitRendererMixin",
     "level.ChunkArrayMixin",
     "level.ClientLevelMixin",
     "network.ClientPlayNetHandlerMixin",
