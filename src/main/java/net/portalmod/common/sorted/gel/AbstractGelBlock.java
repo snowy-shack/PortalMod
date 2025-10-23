@@ -25,6 +25,8 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Mat4;
@@ -129,9 +131,23 @@ public class AbstractGelBlock extends BreakableBlock {
         return Block.isFaceFull(world.getBlockState(pos).getCollisionShape(world, pos), face);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean skipRendering(BlockState self, BlockState other, Direction direction) {
+        if(other.is(this)) {
+            boolean match = true;
+            for (Direction face : Direction.values()) {
+                if (face.getAxis() != direction.getAxis()) {
+                    match &= other.getValue(STATES.get(face)) || !self.getValue(STATES.get(face));
+                }
+            }
+            return match;
+        }
+        return super.skipRendering(self, other, direction);
+    }
+
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        genAABBs();
         VoxelShape shape = VoxelShapes.empty();
         for(Direction facing : Direction.values())
             if(state.getValue(STATES.get(facing)))
