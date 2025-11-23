@@ -400,6 +400,9 @@ public class PortalRenderer {
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
 
+                TileEntityRendererDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
+                mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
+
                 mc.levelRenderer.renderChunks.clear();
                 mc.levelRenderer.renderChunks.addAll(renderChunks);
 
