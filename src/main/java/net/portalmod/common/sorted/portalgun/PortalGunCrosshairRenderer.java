@@ -21,6 +21,7 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.portalmod.PortalMod;
 import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.core.init.BlockTagInit;
@@ -66,8 +67,8 @@ public class PortalGunCrosshairRenderer {
             secondaryFilled = isPortalable;
             // todo actually figure out whether the portal is placeable there
         } else {
-            primaryFilled = PortalManager.clientHas(uuid.get(), PortalEnd.PRIMARY);
-            secondaryFilled = PortalManager.clientHas(uuid.get(), PortalEnd.SECONDARY);
+            primaryFilled = ClientPortalManager.getInstance().hasFullOrPartial(uuid.get(), PortalEnd.PRIMARY);
+            secondaryFilled = ClientPortalManager.getInstance().hasFullOrPartial(uuid.get(), PortalEnd.SECONDARY);
         }
 
         CompoundNBT nbt = itemStack.getOrCreateTag();
