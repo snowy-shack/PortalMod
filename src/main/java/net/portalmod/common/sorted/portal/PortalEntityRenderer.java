@@ -31,7 +31,7 @@ public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     
     protected void renderNameTag(PortalEntity portal, ITextComponent text, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light) {
         matrixStack.pushPose();
-        Vector3d down = new Vec3(portal.getUpVector().getNormal()).mul(-.5).to3d();
+        Vector3d down = new Vec3(portal.getUpVector().getNormal()).mul(-1).to3d();
         matrixStack.translate(down.x, down.y, down.z);
         Vector3d forwards = new Vec3(portal.getDirection().getNormal()).mul(.2).to3d();
         matrixStack.translate(forwards.x, forwards.y, forwards.z);
