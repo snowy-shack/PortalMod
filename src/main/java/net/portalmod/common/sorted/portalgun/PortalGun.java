@@ -301,8 +301,8 @@ public class PortalGun extends Item {
         Optional<UUID> uuid = getUUID(itemStack);
         CompoundNBT nbt = itemStack.getOrCreateTag();
 
-        boolean hasBlue = uuid.isPresent() && PortalManager.has(uuid.get(), PortalEnd.PRIMARY);
-        boolean hasOrange = uuid.isPresent() && PortalManager.has(uuid.get(), PortalEnd.SECONDARY);
+        boolean hasBlue = uuid.isPresent() && PortalManager.getInstance().has(uuid.get(), PortalEnd.PRIMARY);
+        boolean hasOrange = uuid.isPresent() && PortalManager.getInstance().has(uuid.get(), PortalEnd.SECONDARY);
         if(!nbt.contains("primary") || nbt.getBoolean("primary") != hasBlue)
             nbt.putBoolean("primary", hasBlue);
         if(!nbt.contains("secondary") || nbt.getBoolean("secondary") != hasOrange)
@@ -444,18 +444,18 @@ public class PortalGun extends Item {
         Optional<UUID> gunUUID = PortalGun.getUUID(itemStack);
         if (!gunUUID.isPresent()) return false;
 
-        PortalPair pair = PortalManager.getPair(gunUUID.get());
+        PortalPair pair = PortalManager.getInstance().getPair(gunUUID.get());
         if (pair == null) return false;
 
         if (pair.has(PortalEnd.PRIMARY)) {
             PortalEntity blue = pair.get(PortalEnd.PRIMARY);
             ((ServerWorld) blue.level).removeEntity(blue, false);
-            PortalManager.remove(gunUUID.get(), blue);
+            PortalManager.getInstance().remove(gunUUID.get(), blue);
         }
         if (pair.has(PortalEnd.SECONDARY)) {
             PortalEntity orange = pair.get(PortalEnd.SECONDARY);
             ((ServerWorld) orange.level).removeEntity(orange, false);
-            PortalManager.remove(gunUUID.get(), orange);
+            PortalManager.getInstance().remove(gunUUID.get(), orange);
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);

@@ -228,7 +228,7 @@ public class PortalPlacer {
         portal.setHue(hue);
         portal.setGunUUID(gunUUID);
 
-        PortalManager.put(gunUUID, end, portal);
+        PortalManager.getInstance().put(gunUUID, end, portal);
         level.addFreshEntity(portal);
 
         level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
