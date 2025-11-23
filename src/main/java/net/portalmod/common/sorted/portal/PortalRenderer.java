@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.ClippingHelper;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.settings.GraphicsFanciness;
@@ -199,9 +200,25 @@ public class PortalRenderer {
         return srcBasis.getChangeOfBasisMatrix(dstBasis);
     }
 
+    public static Mat4 getPortalToPortalRotationMatrix(PortalEntity portal, PartialPortal otherPortal) {
+        OrthonormalBasis srcBasis = portal.getSourceBasis();
+        OrthonormalBasis dstBasis = otherPortal.getDestinationBasis();
+        return srcBasis.getChangeOfBasisMatrix(dstBasis);
+    }
+
     public static Mat4 getPortalToPortalMatrix(PortalEntity portal, PortalEntity otherPortal) {
         Vec3 thisPos = new Vec3(portal.position());
         Vec3 otherPos = new Vec3(otherPortal.position());
+
+        return Mat4.identity()
+                .mul(Mat4.createTranslation(otherPos.x, otherPos.y, otherPos.z))
+                .mul(getPortalToPortalRotationMatrix(portal, otherPortal))
+                .mul(Mat4.createTranslation(-thisPos.x, -thisPos.y, -thisPos.z));
+    }
+
+    public static Mat4 getPortalToPortalMatrix(PortalEntity portal, PartialPortal otherPortal) {
+        Vec3 thisPos = new Vec3(portal.position());
+        Vec3 otherPos = new Vec3(otherPortal.getPosition());
 
         return Mat4.identity()
                 .mul(Mat4.createTranslation(otherPos.x, otherPos.y, otherPos.z))

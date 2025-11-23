@@ -8,6 +8,7 @@ import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.IChunk;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.sorted.portal.PortalEntity;
+import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.core.util.EntityTickWrapper;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -70,5 +71,19 @@ public abstract class ServerLevelMixin {
     private void pmDoNotUpdateChunkPosForPortal(Entity entity, CallbackInfo info) {
         if(entity instanceof PortalEntity)
             info.cancel();
+    }
+
+    @Redirect(
+            remap = false,
+            method = "unload",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/server/ServerWorld;onEntityRemoved(Lnet/minecraft/entity/Entity;)V"
+            )
+    )
+    private void pmWrapUnloadEntity(ServerWorld level, Entity entity) {
+        PortalManager.getInstance().unloadingChunk = true;
+        level.onEntityRemoved(entity);
+        PortalManager.getInstance().unloadingChunk = false;
     }
 }

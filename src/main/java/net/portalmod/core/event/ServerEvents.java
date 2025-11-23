@@ -33,13 +33,6 @@ import net.portalmod.core.injectors.LivingEntityInjector;
 public class ServerEvents {
 
     @SubscribeEvent
-    public static void onLevelLoad(final WorldEvent.Load event) {
-//        PortalPairCache.SERVER.clear();
-        PortalManager.clear();
-        ((ServerWorld)event.getWorld()).getDataStorage().get(PortalManager::getInstance, PortalManager.PATH);
-    }
-
-    @SubscribeEvent
     public static void onPlayerTick(final PlayerTickEvent event) {
 //        PlayerEntity player = event.player;
 //

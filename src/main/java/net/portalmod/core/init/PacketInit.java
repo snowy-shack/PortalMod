@@ -12,6 +12,8 @@ import net.portalmod.common.sorted.antline.SAntlineUpdatePacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateLaunchPacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.SFaithPlateLaunchPacket;
+import net.portalmod.common.sorted.portal.SForgetPortalPacket;
+import net.portalmod.common.sorted.portal.SPortalPairPacket;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
 import net.portalmod.common.sorted.radio.SRadioUpdatePacket;
@@ -36,6 +38,8 @@ public class PacketInit {
         register(new SEntityPortalTeleportPacketNew(),  NetworkDirection.PLAY_TO_CLIENT);
         register(new SEntityPortalTeleportLerpPacket(), NetworkDirection.PLAY_TO_CLIENT);
         register(new SPortalGunAnimationPacket(),       NetworkDirection.PLAY_TO_CLIENT);
+        register(new SPortalPairPacket(),               NetworkDirection.PLAY_TO_CLIENT);
+        register(new SForgetPortalPacket(),             NetworkDirection.PLAY_TO_CLIENT);
 
         register(new CFaithPlateUpdatedPacket(),        NetworkDirection.PLAY_TO_SERVER);
         register(new CFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_SERVER);
