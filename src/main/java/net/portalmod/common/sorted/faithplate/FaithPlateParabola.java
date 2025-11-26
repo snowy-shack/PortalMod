@@ -1,7 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -18,7 +17,7 @@ public class FaithPlateParabola {
     private final Vec3 projectedTarget;
     private final double minHeight;
     private double height;
-    
+
     public FaithPlateParabola(Vec3 target, double height) {
         this.target = target;
         this.projectedTarget = this.getProjectedTarget();
@@ -73,7 +72,6 @@ public class FaithPlateParabola {
     }
     
     public boolean isVertical() {
-//        System.out.println(getA());
         return Double.isInfinite(getA()) || Double.isNaN(getA());
     }
     
