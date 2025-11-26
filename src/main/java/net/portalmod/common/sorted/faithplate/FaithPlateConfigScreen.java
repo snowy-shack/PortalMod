@@ -320,9 +320,25 @@ public class FaithPlateConfigScreen extends Screen {
         public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
             if (!this.enabled) return false;
 
+            int oldPitch = parent.pitch;
             parent.pitch += amount;
             parent.pitch = MathHelper.clamp(parent.pitch, 5, 50);
             ShaderInit.FAITHPLATE_GRID.get().bind().setInt("pitch", parent.pitch).unbind();
+
+            int offsetX = (int) (baseOffset.x + offset.x) + width  / 2;
+            int offsetY = (int) (baseOffset.y - offset.y) + height / 2;
+            float xMouseRelative = (float)(mouseX - this.x - offsetX);
+            float yMouseRelative = (float)(mouseY - this.y - offsetY);
+            float xOld = xMouseRelative / (float)oldPitch;
+            float yOld = yMouseRelative / (float)oldPitch;
+            float xNew = xMouseRelative / (float)parent.pitch;
+            float yNew = yMouseRelative / (float)parent.pitch;
+
+            offset = new Vector2f(
+                    offset.x + (xNew - xOld) * parent.pitch,
+                    offset.y - (yNew - yOld) * parent.pitch
+            );
+
             return true;
         }
 
