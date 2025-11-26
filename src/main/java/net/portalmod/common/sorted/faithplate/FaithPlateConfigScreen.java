@@ -1,7 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -12,14 +11,11 @@ import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.profiler.IProfiler;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector2f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -30,7 +26,6 @@ import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
-import net.portalmod.mixins.accessors.MinecraftAccessor;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.regex.Matcher;
@@ -222,7 +217,6 @@ public class FaithPlateConfigScreen extends Screen {
         private boolean enabled = true;
         private Vector2f offset = new Vector2f(0, 0);
         private Vector2f baseOffset = new Vector2f(-90, 45); // TODO replace
-        private static Framebuffer frameBuffer;
         private static VertexBuffer vbo;
         
         public RenderWidget(FaithPlateConfigScreen parent, int x, int y, int width, int height, ITextComponent text) {
@@ -232,20 +226,13 @@ public class FaithPlateConfigScreen extends Screen {
             MainWindow window = Minecraft.getInstance().getWindow();
             double guiScale = window.getGuiScale();
 
-            if (frameBuffer != null) frameBuffer.destroyBuffers();
-
-            frameBuffer = new Framebuffer(
-                    (int)(getWidth() * guiScale),
-                    (int)(getHeight() * guiScale),
-                    true, Minecraft.ON_OSX);
-
             if (vbo != null) vbo.close();
 
             vbo = new VertexBuffer(DefaultVertexFormats.POSITION_TEX);
-            float fbx = (float)((parent.width - getWidth() - 100) / 2 * guiScale);
+            float fbx = (float)((parent.width - getWidth() - 100) / 2f * guiScale);
             float fby = (float)((parent.height - (y + getHeight())) * guiScale);
-            float fbw = fbx + frameBuffer.width;
-            float fbh = fby + frameBuffer.height;
+            float fbw = fbx + (int)(getWidth() * guiScale);
+            float fbh = fby + (int)(getHeight() * guiScale);
 
             BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
             bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -262,7 +249,6 @@ public class FaithPlateConfigScreen extends Screen {
         }
 
         // Hours wasted here: 6
-        // TODO: Main quest - Eliminate the white rectangle
         @Override
         public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
             if (!this.enabled) return;
@@ -276,93 +262,37 @@ public class FaithPlateConfigScreen extends Screen {
 
             Minecraft mc = Minecraft.getInstance();
             MainWindow window = mc.getWindow();
-            int wWidth = window.getWidth();
-            int wHeight = window.getHeight();
             double guiScale = window.getGuiScale();
 
-            int fbX = (int) ((parent.width - getWidth() - 100) / 2 * guiScale);
+            int fbX = (int) ((parent.width - getWidth() - 100) / 2f * guiScale);
             int fbY = (int) ((parent.height - (y + getHeight())) * guiScale);
             int fbW = (int) (getWidth() * guiScale);
             int fbH = (int) (getHeight() * guiScale);
 
-            int[] prevViewport = new int[4];
-            glGetIntegerv(GL_VIEWPORT, prevViewport);
-
             glViewport(fbX, fbY, fbW, fbH);
-//            GlStateManager._color4f(0.0F, 0.0F, 0.0F, 1.0F);
+            RenderSystem.activeTexture(GL_TEXTURE0);
+            mc.getTextureManager().bind(TEXTURE);
 
-            {
-                RenderSystem.activeTexture(GL_TEXTURE0);
-                mc.getTextureManager().bind(TEXTURE);
+            RenderSystem.enableBlend();
+            ShaderInit.FAITHPLATE_GRID.get().bind()
+                    .setInt("sprite", 0)
+                    .setInt("offset",  (int) offset.x - 90, (int) offset.y - 45)
+                    .setInt("guisize", (int) guiScale)
+                    .setFloat("a", (float) a)
+                    .setFloat("b", (float) b)
+                    .setFloat("atlasSize", 512, 512)
+                    .setFloat("height", (float) parent.parabola.getHeight());
 
-                RenderSystem.enableBlend();
-                ShaderInit.FAITHPLATE_GRID.get().bind()
-                        .setInt("sprite", 0)
-                        .setInt("offset",  (int) offset.x - 90, (int) offset.y - 45)
-                        .setInt("guisize", (int) guiScale)
-                        .setFloat("a", (float) a)
-                        .setFloat("b", (float) b)
-                        .setFloat("atlasSize", 512, 512)
-                        .setFloat("height", (float) parent.parabola.getHeight());
-
-                glBegin(GL_QUADS);
+            glBegin(GL_QUADS);
                 glVertex2f(-1, -1);
                 glVertex2f( 1, -1);
                 glVertex2f( 1,  1);
                 glVertex2f(-1,  1);
-                glEnd();
+            glEnd();
 
-                ShaderInit.FAITHPLATE_GRID.get().unbind();
-                RenderSystem.disableBlend();
-            }
-
-            IProfiler profiler = mc.getProfiler();
-
-            profiler.push("[" + PortalMod.MODID + "] faithplate screen preview");
-            profiler.push("render");
-
-            Framebuffer previousFB = mc.getMainRenderTarget();
-            ((MinecraftAccessor) mc).pmSetMainRenderTarget(frameBuffer);
-            frameBuffer.bindWrite(true);
-
-            profiler.popPush("blit");
-
-            ((MinecraftAccessor) mc).pmSetMainRenderTarget(previousFB);
-            previousFB.bindWrite(true);
-
-            GlStateManager._viewport(fbX, fbY, wWidth, wHeight);
-            RenderSystem.disableCull();
-            RenderSystem.enableBlend();
-
-            RenderSystem.activeTexture(GL_TEXTURE0);
-
-            ShaderInit.BLIT.get().bind();
-            ShaderInit.BLIT.get().setInt("texture", 0);
-            ShaderInit.BLIT.get().setMatrix("projection", new Matrix4f(new float[]{
-                    2f / frameBuffer.width, 0, 0, -1,
-                    0, 2f / frameBuffer.height, 0, -1,
-                    0, 0, 1, 0,
-                    0, 0, 0, 1
-            }));
-
-            glViewport(0, 0, getWidth(), getHeight());
-
-            frameBuffer.bindRead();
-            vbo.bind();
-            DefaultVertexFormats.POSITION_TEX.setupBufferState(0L);
-            RenderSystem.drawArrays(GL_QUADS, 0, 4);
-            VertexBuffer.unbind();
-            frameBuffer.unbindRead();
-
-            ShaderInit.BLIT.get().unbind();
-
-            profiler.popPush("render state restore");
-
-            RenderHelper.setupFor3DItems();
-            glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
-
-            profiler.pop();
-            profiler.pop();
+            ShaderInit.FAITHPLATE_GRID.get().unbind();
+            RenderSystem.disableBlend();
+            glViewport(0, 0, window.getWidth(), window.getHeight());
         }
         
         @Override
@@ -481,62 +411,4 @@ public class FaithPlateConfigScreen extends Screen {
             return super.isFocused();
         }
     }
-    
-//    private static class DropdownMenu extends Widget {
-//        private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/dropdownmenu.png");
-//        private static final int WIDTH = 64, HEIGHT = 20;
-//        private List<ITextComponent> entries;
-//        private int selected;
-//        private boolean open;
-//
-//        public DropdownMenu(int x, int y, ITextComponent text, List<ITextComponent> entries) {
-//            this(x, y, text, entries, 0);
-//        }
-//
-//        public DropdownMenu(int x, int y, ITextComponent text, List<ITextComponent> entries, int selected) {
-//            super(x, y, WIDTH, HEIGHT, text);
-//            this.open = false;
-//            this.entries = entries;
-//            this.selected = selected;
-//        }
-//
-//        @Override
-//        public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-//            boolean hovering = mouseX >= x && mouseX <= x + 64 && mouseY >= y && mouseY <= y + 20;
-//
-//            Minecraft minecraft = Minecraft.getInstance();
-//            minecraft.getTextureManager().bind(TEXTURE);
-//            RenderSystem.enableDepthTest();
-//            FontRenderer fontrenderer = minecraft.font;
-//            RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-//            RenderSystem.enableBlend();
-//            RenderSystem.defaultBlendFunc();
-//            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-//
-//            blit(matrixStack, x, y, 32, this.isFocused() ? 20 : 0, 64, 20, 256, 256);
-//            blit(matrixStack, x + 48, y + 2, open ? 16 : 0, this.isFocused() || hovering ? 16 : 0, 16, 16, 256, 256);
-//            drawString(matrixStack, fontrenderer, entries.get(selected), this.x + (this.height - 8) / 2, this.y + (this.height - 8) / 2, 0xFFE0E0E0);
-//
-//            if(open) {
-//                int i = 1;
-//                for(ITextComponent entry : entries) {
-//                    minecraft.getTextureManager().bind(TEXTURE);
-//                    RenderSystem.enableDepthTest();
-//                    RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-//                    RenderSystem.enableBlend();
-//                    RenderSystem.defaultBlendFunc();
-//                    RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-//
-//                    blit(matrixStack, x, y + i * 20, 32, this.isFocused() ? 20 : 0, 64, 20, 256, 256);
-//                    drawString(matrixStack, fontrenderer, entry, this.x + (this.height - 8) / 2, this.y + (this.height - 8) / 2 + i++ * 20, 0xFFE0E0E0);
-//                }
-//            }
-//        }
-//
-//        @Override
-//        public void onClick(double mouseX, double mouseY) {
-//            super.onClick(mouseX, mouseY);
-//            open = !open;
-//        }
-//    }
 }
