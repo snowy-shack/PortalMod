@@ -311,7 +311,7 @@ public class FaithPlateConfigScreen extends Screen {
             int x = (int) (mouseX - this.x - offsetX - parent.pitch * parent.parabola.getMiddlePoint());
             int y = (int) (mouseY - this.y - offsetY + parent.pitch * parent.parabola.getHeight());
 
-            handleClicked = Math.sqrt(x * x + y * y) < (float) parent.pitch / 4.0;
+            handleClicked = x * x + y * y < 25;
 
             if (handleClicked) parent.setCursor(VRESIZE_CURSOR);
         }
