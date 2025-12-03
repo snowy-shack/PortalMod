@@ -301,7 +301,7 @@ public class ClientEvents {
             return;
         
         EntitySize size = event.getOldSize();
-        event.setNewSize(EntitySize.scalable(size.width, size.height * .55f), true);
+        event.setNewSize(EntitySize.scalable(size.width, 1f), true);
     }
     
     private static boolean wasPressed = false;
