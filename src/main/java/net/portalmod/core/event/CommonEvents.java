@@ -51,8 +51,6 @@ public class CommonEvents {
                 .forEach(portal -> {
                     portal.removed = false;
                     event.getWorld().addFreshEntity(portal);
-                    if(portal.getOtherPortal().isPresent())
-                        event.getWorld().addFreshEntity(portal.getOtherPortal().get());
                 });
     }
 
