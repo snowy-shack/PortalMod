@@ -923,25 +923,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.recalculateBoundingBox();
     }
 
-    @Override
-    public void onAddedToWorld() {
-        super.onAddedToWorld();
-
-        if(this.level.isClientSide) {
-//            PortalManager.putInCache(this);
-//            PortalManager.putInClientMap(this.gunUUID, this.end, this);
-            return;
-        }
-
-        // todo only if chunk is loaded
-        updateBlocksBehind();
-////            ForgeChunkManager.forceChunk((ServerWorld) this.level, PortalMod.MODID, this, this.xChunk, this.zChunk, true, true);
-//            if(PortalPairCache.SERVER.get(gunUUID, end) != this)
-//                PortalPairCache.SERVER.put(gunUUID, end, this);
-//            if(PortalManager.get(gunUUID, end) != this)
-//                PortalManager.put(gunUUID, end, this);
-    }
-
     public boolean survives() {
         return survives(this.level);
     }
