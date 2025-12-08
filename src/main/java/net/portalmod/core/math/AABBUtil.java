@@ -63,4 +63,14 @@ public class AABBUtil {
                         return false;
         return true;
     }
+
+    public static VoxelShape addBoxesToVoxelShape(VoxelShape voxelShape, List<AxisAlignedBB> boxes) {
+        for(AxisAlignedBB aabb : boxes)
+            voxelShape = VoxelShapes.or(voxelShape, VoxelShapes.create(aabb));
+        return voxelShape;
+    }
+
+    public static VoxelShape boxesToVoxelShape(List<AxisAlignedBB> boxes) {
+        return addBoxesToVoxelShape(VoxelShapes.empty(), boxes);
+    }
 }
