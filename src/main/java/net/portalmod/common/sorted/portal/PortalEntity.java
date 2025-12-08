@@ -924,29 +924,29 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public boolean survives() {
-        return survives(this.level);
-    }
+        List<PortalEntity> portalsInside = getPortals(
+                this.level,
+                this.position().add(new Vec3(up.getNormal()).mul(.5f).to3d()),
+                .1f,
+                portal -> portal != this
+                        && portal.isAlive()
+                        && portal.direction == this.direction
+        );
 
-    public boolean survives(World level) {
-        if (true) return true;
-
-        Vector3f normal = new Vec3(up.getNormal()).mul(.5f).to3f();
-
-        if (!getPortals(this.level, this.position().add(new Vector3d(normal)), .1f, portal ->
-                portal != this && portal.isAlive() && portal.direction == this.direction
-        ).isEmpty()) {
+        if(!portalsInside.isEmpty())
             return false;
-        }
 
-        return new BlockIterator(this.level, this.blockPosition(), true)
-//            .and(b -> b == Blocks.AIR)
-//            .and(up, b -> b == Blocks.AIR)
-            .and(b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
-            .and(up, b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
-            .move(this.direction.getOpposite())
-            .and(BlockTagInit::isPortalable)
-            .and(up, BlockTagInit::isPortalable)
-            .getResult();
+        boolean skipFrontBlock = new Vec3(this.position())
+                .add(new Vec3(this.getNormal()).mul(1/16f - .001))
+                .to3i().equals(new Vec3(this.position()).sub(new Vec3(this.getNormal()).mul(.001)).to3i());
+
+        return AABBUtil.checkBlocksWithin(
+                this.level,
+                this.getBoundingBox()
+                        .move(new Vec3(this.direction.getNormal()).mul(-1/16f).to3d())
+                        .deflate(.001),
+                (pos, state) -> PortalEntity.canSurviveOn(this.level, pos, this.direction, skipFrontBlock)
+        );
     }
 
     public static boolean canSurviveOn(World level, BlockPos attachedBlockPos, Direction normal, boolean skipFrontBlock) {
