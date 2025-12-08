@@ -165,7 +165,7 @@ public class PortalPlacer {
         VoxelShape bumps = VoxelShapes.empty();
         VoxelShape insets = VoxelShapes.create(surfaceAABB);
 
-        // slicing blocks to get bumps and insets
+        // Slicing blocks to get bumps and insets
         for(BlockPos block : blocks) {
             if(!PortalEntity.canSurviveOn(level, block, face, skipFrontBlock))
                 collision = VoxelShapes.or(collision, VoxelShapes.create(new AxisAlignedBB(block)));
