@@ -15,11 +15,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.particles.*;
 import net.portalmod.common.sorted.portal.PortalParticle;
+import net.portalmod.common.sorted.portal.PortalPhotonParticle;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ParticleInit {
     public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, PortalMod.MODID);
     public static final RegistryObject<BasicParticleType> PORTAL_PARTICLE = PARTICLE_TYPES.register("portal_particle",
+            () -> new BasicParticleType(false));
+    public static final RegistryObject<BasicParticleType> PORTAL_PHOTON = PARTICLE_TYPES.register("portal_photon",
             () -> new BasicParticleType(false));
     public static final RegistryObject<BasicParticleType> FIZZLE_GLOW = PARTICLE_TYPES.register("fizzle_glow",
             () -> new BasicParticleType(false));
@@ -42,6 +45,7 @@ public class ParticleInit {
     public static void registerParticleFactory(final ParticleFactoryRegisterEvent event) {
         ParticleManager particleEngine = Minecraft.getInstance().particleEngine;
         particleEngine.register(ParticleInit.PORTAL_PARTICLE.get(), PortalParticle.Factory::new);
+        particleEngine.register(ParticleInit.PORTAL_PHOTON.get(), PortalPhotonParticle.Factory::new);
         particleEngine.register(ParticleInit.FIZZLE_GLOW.get(), FizzleGlowParticle.Factory::new);
         particleEngine.register(ParticleInit.FIZZLE_FLAKE_FALLING.get(), FizzleFlakeParticle.FallingFactory::new);
         particleEngine.register(ParticleInit.FIZZLE_FLAKE_LANDING.get(), FizzleFlakeParticle.LandingFactory::new);
