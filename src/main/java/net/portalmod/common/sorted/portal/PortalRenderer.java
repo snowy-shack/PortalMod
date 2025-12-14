@@ -100,12 +100,20 @@ public class PortalRenderer {
         return instance;
     }
 
-    private void renderMask(Matrix4f modelView) {
+    private void renderMask(PortalEntity portal, Matrix4f modelView) {
         glUseProgram(0);
+
+        int age = portal.getAge();
+        boolean spawning = age < 4;
+
+        String path = "textures/portal/"
+                + "portal_mask"
+                + (spawning ? "_spawning" + age : "")
+                + ".png";
 
         glEnable(GL_TEXTURE_2D);
         RenderSystem.activeTexture(GL_TEXTURE0);
-        Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/portal/portal_mask.png"));
+        Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, path));
 
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.enableDepthTest();
@@ -164,14 +172,31 @@ public class PortalRenderer {
             return;
 
         int ticks = mc.player.tickCount;
+        int age = portal.getAge();
         boolean open = portal.isOpen() && recursion <= PortalModOptionsScreen.RECURSION.get();
-        String path = "textures/portal/" + (open ? "open_" : "closed_") + portal.getColor() + ".png";
+        boolean spawning = age < 4;
+
+        String path = "textures/portal/"
+                + (spawning ? "spawning_" : "")
+                + (open ? "open_" : "closed_")
+                + portal.getColor()
+                + ".png";
         ResourceLocation location = new ResourceLocation(PortalMod.MODID, path);
 
-        Dimension textureSize = PortalAnimatedTextureHelper.getTextureSize(location);
+        Optional<Dimension> optionalTextureSize = PortalAnimatedTextureHelper.getTextureSize(location);
+        if(!optionalTextureSize.isPresent())
+            return;
+
+        Dimension textureSize = optionalTextureSize.get();
         int frameCount = (int)textureSize.getHeight() / (2 * (int)textureSize.getWidth());
-        int frameTime = 5;
-        float frameIndex = ((int)(ticks / frameTime) % frameCount) + ((ticks % frameTime) + partialTicks) / frameTime;
+
+        float frameIndex;
+        if(spawning) {
+            frameIndex = age % frameCount;
+        } else {
+            int frameTime = 5;
+            frameIndex = ((int)(ticks / 5) % frameCount) + ((ticks % frameTime) + partialTicks) / frameTime;
+        }
 
         ShaderInit.PORTAL_FRAME.get().bind()
                 .setInt("frameCount", frameCount)
@@ -395,7 +420,7 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0x7F);
             RenderSystem.stencilFunc(GL_EQUAL, recursion - 1, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-            renderMask(modelView);
+            renderMask(portal, modelView);
 
             RenderSystem.stencilMask(0);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
@@ -449,7 +474,7 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0x80);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0xFF);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
-            renderMask(modelView);
+            renderMask(portal, modelView);
 
             RenderSystem.stencilMask(0);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);

@@ -62,6 +62,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     private Direction direction = Direction.SOUTH;
     private Direction up = Direction.UP;
     private UUID gunUUID;
+    private int age = 0;
 
     private String hue = "blue";
     private String primary_color = "blue";
@@ -77,14 +78,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     @Override
     public void tick() {
-//        if(level.isClientSide) {
-//            System.out.println(this);
-//        }
-
         if(this.getY() < -64.0D)
             this.outOfWorld();
         if(!level.isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
             this.remove();
+
+        this.age++;
     }
 
     @Override
@@ -99,6 +98,16 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     private boolean hasMoved() {
         return this.position().distanceToSqr(new Vector3d(this.xo, this.yo, this.zo)) > 0;
+    }
+
+    public int getAge() {
+        return this.age;
+    }
+
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        this.age = 0;
     }
 
     public Vec3 teleportPoint(Vec3 point) {
