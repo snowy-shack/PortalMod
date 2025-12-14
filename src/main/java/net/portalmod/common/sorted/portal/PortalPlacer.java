@@ -9,6 +9,8 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.*;
 
@@ -134,8 +136,12 @@ public class PortalPlacer {
         portal.setHue(hue);
         portal.setGunUUID(gunUUID);
 
+        PortalEntity oldPortal = PortalManager.getInstance().get(gunUUID, end);
         PortalManager.getInstance().put(gunUUID, end, portal);
         level.addFreshEntity(portal);
+
+        PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(),
+                new SPortalShotPacket(portal.getId(), oldPortal == null ? -1 : oldPortal.getId()));
 
         level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
                 SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, 1);
