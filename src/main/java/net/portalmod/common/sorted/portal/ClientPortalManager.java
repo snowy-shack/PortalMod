@@ -59,8 +59,10 @@ public class ClientPortalManager {
     }
 
     public void forgetPortal(UUID gunUUID, PortalEnd end) {
-        PORTAL_MAP.get(gunUUID).set(end, null);
-        PARTIAL_MAP.get(gunUUID).set(end, null);
+        if(PORTAL_MAP.containsKey(gunUUID))
+            PORTAL_MAP.get(gunUUID).set(end, null);
+        if(PARTIAL_MAP.containsKey(gunUUID))
+            PARTIAL_MAP.get(gunUUID).set(end, null);
     }
 
     public Map<UUID, PortalPair> getPortalMap() {
