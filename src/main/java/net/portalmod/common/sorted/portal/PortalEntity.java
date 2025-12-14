@@ -861,11 +861,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public OrthonormalBasis getSourceBasis() {
-        return new OrthonormalBasis(new Vec3(this.getDirection()), new Vec3(this.getUpVector()));
+        return new OrthonormalBasis(new Vec3(this.getUpVector()).cross(new Vec3(this.getDirection())), new Vec3(this.getUpVector()));
     }
 
     public OrthonormalBasis getDestinationBasis() {
-        return new OrthonormalBasis(new Vec3(this.getDirection().getOpposite()), new Vec3(this.getUpVector()));
+        return new OrthonormalBasis(new Vec3(this.getUpVector()).cross(new Vec3(this.getDirection().getOpposite())), new Vec3(this.getUpVector()));
     }
 
     public void onReplaced() {
