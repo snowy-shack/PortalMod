@@ -107,7 +107,7 @@ public class PortalRenderer {
         boolean spawning = age < 4;
 
         String path = "textures/portal/"
-                + "portal_mask"
+                + "mask"
                 + (spawning ? "_spawning" + age : "")
                 + ".png";
 
@@ -177,9 +177,9 @@ public class PortalRenderer {
         boolean spawning = age < 4;
 
         String path = "textures/portal/"
-                + (spawning ? "spawning_" : "")
                 + (open ? "open_" : "closed_")
                 + portal.getColor()
+                + (spawning ? "_spawning" : "")
                 + ".png";
         ResourceLocation location = new ResourceLocation(PortalMod.MODID, path);
 
