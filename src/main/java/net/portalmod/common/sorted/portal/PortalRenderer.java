@@ -256,9 +256,13 @@ public class PortalRenderer {
         Framebuffer mainFBO = mc.getMainRenderTarget();
         mc.levelRenderer.renderBuffers.bufferSource().endBatch();
 
+        ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
+
         if(recursion == 0) {
             currentlyRenderingPortals = true;
             fabulousGraphics = mc.options.graphicsMode == GraphicsFanciness.FABULOUS;
+
+            renderChunks.addAll(mc.levelRenderer.renderChunks);
 
             if(fabulousGraphics) {
                 int w = mc.getWindow().getWidth();
@@ -287,8 +291,12 @@ public class PortalRenderer {
             }
         }
 
-        if(recursion == 0)
+        if(recursion == 0) {
             currentlyRenderingPortals = false;
+
+            mc.levelRenderer.renderChunks.clear();
+            mc.levelRenderer.renderChunks.addAll(renderChunks);
+        }
 
         if(fabulousGraphics) {
             blitFBOtoFBO(mainFBO, tempFBO);
@@ -436,17 +444,11 @@ public class PortalRenderer {
 
                 currentCamera = portalCamera;
 
-                ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
-                renderChunks.addAll(mc.levelRenderer.renderChunks);
-
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
 
                 TileEntityRendererDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
-
-                mc.levelRenderer.renderChunks.clear();
-                mc.levelRenderer.renderChunks.addAll(renderChunks);
 
                 currentCamera = camera;
 
