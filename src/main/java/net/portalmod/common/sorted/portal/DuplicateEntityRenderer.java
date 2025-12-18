@@ -155,10 +155,9 @@ public class DuplicateEntityRenderer {
         double eyeHeight = MathHelper.lerp(partialTicks, cameraAccessor.pmGetEyeHeightOld(), cameraAccessor.pmGetEyeHeight())
                 - camera.getEntity().getEyeHeight() + entity.getEyeHeight();
 
-        Vec3 entityPos = new Vec3(entity.xo, entity.yo, entity.zo).transform(matrix)
-                .lerp(new Vec3(entity.position()).transform(matrix), partialTicks);
-        entityPos.y += eyeHeight;
-        return entityPos;
+        Vec3 oldPos = new Vec3(entity.xo, entity.yo, entity.zo).add(0, eyeHeight, 0).transform(matrix);
+        Vec3 newPos = new Vec3(entity.position()).add(0, eyeHeight, 0).transform(matrix);
+        return oldPos.lerp(newPos, partialTicks);
     }
 
     public static Vec3 getEntityEyePositionAssumingSelf(Entity entity, float partialTicks) {
