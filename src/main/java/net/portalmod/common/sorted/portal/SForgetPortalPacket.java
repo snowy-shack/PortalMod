@@ -38,7 +38,11 @@ public class SForgetPortalPacket implements AbstractPacket<SForgetPortalPacket> 
     public boolean handle(Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                PortalEntity oldPortal = ClientPortalManager.getInstance().get(this.uuid, this.end);
                 ClientPortalManager.getInstance().forgetPortal(this.uuid, this.end);
+
+                if(oldPortal != null)
+                    PortalPhotonParticle.createClosingParticles(oldPortal);
             });
         });
 
