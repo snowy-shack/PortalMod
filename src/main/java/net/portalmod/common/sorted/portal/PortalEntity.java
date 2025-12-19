@@ -933,7 +933,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         this.xRotO = this.xRot;
         this.yRotO = this.yRot;
-        this.recalculateBoundingBox();
     }
 
     public boolean survives() {
@@ -1014,7 +1013,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     @Override
     public void setPos(double x, double y, double z) {
         this.setPosRaw(x, y, z);
-        this.recalculateBoundingBox();
     }
 
     // todo revise 2 methods
@@ -1315,6 +1313,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.up = Direction.from3DDataValue(buffer.readByte());
         this.setDirection(Direction.from3DDataValue(buffer.readByte()));
         this.hue = DyeColor.byId(buffer.readByte()).getName();
+        this.recalculateBoundingBox();
 
         ClientPortalManager.getInstance().put(this.gunUUID, this.end, this);
 
