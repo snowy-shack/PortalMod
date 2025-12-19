@@ -42,10 +42,6 @@ public class SPortalShotPacket implements AbstractPacket<SPortalShotPacket> {
             PortalEntity portal = (PortalEntity)level.getEntity(this.id);
             if(portal != null)
                 PortalPhotonParticle.createOpeningParticles(portal);
-
-            PortalEntity oldPortal = (PortalEntity)level.getEntity(this.oldId);
-            if(oldPortal != null)
-                PortalPhotonParticle.createClosingParticles(oldPortal);
         }));
 
         context.get().setPacketHandled(true);
