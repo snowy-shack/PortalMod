@@ -135,6 +135,7 @@ public class PortalPlacer {
         portal.setEnd(end);
         portal.setHue(hue);
         portal.setGunUUID(gunUUID);
+        portal.recalculateBoundingBox();
 
         PortalEntity oldPortal = PortalManager.getInstance().get(gunUUID, end);
         PortalManager.getInstance().put(gunUUID, end, portal);
