@@ -83,6 +83,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(!level.isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
             this.remove();
 
+        if(level.isClientSide) {
+            PortalPhotonParticle.createLivingParticles(this);
+        }
+
         this.age++;
     }
 
