@@ -12,6 +12,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.PMGlobals;
+import net.portalmod.PMState;
+import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.math.Vec3;
@@ -182,8 +184,21 @@ public class LevelRendererMixinFinal {
             return erm.shouldRender(entity, clippingHelper, camX, camY, camZ);
 
         Vec3 entityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks);
-        double d = entityPos.clone().sub(PortalRenderer.getInstance().getCurrentCamera().getPosition()).magnitudeSqr();
-        return erm.shouldRender(entity, clippingHelper, camX, camY, camZ) && d >= 0.001;
+        ActiveRenderInfo currentCamera = PortalRenderer.getInstance().getCurrentCamera();
+        Vec3 cameraPos = PMState.cameraPosOverrideForRenderingSelf != null
+                ? PMState.cameraPosOverrideForRenderingSelf
+                : new Vec3(currentCamera.getPosition());
+
+        PortalCamera unteleportedCamera = PortalRenderer.getInstance().currentUnteleportedCamera;
+        double d2 = unteleportedCamera == null ? 0
+                : entityPos.clone().sub(unteleportedCamera.getPosition()).magnitudeSqr();
+
+        boolean isInList = unteleportedCamera != null && PMState.positionsToSkipRenderingSelf.stream()
+                .anyMatch(x -> entityPos.clone().sub(unteleportedCamera.getPosition()).sub(x).magnitudeSqr() < 0.001);
+
+        double d = entityPos.clone().sub(cameraPos).magnitudeSqr();
+        return erm.shouldRender(entity, clippingHelper, camX, camY, camZ)
+                && d >= 0.001 && !(unteleportedCamera != null && d2 < 0.001 && isInList);
     }
 
     // BEWARE: PORTAL RENDERING

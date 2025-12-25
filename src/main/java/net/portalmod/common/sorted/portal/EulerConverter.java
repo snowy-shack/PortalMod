@@ -1,11 +1,12 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
+import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
 public class EulerConverter {
-    static class EulerAngles {
+    public static class EulerAngles {
         private final float pitch;
         private final float yaw;
         private final float roll;
@@ -33,41 +34,52 @@ public class EulerConverter {
         Vec3 look = basis.getZ();
         Vec3 up = basis.getY();
 
-        float pitch = (float)(Math.acos(look.dot(Vec3.yAxis())) * 180 / Math.PI - 90);
+        float pitch = (float)(Math.acos(MathHelper.clamp(look.dot(Vec3.yAxis()), -1, 1)) * 180 / Math.PI - 90);
 
-        Vec3 yawVec = Vec3.yAxis().cross(new Vec3(look).cross(Vec3.yAxis()));
+        Vec3 yawVec = Vec3.yAxis().cross(look.clone().cross(Vec3.yAxis())).normalize();
         float yawSin = (float)Vec3.zAxis().cross(yawVec).y;
-        float yaw = -(float)(Math.atan2(yawSin, Vec3.zAxis().dot(yawVec)) * 180 / Math.PI);
+        float yawCos = (float)Vec3.zAxis().dot(yawVec);
+        float yaw = -(float)(Math.atan2(yawSin, yawCos) * 180 / Math.PI);
 
-        Vec3 upNew = new Vec3(up);
-        Vec3 forwardsNew = new Vec3(look);
-        Vec3 rightOrtho = forwardsNew.clone().cross(Vec3.yAxis()).normalize();
-        Vec3 upOrtho = rightOrtho.clone().cross(forwardsNew).normalize();
-
-        Vec3 upSinVec = upNew.clone().cross(upOrtho);
-        float rollSin = (float)(upSinVec.magnitude() * Math.signum(upSinVec.dot(forwardsNew)));
-        float rollCos = (float)upNew.clone().dot(upOrtho);
-        float roll = (float)(-Math.atan2(rollSin, rollCos) * 180 / Math.PI);
+        Vec3 upUnrotated = up.clone()
+                .transform(new Mat4(Vector3f.YN.rotationDegrees(-yaw)))
+                .transform(new Mat4(Vector3f.XP.rotationDegrees(-pitch)));
+        float rollSin = (float)Vec3.yAxis().cross(upUnrotated).dot(Vec3.zAxis());
+        float rollCos = (float)Vec3.yAxis().dot(upUnrotated);
+        float roll = (float)(Math.atan2(rollSin, rollCos) * 180 / Math.PI);
 
         return new EulerAngles(pitch, yaw, roll);
     }
 
-    public static EulerAngles toEulerAngles(Vec3 x, Vec3 y) {
-        return toEulerAngles(new OrthonormalBasis(x, y));
+    public static EulerAngles toEulerAnglesLeastRoll(OrthonormalBasis basis) {
+        EulerAngles angles = toEulerAngles(basis);
+
+        if(angles.roll > 90 || angles.roll < -90) {
+            return new EulerAngles(
+                    180 - MathHelper.positiveModulo(angles.pitch, 360),
+                    MathHelper.positiveModulo(angles.yaw, 360) + 180,
+                    MathHelper.positiveModulo(angles.roll, 360) - 180
+            );
+        }
+
+        return angles;
+    }
+
+    public static EulerAngles toEulerAngles(Vec3 forward, Vec3 up) {
+        return toEulerAngles(new OrthonormalBasis(up.clone().cross(forward), up));
+    }
+
+    public static EulerAngles toEulerAnglesLeastRoll(Vec3 forward, Vec3 up) {
+        return toEulerAnglesLeastRoll(new OrthonormalBasis(up.clone().cross(forward), up));
     }
 
     public static OrthonormalBasis toVectors(Vec3 orientation) {
-        Quaternion rotation = new Quaternion(0, 0, 0, 1);
-        rotation.set(0, 0, 0, 1);
-        rotation.mul(Vector3f.YP.rotationDegrees(-(float)orientation.y));
-        rotation.mul(Vector3f.XP.rotationDegrees( (float)orientation.x));
-        rotation.mul(Vector3f.ZP.rotationDegrees( (float)orientation.z));
+        Mat4 rotation = Mat4.identity()
+            .mul(new Mat4(Vector3f.YP.rotationDegrees(-(float)orientation.y)))
+            .mul(new Mat4(Vector3f.XP.rotationDegrees( (float)orientation.x)))
+            .mul(new Mat4(Vector3f.ZP.rotationDegrees( (float)orientation.z)));
 
-        Vector3f left = new Vector3f(1, 0, 0);
-        Vector3f up = new Vector3f(0, 1, 0);
-        left.transform(rotation);
-        up.transform(rotation);
-        return new OrthonormalBasis(new Vec3(left), new Vec3(up));
+        return new OrthonormalBasis(Vec3.xAxis().transform(rotation), Vec3.yAxis().transform(rotation));
     }
 
     public static OrthonormalBasis toVectors(float pitch, float yaw, float roll) {
