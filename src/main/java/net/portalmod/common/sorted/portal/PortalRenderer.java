@@ -21,6 +21,7 @@ import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.*;
 import net.portalmod.PMGlobals;
+import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.screens.PortalModOptionsScreen;
@@ -58,6 +59,7 @@ public class PortalRenderer {
     // todo create a state class and dump everything in idk
     public int recursion = 0;
     public ActiveRenderInfo currentCamera;
+    public PortalCamera currentUnteleportedCamera = null;
     public int renderedPortals = 0;
     public boolean currentlyRenderingPortals = false;
     private boolean fabulousGraphics = false;
@@ -347,12 +349,12 @@ public class PortalRenderer {
         Mat4 portalToPortalMatrix = getPortalToPortalMatrix(portal, portal.getOtherPortal().get());
         Vec3 newCameraPos = new Vec3(camera.getPosition()).transform(portalToPortalMatrix);
 
-        float xRot = MathHelper.clamp(MathHelper.wrapDegrees(camera.getXRot()), -89.9f, 89.9f);
+        float xRot = camera.getXRot();
         float yRot = camera.getYRot();
-        float zRot = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : 0;
+        float zRot = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
         OrthonormalBasis basis = EulerConverter.toVectors(xRot, yRot, zRot);
         basis.transform(portalToPortalRotationMatrix);
-        EulerConverter.EulerAngles angles = EulerConverter.toEulerAngles(basis);
+        EulerConverter.EulerAngles angles = EulerConverter.toEulerAnglesLeastRoll(basis);
 
         return new PortalCamera(Minecraft.getInstance().level, camera.getEntity(),
                 newCameraPos, angles.getPitch(), angles.getYaw(), angles.getRoll(), partialTicks);
@@ -444,6 +446,14 @@ public class PortalRenderer {
 
                 currentCamera = portalCamera;
 
+                PortalCamera prevUnteleportedCamera = currentUnteleportedCamera;
+                currentUnteleportedCamera = prevUnteleportedCamera == null ? null
+                        : new PortalCamera(setupCamera(prevUnteleportedCamera, portal, partialTicks), partialTicks);
+
+                Vec3 oldCameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf;
+                PMState.cameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf == null ? null
+                        : PMState.cameraPosOverrideForRenderingSelf.clone().transform(getPortalToPortalMatrix(portal, otherPortal));
+
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
 
@@ -451,6 +461,8 @@ public class PortalRenderer {
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
 
                 currentCamera = camera;
+                currentUnteleportedCamera = prevUnteleportedCamera;
+                PMState.cameraPosOverrideForRenderingSelf = oldCameraPosOverrideForRenderingSelf;
 
                 clipMatrix.popPose();
                 portalStack.pop();
@@ -600,9 +612,9 @@ public class PortalRenderer {
         Vector3i portalNormal = portal.getDirection().getNormal();
         MatrixStack matrix = new MatrixStack();
         Vec3 offsetNormal = new Vec3(camera.getPosition()).sub(portal.position()).normalize().mul(offset);
+        float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
-        if(camera instanceof PortalCamera)
-            matrix.mulPose(Vector3f.ZP.rotationDegrees(((PortalCamera)camera).getRoll()));
+        matrix.mulPose(Vector3f.ZP.rotationDegrees(roll));
         matrix.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
         matrix.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
         matrix.translate(offsetNormal.x, offsetNormal.y, offsetNormal.z);

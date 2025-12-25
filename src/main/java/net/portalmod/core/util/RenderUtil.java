@@ -16,6 +16,7 @@ import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
+import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.render.Shader;
@@ -47,10 +48,10 @@ public class RenderUtil {
         Vector3i portalNormal = portal.getDirection().getNormal();
         Vec3 offsetNormal = new Vec3(camera.getPosition()).sub(portal.position()).normalize().mul(offset);
         Vector3d cameraPos = camera.getPosition();
+        float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
         clipMatrix.last().pose().setIdentity();
-        if(camera instanceof PortalCamera)
-            clipMatrix.mulPose(Vector3f.ZP.rotationDegrees(((PortalCamera)camera).getRoll()));
+        clipMatrix.mulPose(Vector3f.ZP.rotationDegrees(roll));
         clipMatrix.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
         clipMatrix.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180));
         clipMatrix.translate(offsetNormal.x, offsetNormal.y, offsetNormal.z);

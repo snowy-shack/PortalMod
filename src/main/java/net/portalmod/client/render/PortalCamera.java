@@ -14,10 +14,27 @@ public class PortalCamera extends ActiveRenderInfo {
         this.setPosition(position.x, position.y, position.z);
         this.roll = roll;
     }
-    
+
+    public PortalCamera(ActiveRenderInfo camera, float partialTicks) {
+        this(camera.getEntity().level, camera.getEntity(), new Vec3(camera.getPosition()), camera.getXRot(), camera.getYRot(),
+                camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : 0, partialTicks);
+    }
+
     @Override
     public boolean isDetached() {
         return false;
+    }
+
+    public void setPitch(float pitch) {
+        this.setAnglesInternal(this.getYRot(), pitch);
+    }
+
+    public void setYaw(float yaw) {
+        this.setAnglesInternal(yaw, this.getXRot());
+    }
+
+    public void setRoll(float roll) {
+        this.roll = roll;
     }
     
     public float getRoll() {
