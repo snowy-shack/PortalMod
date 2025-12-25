@@ -42,6 +42,40 @@ public class LevelRendererMixinFinal {
         }
     }
 
+    @Redirect(
+            remap = false,
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/FogRenderer;setupColor(Lnet/minecraft/client/renderer/ActiveRenderInfo;FLnet/minecraft/client/world/ClientWorld;IF)V"
+            )
+    )
+    private void pmSetupColor(ActiveRenderInfo camera, float partialTicks, ClientWorld level, int renderDistance, float darken) {
+        if(PortalRenderer.getInstance().currentlyRenderingPortals && Minecraft.getInstance().player != null) {
+            camera = new PortalCamera(camera, partialTicks);
+            camera.setPosition(Minecraft.getInstance().player.position());
+        }
+
+        FogRenderer.setupColor(camera, partialTicks, level, renderDistance, darken);
+    }
+
+    @Redirect(
+            remap = false,
+            method = "renderLevel",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/FogRenderer;setupFog(Lnet/minecraft/client/renderer/ActiveRenderInfo;Lnet/minecraft/client/renderer/FogRenderer$FogType;FZF)V"
+            )
+    )
+    private void pmSetupFog(ActiveRenderInfo camera, FogRenderer.FogType type, float renderDistance, boolean b, float partialTicks) {
+        if(PortalRenderer.getInstance().currentlyRenderingPortals && Minecraft.getInstance().player != null) {
+            camera = new PortalCamera(camera, partialTicks);
+            camera.setPosition(Minecraft.getInstance().player.position());
+        }
+
+        FogRenderer.setupFog(camera, type, renderDistance, b, partialTicks);
+    }
+
     // BEWARE: PORTAL RENDERING
     @Inject(
             remap = false,
