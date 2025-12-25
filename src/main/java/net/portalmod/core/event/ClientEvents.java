@@ -47,11 +47,14 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PMGlobals;
+import net.portalmod.PMState;
 import net.portalmod.PortalMod;
+import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.entities.TestElementEntity;
@@ -62,9 +65,7 @@ import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.goo.GooBlock;
-import net.portalmod.common.sorted.portal.PortalEntity;
-import net.portalmod.common.sorted.portal.PortalEntityClient;
-import net.portalmod.common.sorted.portal.PortalRenderer;
+import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
@@ -76,11 +77,12 @@ import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ChangeDetector;
 import net.portalmod.core.util.DebugRenderer;
+import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.CLIENT)
 public class ClientEvents {
@@ -602,27 +604,33 @@ public class ClientEvents {
         DebugRenderer.renderAllShapes(event.getMatrixStack());
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onCameraSetup(final EntityViewRenderEvent.CameraSetup event) {
-        // TODO add animations
-//        if(PortalFirstPersonRenderer.swinging && Minecraft.getInstance().player.getMainHandItem().getItem() instanceof PortalGun && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
-//            float actualSwingProgress = PortalFirstPersonRenderer.getAttackAnim((float) event.getRenderPartialTicks());
-//            float animation = MathHelper.sin((actualSwingProgress * 2 - 0.5f) * (float) Math.PI) / 2 + 0.5f;
-//
-//            event.setPitch(event.getPitch() - animation * 3);
-//            event.setYaw(event.getYaw() - animation * 3);
-//        }
+        PMState.cameraPosOverrideForRenderingSelf = null;
+        PortalRenderer.getInstance().currentUnteleportedCamera = null;
+        PMState.positionsToSkipRenderingSelf.clear();
 
-        PortalEntityClient.teleportCamera(event.getInfo(), (float)event.getRenderPartialTicks());
-        
-        float xRot = event.getInfo().getXRot();
-        float yRot = event.getInfo().getYRot();
-        event.setPitch(xRot);
-        event.setYaw(yRot);
+        if(Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+            Optional<Float> optionalPitch = CameraAnimator.getInstance().getRelativePitch();
+            optionalPitch.ifPresent(relativePitch -> event.setPitch(event.getPitch() + relativePitch));
 
-        if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_G)) {
+            Optional<Float> optionalYaw = CameraAnimator.getInstance().getRelativeYaw();
+            optionalYaw.ifPresent(relativeYaw -> event.setYaw(event.getYaw() + relativeYaw));
 
+            Optional<Float> optionalRoll = CameraAnimator.getInstance().getRelativeRoll();
+            optionalRoll.ifPresent(relativeRoll -> event.setRoll(event.getRoll() + relativeRoll));
+
+            Optional<Vec3> optionalPos = CameraAnimator.getInstance().getRelativePos();
+            optionalPos.ifPresent(pos -> {
+                PMState.cameraPosOverrideForRenderingSelf = new Vec3(event.getInfo().getPosition());
+                ((ActiveRenderInfoAccessor)event.getInfo()).pmSetPosition(event.getInfo().getPosition().add(pos.to3d()));
+            });
+
+            PortalRenderer.getInstance().currentUnteleportedCamera = new PortalCamera(event.getInfo(), (float)event.getRenderPartialTicks());
+            PortalEntityClient.teleportCameraAndApply(event);
         }
+
+        PMState.cameraRoll = event.getRoll();
     }
 
     @SubscribeEvent

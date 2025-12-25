@@ -275,7 +275,14 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
 //        Vec3 teleportedPos = portal.teleportPoint(new Vec3(entity.position()));
         Vec3 teleportedCenter = portal.teleportPoint(new Vec3(entity.getBoundingBox().getCenter()));
+        Vec3 oldTeleportedCenter = teleportedCenter.clone();
+
+        if(portal.getOtherPortal().isPresent() && portal.getDirection().getAxis().isVertical() && portal.getOtherPortal().get().getDirection().getAxis().isHorizontal()) {
+            teleportedCenter.y = portal.getOtherPortal().get().position().y;
+        }
+
         Vec3 teleportedPos = teleportedCenter.clone().sub(positionToCenterVector);
+
         entity.setPosAndOldPos(teleportedPos.x, teleportedPos.y, teleportedPos.z);
         entity.setBoundingBox(entity.getBoundingBox()
                 .move(new Vec3(entity.getBoundingBox().getCenter()).negate().to3d())
@@ -400,23 +407,37 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 .transform(portal2Matrix)
                 .to3d());
 
-        if(portal.getDirection().getAxis().isHorizontal() && targetPortal.getDirection().getAxis().isHorizontal()) {
-            Vec3 forward = Vec3.zAxis().transform(new Mat4(Vector3f.YN.rotationDegrees(entity.yRot)));
-            OrthonormalBasis portalBasis = portal.getSourceBasis();
-            OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
-            Mat4 changeOfBasisMatrix = portalBasis.getChangeOfBasisMatrix(targetPortalBasis);
-            forward.transform(changeOfBasisMatrix);
-            float newYaw = (float)(-Math.signum(Vec3.zAxis().cross(forward).dot(Vec3.yAxis())) * Math.acos(forward.dot(Vec3.zAxis())) / Math.PI * 180);
-            entity.yRot = newYaw;
-            entity.yRotO = newYaw;
+        OrthonormalBasis portalBasis = portal.getSourceBasis();
+        OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
+        Mat4 changeOfBasisMatrix = portalBasis.getChangeOfBasisMatrix(targetPortalBasis);
 
-            if(entity instanceof ClientPlayerEntity) {
-                ClientPlayerEntity player = (ClientPlayerEntity)entity;
-                player.xBobO = player.xRot;
-                player.yBobO = player.yRot;
-                player.xBob = player.xRot;
-                player.yBob = player.yRot;
-            }
+        Vec3 center = new Vec3(entity.getBoundingBox().getCenter());
+        Vec3 eyeVec = new Vec3(entity.getEyePosition(1)).sub(center);
+
+        eyeVec.transform(changeOfBasisMatrix);
+
+        if(portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()) {
+            CameraAnimator.getInstance().startPosAnimation(oldTeleportedCenter.clone().add(eyeVec), new Vec3(entity.getEyePosition(1)), 500);
+        }
+
+        CameraRotator.rotate(entity, portal, targetPortal);
+
+        boolean shouldDisableFlying = portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()
+                || (portal.getDirection().getAxis() == Direction.Axis.Y
+                && targetPortal.getDirection().getAxis() == Direction.Axis.Y
+                && portal.getDirection() == targetPortal.getDirection());
+
+        if(entity instanceof ClientPlayerEntity && shouldDisableFlying) {
+            ((ClientPlayerEntity)entity).abilities.flying = false;
+        }
+
+        if(targetPortal.getDirection() == Direction.UP) {
+            float amount = (float) new Vec3(targetPortal.direction).dot(entity.getDeltaMovement());
+            float target = 0.7f;
+
+            if(amount < target)
+                entity.setDeltaMovement(new Vec3(entity.getDeltaMovement())
+                        .add(new Vec3(targetPortal.direction).mul(target - amount)).to3d());
         }
 
 

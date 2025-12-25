@@ -12,6 +12,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.PMGlobals;
+import net.portalmod.PMState;
+import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -61,7 +63,7 @@ public class DuplicateEntityRenderer {
         }
     }
 
-    private static boolean shouldRender(Entity entity, ClippingHelper clippingHelper, Vec3 camPos, Mat4 matrix, float partialTicks) {
+    private static boolean shouldRender(Entity entity, PortalEntity portal, PortalEntity otherPortal, ClippingHelper clippingHelper, Vec3 camPos, Mat4 matrix, float partialTicks) {
         if(!entity.shouldRender(camPos.x, camPos.y, camPos.z))
             return false;
 
@@ -71,8 +73,22 @@ public class DuplicateEntityRenderer {
         Vec3 realEntityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks);
         Vec3 duplicateEntityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks, matrix);
 
-        double d = duplicateEntityPos.clone().sub(PortalRenderer.getInstance().getCurrentCamera().getPosition()).magnitudeSqr();
-        if(d < 0.001)
+        ActiveRenderInfo currentCamera = PortalRenderer.getInstance().getCurrentCamera();
+        Vec3 cameraPos = PMState.cameraPosOverrideForRenderingSelf != null
+                ? PMState.cameraPosOverrideForRenderingSelf
+                : new Vec3(currentCamera.getPosition());
+        double d = duplicateEntityPos.clone().sub(cameraPos).magnitudeSqr();
+
+        PortalCamera unteleportedCamera = PortalRenderer.getInstance().currentUnteleportedCamera;
+        double d2 = unteleportedCamera == null ? 0
+                : duplicateEntityPos.clone().sub(unteleportedCamera.getPosition()).magnitudeSqr();
+
+        boolean alignedVerticalPortals = portal.getDirection().getAxis().isVertical() && portal.getDirection() == otherPortal.getDirection().getOpposite();
+
+        if(unteleportedCamera != null && d2 < 0.001 && alignedVerticalPortals)
+            PMState.positionsToSkipRenderingSelf.add(duplicateEntityPos.clone().sub(unteleportedCamera.getPosition()));
+
+        if(d < 0.001 || (unteleportedCamera != null && d2 < 0.001 && alignedVerticalPortals))
             return false;
 
         Vec3 offset = duplicateEntityPos.clone().sub(realEntityPos);
@@ -93,7 +109,9 @@ public class DuplicateEntityRenderer {
         if(entity instanceof PortalEntity || Minecraft.getInstance().player == null)
             return;
 
-        List<PortalEntity> entities = PortalEntity.getOpenPortals(entity.level, entity.getBoundingBox().inflate(.2), portal -> true);
+        List<PortalEntity> entities = PortalEntity.getOpenPortals(entity.level,
+                entity.getBoundingBox().inflate(.2), portal -> true);
+
         for(PortalEntity portal : entities) {
             if(!portal.isOpen() || !portal.getOtherPortal().isPresent() || !portal.isEntityAlignedToPortal(entity))
                 continue;
@@ -102,10 +120,16 @@ public class DuplicateEntityRenderer {
             ActiveRenderInfo camera = PortalRenderer.getInstance().getCurrentCamera();
             EntityRendererManager erm = Minecraft.getInstance().levelRenderer.entityRenderDispatcher;
 
+            float portalDistance = (float)new Vec3(entity.getBoundingBox().getCenter()).sub(portal.position()).magnitudeSqr();
+            float otherPortalDistance = (float)new Vec3(entity.getBoundingBox().getCenter()).sub(otherPortal.position()).magnitudeSqr();
+
+            if(entities.contains(otherPortal) && otherPortalDistance < portalDistance)
+                continue;
+
             Mat4 changeOfBasisMatrix = PortalRenderer.getPortalToPortalRotationMatrix(portal, otherPortal);
             Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalMatrix(portal, otherPortal);
 
-            boolean shouldRender = shouldRender(entity, clippingHelper,
+            boolean shouldRender = shouldRender(entity, portal, otherPortal, clippingHelper,
                     new Vec3(camera.getPosition()).transform(portalToPortalMatrix),
                     portalToPortalMatrix, partialTicks)
                     || entity.hasIndirectPassenger(Minecraft.getInstance().player);
