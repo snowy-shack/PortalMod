@@ -32,7 +32,8 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
         // Rotate
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(rotation + 180));
 
-        matrixStack.translate(0, -1.5, 0);
+        // Move down + z-fight fix
+        matrixStack.translate(0, -1.505, -0.005);
 
         this.model.changeModel(entity);
         this.model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(this.model.renderType(enabled ? TEXTURE_ON : TEXTURE_OFF)), LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
