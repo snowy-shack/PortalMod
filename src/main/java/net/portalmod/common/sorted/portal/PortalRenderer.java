@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 import java.nio.FloatBuffer;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
@@ -1073,7 +1074,8 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
                 Vector3d cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
                 ItemStack item = Minecraft.getInstance().player.getMainHandItem();
-                if(!(item.getItem() instanceof PortalGun) || !PortalGun.getUUID(item).equals(portal.getGunUUID()))
+                Optional<UUID> gunUUID = PortalGun.getUUID(item);
+                if (!(item.getItem() instanceof PortalGun) || !gunUUID.isPresent() || !gunUUID.get().equals(portal.getGunUUID()))
                     continue;
                 
                 portalQuad.bind();
@@ -1106,6 +1108,7 @@ public class PortalRenderer extends EntityRenderer<PortalEntity> {
             }
         } catch(Exception e) {
             e.printStackTrace();
+            //todo this isnt really the way to go
         }
     }
     
