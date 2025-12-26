@@ -26,6 +26,8 @@ public class ModUtil {
 
     public static final Style TOOLTIP_STYLE = Style.EMPTY.withColor(TextFormatting.GRAY);
 
+    public static int lastChatNumber = 0;
+
     public static VoxelShape moveVoxelShape(VoxelShape shape, Direction direction, int multiplier) {
         Vector3i normal = direction.getNormal();
         return shape.move(normal.getX() * multiplier, normal.getY() * multiplier, normal.getZ() * multiplier);
@@ -106,10 +108,12 @@ public class ModUtil {
     }
 
     public static void sendChat(World level, String text) {
+        lastChatNumber = (lastChatNumber + 1) % 10;
+
         try {
             level.players().forEach(
                     player -> player.displayClientMessage(new StringTextComponent(
-                            (level.isClientSide() ? "§3§l[Client" : "§7§l[Server") + "]: §r" + ((text == null) ? "null" : text)
+                            (level.isClientSide() ? "§3§l[Client " : "§7§l[Server ") + lastChatNumber + "]: §r" + ((text == null) ? "null" : text)
                     ), false)
             );
         } catch (Exception e) {
