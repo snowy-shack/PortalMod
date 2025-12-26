@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.sign;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.RedstoneDiodeBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.HangingEntity;
@@ -10,7 +13,10 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -194,6 +200,40 @@ public class ChamberSignEntity extends HangingEntity {
 
             this.setBoundingBox(new AxisAlignedBB(x - dx, y - dy, z - dz, x + dx, y + dy, z + dz));
         }
+    }
+
+    @Override
+    public boolean survives() {
+        boolean survives = super.survives();
+        if (!survives) {
+            return false;
+        }
+
+        // Check for right side blocks, this is not handled in the
+        // parent due to the width of the sign being less than 2
+
+        Direction sideDirection = this.direction.getCounterClockWise();
+        BlockPos wallPos = this.pos.relative(this.direction.getOpposite());
+        BlockPos sidePos = wallPos.relative(sideDirection);
+
+        for (int i = -1; i < 2; i++) {
+            if (!isValidWall(sidePos.relative(Direction.UP, i))) {
+                return false;
+            }
+        }
+
+        // Also check top row, only if offset
+        if (!this.verticallyAligned) {
+            BlockPos above = wallPos.above(2);
+            return isValidWall(above) && isValidWall(above.relative(sideDirection, 1));
+        }
+
+        return true;
+    }
+
+    public boolean isValidWall(BlockPos pos) {
+        BlockState blockstate = this.level.getBlockState(pos);
+        return Block.canSupportCenter(this.level, pos, this.direction) || blockstate.getMaterial().isSolid() || RedstoneDiodeBlock.isDiode(blockstate);
     }
 
     public double offs(int p_190202_1_) {
