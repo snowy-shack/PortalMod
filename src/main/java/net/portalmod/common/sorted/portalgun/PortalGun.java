@@ -44,6 +44,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PortalGun extends Item {
@@ -79,11 +80,13 @@ public class PortalGun extends Item {
     }
 
     public static void pickCube(PlayerEntity player, ItemStack gun) {
+        Optional<UUID> uuid = getUUID(gun);
+
         // Play lift animation
         World level = player.level;
-        if (level instanceof ServerWorld)
+        if (level instanceof ServerWorld && uuid.isPresent())
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                    new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.LIFT));
+                    new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.LIFT));
 
         level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
                 SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
@@ -99,27 +102,38 @@ public class PortalGun extends Item {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, false));
 
+        Optional<UUID> uuid = getUUID(gun);
+
         List<Entity> cubes = player.getPassengers();
         for (int i = cubes.size() - 1; i >= 0; --i) {
             Entity cube = cubes.get(0);
-            if (isHoldable(cube)) {
-                cube.stopRiding();
+            if (!isHoldable(cube)) {
+                continue;
+            }
 
-                // Play drop animation
-                if (player.level instanceof ServerWorld)
-                    PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                            new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.DROP));
+            cube.stopRiding();
 
-                float maxSpeed = 0.5f;
+            // Play drop animation
+            if (player.level instanceof ServerWorld && uuid.isPresent()) {
+                PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                        new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.DROP));
+            }
 
-                boolean exceedsLimit = cube.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
-                if (exceedsLimit) cube.setDeltaMovement(cube.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
+            float maxSpeed = 0.5f;
 
-                if (toBeThrown) {
-                    float strength = .3f;
-                    cube.setDeltaMovement(cube.getDeltaMovement().add(player.getViewVector(0)
-                            .multiply(strength, strength, strength)));
-                }
+            boolean exceedsLimit = cube.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
+            if (exceedsLimit) {
+                cube.setDeltaMovement(cube.getDeltaMovement()
+                        .normalize()
+                        .multiply(maxSpeed, maxSpeed, maxSpeed)
+                        .add(player.getDeltaMovement()));
+            }
+
+            if (toBeThrown) {
+                float strength = .3f;
+                cube.setDeltaMovement(cube.getDeltaMovement()
+                        .add(player.getViewVector(0)
+                        .multiply(strength, strength, strength)));
             }
         }
     }
@@ -152,11 +166,14 @@ public class PortalGun extends Item {
     public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
         if (player.isSpectator()) return;
 
+        Optional<UUID> uuid = getUUID(gun);
+        if (!uuid.isPresent()) return;
+
         gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
 
         // Play shooting animation
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.SHOOT));
+                new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.SHOOT));
 
         level.playSound(null, player.position().x, player.position().y, player.position().z,
                 (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
@@ -193,7 +210,7 @@ public class PortalGun extends Item {
         portal.setPos(portalPos.x, portalPos.y, portalPos.z);
         portal.setDirection(face);
         portal.setEnd(end);
-        portal.setGunUUID(getUUID(gun));
+        portal.setGunUUID(uuid.get());
 
         CompoundNBT nbt = gun.getOrCreateTag();
         boolean isPrimary = end == PortalEnd.PRIMARY;
@@ -228,7 +245,7 @@ public class PortalGun extends Item {
 //                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, 1);
 //        PortalPairCache.SERVER.put(getUUID(gun), end, portal);
         level.addFreshEntity(portal);
-        PortalManager.put(getUUID(gun), end, portal, level);
+        PortalManager.put(uuid.get(), end, portal, level);
 
         // todo convert to string
         player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());
@@ -250,7 +267,9 @@ public class PortalGun extends Item {
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-        return slotChanged || !getUUID(newStack).equals(getUUID(oldStack));
+        Optional<UUID> newUUID = getUUID(newStack);
+        Optional<UUID> oldUUID = getUUID(oldStack);
+        return slotChanged || oldUUID.isPresent() && newUUID.isPresent() && !oldUUID.equals(newUUID);
     }
 
     public static int getColorOverride(ItemStack itemStack, World level, LivingEntity entity) {
@@ -293,11 +312,13 @@ public class PortalGun extends Item {
         if(level.isClientSide)
             return;
 
-        UUID uuid = getUUID(itemStack);
+        addUUID(itemStack);
+
+        Optional<UUID> uuid = getUUID(itemStack);
         CompoundNBT nbt = itemStack.getOrCreateTag();
 
-        boolean hasBlue = PortalManager.has(uuid, PortalEnd.PRIMARY);
-        boolean hasOrange = PortalManager.has(uuid, PortalEnd.SECONDARY);
+        boolean hasBlue = uuid.isPresent() && PortalManager.has(uuid.get(), PortalEnd.PRIMARY);
+        boolean hasOrange = uuid.isPresent() && PortalManager.has(uuid.get(), PortalEnd.SECONDARY);
         if(!nbt.contains("primary") || nbt.getBoolean("primary") != hasBlue)
             nbt.putBoolean("primary", hasBlue);
         if(!nbt.contains("secondary") || nbt.getBoolean("secondary") != hasOrange)
@@ -332,18 +353,33 @@ public class PortalGun extends Item {
         return itemStack;
     }
 
-    public static UUID getUUID(ItemStack itemStack) {
+    public static void addUUID(ItemStack itemStack) {
         CompoundNBT nbt = itemStack.getOrCreateTag();
-        UUID uuid;
-        
-        if(nbt.contains("gunUUID")) {
-            uuid = nbt.getUUID("gunUUID");
-        } else {
-            uuid = UUID.randomUUID();
-            nbt.putUUID("gunUUID", uuid);
+
+        if (!nbt.contains("gunUUID")) {
+            nbt.putUUID("gunUUID", UUID.randomUUID());
+        }
+    }
+
+    public static void removeUUID(ItemStack itemStack) {
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+        nbt.remove("gunUUID");
+    }
+
+    public static Optional<UUID> getUUID(ItemStack itemStack) {
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+
+        // Return optional to make it clear that the UUID is not always present
+        if (nbt.contains("gunUUID")) {
+            return Optional.of(nbt.getUUID("gunUUID"));
         }
 
-        return uuid;
+        return Optional.empty();
+    }
+
+    public static void onDuplicate(ItemStack itemStack) {
+        removeUUID(itemStack);
+        addUUID(itemStack);
     }
 
     public static Colour getLeftColour(CompoundNBT nbt) {
@@ -407,27 +443,25 @@ public class PortalGun extends Item {
 
     /**
      * Fizzles one portalgun item.
-     * @param itemStack The portalgun item.
      * @return whether any portals got fizzled.
      */
     public static boolean fizzleGunItem(ItemStack itemStack) {
         if (true) return false; // FIXME Temporary disable to prevent crashes
-        UUID gunUUID = PortalGun.getUUID(itemStack);
-        PortalPair pair = PortalManager.getPair(gunUUID);
+        Optional<UUID> gunUUID = PortalGun.getUUID(itemStack);
+        if (!gunUUID.isPresent()) return false;
 
-        if (pair == null) {
-            return false;
-        }
+        PortalPair pair = PortalManager.getPair(gunUUID.get());
+        if (pair == null) return false;
 
         if (pair.has(PortalEnd.PRIMARY)) {
             PortalEntity blue = pair.get(PortalEnd.PRIMARY);
             ((ServerWorld) blue.level).removeEntity(blue, false);
-            PortalManager.remove(gunUUID, blue);
+            PortalManager.remove(gunUUID.get(), blue);
         }
         if (pair.has(PortalEnd.SECONDARY)) {
             PortalEntity orange = pair.get(PortalEnd.SECONDARY);
             ((ServerWorld) orange.level).removeEntity(orange, false);
-            PortalManager.remove(gunUUID, orange);
+            PortalManager.remove(gunUUID.get(), orange);
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);
