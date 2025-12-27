@@ -26,6 +26,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CHAMBER_DOOR_CLOSE = register("block.chamber_door.close");
 
     public static final RegistryObject<SoundEvent> CHAMBER_LIGHTS_AMBIENT = register("block.chamber_lights.hum");
+    public static final RegistryObject<SoundEvent> CHAMBER_LIGHTS_FLICKER = register("block.chamber_lights.flicker");
 
     public static final RegistryObject<SoundEvent> PUSH_DOOR_OPEN = register("block.push_door.open");
     public static final RegistryObject<SoundEvent> PUSH_DOOR_CLOSE = register("block.push_door.close");

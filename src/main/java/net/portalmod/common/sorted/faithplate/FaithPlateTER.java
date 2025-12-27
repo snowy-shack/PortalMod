@@ -23,8 +23,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
@@ -37,17 +35,18 @@ import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
 public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
-    public static final ResourceLocation FAITHPLATE_TEXTURE = new ResourceLocation(PortalMod.MODID, "entity/faithplate");
-    public static RenderMaterial FAITHPLATE_MATERIAL;
+    public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate");
+    public static final ResourceLocation TEXTURE_ORANGE = new ResourceLocation(PortalMod.MODID, "entity/faithplate_active");
+    public static RenderMaterial MATERIAL_BLUE;
+    public static RenderMaterial MATERIAL_ORANGE;
     private final FaithPlatePlateModel plateModel;
     public static BlockPos selected;
-
-    public static VoxelShape DEBUG_SHAPE = VoxelShapes.empty();
 
     public FaithPlateTER(TileEntityRendererDispatcher terd) {
         super(terd);
         plateModel = new FaithPlatePlateModel();
-        FAITHPLATE_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, FAITHPLATE_TEXTURE);
+        MATERIAL_BLUE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_BLUE);
+        MATERIAL_ORANGE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_ORANGE);
     }
 
     private void renderPlate(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int combinedOverlay) {
@@ -70,7 +69,10 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.mulPose(Vector3f.XP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
-        IVertexBuilder ivertexbuilder = FAITHPLATE_MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);
+        IVertexBuilder ivertexbuilder = be.isEnabled() && be.getCooldown() < 2
+                ? MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent)
+                : MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent);
+
         int light = WorldRenderer.getLightColor(be.getLevel(),
                 onWall ? pos.relative(state.getValue(FaithPlateBlock.FACING)) : pos.above());
 
@@ -176,21 +178,18 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     }
 
     private void renderPointedPath(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int overlay) {
-        PlayerEntity player = Minecraft.getInstance().player;
+        PlayerEntity player = Minecraft.getInstance().player; // TODO check functionality in multiplayer
 
-        if(!be.getBlockPos().equals(selected) || player == null || player.noPhysics)
-            return;
+        if (!be.getBlockPos().equals(selected) || player == null || player.noPhysics) return;
 
         Item mainHandItem = player.getItemInHand(Hand.MAIN_HAND).getItem();
         Item offHandItem = player.getItemInHand(Hand.OFF_HAND).getItem();
 
-        if(!(mainHandItem == ItemInit.WRENCH.get() || offHandItem == ItemInit.WRENCH.get()))
-            return;
+        if (!(mainHandItem == ItemInit.WRENCH.get() || offHandItem == ItemInit.WRENCH.get())) return;
 
         BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, be.getLevel(), 64);
 
-        if(rayHit.getType() == RayTraceResult.Type.MISS)
-            return;
+        if (rayHit.getType() == RayTraceResult.Type.MISS) return;
 
         renderPath(be, matrixStack, renderBuffer, rayHit.getBlockPos(), rayHit.getDirection(), overlay);
 
@@ -210,21 +209,31 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     @Override
     public void render(FaithPlateTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
         renderPlate(be, matrixStack, renderBuffer, overlay);
-        if(be.getTargetPos() != null && be.getTargetFace() != null && (selected == null || !selected.equals(be.getBlockPos())))
-            renderTarget(matrixStack, renderBuffer, be.getTargetPos(), be.getTargetFace(), getTargetLight(be.getLevel(), be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace()), overlay);
+        
         renderPointedPath(be, matrixStack, renderBuffer, overlay);
 
-        if(Minecraft.getInstance().options.renderDebug) {
-            if(be.getTargetPos() != null && be.getTargetFace() != null && (selected == null || !selected.equals(be.getBlockPos())))
+        if (be.getTargetFace() == null || be.getTargetPos() == null) return;
+
+        FaithPlateParabola parabola = new FaithPlateParabola(new Vec3(be.getTargetPos()).to3d(), be.getHeight());
+        BlockRayTraceResult tr = parabola.findFirstBlockHit(be.getLevel(), be);
+
+        if (tr != null) {
+            Direction face = tr.getDirection().getOpposite();
+            BlockPos pos = tr.getBlockPos();
+
+            if ((selected == null || !selected.equals(be.getBlockPos()))) {
+                renderTarget(matrixStack, renderBuffer, pos, face, getTargetLight(be.getLevel(), pos.offset(be.getBlockPos()), face), overlay);
+            }
+        } else {
+            renderTarget(matrixStack, renderBuffer, be.getBlockPos(), be.getTargetFace(),
+                    getTargetLight(be.getLevel(), be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace()), overlay);
+        }
+
+        if (Minecraft.getInstance().options.renderDebug) {
+            if ((selected == null || !selected.equals(be.getBlockPos())))
                 renderPath(be, matrixStack, renderBuffer, be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace(), overlay);
             renderTrigger(be, matrixStack);
         }
-
-//        IVertexBuilder vertexBuilder = renderBuffer.getBuffer(RenderType.lines());
-//        matrixStack.pushPose();
-//        matrixStack.translate(-be.getBlockPos().getX(), -be.getBlockPos().getY(), -be.getBlockPos().getZ());
-//        WorldRenderer.renderVoxelShape(matrixStack, vertexBuilder, DEBUG_SHAPE, 0, 0, 0, 1, 1, 1, 1);
-//        matrixStack.popPose();
     }
 
     public Model getPlateModel() {

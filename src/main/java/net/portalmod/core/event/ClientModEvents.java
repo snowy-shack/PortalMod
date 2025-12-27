@@ -160,7 +160,8 @@ public class ClientModEvents {
                 event.addSprite(texture);
 //            for(ResourceLocation texture : FaithPlateTargetBakedModel.getAllTextures())
 //                event.addSprite(texture);
-            event.addSprite(FaithPlateTER.FAITHPLATE_TEXTURE);
+            event.addSprite(FaithPlateTER.TEXTURE_BLUE);
+            event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
             event.addSprite(PortalGunISTER.PORTALGUN_TEXTURE);
             event.addSprite(PortalGunISTER.PORTALGUN_TEXTURE2);
             event.addSprite(new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim"));

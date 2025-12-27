@@ -1,15 +1,23 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.world.World;
 import net.portalmod.core.math.Vec3;
 
+import static net.portalmod.common.sorted.faithplate.FaithPlateConfigScreen.MAX_HEIGHT;
+
 public class FaithPlateParabola {
-    private static final double GRAVITY = 0.08;
+    public static final double GRAVITY = 0.08;
     private final Vec3 target;
     private final Vec3 projectedTarget;
     private final double minHeight;
     private double height;
-    
+
     public FaithPlateParabola(Vec3 target, double height) {
         this.target = target;
         this.projectedTarget = this.getProjectedTarget();
@@ -30,7 +38,7 @@ public class FaithPlateParabola {
     }
     
     public void setHeight(double height) {
-        this.height = Math.max(height, this.minHeight);
+        this.height = Math.min(MAX_HEIGHT, Math.max(height, this.minHeight));
     }
     
     public double getHeight() {
@@ -64,7 +72,6 @@ public class FaithPlateParabola {
     }
     
     public boolean isVertical() {
-//        System.out.println(getA());
         return Double.isInfinite(getA()) || Double.isNaN(getA());
     }
     
@@ -96,5 +103,59 @@ public class FaithPlateParabola {
     
     public double getMiddlePoint() {
         return projectedTarget.x / 2;
+    }
+
+    public BlockRayTraceResult findFirstBlockHit(World world, FaithPlateTileEntity be) {
+        double step = 0.01;
+        Vec3 startOffset = new Vec3(0.5, 1, 0.5);
+        Vec3 prev = startOffset.clone();
+
+        double targetStep = Double.POSITIVE_INFINITY;
+        for (double t = 0; t < targetStep; t += step) {
+            double x = startOffset.x, y, z = startOffset.z;
+            if (isVertical()) {
+                y = t + startOffset.y;
+                targetStep = Math.abs(projectedTarget.y) * 2;
+            } else {
+                y = getA() * t * t + getB() * t + startOffset.y;
+                x = getComponentX() * t + startOffset.x;
+                z = getComponentZ() * t + startOffset.z;
+                targetStep = Math.abs(projectedTarget.x) * 2;
+            }
+
+            Vec3 current = new Vec3(x, y, z);
+            BlockPos pos = new BlockPos(x, y, z);
+            BlockState state = world.getBlockState(pos.offset(be.getBlockPos()));
+
+            if (!state.getCollisionShape(world, pos).isEmpty() && !state.is(be.getBlockState().getBlock())) {
+                BlockPos prevBlock = new BlockPos(prev.x, prev.y, prev.z);
+                Vector3i diff = pos.subtract(prevBlock);
+                Direction face = Direction.fromNormal(diff.getX(), diff.getY(), diff.getZ());
+
+                if (face == null) face = getNearestCubeFace(new Vector3d(current.x, current.y, current.z)).getOpposite();
+
+                return new BlockRayTraceResult(new Vector3d(x, y, z), face, pos, false);
+            }
+
+            prev = current;
+        }
+        return null;
+    }
+
+    public Direction getNearestCubeFace(Vector3d p) {
+        Vector3d point = p.subtract(new Vector3d(Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)));
+        double[] d = {point.x, 1 - point.x, point.y, 1 - point.y, point.z, 1 - point.z};
+        Direction[] faces = {
+                Direction.WEST, Direction.EAST,
+                Direction.DOWN, Direction.UP,
+                Direction.SOUTH, Direction.NORTH
+        };
+
+        int minIndex = 0;
+        for (int i = 1; i < 6; i++) {
+            if (d[i] < d[minIndex]) minIndex = i;
+        }
+
+        return faces[minIndex];
     }
 }

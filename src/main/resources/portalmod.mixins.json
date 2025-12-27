@@ -29,12 +29,12 @@
     "level.chunk.ChunkMixin",
     "level.chunk.ChunkPrimerMixin",
     "level.chunk.ChunkSerializerMixin",
-    "network.ServerPlayNetHandlerMixin"
+    "network.ServerPlayNetHandlerMixin",
+    "screen.ContainerMixin"
   ],
   "client": [
     "KeyboardListenerMixin",
     "MinecraftMixin",
-    "OptionsScreenMixin",
     "accessors.ActiveRenderInfoAccessor",
     "accessors.FlameParticleAccessor",
     "accessors.FogRendererAccessor",
@@ -43,6 +43,8 @@
     "accessors.MinecraftAccessor",
     "accessors.SplashesAccessor",
     "entity.CatRendererMixin",
+    "entity.KeyBindingMixin",
+    "entity.RabbitRendererMixin",
     "level.ChunkArrayMixin",
     "level.ClientLevelMixin",
     "network.ClientPlayNetHandlerMixin",
@@ -53,7 +55,9 @@
     "renderer.LevelRendererMixin",
     "renderer.LevelRendererMixinFinal",
     "renderer.LivingRendererMixin",
-    "renderer.WorldRendererMixin"
+    "renderer.WorldRendererMixin",
+    "screen.CreativeScreenMixin",
+    "screen.OptionsScreenMixin"
   ],
   "minVersion": "0.8",
   "injectors": {

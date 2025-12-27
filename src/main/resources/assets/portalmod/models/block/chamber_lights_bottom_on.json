@@ -5,7 +5,7 @@
         "glass":    "portalmod:block/chamber_lights_glass_bottom",
         "inside":   "portalmod:block/chamber_lights_inside",
         "lights":   "portalmod:block/chamber_lights_on",
-        "particle": "portalmod:block/chamber_lights_on"
+        "particle": "#lights"
     },
     "elements": [
         {

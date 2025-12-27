@@ -16,27 +16,33 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class ChamberLightsBlock extends DoubleBlock {
-    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
-    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+    public static final BooleanProperty ROTATED = BooleanProperty.create("rotated");
+    public static final BooleanProperty ACTIVE =  BooleanProperty.create("active");
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public ChamberLightsBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
-                .setValue(AXIS, Direction.Axis.X)
+                .setValue(AXIS, Direction.Axis.Y)
                 .setValue(ACTIVE, true)
                 .setValue(POWERED, false)
+                .setValue(ROTATED, false)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
     }
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(AXIS, ACTIVE, POWERED, HALF);
+        builder.add(AXIS, ACTIVE, POWERED, HALF, ROTATED);
     }
 
     @Override
@@ -73,6 +79,8 @@ public class ChamberLightsBlock extends DoubleBlock {
         // Gaussian distribution starting at 1 with standard deviation of 10 (to make the chance for a short blink higher)
         double ticks = Math.abs(random.nextGaussian()) * 5 + 1;
         world.getBlockTicks().scheduleTick(pos, this, (int) ticks);
+
+        playBlinkSound(world, pos);
     }
 
     @Override
@@ -80,27 +88,84 @@ public class ChamberLightsBlock extends DoubleBlock {
         this.blink(state, world, pos);
     }
 
+    @Override
+    public BlockPos getMainPosition(BlockState blockState, BlockPos pos) {
+        return blockState.getValue(HALF) == DoubleBlockHalf.LOWER
+                ? pos
+                : pos.relative(Direction.fromAxisAndDirection(blockState.getValue(AXIS), Direction.AxisDirection.NEGATIVE));
+    }
+
+    @Override
+    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
+        return new ArrayList<>(Collections.singletonList(
+                mainPos.relative(Direction.fromAxisAndDirection(blockState.getValue(AXIS), Direction.AxisDirection.POSITIVE))
+        ));
+    }
+
+    @Override
+    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
+        boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
+        world.setBlockAndUpdate(
+                pos.relative(
+                        Direction.fromAxisAndDirection(blockState.getValue(AXIS),
+                        isLower ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE)
+                ),
+                blockState.setValue(HALF, isLower ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER)
+        );
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockState half = super.getStateForPlacement(context);
-        if (half != null) {
-            return half.setValue(AXIS, context.getHorizontalDirection().getAxis());
+        if (context.getPlayer() == null) return null;
+        Direction.Axis axis = context.getPlayer().getDirection().getAxis() == Direction.Axis.X
+                ? Direction.Axis.Z
+                : Direction.Axis.X;
+
+        // See if the player wants to place horizontally
+        boolean prefersHorizontal = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
+
+        // Check what placements are possible, and decide what placement will be picked.
+        Boolean verticalTopHalf = shouldBeTopHalf(context, Direction.Axis.Y);
+        Boolean horizontalTopHalf = shouldBeTopHalf(context, axis);
+        if (verticalTopHalf == null && horizontalTopHalf == null) return null;
+
+        boolean willGetHorizontal = (prefersHorizontal && (horizontalTopHalf != null))
+                || (!prefersHorizontal && verticalTopHalf == null);
+
+        boolean half = willGetHorizontal ? horizontalTopHalf : verticalTopHalf;
+
+        // Compute the blockstate
+        BlockState blockstate = this.defaultBlockState().setValue(
+                HALF, half ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER
+        );
+
+        if (willGetHorizontal) {
+            return blockstate.setValue(AXIS, axis)
+                    .setValue(ROTATED, context.getNearestLookingDirection().getAxis() == Direction.Axis.Y);
         }
-        return null;
+
+        return blockstate.setValue(ROTATED, context.getHorizontalDirection().getAxis() == Direction.Axis.X);
+    }
+
+    public void playBlinkSound(World world, BlockPos pos) {
+        world.playSound(
+                null, pos, SoundInit.CHAMBER_LIGHTS_FLICKER.get(),
+                SoundCategory.BLOCKS, new Random().nextFloat(), ModUtil.randomSlightSoundPitch()
+        );
     }
 
     // Copied from RespawnAnchorBlock
     @OnlyIn(Dist.CLIENT)
     public void animateTick(BlockState state, World level, BlockPos pos, Random random) {
-        if (!state.getValue(POWERED) && random.nextInt(16) == 0) {
+        if (!state.getValue(POWERED) && random.nextInt(24) == 0) {
             level.playLocalSound( // just .playSound didn't work for me, no matter what I tried
                     (double) pos.getX() + 0.5D,
                     (double) pos.getY() + 0.5D,
                     (double) pos.getZ() + 0.5D,
                     SoundInit.CHAMBER_LIGHTS_AMBIENT.get(),
                     SoundCategory.AMBIENT,
-                    1, 1, false
+                    0.3f, 1, false
             );
         }
     }

@@ -5,13 +5,12 @@
         "glass":    "portalmod:block/chamber_lights_glass_top",
         "inside":   "portalmod:block/chamber_lights_inside",
         "lights":   "portalmod:block/chamber_lights_on",
-        "particle": "portalmod:block/chamber_lights_on"
+        "particle": "#lights"
     },
     "elements": [
         {
             "from": [ 0,  0,  2],
             "to":   [16, 16, 14],
-            "rotation": { "angle": 0, "axis": "y", "origin": [ 0, 16,  0] },
             "faces": {
                 "north": { "uv": [ 0, 16, 16,  0], "texture": "#lights"},
                 "south": { "uv": [ 0, 16, 16,  0], "texture": "#lights"}

@@ -24,6 +24,9 @@ import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.util.Colour;
 
+import java.util.Optional;
+import java.util.UUID;
+
 public class PortalGunCrosshairRenderer {
 //    public static final ResourceLocation CROSSHAIRS = new ResourceLocation(PortalMod.MODID, "textures/crosshairs.png");
 //    public static final ResourceLocation CROSSHAIRS =
@@ -33,6 +36,7 @@ public class PortalGunCrosshairRenderer {
     
     public static void render(MatrixStack matrixStack) {
         ItemStack itemStack = Minecraft.getInstance().player.getMainHandItem();
+        Optional<UUID> uuid = PortalGun.getUUID(itemStack);
 
         int style = 2;
 
@@ -70,7 +74,7 @@ public class PortalGunCrosshairRenderer {
 
             if(style == 2)
 //                u = PortalManager.has(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY) ? 33 : 0;
-                u = PortalManager.clientHas(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY) ? 33 : 0;
+                u = uuid.isPresent() && PortalManager.clientHas(uuid.get(), PortalEnd.PRIMARY) ? 33 : 0;
 
 //            if(style == 2)
 //                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.PRIMARY) ? 33 : 0;
@@ -120,7 +124,7 @@ public class PortalGunCrosshairRenderer {
 
             if(style == 2)
 //                u = PortalManager.has(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
-                u = PortalManager.clientHas(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
+                u = uuid.isPresent() && PortalManager.clientHas(uuid.get(), PortalEnd.SECONDARY) ? 33 : 0;
 
 //            if(style == 2)
 //                u = PortalPairCache.CLIENT.has(PortalGun.getUUID(itemStack), PortalEnd.SECONDARY) ? 33 : 0;
