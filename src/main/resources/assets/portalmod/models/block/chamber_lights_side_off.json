@@ -1,0 +1,6 @@
+{
+	"parent": "portalmod:block/chamber_lights_side_on",
+	"textures": {
+		"lights": "portalmod:block/chamber_lights_off"
+	}
+}

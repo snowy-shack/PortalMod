@@ -1,12 +1,37 @@
 {
   "variants": {
-    "active=true,half=upper,axis=x": {"model": "portalmod:block/chamber_lights_top_on", "y": 90},
-    "active=true,half=upper,axis=z": {"model": "portalmod:block/chamber_lights_top_on"},
-    "active=true,half=lower,axis=x": {"model": "portalmod:block/chamber_lights_bottom_on", "y": 90},
-    "active=true,half=lower,axis=z": {"model": "portalmod:block/chamber_lights_bottom_on"},
-    "active=false,half=upper,axis=x": {"model": "portalmod:block/chamber_lights_top_off", "y": 90},
-    "active=false,half=upper,axis=z": {"model": "portalmod:block/chamber_lights_top_off"},
-    "active=false,half=lower,axis=x": {"model": "portalmod:block/chamber_lights_bottom_off", "y": 90},
-    "active=false,half=lower,axis=z": {"model": "portalmod:block/chamber_lights_bottom_off"}
+    "active=false,half=upper,axis=y,rotated=true": {"model": "portalmod:block/chamber_lights_top_off", "y": 90},
+    "active=false,half=lower,axis=y,rotated=true": {"model": "portalmod:block/chamber_lights_bottom_off", "y": 90},
+    "active=false,half=upper,axis=y,rotated=false": {"model": "portalmod:block/chamber_lights_top_off", "y": 0},
+    "active=false,half=lower,axis=y,rotated=false": {"model": "portalmod:block/chamber_lights_bottom_off", "y": 0},
+
+    "active=false,half=upper,axis=x,rotated=true": {"model": "portalmod:block/chamber_lights_top_off", "x": 90, "y": 90},
+    "active=false,half=lower,axis=x,rotated=true": {"model": "portalmod:block/chamber_lights_bottom_off", "x": 90, "y": 90},
+
+    "active=false,half=upper,axis=z,rotated=true": {"model": "portalmod:block/chamber_lights_top_off", "x": 90, "y": 180},
+    "active=false,half=lower,axis=z,rotated=true": {"model": "portalmod:block/chamber_lights_bottom_off", "x": 90, "y": 180},
+
+    "active=false,half=upper,axis=x,rotated=false": {"model": "portalmod:block/chamber_lights_side_off", "y": 0},
+    "active=false,half=lower,axis=x,rotated=false": {"model": "portalmod:block/chamber_lights_side_off", "y": 180},
+
+    "active=false,half=upper,axis=z,rotated=false": {"model": "portalmod:block/chamber_lights_side_off", "y": 90},
+    "active=false,half=lower,axis=z,rotated=false": {"model": "portalmod:block/chamber_lights_side_off", "y": 270},
+
+    "active=true,half=upper,axis=y,rotated=true": {"model": "portalmod:block/chamber_lights_top_on", "y": 90},
+    "active=true,half=lower,axis=y,rotated=true": {"model": "portalmod:block/chamber_lights_bottom_on", "y": 90},
+    "active=true,half=upper,axis=y,rotated=false": {"model": "portalmod:block/chamber_lights_top_on", "y": 0},
+    "active=true,half=lower,axis=y,rotated=false": {"model": "portalmod:block/chamber_lights_bottom_on", "y": 0},
+
+    "active=true,half=upper,axis=x,rotated=true": {"model": "portalmod:block/chamber_lights_top_on", "x": 90, "y": 90},
+    "active=true,half=lower,axis=x,rotated=true": {"model": "portalmod:block/chamber_lights_bottom_on", "x": 90, "y": 90},
+
+    "active=true,half=upper,axis=z,rotated=true": {"model": "portalmod:block/chamber_lights_top_on", "x": 90, "y": 180},
+    "active=true,half=lower,axis=z,rotated=true": {"model": "portalmod:block/chamber_lights_bottom_on", "x": 90, "y": 180},
+
+    "active=true,half=upper,axis=x,rotated=false": {"model": "portalmod:block/chamber_lights_side_on", "y": 0},
+    "active=true,half=lower,axis=x,rotated=false": {"model": "portalmod:block/chamber_lights_side_on", "y": 180},
+
+    "active=true,half=upper,axis=z,rotated=false": {"model": "portalmod:block/chamber_lights_side_on", "y": 90},
+    "active=true,half=lower,axis=z,rotated=false": {"model": "portalmod:block/chamber_lights_side_on", "y": 270}
   }
 }

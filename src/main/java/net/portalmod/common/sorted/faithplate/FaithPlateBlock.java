@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 //todo turn into MultiBlock
+// I don't know if it should be, everything works fine rn. Let's make it a MultiBlock in the rewrite
 public class FaithPlateBlock extends Block {
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
@@ -161,7 +162,7 @@ public class FaithPlateBlock extends Block {
         ModUtil.addTooltip("faithplate", list);
     }
     
-    public static enum Face implements IStringSerializable {
+    public enum Face implements IStringSerializable {
         FLOOR("floor"),
         WALL("wall");
         

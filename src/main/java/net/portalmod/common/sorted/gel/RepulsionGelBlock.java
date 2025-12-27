@@ -10,10 +10,14 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.util.ModUtil;
+
+import static net.portalmod.common.sorted.faithplate.FaithPlateParabola.GRAVITY;
 
 public class RepulsionGelBlock extends AbstractGelBlock {
     public static float minBounceHeight = 5; // blocks
@@ -120,7 +124,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         boolean bounceFromJump = gelAffected.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
 
         double heightInBlock = entity.getPosition(1).y % 1;
-        if (heightInBlock > 0.5) return; // Fix #51
+        if (heightInBlock > 0.5) return; // Fix (#51)
 
         // Vertical bounce
         if (state.getBlock() == BlockInit.REPULSION_GEL.get() && bounceVertical &&
@@ -137,6 +141,12 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             float velocity = (float) (0.0178F * x + 0.294F * Math.pow(x, 1F/2F) + 0.134F * Math.pow(x, 1F/3F));
             // This function is the result of fine-tuning an approximation of the inverse of Minecraft's gravity and drag
             // calculations. See https://www.geogebra.org/calculator/qkdz2b9x.
+
+            // If air friction is turned off, use a different bounce speed (#83)
+            if (entity instanceof IFaithPlateLaunchable) {
+                boolean launched = ((IFaithPlateLaunchable) entity).isLaunched();
+                if (launched) velocity = (float) Math.sqrt(2 * GRAVITY * x);
+            }
 
             verticalBounce(entity, velocity);
         }

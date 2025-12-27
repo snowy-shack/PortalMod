@@ -94,9 +94,11 @@
   "entity.portalmod.turret":         "Sentry Turret",
   "entity.portalmod.chamber_sign":   "Chamber Sign",
 
-  "container.faithplate":        "Aperture Science Aerial Faith Plate",
-  "container.faithplate.height": "Height:",
-  "container.faithplate.select": "Select Target",
+  "container.faithplate":          "Aperture Science Aerial Faith Plate",
+  "container.faithplate.height":   "Height:",
+  "container.faithplate.select":   "Select Target",
+  "container.faithplate.enabled":  "Enabled",
+  "container.faithplate.noTarget": "No Target Selected",
 
   "tooltip.portalmod.hold_control": "Hold Ctrl for info",
   "tooltip.portalmod.wrench":       "Configures §cTesting Elements§7",
@@ -141,8 +143,12 @@
   "tooltip.portalmod.antline_receiver_3": "- §6Wrench§7: Changes the appearance",
 
   "tooltip.portalmod.antline_1": "Connects §3Buttons§7 with §bAntline Indicators§7",
-  "tooltip.portalmod.antline_2": "- Cannot power §cTesting Elements§7 directly",
+  "tooltip.portalmod.antline_2": "- Cannot power §cTesting Elements§7 without §bAntline Indicator§7",
   "tooltip.portalmod.antline_3": "- Hold crouch to create branching connections",
+
+  "tooltip.portalmod.chamber_lights_1": "Lights up Test Chambers",
+  "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by redstone",
+  "tooltip.portalmod.chamber_lights_3": "- Hold crouch to place horizontally",
 
   "tooltip.portalmod.chamber_door_1": "Entrance and exit to Test Chambers",
   "tooltip.portalmod.chamber_door_2": "- Opens when activated by all adjacent §bAntline Indicators§7",
@@ -195,7 +201,7 @@
   "tooltip.portalmod.colors.white":      "§fWhite§r",
 
   "tooltip.portalmod.platform_1": "Connects to Platform Beams",
-  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the platform, useful for creating stairs",
+  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the platform — useful for creating stairs",
   "tooltip.portalmod.platform_3": "  - Power with redstone to force the upper variant to appear",
   "tooltip.portalmod.platform_4": "- Click with a §6Wrench§7 or Platform Beam to manually add a beam to the platform",
 
@@ -227,6 +233,7 @@
   "subtitles.block.chamber_door.open": "Chamber Door opens",
   "subtitles.block.chamber_door.close": "Chamber Door closes",
   "subtitles.block.chamber_lights.hum": "Chamber Lights hum",
+  "subtitles.block.chamber_lights.flicker": "Chamber Lights flicker",
   "subtitles.block.fizzler_emitter.activate": "Fizzler activates",
   "subtitles.block.fizzler_emitter.deactivate": "Fizzler deactivates",
   "subtitles.block.antline_indicator.activate": "Antline Indicator activates",

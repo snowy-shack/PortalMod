@@ -13,6 +13,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IWorldReader;
@@ -51,69 +52,53 @@ public class WrenchItem extends Item {
 
     @Override
     public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
-        BlockPos pos = new BlockPos(6, 55, 20);
-        Direction face = Direction.UP;
-        BlockPos selected = new BlockPos(-5, 55, 20);
-        TileEntity blockEntity = level.getBlockEntity(selected);
+        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, level, 64);
+        Direction face = rayHit.getDirection();
+        BlockPos pos = rayHit.getBlockPos();
+
+        BlockPos selected = FaithPlateTER.selected;
         ItemStack itemStack = player.getItemInHand(hand);
 
         // my bad this was naive, we need to detect if you are choosing a target at the moment and idk how yet :)
-        if (!(blockEntity instanceof FaithPlateTileEntity)) {
-            return ActionResult.fail(itemStack);
+        // TODO: Why?
+
+        if (selected != null) {
+            TileEntity blockEntity = level.getBlockEntity(selected);
+
+            if (!(blockEntity instanceof FaithPlateTileEntity)) {
+                return ActionResult.fail(itemStack);
+            }
+            FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
+
+            if (level.isClientSide) return ActionResult.success(itemStack);
+
+            boolean enabled = false;
+            // Set the default height to dist / n
+            if (be.getTargetPos() == null) {
+                be.setHeight((float) (pos.distManhattan(selected) / 4.0));
+                enabled = true;
+            }
+
+            CompoundNBT nbt = new CompoundNBT();
+            CompoundNBT target = new CompoundNBT();
+            target.putFloat("height", be.getHeight());
+            nbt.putBoolean("enabled", enabled || be.isEnabled());
+
+            target.putByte("side", (byte) face.get3DDataValue());
+            target.putInt("x", pos.getX() - selected.getX());
+            target.putInt("y", pos.getY() - selected.getY());
+            target.putInt("z", pos.getZ() - selected.getZ());
+
+            nbt.put("target", target);
+            be.load(nbt);
+
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
+            FaithPlateTER.selected = null;
+
+            return ActionResult.success(itemStack);
         }
 
-        FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
-
-        CompoundNBT nbt = new CompoundNBT();
-        CompoundNBT target = new CompoundNBT();
-        target.putInt("x", pos.getX() - selected.getX());
-        target.putInt("y", pos.getY() - selected.getY());
-        target.putInt("z", pos.getZ() - selected.getZ());
-        target.putByte("side", (byte)face.get3DDataValue());
-        target.putFloat("height", be.getHeight());
-//            System.out.println(be.getHeight());
-        nbt.put("target", target);
-
-        nbt.putBoolean("enabled", true);
-        be.load(nbt);
-
-        new Vector3d(0, 0, 0).zRot(0);
-
-        PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
-        FaithPlateTER.selected = null;
-//        if(true)
-        return ActionResult.success(itemStack);
-
-
-
-
-
-//        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, level, 64);
-//        Direction face = rayHit.getDirection();
-//        BlockPos pos = rayHit.getBlockPos();
-//
-//        if(level.isClientSide && FaithPlateTER.selected != null) {
-//            FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(FaithPlateTER.selected);
-//
-//            CompoundNBT nbt = new CompoundNBT();
-//            CompoundNBT target = new CompoundNBT();
-//            target.putInt("x", pos.getX() - FaithPlateTER.selected.getX());
-//            target.putInt("y", pos.getY() - FaithPlateTER.selected.getY());
-//            target.putInt("z", pos.getZ() - FaithPlateTER.selected.getZ());
-//            target.putByte("side", (byte)face.get3DDataValue());
-//            target.putFloat("height", be.getHeight());
-////            System.out.println(be.getHeight());
-//            nbt.put("target", target);
-//
-//            nbt.putBoolean("enabled", true);
-//            be.load(nbt);
-//
-//            PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(FaithPlateTER.selected, nbt));
-//            FaithPlateTER.selected = null;
-//            return ActionResult.success(player.getItemInHand(hand));
-//        }
-//
-//        return super.use(level, player, hand);
+        return super.use(level, player, hand);
     }
 
     @Override

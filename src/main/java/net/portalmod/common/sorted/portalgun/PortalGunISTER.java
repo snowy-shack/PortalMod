@@ -130,8 +130,6 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         
 //        ResourceLocation gun = new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim");
 
-        UUID gunUUID = PortalGun.getUUID(itemStack);
-
         Colour colour = new Colour(255, 0, 0, 255);
         Colour oppositeColour = new Colour(255, 0, 0, 255);
         Colour lastPortalColor = new Colour(64, 59, 75, 255);
@@ -171,6 +169,8 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             }
             lastPortalColor.lighten(0.05f + 0.1f * (float) Math.sin((System.currentTimeMillis() / 10.0 % 360) * Math.PI / 180));
         }
+
+        UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
 
         TEX.setupAnimation();
         PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);

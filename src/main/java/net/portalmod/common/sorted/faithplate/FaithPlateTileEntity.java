@@ -7,6 +7,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
@@ -16,32 +18,38 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
+import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
+import net.portalmod.core.util.ModUtil;
 
-public class FaithPlateTileEntity extends TileEntity implements ITickableTileEntity {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static net.portalmod.common.sorted.faithplate.FaithPlateBlock.*;
+
+public class FaithPlateTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
     private boolean enabled = false;
+    private boolean indicatorControlled = false;
+    private boolean override = false;
     private BlockPos targetPos;
     private Direction targetFace;
     private float height;
-//    private static final AxisAlignedBB TRIGGER = new AxisAlignedBB(0, 0, 0, 1, 1 / 16f, 1).move(0, 1, 0);
+    private int cooldown = 0;
+    public static int COOLDOWN_DURATION = 10;
 
     private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
             .add(0, 16, 0, 16, 17, 16)
             .build();
 
-//    private static final BiHashMap<FaithPlateBlock.Face, Direction, VoxelShapeGroup> TRIGGERS = new BiHashMap<>();
-//
-//    private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
-//            .add(0, 16, 0, 16, 17, 16)
-//            .build();
-
-//    protected long animStart = (long)-1e6;
-    
     public FaithPlateTileEntity(TileEntityType<?> type) {
         super(type);
     }
@@ -52,17 +60,28 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     
     @Override
     public void tick() {
-        if(targetPos == null || targetFace == null || !enabled)
-            return;
-        
-        for(Entity entity : level.getEntitiesOfClass(LivingEntity.class, this.getTrigger())) {
-            if(entity.isPassenger())
-                continue;
+        // Check for indicators
+        IndicatorInfo indicatorInfo = this.checkIndicators(this.getBlockState(), this.getLevel(), this.getBlockPos());
 
-            if(entity instanceof PlayerEntity) {
+        this.indicatorControlled = indicatorInfo.hasIndicators;
+        if (this.indicatorControlled) {
+            this.override = indicatorInfo.allIndicatorsActivated;
+        } else {
+            this.override = enabled;
+        }
+
+        // Keep track of how long it's been since the last launch
+        if (cooldown > 0) cooldown--;
+        if (targetPos == null || targetFace == null || !override) return;
+        if (cooldown > 0) return;
+
+
+        for(Entity entity : level.getEntitiesOfClass(LivingEntity.class, this.getTrigger())) {
+            if (entity.isPassenger()) continue;
+
+            if (entity instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity)entity;
-                if(player.abilities.flying)
-                    continue;
+                if (player.abilities.flying) continue;
             }
 
             BlockPos targetPos = getTargetPos();
@@ -86,6 +105,8 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
             entity.setShiftKeyDown(false);
             ((IFaithPlateLaunchable)entity).setLaunched(true);
+
+            this.cooldown = COOLDOWN_DURATION;
 
             if(!level.isClientSide) {
                 if(entity.isControlledByLocalInstance() && !(entity instanceof PlayerEntity)) {
@@ -133,10 +154,10 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         BlockState state = this.getBlockState();
         VoxelShapeGroup triggerTransformed = TRIGGER.clone();
 
-        if(state.getValue(FaithPlateBlock.FACE) == FaithPlateBlock.Face.WALL) {
+        if(state.getValue(FACE) == FaithPlateBlock.Face.WALL) {
             Mat4 matrix = Mat4.identity()
             .translate(new Vec3(.5))
-            .rotateDeg(Vector3f.YP, -state.getValue(FaithPlateBlock.FACING).toYRot())
+            .rotateDeg(Vector3f.YP, -state.getValue(FACING).toYRot())
             .rotateDeg(Vector3f.XP, 90)
             .translate(new Vec3(-.5));
 
@@ -198,7 +219,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     }
     
     public boolean isEnabled() {
-        return enabled;
+        return override;
     }
     
     public BlockPos getTargetPos() {
@@ -212,7 +233,11 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     public float getHeight() {
         return height;
     }
-    
+
+    public int getCooldown() {
+        return cooldown;
+    }
+
     // chunk update
     
     @Override
@@ -245,5 +270,59 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     @Override
     public double getViewDistance() {
         return 256.0D;
+    }
+
+    @Override
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+        Direction facing = blockState.getValue(FACING);
+
+        Direction up = Direction.UP;
+        Direction feet = facing;
+        Direction side = facing.getClockWise();
+        boolean vertical = blockState.getValue(FACE) == FaithPlateBlock.Face.WALL;
+        boolean topHalf  = blockState.getValue(HALF) == DoubleBlockHalf.UPPER;
+
+        if (vertical) {
+            up = facing;
+            feet = Direction.DOWN;
+        }
+        if (!topHalf) feet = feet.getOpposite();
+
+        BlockPos above = pos.relative(up);
+        return new ArrayList<>(Arrays.asList(
+                above.relative(feet, 2).relative(side.getOpposite()),
+                above.relative(feet, 2),
+                above.relative(feet, 2).relative(side),
+
+                above.relative(feet).relative(side),
+                above.relative(side),
+
+                above.relative(feet.getOpposite()).relative(side),
+                above.relative(feet.getOpposite()),
+                above.relative(feet.getOpposite()).relative(side.getOpposite()),
+
+                above.relative(side.getOpposite()),
+                above.relative(feet).relative(side.getOpposite())
+        ));
+    }
+
+    public boolean isIndicatorControlled() {
+        return indicatorControlled;
+    }
+
+    public void setIndicatorControlled(boolean indicatorControlled) {
+        this.indicatorControlled = indicatorControlled;
+    }
+
+    public boolean isOverride() {
+        return override;
+    }
+
+    public void setOverride(boolean override) {
+        this.override = override;
+    }
+
+    public void setHeight(float height) {
+        this.height = height;
     }
 }

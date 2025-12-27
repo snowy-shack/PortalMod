@@ -82,7 +82,15 @@
 
     "block.chamber_lights.hum": {
         "sounds": [ "portalmod:block/chamber_lights/hum" ],
-        "subtitle": "subtitles.block.chamber_lights.hum" },
+        "subtitle": "subtitles.block.chamber_lights.hum",
+        "volume":  0.3 },
+
+    "block.chamber_lights.flicker": {
+        "sounds": [
+            "portalmod:block/chamber_lights/flicker0",
+            "portalmod:block/chamber_lights/flicker1"
+        ],
+        "subtitle": "subtitles.block.chamber_lights.flicker" },
 
     "block.push_door.open": {
         "sounds": [ "portalmod:block/push_door/open" ],
