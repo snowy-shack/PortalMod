@@ -14,6 +14,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -31,6 +32,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -70,6 +72,25 @@ public class PortalGun extends Item {
     public static void handleRightClick() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalGunClient::handleRightClick);
 //        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
+    }
+
+    public static void updateHolding(ItemStack itemStack, PlayerEntity player) {
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+
+        boolean isInHand = player.getItemInHand(Hand.MAIN_HAND) == itemStack || player.getItemInHand(Hand.OFF_HAND) == itemStack;
+
+        boolean wasHolding = nbt.contains("Holding") && nbt.getBoolean("Holding");
+        boolean isHolding = isInHand && player.getPassengers().stream().anyMatch(entity -> entity instanceof TestElementEntity);
+
+        if (isHolding && !wasHolding) {
+            pickCube(player, itemStack);
+        }
+
+        if (!isHolding && wasHolding) {
+            dropCube(player, itemStack);
+        }
+
+        nbt.putBoolean("Holding", isHolding);
     }
 
     public static void pickCube(PlayerEntity player, ItemStack gun) {
@@ -264,6 +285,10 @@ public class PortalGun extends Item {
     @Override
     public void inventoryTick(ItemStack itemStack, World level, Entity entity, int i, boolean b) {
         super.inventoryTick(itemStack, level, entity, i, b);
+
+        if (entity instanceof PlayerEntity) {
+            updateHolding(itemStack, (PlayerEntity) entity);
+        }
 
         if(level.isClientSide)
             return;
