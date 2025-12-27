@@ -74,6 +74,9 @@ public class PortalGun extends Item {
 //        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
     }
 
+    // The portalgun tracks whether it is holding something on its own
+    // by using nbt instead of having 100 different things triggering the
+    // pick and drop animation all over the place
     public static void updateHolding(ItemStack itemStack, PlayerEntity player) {
         CompoundNBT nbt = itemStack.getOrCreateTag();
 
