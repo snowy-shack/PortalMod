@@ -80,7 +80,11 @@ public class PortalGun extends Item {
     public static void updateHolding(ItemStack itemStack, PlayerEntity player) {
         CompoundNBT nbt = itemStack.getOrCreateTag();
 
-        boolean isInHand = player.getItemInHand(Hand.MAIN_HAND) == itemStack || player.getItemInHand(Hand.OFF_HAND) == itemStack;
+        boolean isInMainHand = player.getItemInHand(Hand.MAIN_HAND) == itemStack;
+        boolean isInOffHand = player.getItemInHand(Hand.OFF_HAND) == itemStack;
+
+        // Only hold one gun at a time
+        boolean isInHand = isInMainHand || isInOffHand && !(player.getMainHandItem().getItem() instanceof PortalGun);
 
         boolean wasHolding = nbt.contains("Holding") && nbt.getBoolean("Holding");
         boolean isHolding = isInHand && player.getPassengers().stream().anyMatch(entity -> entity instanceof TestElementEntity);
@@ -92,35 +96,52 @@ public class PortalGun extends Item {
         if (!isHolding && wasHolding) {
             dropCube(player, itemStack);
         }
+    }
 
-        nbt.putBoolean("Holding", isHolding);
+    public static void setHolding(ItemStack itemStack, boolean holding) {
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+        nbt.putBoolean("Holding", holding);
     }
 
     public static void pickCube(PlayerEntity player, ItemStack gun) {
-        // Play lift animation
-        World level = player.level;
-        if (level instanceof ServerWorld)
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                    new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.LIFT));
+        setHolding(gun, true);
 
-        level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
+        player.level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
                 SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
 
-        if (level instanceof ServerWorld) return;
+        // Play lift animation
+        if (player.level instanceof ServerWorld) {
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                    new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.LIFT));
+            return;
+        }
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, true));
     }
 
     public static void dropCube(PlayerEntity player, ItemStack gun) {
+        setHolding(gun, false);
+
         player.level.playSound(player, player,
                 SoundInit.PORTALGUN_DROP.get(), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                PortalGunGrabSoundClient.handlePacket(player, false));
 
         // Play drop animation
-        if (player.level instanceof ServerWorld && gun != null)
+        if (player.level instanceof ServerWorld) {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                     new SPortalGunAnimationPacket(getUUID(gun), PortalGunAnimation.DROP));
+            return;
+        }
+
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+                PortalGunGrabSoundClient.handlePacket(player, false));
+    }
+
+    @Override
+    public boolean onDroppedByPlayer(ItemStack item, PlayerEntity player) {
+        dropCube(player, item);
+
+        return super.onDroppedByPlayer(item, player);
     }
 
     private static BlockRayTraceResult customClip(World level, RayTraceContext context) {

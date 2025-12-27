@@ -12,6 +12,7 @@ import java.util.Map;
 public class PortalGunGrabSoundClient {
     protected static final Map<PlayerEntity, LocatableSound> SOUNDS = new HashMap<>();
 
+    // TODO this is not a real packet
     public static void handlePacket(PlayerEntity player, boolean start) {
         if (start) {
             SOUNDS.put(player, new EntityLoopableSound(player, SoundInit.PORTALGUN_HOLD.get(), SoundCategory.PLAYERS));
