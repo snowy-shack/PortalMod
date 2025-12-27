@@ -202,16 +202,6 @@ public abstract class TestElementEntity extends LivingEntity {
         }
     }
 
-    /**
-     * On the last tick of fizzling
-     */
-    public void fizzleKill() {
-        if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
-            this.dropAllDeathLoot(new DamageSource("fizzle"));
-        }
-        this.remove();
-    }
-
     public boolean pickUp(PlayerEntity player) {
         boolean riding = this.startRiding(player);
         if (!riding) return false;
