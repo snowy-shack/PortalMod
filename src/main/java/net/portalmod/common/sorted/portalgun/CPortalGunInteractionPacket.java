@@ -2,7 +2,7 @@ package net.portalmod.common.sorted.portalgun;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
@@ -84,18 +84,22 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
-            PlayerEntity player = context.get().getSender();
+            ServerPlayerEntity player = context.get().getSender();
             if(player == null)
                 return;
 
             switch(type) {
                 case PICK_ENTITY:
-                    CriteriaTriggerInit.GRAB_ENTITY.get().trigger((ServerPlayerEntity)player);
-                    player.level.getEntity(data).startRiding(player);
-                    // todo only temporary fix
-                    ((ITeleportable)player.level.getEntity(data)).removeLastUsedPortal();
+                    CriteriaTriggerInit.GRAB_ENTITY.get().trigger(player);
+                    Entity entity = player.level.getEntity(data);
 
-                    PortalGun.pickCube(player, player.getMainHandItem());
+                    if (entity instanceof TestElementEntity) {
+                        ((TestElementEntity) entity).pickUp(player);
+                    }
+
+                    // todo only temporary fix
+                    ((ITeleportable) entity).removeLastUsedPortal();
+
                     break;
 
                 case DROP_ENTITY:

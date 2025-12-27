@@ -32,9 +32,12 @@ import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.particles.PortalGunSparkParticle;
 import net.portalmod.common.sorted.fizzler.Fizzler;
+import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
@@ -197,6 +200,17 @@ public abstract class TestElementEntity extends LivingEntity {
         this.remove();
     }
 
+    public boolean pickUp(PlayerEntity player) {
+        boolean riding = this.startRiding(player);
+        if (!riding) return false;
+
+        if (player.level.isClientSide()) {
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(this.getId()).build());
+        }
+
+        return true;
+    }
+
     @Override
     public void rideTick() {
         this.setDeltaMovement(Vector3d.ZERO);
@@ -246,8 +260,12 @@ public abstract class TestElementEntity extends LivingEntity {
         }
 
         this.fallDistance = 0;
+
         if (player.getMainHandItem().getItem() instanceof PortalGun) {
-            PortalGunSparkParticle.createParticles(this.level, player);
+            PortalGunSparkParticle.createParticles(this.level, player, false);
+        }
+        if (player.getOffhandItem().getItem() instanceof PortalGun) {
+            PortalGunSparkParticle.createParticles(this.level, player, true);
         }
 
         if (this.isFizzling()) {

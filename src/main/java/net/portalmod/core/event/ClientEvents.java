@@ -393,23 +393,18 @@ public class ClientEvents {
 
             EntityRayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), TestElementEntity::isHoldable, rayLength * rayLength);
 
-            if (entityRayTraceResult == null) {
-                return;
-            }
-
-            Entity entity = entityRayTraceResult.getEntity();
+            if (entityRayTraceResult == null) return;
 
             //fixme this doesnt make any sense to me so i commented this out, it causes you to not pick up cubes when they are very close
 //            if (entityRayTraceResult.distanceTo(player) >= collisionRayHit.distanceTo(player)) {
 //                return;
 //            }
 
-            entity.startRiding(player);
-            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(entity.getId()).build());
-            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            Entity entity = entityRayTraceResult.getEntity();
+            if (entity instanceof TestElementEntity) {
+                ((TestElementEntity) entity).pickUp(player);
 
-            if (itemStack.getItem() instanceof PortalGun) {
-                PortalGun.pickCube(player, itemStack);
+                consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
             }
         } catch (Exception e) {
             PortalMod.LOGGER.error("Error while picking up entity", e);
