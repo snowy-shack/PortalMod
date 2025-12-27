@@ -263,8 +263,7 @@ public abstract class TestElementEntity extends LivingEntity {
 
         if (player.getMainHandItem().getItem() instanceof PortalGun) {
             PortalGunSparkParticle.createParticles(this.level, player, false);
-        }
-        if (player.getOffhandItem().getItem() instanceof PortalGun) {
+        } else if (player.getOffhandItem().getItem() instanceof PortalGun) {
             PortalGunSparkParticle.createParticles(this.level, player, true);
         }
 
