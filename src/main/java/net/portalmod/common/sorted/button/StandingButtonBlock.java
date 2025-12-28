@@ -103,10 +103,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         world.updateNeighborsAt(pos, this);
         this.playSound(world, pos, true);
 
-        if (mode == ButtonMode.NORMAL) {
-            this.setBlockStateValue(ACTIVE, true, blockState, world, pos);
-        }
-        else if (mode == ButtonMode.PERSISTENT && !wasActive) {
+        if (mode == ButtonMode.NORMAL || mode == ButtonMode.PERSISTENT && !wasActive) {
             this.setBlockStateValue(ACTIVE, true, blockState, world, pos);
         }
         else if (mode == ButtonMode.TOGGLE) {
@@ -170,18 +167,16 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
     @Override
     public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos pos2, boolean b) {
-        super.neighborChanged(state, level, pos, block, pos2, b);
+        if (level.isClientSide) return;
 
-        if (state.getValue(MODE) == ButtonMode.PERSISTENT && state.getValue(ACTIVE)) {
-            boolean isPowered = false;
-            for (BlockPos checkingPos : getAllPositions(state, pos)) {
-                if (level.hasNeighborSignal(checkingPos)) {
-                    isPowered = true;
-                }
-            }
-            if (isPowered) {
-                this.setBlockStateValue(ACTIVE, false, state, level, pos);
-            }
+        // Reset when powered from below
+        if (state.getValue(ACTIVE)
+                && state.getValue(HALF) == DoubleBlockHalf.LOWER
+                && level.hasSignal(pos.below(), Direction.UP)
+        ) {
+            this.setBlockStateValue(ACTIVE, false, state, level, pos);
+            this.updateAdjacentBlocks(level.getBlockState(pos), level, pos);
+            this.playSound(level, pos, false);
         }
     }
 
