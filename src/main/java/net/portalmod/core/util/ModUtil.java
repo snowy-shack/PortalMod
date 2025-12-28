@@ -7,7 +7,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -49,14 +48,6 @@ public class ModUtil {
 
     public static Vector3d getOldPos(Entity entity) {
         return new Vector3d(entity.xo, entity.yo, entity.zo);
-    }
-
-    public static boolean isInDirection(BlockPos thisPos, BlockPos thatPos, Direction direction) {
-        if (direction.getAxisDirection() == Direction.AxisDirection.POSITIVE) {
-            return thatPos.get(direction.getAxis()) > thisPos.get(direction.getAxis());
-        } else {
-            return thatPos.get(direction.getAxis()) < thisPos.get(direction.getAxis());
-        }
     }
 
     public static void addTooltip(String name, List<ITextComponent> list) {
