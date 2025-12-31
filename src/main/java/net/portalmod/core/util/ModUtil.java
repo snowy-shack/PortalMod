@@ -14,6 +14,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 
@@ -26,7 +27,7 @@ public class ModUtil {
 
     public static final Style TOOLTIP_STYLE = Style.EMPTY.withColor(TextFormatting.GRAY);
 
-    public static int lastChatNumber = 0;
+    private static int lastChatNumber = 0;
 
     public static VoxelShape moveVoxelShape(VoxelShape shape, Direction direction, int multiplier) {
         Vector3i normal = direction.getNormal();
@@ -98,30 +99,36 @@ public class ModUtil {
         return randomSoundPitch(0.075f);
     }
 
-    public static void sendChatSinglePlayer(Object... text) {
+    public static void sendClientChat(Object... text) {
         ClientWorld clientWorld = Minecraft.getInstance().level;
         if (clientWorld == null) {
             PortalMod.LOGGER.error("Tried to send a client chat message while not in a client environment");
             return;
         }
-        sendChat(clientWorld, text);
+
+        // This may not always be accurate
+        boolean isClientSide = Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER;
+
+        sendChat(clientWorld, isClientSide, text);
     }
 
-    public static void sendChat(World level, String text) {
-        lastChatNumber = (lastChatNumber + 1) % 10;
+    public static void sendChat(World level, Object... text) {
+        sendChat(level, level.isClientSide, text);
+    }
+
+    private static void sendChat(World level, boolean isClientSide, Object... text) {
+        String formatted = Arrays.stream(text).map(t -> (t == null) ? "null" : t.toString()).collect(Collectors.joining(" "));
 
         try {
             level.players().forEach(
                     player -> player.displayClientMessage(new StringTextComponent(
-                            (level.isClientSide() ? "§3§l[Client " : "§7§l[Server ") + lastChatNumber + "]: §r" + ((text == null) ? "null" : text)
+                            (isClientSide ? "§3§l[Client " : "§7§l[Server ") + String.format("%03d", lastChatNumber) + "]: §r" + formatted
                     ), false)
             );
         } catch (Exception e) {
             PortalMod.LOGGER.error("Could not send debug chat message", e);
         }
-    }
 
-    public static void sendChat(World level, Object... text) {
-        sendChat(level, Arrays.stream(text).map(t -> (t == null) ? "null" : t.toString()).collect(Collectors.joining(" ")));
+        lastChatNumber = (lastChatNumber + 1) % 1000;
     }
 }

@@ -109,7 +109,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         else if (mode == ButtonMode.TOGGLE) {
             this.setBlockStateValue(ACTIVE, !wasActive, blockState, world, pos);
         }
-        this.updateAdjacentBlocks(blockState, world, pos);
+        this.updateAllNeighbors(world, pos, blockState);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
             if (blockState.getValue(MODE) == ButtonMode.NORMAL) {
                 this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
             }
-            this.updateAdjacentBlocks(world.getBlockState(pos), world, pos);
+            this.updateAllNeighbors(world, pos, world.getBlockState(pos));
         }
     }
 
@@ -145,7 +145,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
             WrenchItem.playUseSound(world, rayTraceResult.getLocation());
 
-            this.updateAdjacentBlocks(world.getBlockState(pos), world, pos);
+            this.updateAllNeighbors(world, pos, world.getBlockState(pos));
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
 
@@ -175,7 +175,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
                 && level.hasSignal(pos.below(), Direction.UP)
         ) {
             this.setBlockStateValue(ACTIVE, false, state, level, pos);
-            this.updateAdjacentBlocks(level.getBlockState(pos), level, pos);
+            this.updateAllNeighbors(level, pos, level.getBlockState(pos));
             this.playSound(level, pos, false);
         }
     }
@@ -203,11 +203,6 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     @Override
     public boolean isActive(BlockState state) {
         return state.getValue(ACTIVE);
-    }
-
-    private void updateAdjacentBlocks(BlockState blockState, World world, BlockPos pos) {
-        world.updateNeighborsAtExceptFromFacing(
-                blockState.getValue(HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos, blockState.getBlock(), Direction.DOWN);
     }
 
     @Override
