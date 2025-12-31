@@ -125,29 +125,11 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 
             WrenchItem.playUseSound(world, result.getLocation());
 
-            this.updateAdjacentBlocks(blockState, world, pos);
+            this.updateAllNeighbors(world, pos, blockState);
 
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
         return ActionResultType.PASS;
-    }
-
-    private void updateAdjacentBlocks(BlockState blockState, World level, BlockPos pos) {
-        List<BlockPos> blockList = this.getAllBlocks(pos, blockState.getValue(CORNER), blockState.getValue(FACING));
-
-        for (BlockPos cornerPos : blockList) {
-//            world.updateNeighborsAtExceptFromFacing(cornerPos, blockState.getBlock(), blockState.getValue(FACING));
-//            world.blockUpdated(pos.relative(corner));
-
-            BlockState cornerState = level.getBlockState(cornerPos);
-
-            for (Direction direction : Direction.values()) {
-                if (direction.getAxis() == blockState.getValue(FACING).getAxis()) continue;
-                if (blockList.contains(cornerPos.relative(direction))) continue; // If it's another corner
-
-                level.neighborChanged(cornerPos.relative(direction), cornerState.getBlock(), cornerPos);
-            }
-        }
     }
 
     public ButtonMode cycleMode(BlockState blockState, World world, BlockPos pos) {
@@ -188,7 +170,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 
         if (isPowered && state.getValue(ACTIVE)) {
             this.setBlockStateValue(ACTIVE, false, state, level, pos);
-            this.updateAdjacentBlocks(state, level, pos);
+            this.updateAllNeighbors(level, pos, state);
             this.playPressSound(level, pos, false);
         }
     }
@@ -231,7 +213,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
                 this.playActivationSound(level, pos, !wasActive);
             }
 
-            updateAdjacentBlocks(state, level, pos);
+            this.updateAllNeighbors(level, pos, state);
         }
     }
 

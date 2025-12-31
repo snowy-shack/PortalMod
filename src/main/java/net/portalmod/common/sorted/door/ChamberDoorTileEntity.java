@@ -68,6 +68,11 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         }
     }
 
+    public boolean isAutomatic() {
+        IndicatorInfo indicatorInfo = this.checkIndicators(this.getBlockState(), this.level, this.getBlockPos());
+        return !indicatorInfo.hasIndicators;
+    }
+
     @Override
     public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
         Direction facing = blockState.getValue(ChamberDoorBlock.FACING);

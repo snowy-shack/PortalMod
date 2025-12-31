@@ -66,6 +66,20 @@ public abstract class MultiBlock extends Block {
         }
     }
 
+    public void updateAllNeighbors(World world, BlockPos pos, BlockState blockState) {
+        if (world.isClientSide) return;
+
+        List<BlockPos> positions = this.getAllPositions(blockState, pos);
+        for (BlockPos connected : positions) {
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbor = connected.relative(direction);
+                if (!positions.contains(neighbor)) {
+                    world.blockUpdated(neighbor, this);
+                }
+            }
+        }
+    }
+
     @Override
     public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
         for (BlockPos connectedPos : this.getAllPositions(blockState, pos)) {
