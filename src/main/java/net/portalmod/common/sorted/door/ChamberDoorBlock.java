@@ -242,9 +242,6 @@ public class ChamberDoorBlock extends MultiBlock {
     @Override
     public int getDirectSignal(BlockState state, IBlockReader level, BlockPos pos, Direction direction) {
         return this.getSignal(state, level, pos, direction);
-//        if (direction == Direction.UP) {
-//        }
-//        return 0;
     }
 
     @Override
