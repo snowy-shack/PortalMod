@@ -36,9 +36,7 @@ import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ChamberDoorBlock extends MultiBlock {
     public static final DirectionProperty FACING = HorizontalBlock.FACING;
@@ -90,7 +88,7 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
         Direction facing = blockState.getValue(FACING);
         boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
         boolean isLeft = blockState.getValue(SIDE) == Side.LEFT;
@@ -100,14 +98,18 @@ public class ChamberDoorBlock extends MultiBlock {
         DoubleBlockHalf oppositeHalf = isLower ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER;
         Side oppositeSide = isLeft ? Side.RIGHT : Side.LEFT;
 
+        HashMap<BlockPos, BlockState> map = new HashMap<>();
+
         // above/below placed block
-        world.setBlockAndUpdate(pos.relative(vertical), blockState.setValue(HALF, oppositeHalf));
+        map.put(pos.relative(vertical), blockState.setValue(HALF, oppositeHalf));
 
         // next to placed block
-        world.setBlockAndUpdate(pos.relative(horizontal), blockState.setValue(SIDE, oppositeSide));
+        map.put(pos.relative(horizontal), blockState.setValue(SIDE, oppositeSide));
 
         // diagonal to placed block
-        world.setBlockAndUpdate(pos.relative(horizontal).relative(vertical), blockState.setValue(SIDE, oppositeSide).setValue(HALF, oppositeHalf));
+        map.put(pos.relative(horizontal).relative(vertical), blockState.setValue(SIDE, oppositeSide).setValue(HALF, oppositeHalf));
+
+        return map;
     }
 
     @Override

@@ -75,6 +75,11 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
+    public Direction getUpperDirection(BlockState state) {
+        return Direction.UP;
+    }
+
+    @Override
     public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
         return this.getFieldShape(state).bounds().move(pos).intersects(box);
     }
