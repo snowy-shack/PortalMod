@@ -14,6 +14,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -49,6 +50,8 @@ import java.util.UUID;
 
 public class PortalGun extends Item {
 
+    public static final double REACH = 2;
+
     public String defaultLeftColor;
     public String defaultRightColor;
     public String defaultAccentColor;
@@ -74,68 +77,76 @@ public class PortalGun extends Item {
 //        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
     }
 
-    public static boolean isHoldable(Entity entity) {
-        // todo this doesnt work for some reason, can still hold cube if fizzling
-        return entity instanceof TestElementEntity && !((TestElementEntity) entity).isFizzling();
+    // The portalgun tracks whether it is holding something on its own
+    // by using nbt instead of having 100 different things triggering the
+    // pick and drop animation all over the place
+    public static void updateHolding(ItemStack itemStack, PlayerEntity player) {
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+
+        boolean isInMainHand = player.getItemInHand(Hand.MAIN_HAND) == itemStack;
+        boolean isInOffHand = player.getItemInHand(Hand.OFF_HAND) == itemStack;
+
+        // Only hold one gun at a time
+        boolean isInHand = isInMainHand || isInOffHand && !(player.getMainHandItem().getItem() instanceof PortalGun);
+
+        boolean wasHolding = nbt.contains("Holding") && nbt.getBoolean("Holding");
+        boolean isHolding = isInHand && player.getPassengers().stream().anyMatch(entity -> entity instanceof TestElementEntity);
+
+        if (isHolding && !wasHolding) {
+            pickCube(player, itemStack);
+        }
+
+        if (!isHolding && wasHolding) {
+            dropCube(player, itemStack);
+        }
+    }
+
+    public static void setHolding(ItemStack itemStack, boolean holding) {
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+        nbt.putBoolean("Holding", holding);
     }
 
     public static void pickCube(PlayerEntity player, ItemStack gun) {
-        Optional<UUID> uuid = getUUID(gun);
+        setHolding(gun, true);
 
-        // Play lift animation
-        World level = player.level;
-        if (level instanceof ServerWorld && uuid.isPresent())
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                    new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.LIFT));
-
-        level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
+        player.level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
                 SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
 
-        if (level instanceof ServerWorld) return;
+        // Play lift animation
+        Optional<UUID> uuid = getUUID(gun);
+        if (player.level instanceof ServerWorld && uuid.isPresent()) {
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                    new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.LIFT));
+            return;
+        }
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, true));
     }
 
-    public static void dropCube(PlayerEntity player, boolean toBeThrown, ItemStack gun) {
+    public static void dropCube(PlayerEntity player, ItemStack gun) {
+        setHolding(gun, false);
+
         player.level.playSound(player, player,
                 SoundInit.PORTALGUN_DROP.get(), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
+
+        // Play drop animation
+        Optional<UUID> uuid = getUUID(gun);
+        if (player.level instanceof ServerWorld && uuid.isPresent()) {
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+                    new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.DROP));
+            return;
+        }
+
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, false));
+    }
 
-        Optional<UUID> uuid = getUUID(gun);
+    @Override
+    public boolean onDroppedByPlayer(ItemStack item, PlayerEntity player) {
+        dropCube(player, item);
 
-        List<Entity> cubes = player.getPassengers();
-        for (int i = cubes.size() - 1; i >= 0; --i) {
-            Entity cube = cubes.get(0);
-            if (!isHoldable(cube)) {
-                continue;
-            }
-
-            cube.stopRiding();
-
-            // Play drop animation
-            if (player.level instanceof ServerWorld && uuid.isPresent()) {
-                PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
-                        new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.DROP));
-            }
-
-            float maxSpeed = 0.5f;
-
-            boolean exceedsLimit = cube.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
-            if (exceedsLimit) {
-                cube.setDeltaMovement(cube.getDeltaMovement()
-                        .normalize()
-                        .multiply(maxSpeed, maxSpeed, maxSpeed)
-                        .add(player.getDeltaMovement()));
-            }
-
-            if (toBeThrown) {
-                float strength = .3f;
-                cube.setDeltaMovement(cube.getDeltaMovement()
-                        .add(player.getViewVector(0)
-                        .multiply(strength, strength, strength)));
-            }
-        }
+        return super.onDroppedByPlayer(item, player);
     }
 
     private static BlockRayTraceResult customClip(World level, RayTraceContext context) {
@@ -308,6 +319,10 @@ public class PortalGun extends Item {
     @Override
     public void inventoryTick(ItemStack itemStack, World level, Entity entity, int i, boolean b) {
         super.inventoryTick(itemStack, level, entity, i, b);
+
+        if (entity instanceof PlayerEntity) {
+            updateHolding(itemStack, (PlayerEntity) entity);
+        }
 
         if(level.isClientSide)
             return;

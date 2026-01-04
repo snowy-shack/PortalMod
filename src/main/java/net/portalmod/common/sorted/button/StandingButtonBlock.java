@@ -28,6 +28,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivator;
+import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
@@ -44,7 +45,6 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
     public static final int BUTTON_DELAY = 20;
-    public static final double REACH = 2;
 
     public StandingButtonBlock(Properties properties) {
         super(properties);
@@ -153,7 +153,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         }
 
         double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < REACH) {
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < PortalGun.REACH) {
             this.activate(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
