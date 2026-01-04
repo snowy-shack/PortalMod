@@ -7,6 +7,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.Property;
 import net.minecraft.tileentity.TileEntity;
@@ -17,6 +18,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 
 public abstract class MultiBlock extends Block {
 
@@ -27,19 +29,20 @@ public abstract class MultiBlock extends Block {
     }
 
     /**
-     * @return the main position of the multiblock (usually top-left), given a particular corner.
+     * Defines the main position of the multiblock (usually top-left), given a particular block.
      */
     public abstract BlockPos getMainPosition(BlockState blockState, BlockPos pos);
 
     /**
-     * @return all block positions of the multiblock, given the main corner.
+     * Provides all block positions of the multiblock, given the main block.
      */
     public abstract List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos);
 
     /**
-     * Should call {@link net.minecraft.world.World#setBlockAndUpdate(net.minecraft.util.math.BlockPos, net.minecraft.block.BlockState)} for every block except for the main one.
+     * Provides a map of {@link BlockPos} to {@link BlockState} of each additional block that would need to be placed to complete the structure.
+     * Keep in mind that the provided block may NOT be the main block.
      */
-    public abstract void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos);
+    public abstract Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos);
 
     /**
      * @return a predicate for determining whether a blockstate is the main block.
@@ -78,9 +81,10 @@ public abstract class MultiBlock extends Block {
 
     @Override
     public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if (!world.isClientSide) {
-            this.placeConnectedBlocks(world, blockState, pos);
-        }
+        if (world.isClientSide) return;
+
+        this.getConnectedBlockStates(world, blockState, pos)
+                .forEach(world::setBlockAndUpdate);
     }
 
     @Override
@@ -115,5 +119,13 @@ public abstract class MultiBlock extends Block {
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.BLOCK;
+    }
+
+    public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction.Axis axis) {
+        BlockPos pos = context.getClickedPos();
+
+        if (axis == Direction.Axis.X) return context.getClickLocation().x - pos.getX() > 0.5;
+        if (axis == Direction.Axis.Y) return context.getClickLocation().y - pos.getY() > 0.5;
+        return context.getClickLocation().z - pos.getZ() > 0.5;
     }
 }
