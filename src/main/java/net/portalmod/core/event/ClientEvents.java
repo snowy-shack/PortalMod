@@ -2,6 +2,7 @@ package net.portalmod.core.event;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -326,6 +327,7 @@ public class ClientEvents {
 //        World level = Minecraft.getInstance().level;
 
         // STIK ER IN
+        // 🔥
 //        if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_J)) {
 //            ChunkViewer.getInstance().setVisible(true);
 //        }
@@ -376,7 +378,9 @@ public class ClientEvents {
         }
 
         // Press button
-        if (Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock() instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < StandingButtonBlock.REACH) {
+        Block block = Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock();
+        if (block instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < PortalGun.REACH) {
+
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
             return;
@@ -395,13 +399,8 @@ public class ClientEvents {
 
             if (entityRayTraceResult == null) return;
 
-            //fixme this doesnt make any sense to me so i commented this out, it causes you to not pick up cubes when they are very close
-//            if (entityRayTraceResult.distanceTo(player) >= collisionRayHit.distanceTo(player)) {
-//                return;
-//            }
-
             Entity entity = entityRayTraceResult.getEntity();
-            if (entity instanceof TestElementEntity) {
+            if (entity instanceof TestElementEntity && entity.position().subtract(player.getEyePosition(1)).length() < PortalGun.REACH + entity.getBbWidth() / 2) {
                 ((TestElementEntity) entity).pickUp(player);
 
                 consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
