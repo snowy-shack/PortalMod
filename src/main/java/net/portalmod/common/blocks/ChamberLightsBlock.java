@@ -46,7 +46,7 @@ public class ChamberLightsBlock extends DoubleBlock {
 
     @Override
     public Direction getUpperDirection(BlockState state) {
-        return Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.NEGATIVE);
+        return Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
     }
 
     @Override
