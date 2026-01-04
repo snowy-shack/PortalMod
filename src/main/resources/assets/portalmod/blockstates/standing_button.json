@@ -1,15 +1,23 @@
 {
+  "cool and insightful comment": "this could also be multipart for less files",
+
   "variants": {
     "half=lower,active=false": {"model": "portalmod:block/standing_button_bottom_off"},
     "half=lower,active=true": {"model": "portalmod:block/standing_button_bottom_on"},
-    "half=upper,mode=normal,active=false": {"model": "portalmod:block/standing_button_top_normal_unpressed"},
-    "half=upper,mode=normal,active=true": {"model": "portalmod:block/standing_button_top_normal_pressed"},
-    "half=upper,mode=persistent,active=false": {"model": "portalmod:block/standing_button_top_persistent_unpressed_off"},
-    "half=upper,mode=persistent,active=true,pressed=true": {"model": "portalmod:block/standing_button_top_persistent_pressed"},
-    "half=upper,mode=persistent,active=true,pressed=false": {"model": "portalmod:block/standing_button_top_persistent_unpressed_on"},
-    "half=upper,mode=toggle,active=true,pressed=true": {"model": "portalmod:block/standing_button_top_toggle_pressed_on"},
-    "half=upper,mode=toggle,active=true,pressed=false": {"model": "portalmod:block/standing_button_top_toggle_unpressed_on"},
-    "half=upper,mode=toggle,active=false,pressed=true": {"model": "portalmod:block/standing_button_top_toggle_pressed_off"},
-    "half=upper,mode=toggle,active=false,pressed=false": {"model": "portalmod:block/standing_button_top_toggle_unpressed_off"}
+
+    "half=upper,mode=normal,pressed=false,active=false": {"model": "portalmod:block/standing_button_top_normal_unpressed_off"},
+    "half=upper,mode=normal,pressed=false,active=true": {"model": "portalmod:block/standing_button_top_normal_unpressed_on"},
+    "half=upper,mode=normal,pressed=true,active=false": {"model": "portalmod:block/standing_button_top_normal_pressed_off"},
+    "half=upper,mode=normal,pressed=true,active=true": {"model": "portalmod:block/standing_button_top_normal_pressed_on"},
+
+    "half=upper,mode=persistent,pressed=false,active=false": {"model": "portalmod:block/standing_button_top_persistent_unpressed_off"},
+    "half=upper,mode=persistent,pressed=false,active=true": {"model": "portalmod:block/standing_button_top_persistent_unpressed_on"},
+    "half=upper,mode=persistent,pressed=true,active=false": {"model": "portalmod:block/standing_button_top_persistent_pressed_off"},
+    "half=upper,mode=persistent,pressed=true,active=true": {"model": "portalmod:block/standing_button_top_persistent_pressed_on"},
+
+    "half=upper,mode=toggle,pressed=false,active=false": {"model": "portalmod:block/standing_button_top_toggle_unpressed_off"},
+    "half=upper,mode=toggle,pressed=false,active=true": {"model": "portalmod:block/standing_button_top_toggle_unpressed_on"},
+    "half=upper,mode=toggle,pressed=true,active=false": {"model": "portalmod:block/standing_button_top_toggle_pressed_off"},
+    "half=upper,mode=toggle,pressed=true,active=true": {"model": "portalmod:block/standing_button_top_toggle_pressed_on"}
   }
 }

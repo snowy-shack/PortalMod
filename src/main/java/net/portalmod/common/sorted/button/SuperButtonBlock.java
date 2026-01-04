@@ -125,29 +125,11 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 
             WrenchItem.playUseSound(world, result.getLocation());
 
-            updateAdjacentBlocks(blockState, world, pos);
+            this.updateAllNeighbors(world, pos, blockState);
 
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
         return ActionResultType.PASS;
-    }
-
-    private void updateAdjacentBlocks(BlockState blockState, World level, BlockPos pos) {
-        List<BlockPos> blockList = this.getAllBlocks(pos, blockState.getValue(CORNER), blockState.getValue(FACING));
-
-        for (BlockPos cornerPos : blockList) {
-//            world.updateNeighborsAtExceptFromFacing(cornerPos, blockState.getBlock(), blockState.getValue(FACING));
-//            world.blockUpdated(pos.relative(corner));
-
-            BlockState cornerState = level.getBlockState(cornerPos);
-
-            for (Direction direction : Direction.values()) {
-                if (direction.getAxis() == blockState.getValue(FACING).getAxis()) continue;
-                if (blockList.contains(cornerPos.relative(direction))) continue; // If it's another corner
-
-                level.neighborChanged(cornerPos.relative(direction), cornerState.getBlock(), cornerPos);
-            }
-        }
     }
 
     public ButtonMode cycleMode(BlockState blockState, World world, BlockPos pos) {
@@ -172,25 +154,24 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
-        if(level.isClientSide)
-            return;
-        
-//        if(!this.isMultiblockComplete(level, pos, state))
-//            level.destroyBlock(pos, false, null, 0);
-        if(!state.canSurvive(level, pos))
-            level.destroyBlock(pos, true, null, 0);
+    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        if (level.isClientSide) return;
 
-        if ((state.getValue(MODE) == ButtonMode.PERSISTENT || state.getValue(MODE) == ButtonMode.TOGGLE) && state.getValue(ACTIVE)) {
-            boolean isPowered = false;
-            for (BlockPos checkingPos : getAllPositions(state, pos)) {
-                if (level.hasNeighborSignal(checkingPos)) {
-                    isPowered = true;
-                }
-            }
-            if (isPowered) {
-                this.setBlockStateValue(ACTIVE, false, state, level, pos);
-            }
+        if(!state.canSurvive(level, pos)) {
+            level.destroyBlock(pos, true, null, 0);
+        }
+
+        Direction facing = state.getValue(FACING);
+
+        // Reset when powered from "below"
+        boolean isPowered = getAllPositions(state, pos).stream()
+                .filter(blockPos -> level.getBlockState(blockPos).getBlock() instanceof SuperButtonBlock)
+                .anyMatch(checkingPos -> level.hasSignal(checkingPos.relative(facing.getOpposite()), facing));
+
+        if (isPowered && state.getValue(ACTIVE)) {
+            this.setBlockStateValue(ACTIVE, false, state, level, pos);
+            this.updateAllNeighbors(level, pos, state);
+            this.playPressSound(level, pos, false);
         }
     }
     
@@ -217,30 +198,30 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
         
         if (wasPressed != pressed) {
             this.setBlockStateValue(PRESSED, pressed, state, level, pos);
-            playPressSound(level, pos, pressed);
+            this.playPressSound(level, pos, pressed);
 
             if (mode == ButtonMode.NORMAL) {
                 this.setBlockStateValue(ACTIVE, pressed, state, level, pos);
-                playActivationSound(level, pos, pressed);
+                this.playActivationSound(level, pos, pressed);
             }
             else if (mode == ButtonMode.PERSISTENT && !wasActive) {
                 this.setBlockStateValue(ACTIVE, true, state, level, pos);
-                playActivationSound(level, pos, true);
+                this.playActivationSound(level, pos, true);
             }
             else if (mode == ButtonMode.TOGGLE && pressed) {
                 this.setBlockStateValue(ACTIVE, !wasActive, state, level, pos);
-                playActivationSound(level, pos, !wasActive);
+                this.playActivationSound(level, pos, !wasActive);
             }
 
-            updateAdjacentBlocks(state, level, pos);
+            this.updateAllNeighbors(level, pos, state);
         }
     }
 
-    public static void playPressSound(World level, BlockPos pos, boolean pressed) {
+    public void playPressSound(World level, BlockPos pos, boolean pressed) {
         level.playSound(null, pos, pressed ? SoundInit.SUPER_BUTTON_PRESS.get() : SoundInit.SUPER_BUTTON_RELEASE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
-    public static void playActivationSound(World level, BlockPos pos, boolean activated) {
+    public void playActivationSound(World level, BlockPos pos, boolean activated) {
         level.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
@@ -255,7 +236,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
         entities = level.getEntities(null, trigger);
 
         entities.removeIf(entity -> entity.getType().is(EntityTagInit.BUTTON_NO_PRESS));
-        return entities.size() > 0;
+        return !entities.isEmpty();
     }
 
 //    private boolean isMultiblockComplete(World level, BlockPos pos, BlockState state) {

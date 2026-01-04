@@ -4,9 +4,7 @@ import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -27,7 +25,6 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -102,13 +99,13 @@ public class CubeDropperBlock extends MultiBlock {
     @Override
     public BlockPos getMainPosition(BlockState blockState, BlockPos pos) {
         if (!blockState.getValue(CORNER).isLeft()) {
-            pos = pos.relative(Direction.WEST);
+            pos = pos.west();
         }
         if (!blockState.getValue(CORNER).isUp()) {
-            pos = pos.relative(Direction.NORTH);
+            pos = pos.north();
         }
         if (blockState.getValue(HALF) == DoubleBlockHalf.LOWER) {
-            pos = pos.relative(Direction.UP);
+            pos = pos.above();
         }
         return pos;
     }
@@ -250,6 +247,27 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        super.neighborChanged(state, world, pos, block, neighborPos, b);
+        if (world.isClientSide) return;
+
+        // Reset when powered from "below"
+        boolean isPowered = getAllPositions(state, pos).stream()
+                .filter(checkingPos -> {
+                    BlockState blockState = world.getBlockState(checkingPos);
+                    return blockState.getBlock() instanceof CubeDropperBlock && blockState.getValue(HALF) == DoubleBlockHalf.UPPER;
+                })
+                .anyMatch(checkingPos -> world.hasSignal(checkingPos.above(), Direction.DOWN));
+
+        if (isPowered) {
+            TileEntity blockEntity = world.getBlockEntity(getMainPosition(state, pos));
+            if (blockEntity instanceof CubeDropperTileEntity) {
+                ((CubeDropperTileEntity) blockEntity).resetDropper();
+            }
+        }
+    }
+
+    @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
         if (world.isClientSide) {
             return ActionResultType.PASS;
@@ -257,47 +275,20 @@ public class CubeDropperBlock extends MultiBlock {
 
         ItemStack itemStack = player.getItemInHand(hand);
         Item item = itemStack.getItem();
-        TileEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
-        if (!(tileEntity instanceof CubeDropperTileEntity)) {
-            return ActionResultType.FAIL;
-        }
 
+        TileEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
+        if (!(tileEntity instanceof CubeDropperTileEntity)) return ActionResultType.FAIL;
         CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) tileEntity;
-        Optional<EntityType<?>> entityType = dropperEntity.getEntityType();
 
         if (item instanceof SpawnEggItem) {
-            EntityType<?> spawnEggType = ((SpawnEggItem) item).getType(itemStack.getTag());
-
-            // Remove new egg and give previous egg
-            if (!player.isCreative()) {
-                itemStack.shrink(1);
-                entityType.ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
-            }
-
-            dropperEntity.removeAllEntities();
-            dropperEntity.setEntityNBT(spawnEggType);
+            dropperEntity.onEggClick(itemStack, player);
             player.playSound(SoundEvents.ITEM_FRAME_ADD_ITEM, 1, 1);
             return ActionResultType.SUCCESS;
         }
 
-        if (item instanceof WrenchItem && dropperEntity.hasEntityNBT()) {
-
-            // Remove current spawned cube
-            if (dropperEntity.entityUUIDs.size() > 1) {
-                dropperEntity.fizzleCube(dropperEntity.entityUUIDs.get(0));
-
-            // Clear entity type of dropper
-            } else {
-                dropperEntity.removeAllEntities();
-                if (!player.isCreative()) {
-                    entityType.ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
-                }
-
-                dropperEntity.removeEntityNBT();
-            }
-
+        if (item instanceof WrenchItem) {
+            dropperEntity.onWrenchClick(player);
             WrenchItem.playUseSound(world, result.getLocation());
-
             return ActionResultType.SUCCESS;
         }
         return ActionResultType.PASS;
@@ -313,15 +304,7 @@ public class CubeDropperBlock extends MultiBlock {
         if (isMainBlock(blockState) && !blockState.is(newState.getBlock())) {
             TileEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CubeDropperTileEntity) {
-                CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) blockEntity;
-                dropperEntity.removeAllEntities();
-
-                // Drop spawn egg if present
-                BlockPos mainPosition = this.getMainPosition(blockState, pos);
-                Optional<EntityType<?>> entityType = dropperEntity.getEntityType();
-                entityType.ifPresent(type ->
-                        InventoryHelper.dropItemStack(world, mainPosition.getX(), mainPosition.getY(), mainPosition.getZ(), new ItemStack(ForgeSpawnEggItem.fromEntityType(type)))
-                );
+                ((CubeDropperTileEntity) blockEntity).onRemove();
             }
         }
         super.onRemove(blockState, world, pos, newState, b);
