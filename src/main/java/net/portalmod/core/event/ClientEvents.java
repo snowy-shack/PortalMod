@@ -341,17 +341,19 @@ public class ClientEvents {
             return;
         }
 
-        if (wasPressed) {
-            return;
-        }
-
+        if (wasPressed) return;
         wasPressed = true;
 
+        PlayerEntity player = Minecraft.getInstance().player;
+        if (player == null) return;
+
+        if (player.isSpectator()) return;
+
         float rayLength = Minecraft.getInstance().gameMode.getPickRange();
-        Vector3d playerRotation = Minecraft.getInstance().player.getViewVector(0);
+        Vector3d playerRotation = player.getViewVector(0);
         Vector3d rayPath = playerRotation.scale(rayLength);
 
-        Vector3d from = Minecraft.getInstance().player.getEyePosition(0);
+        Vector3d from = player.getEyePosition(0);
         Vector3d to = from.add(rayPath);
 
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
@@ -360,12 +362,6 @@ public class ClientEvents {
         // TODO ray trace on the server too
         // hey this is lars here, vanilla doesnt do that, they send a packet with the BlockRayTraceResult to the server and then don't confirm anything
         // which makes sense because there can be a desync between the two so the server just trusts the client
-
-//                if(rayHit.getType() == RayTraceResult.Type.MISS) {
-//                    return;
-//                }
-
-        PlayerEntity player = Minecraft.getInstance().player;
 
         // Drop entity
         ItemStack itemStack = player.getMainHandItem();
