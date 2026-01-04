@@ -1,4 +1,6 @@
 {
+  "cool and insightful comment": "this could also be multipart for less files",
+
   "variants": {
     "mode=normal,pressed=false,corner=down_left,active=false": {"model": "portalmod:block/super_button_normal_2_unpressed_off"},
     "mode=normal,pressed=false,corner=up_left,active=false": {"model": "portalmod:block/super_button_normal_1_unpressed_off"},
@@ -16,6 +18,7 @@
     "mode=normal,pressed=true,corner=up_left,active=false": {"model": "portalmod:block/super_button_normal_1_pressed_off"},
     "mode=normal,pressed=true,corner=up_right,active=false": {"model": "portalmod:block/super_button_normal_2_pressed_off"},
     "mode=normal,pressed=true,corner=down_right,active=false": {"model": "portalmod:block/super_button_normal_1_pressed_off"},
+
     "mode=persistent,pressed=false,corner=down_left,active=false": {"model": "portalmod:block/super_button_persistent_2_unpressed_off"},
     "mode=persistent,pressed=false,corner=up_left,active=false": {"model": "portalmod:block/super_button_persistent_1_unpressed_off"},
     "mode=persistent,pressed=false,corner=up_right,active=false": {"model": "portalmod:block/super_button_persistent_2_unpressed_off"},
@@ -24,10 +27,15 @@
     "mode=persistent,pressed=false,corner=up_left,active=true": {"model": "portalmod:block/super_button_persistent_1_unpressed_on"},
     "mode=persistent,pressed=false,corner=up_right,active=true": {"model": "portalmod:block/super_button_persistent_2_unpressed_on"},
     "mode=persistent,pressed=false,corner=down_right,active=true": {"model": "portalmod:block/super_button_persistent_1_unpressed_on"},
-    "mode=persistent,pressed=true,corner=down_left": {"model": "portalmod:block/super_button_persistent_2_pressed"},
-    "mode=persistent,pressed=true,corner=up_left": {"model": "portalmod:block/super_button_persistent_1_pressed"},
-    "mode=persistent,pressed=true,corner=up_right": {"model": "portalmod:block/super_button_persistent_2_pressed"},
-    "mode=persistent,pressed=true,corner=down_right": {"model": "portalmod:block/super_button_persistent_1_pressed"},
+    "mode=persistent,pressed=true,corner=down_left,active=false": {"model": "portalmod:block/super_button_persistent_2_pressed_off"},
+    "mode=persistent,pressed=true,corner=up_left,active=false": {"model": "portalmod:block/super_button_persistent_1_pressed_off"},
+    "mode=persistent,pressed=true,corner=up_right,active=false": {"model": "portalmod:block/super_button_persistent_2_pressed_off"},
+    "mode=persistent,pressed=true,corner=down_right,active=false": {"model": "portalmod:block/super_button_persistent_1_pressed_off"},
+    "mode=persistent,pressed=true,corner=down_left,active=true": {"model": "portalmod:block/super_button_persistent_2_pressed_on"},
+    "mode=persistent,pressed=true,corner=up_left,active=true": {"model": "portalmod:block/super_button_persistent_1_pressed_on"},
+    "mode=persistent,pressed=true,corner=up_right,active=true": {"model": "portalmod:block/super_button_persistent_2_pressed_on"},
+    "mode=persistent,pressed=true,corner=down_right,active=true": {"model": "portalmod:block/super_button_persistent_1_pressed_on"},
+
     "mode=toggle,pressed=false,active=false,corner=down_left": {"model": "portalmod:block/super_button_toggle_2_unpressed_off"},
     "mode=toggle,pressed=false,active=false,corner=up_left": {"model": "portalmod:block/super_button_toggle_1_unpressed_off"},
     "mode=toggle,pressed=false,active=false,corner=up_right": {"model": "portalmod:block/super_button_toggle_2_unpressed_off"},

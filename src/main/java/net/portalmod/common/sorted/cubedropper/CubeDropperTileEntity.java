@@ -3,6 +3,10 @@ package net.portalmod.common.sorted.cubedropper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -11,6 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
@@ -63,17 +68,15 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             dropperBlock.setOpen(true, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 1;
             if (this.entityUUIDs.size() == 2) {
-                fizzleCube(this.entityUUIDs.get(0));
+                fizzleFirstCube();
             }
         }
     }
 
-    public void fizzleCube(UUID uuid) {
-        World level = this.level;
+    public void fizzleFirstCube() {
+        if (!(this.level instanceof ServerWorld)) return;
 
-        if (!(level instanceof ServerWorld)) return;
-
-        Entity entity = ((ServerWorld) level).getEntity(uuid);
+        Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
 
         if (entity instanceof TestElementEntity) {
             ((TestElementEntity) entity).startFizzling();
@@ -90,6 +93,12 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             dropperBlock.setOpen(false, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 0;
             addEntity();
+        }
+    }
+
+    public void resetDropper() {
+        if (this.entityUUIDs.size() == 2) {
+            fizzleFirstCube();
         }
     }
 
@@ -145,6 +154,55 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             }
             this.entityUUIDs.clear();
         }
+    }
+
+    public void onEggClick(ItemStack egg, PlayerEntity player) {
+        EntityType<?> spawnEggType = ((SpawnEggItem) egg.getItem()).getType(egg.getTag());
+
+        if (!player.isCreative()) {
+            egg.shrink(1);
+            this.getEntityType().ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
+        }
+
+        this.removeAllEntities();
+        this.setEntityNBT(spawnEggType);
+    }
+
+    public void onWrenchClick(PlayerEntity player) {
+        if (!this.hasEntityNBT()) return;
+
+        // Remove current spawned cube
+        if (this.entityUUIDs.size() > 1) {
+            this.resetDropper();
+        } else {
+            // Clear entity type of dropper
+            this.removeAllEntities();
+            if (!player.isCreative()) {
+                this.dropEgg();
+            }
+
+            this.removeEntityNBT();
+        }
+    }
+
+    public void onRemove() {
+        this.removeAllEntities();
+        this.dropEgg();
+    }
+
+    public void dropEgg() {
+        if (this.level == null) return;
+
+        this.getEntityType().ifPresent(type -> {
+            BlockPos blockPos = this.getBlockPos();
+            ItemEntity entity = new ItemEntity(this.level,
+                    blockPos.getX() + 1,
+                    blockPos.getY() - 1.4,
+                    blockPos.getZ() + 1,
+                    new ItemStack(ForgeSpawnEggItem.fromEntityType(type)));
+            entity.setDeltaMovement(entity.getDeltaMovement().multiply(1, .5, 1));
+            this.level.addFreshEntity(entity);
+        });
     }
 
     @Override

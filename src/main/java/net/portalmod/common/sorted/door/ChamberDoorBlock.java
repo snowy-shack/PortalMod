@@ -213,6 +213,7 @@ public class ChamberDoorBlock extends MultiBlock {
 
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
+        this.updateAllNeighbors(world, pos, blockState);
         playSound(open, blockState, world, pos);
     }
 
@@ -224,6 +225,25 @@ public class ChamberDoorBlock extends MultiBlock {
     public static Vector3d getExactMiddlePos(BlockState state, BlockPos pos) {
         Direction facing = state.getValue(FACING);
         return Vector3d.atBottomCenterOf(pos).add(new Vec3(facing.getCounterClockWise().getNormal()).mul(0.5).add(0, 1, 0).to3d());
+    }
+
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getSignal(BlockState state, IBlockReader level, BlockPos pos, Direction direction) {
+        TileEntity blockEntity = level.getBlockEntity(this.getMainPosition(state, pos));
+        if (state.getValue(OPEN) && blockEntity instanceof ChamberDoorTileEntity) {
+            return ((ChamberDoorTileEntity) blockEntity).isAutomatic() ? 15 : 0;
+        }
+        return 0;
+    }
+
+    @Override
+    public int getDirectSignal(BlockState state, IBlockReader level, BlockPos pos, Direction direction) {
+        return this.getSignal(state, level, pos, direction);
     }
 
     @Override
