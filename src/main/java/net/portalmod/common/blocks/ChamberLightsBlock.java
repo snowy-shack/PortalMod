@@ -18,10 +18,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 public class ChamberLightsBlock extends DoubleBlock {
@@ -46,9 +45,12 @@ public class ChamberLightsBlock extends DoubleBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos nPos, boolean moved) {
-        super.neighborChanged(state, world, pos, block, nPos, moved);
+    public Direction getUpperDirection(BlockState state) {
+        return Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
+    }
 
+    @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos nPos, boolean moved) {
         Boolean wasPowered = state.getValue(POWERED);
         boolean isPowered = this.getAllPositions(state, pos).stream().anyMatch(world::hasNeighborSignal);
         if (wasPowered == isPowered) {
@@ -88,57 +90,29 @@ public class ChamberLightsBlock extends DoubleBlock {
         this.blink(state, world, pos);
     }
 
-    @Override
-    public BlockPos getMainPosition(BlockState blockState, BlockPos pos) {
-        return blockState.getValue(HALF) == DoubleBlockHalf.LOWER
-                ? pos
-                : pos.relative(Direction.fromAxisAndDirection(blockState.getValue(AXIS), Direction.AxisDirection.NEGATIVE));
-    }
-
-    @Override
-    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        return new ArrayList<>(Collections.singletonList(
-                mainPos.relative(Direction.fromAxisAndDirection(blockState.getValue(AXIS), Direction.AxisDirection.POSITIVE))
-        ));
-    }
-
-    @Override
-    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
-        boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
-        world.setBlockAndUpdate(
-                pos.relative(
-                        Direction.fromAxisAndDirection(blockState.getValue(AXIS),
-                        isLower ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE)
-                ),
-                blockState.setValue(HALF, isLower ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER)
-        );
-    }
-
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(@Nonnull BlockItemUseContext context) {
         if (context.getPlayer() == null) return null;
         Direction.Axis axis = context.getPlayer().getDirection().getAxis() == Direction.Axis.X
                 ? Direction.Axis.Z
                 : Direction.Axis.X;
 
-        // See if the player wants to place horizontally
         boolean prefersHorizontal = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
 
-        // Check what placements are possible, and decide what placement will be picked.
-        Boolean verticalTopHalf = shouldBeTopHalf(context, Direction.Axis.Y);
-        Boolean horizontalTopHalf = shouldBeTopHalf(context, axis);
-        if (verticalTopHalf == null && horizontalTopHalf == null) return null;
+        // Check what placements are possible
+        Optional<DoubleBlockHalf> verticalTopHalf = getPlacementHalf(context, Direction.Axis.Y);
+        Optional<DoubleBlockHalf> horizontalTopHalf = getPlacementHalf(context, axis);
 
-        boolean willGetHorizontal = (prefersHorizontal && (horizontalTopHalf != null))
-                || (!prefersHorizontal && verticalTopHalf == null);
+        if (!verticalTopHalf.isPresent() && !horizontalTopHalf.isPresent()) {
+            // Neither is possible
+            return null;
+        }
 
-        boolean half = willGetHorizontal ? horizontalTopHalf : verticalTopHalf;
+        boolean willGetHorizontal = prefersHorizontal && horizontalTopHalf.isPresent() || !verticalTopHalf.isPresent();
 
-        // Compute the blockstate
-        BlockState blockstate = this.defaultBlockState().setValue(
-                HALF, half ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER
-        );
+        BlockState blockstate = this.defaultBlockState()
+                .setValue(HALF, willGetHorizontal ? horizontalTopHalf.get() : verticalTopHalf.get());
 
         if (willGetHorizontal) {
             return blockstate.setValue(AXIS, axis)

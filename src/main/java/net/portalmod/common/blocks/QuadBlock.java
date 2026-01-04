@@ -13,14 +13,11 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
 import net.portalmod.core.math.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class QuadBlock extends MultiBlock {
@@ -63,15 +60,18 @@ public class QuadBlock extends MultiBlock {
     }
 
     @Override
-    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
         QuadBlockCorner base = blockState.getValue(CORNER);
         Direction facing = blockState.getValue(FACING);
 
-        for(QuadBlockCorner corner : QuadBlockCorner.values()) {
-            if(corner == base)
-                continue;
-            world.setBlock(getOtherBlock(pos, base, corner, facing), blockState.setValue(CORNER, corner), Constants.BlockFlags.DEFAULT);
+        Map<BlockPos, BlockState> map = new HashMap<>();
+
+        for (QuadBlockCorner corner : QuadBlockCorner.values()) {
+            if (corner == base) continue;
+            map.put(getOtherBlock(pos, base, corner, facing), blockState.setValue(CORNER, corner));
         }
+
+        return map;
     }
 
     @Override
