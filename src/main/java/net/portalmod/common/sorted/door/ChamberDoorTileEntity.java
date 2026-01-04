@@ -100,7 +100,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     2      1       12     11
 
      */
-    public static List<BlockPos> getSurroundingPositions(BlockPos pos, Direction vertical, Direction horizontal) {
+    public List<BlockPos> getSurroundingPositions(BlockPos pos, Direction vertical, Direction horizontal) {
         return new ArrayList<>(Arrays.asList(
                 pos.relative(vertical.getOpposite()),
                 pos.relative(horizontal.getOpposite()).relative(vertical.getOpposite()),
@@ -117,7 +117,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         ));
     }
 
-    public static List<BlockPos> getDoorPositions(BlockPos pos, Direction vertical, Direction horizontal) {
+    public List<BlockPos> getDoorPositions(BlockPos pos, Direction vertical, Direction horizontal) {
         return new ArrayList<>(Arrays.asList(
                 pos.relative(horizontal),
                 pos.relative(horizontal).relative(vertical),
@@ -134,7 +134,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     1              4
 
      */
-    public static List<BlockPos> getOuterCornerPositions(BlockPos pos, Direction vertical, Direction horizontal) {
+    public List<BlockPos> getOuterCornerPositions(BlockPos pos, Direction vertical, Direction horizontal) {
         return new ArrayList<>(Arrays.asList(
                 pos.relative(horizontal.getOpposite()).relative(vertical.getOpposite()),
                 pos.relative(horizontal.getOpposite()).relative(vertical, 2),

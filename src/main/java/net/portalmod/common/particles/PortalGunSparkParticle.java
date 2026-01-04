@@ -4,9 +4,9 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.BasicParticleType;
+import net.minecraft.util.HandSide;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.ParticleInit;
 
 import java.util.Random;
@@ -25,6 +25,7 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         this.xd = dx;
         this.yd = dy;
         this.zd = dz;
+        this.quadSize = quadSize * 0.65f;
 
         this.u = RANDOM.nextInt(4);
         this.v = RANDOM.nextInt(4);
@@ -67,20 +68,22 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         return this.sprite.getV((this.v + 1) * 4);
     }
 
-    public static void createParticles(World world, PlayerEntity player) {
+    public static void createParticles(World world, PlayerEntity player, boolean offhand) {
+        boolean isLefty = player.getMainArm() == HandSide.LEFT;
+
         Vector3d viewVec = player.getViewVector(1);
-        Vector3d rightVec = new Vector3d(-viewVec.z, 0, viewVec.x).normalize(); // Perpendicular to view
-        Vector3d downVec = new Vector3d(0, -1, 0); // Straight down
+        Vector3d rightVec = Vector3d.directionFromRotation(0, player.yHeadRot + 90); // Screen right
+        Vector3d downVec = viewVec.cross(rightVec); // Screen down
 
         Vector3d viewLocation = player.getEyePosition(1)
-                .add(viewVec.scale(1)) // Forward
-                .add(rightVec.scale(0.4)
-                        .scale(player.getMainHandItem().getItem() instanceof PortalGun ? 1 : -1)) // Right
-                .add(downVec.scale(0.2)); // Down
+                .add(viewVec.scale(0.8)) // Forward
+                .add(rightVec.scale(0.45)
+                        .scale(offhand == isLefty ? 1 : -1)) // Right
+                .add(downVec.scale(0.3)); // Down
 
         int amount = RANDOM.nextInt(3) + 1; // 1 - 3
         double speed = 0.07;
-        double spread = 0.3;
+        double spread = 0.2;
 
         for (int i = 0; i < amount; i++) {
             Vector3d offset = new Vector3d(symmetricRandom(spread), symmetricRandom(spread), symmetricRandom(spread));
@@ -101,6 +104,7 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
             this.sprite = p_i50823_1_;
         }
 
+        @Override
         public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
             PortalGunSparkParticle particle = new PortalGunSparkParticle(world, x, y, z, dx, dy, dz);
             particle.pickSprite(this.sprite);
