@@ -37,9 +37,7 @@ import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class CubeDropperBlock extends MultiBlock {
 
@@ -126,7 +124,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public void placeConnectedBlocks(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
         QuadBlockCorner corner = blockState.getValue(CORNER);
         boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
         boolean isLeft = corner.isLeft();
@@ -141,24 +139,30 @@ public class CubeDropperBlock extends MultiBlock {
         QuadBlockCorner oppositeUpDown = corner.mirrorUpDown();
         QuadBlockCorner diagonal = corner.mirrorUpDown().mirrorLeftRight();
 
-        world.setBlockAndUpdate(pos.relative(leftRight), blockState.setValue(CORNER, oppositeLeftRight));
+        HashMap<BlockPos, BlockState> map = new HashMap<>();
 
-        world.setBlockAndUpdate(pos.relative(upDown), blockState.setValue(CORNER, oppositeUpDown));
+        map.put(pos.relative(leftRight), blockState.setValue(CORNER, oppositeLeftRight));
 
-        world.setBlockAndUpdate(pos.relative(upDown).relative(leftRight), blockState.setValue(CORNER, diagonal));
+        map.put(pos.relative(upDown), blockState.setValue(CORNER, oppositeUpDown));
 
-        world.setBlockAndUpdate(pos.relative(vertical), blockState.setValue(HALF, oppositeHalf));
+        map.put(pos.relative(upDown).relative(leftRight), blockState.setValue(CORNER, diagonal));
 
-        world.setBlockAndUpdate(pos.relative(vertical).relative(leftRight), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, oppositeLeftRight));
+        map.put(pos.relative(vertical), blockState.setValue(HALF, oppositeHalf));
 
-        world.setBlockAndUpdate(pos.relative(vertical).relative(upDown), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, oppositeUpDown));
+        map.put(pos.relative(vertical).relative(leftRight), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, oppositeLeftRight));
 
-        world.setBlockAndUpdate(pos.relative(vertical).relative(upDown).relative(leftRight), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, diagonal));
+        map.put(pos.relative(vertical).relative(upDown), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, oppositeUpDown));
+
+        map.put(pos.relative(vertical).relative(upDown).relative(leftRight), blockState.setValue(HALF, oppositeHalf).setValue(CORNER, diagonal));
+
+        return map;
     }
 
     @Override
     public StatePropertiesPredicate.Builder mainBlockPredicate() {
-        return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.UPPER).hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
+        return StatePropertiesPredicate.Builder.properties()
+                .hasProperty(HALF, DoubleBlockHalf.UPPER)
+                .hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
     @Nullable

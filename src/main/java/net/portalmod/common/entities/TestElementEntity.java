@@ -20,7 +20,6 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -28,18 +27,21 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.particles.PortalGunSparkParticle;
 import net.portalmod.common.sorted.fizzler.Fizzler;
+import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
+import java.util.List;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -54,6 +56,8 @@ public abstract class TestElementEntity extends LivingEntity {
     private static final DataParameter<Integer> DATA_ID_HURT = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     private static final DataParameter<Integer> DATA_ID_HURTDIR = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     private static final DataParameter<Float> DATA_ID_DAMAGE = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.FLOAT);
+
+    public static final float HOLDING_DISTANCE = 1.5f;
 
     public int maxFizzleTime = 35;
     public boolean canFizzle;
@@ -112,6 +116,24 @@ public abstract class TestElementEntity extends LivingEntity {
         }
 
         return false;
+    }
+
+    public boolean isFizzling() {
+        return this.getFizzleTicks() > 0;
+    }
+
+    public void startFizzling() {
+        if (canFizzle && !this.isFizzling()) {
+            this.setFizzleTicks(this.getFizzleTicks() + 1);
+        }
+    }
+
+    public int getFizzleLight(int packedLight) {
+        int fizzleAmount = (int) (this.getFizzleTicks() * 0.6);
+        return LightTexture.pack(
+                Math.max(0, LightTexture.block(packedLight) - fizzleAmount),
+                Math.max(0, LightTexture.sky(packedLight) - fizzleAmount)
+        );
     }
 
     public void fizzleTick() {
@@ -180,30 +202,36 @@ public abstract class TestElementEntity extends LivingEntity {
         }
     }
 
+    public boolean pickUp(PlayerEntity player) {
+        boolean riding = this.startRiding(player);
+        if (!riding) return false;
+
+        if (player.level.isClientSide()) {
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(this.getId()).build());
+        }
+
+        return true;
+    }
+
     @Override
     public void rideTick() {
         this.setDeltaMovement(Vector3d.ZERO);
         this.tick();
 
-        if (this.getVehicle() instanceof PlayerEntity) {
-            this.yRot = this.getVehicle().getYHeadRot();
-            this.yBodyRot = this.yRot;
-        } else {
-            if (!(this.getVehicle() instanceof AbstractMinecartEntity || this.getVehicle() instanceof BoatEntity)) {
+        if (!(this.getVehicle() instanceof PlayerEntity)) {
+            if (this.getVehicle() instanceof AbstractMinecartEntity || this.getVehicle() instanceof BoatEntity) {
+                super.rideTick();
+            } else {
                 this.stopRiding();
             }
             return;
         }
 
-        PlayerEntity player = (PlayerEntity)getVehicle();
-        if(!(player.getItemInHand(Hand.MAIN_HAND).getItem() instanceof PortalGun)
-                && !(player.getItemInHand(Hand.OFF_HAND).getItem() instanceof PortalGun)) {
-            this.stopRiding();
-            return;
-        }
+        this.yRot = this.getVehicle().getYHeadRot();
+        this.yBodyRot = this.yRot;
 
-        final float factor = 2;
-        Vector3d eyePos = player.getEyePosition(1).add(0, -.4, 0);
+        PlayerEntity player = (PlayerEntity)getVehicle();
+        Vector3d eyePos = player.getEyePosition(1).add(0, -0.4, 0);
 
         float xRot = player.getViewXRot(1);
         float yRot = player.getViewYRot(1);
@@ -223,34 +251,27 @@ public abstract class TestElementEntity extends LivingEntity {
         this.zo = this.getZ();
 
         Vector3d ridingPos = new Vector3d(
-                eyePos.x + x * factor,
-                eyePos.y + y * factor,
-                eyePos.z + z * factor);
+                eyePos.x + x * HOLDING_DISTANCE,
+                eyePos.y + y * HOLDING_DISTANCE,
+                eyePos.z + z * HOLDING_DISTANCE);
 
         this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
 
         if(this.position().distanceTo(ridingPos) > 1) {
-            this.tryDropAnim();
-            this.stopRiding();
+            dropHeldEntities(player, false, player.getMainHandItem());
         }
 
         this.fallDistance = 0;
 
-        PortalGunSparkParticle.createParticles(this.level, player);
+        if (player.getMainHandItem().getItem() instanceof PortalGun) {
+            PortalGunSparkParticle.createParticles(this.level, player, false);
+        } else if (player.getOffhandItem().getItem() instanceof PortalGun) {
+            PortalGunSparkParticle.createParticles(this.level, player, true);
+        }
 
         if (this.isFizzling()) {
             this.awardKill();
-            this.tryDropAnim();
-            this.stopRiding();
-        }
-    }
-
-    public void tryDropAnim() {
-        PlayerEntity player = ((PlayerEntity) this.getVehicle());
-        if (player != null && player.level instanceof ServerWorld) {
-            ItemStack gun = (player.getMainHandItem().getItem() instanceof PortalGun) ? player.getMainHandItem() : player.getOffhandItem();
-
-            PortalGun.dropCube(player, false, gun);
+            dropHeldEntities(player, false, player.getMainHandItem());
         }
     }
 
@@ -261,6 +282,59 @@ public abstract class TestElementEntity extends LivingEntity {
 
         Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
         this.setDeltaMovement(momentum);
+    }
+
+    public static void dropHeldEntities(PlayerEntity player, boolean yeet, ItemStack itemStack) {
+        List<Entity> passengers = player.getPassengers();
+        for (int i = passengers.size() - 1; i >= 0; --i) {
+            Entity entity = passengers.get(0);
+            if (!(entity instanceof TestElementEntity)) {
+                continue;
+            }
+
+            entity.stopRiding();
+
+            if (itemStack.getItem() instanceof PortalGun) {
+                PortalGun.dropCube(player, itemStack);
+            }
+
+            float maxSpeed = 0.5f;
+
+            boolean exceedsLimit = entity.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
+            if (exceedsLimit) entity.setDeltaMovement(entity.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
+
+            if (yeet) {
+                float strength = .3f;
+                entity.setDeltaMovement(entity.getDeltaMovement().add(player.getViewVector(0)
+                        .multiply(strength, strength, strength)));
+            }
+        }
+    }
+
+    public boolean isHoldable() {
+        return !this.isFizzling();
+    }
+
+    public static boolean isHoldable(Entity entity) {
+        return entity instanceof TestElementEntity && ((TestElementEntity) entity).isHoldable();
+    }
+
+    public boolean isPickedUp() {
+        return this.getVehicle() != null && this.getVehicle() instanceof PlayerEntity;
+    }
+
+    public void dropIfPickedUp() {
+        if (this.isPickedUp()) {
+            PlayerEntity player = (PlayerEntity) this.getVehicle();
+            assert player != null;
+            dropHeldEntities(player, false, player.getMainHandItem());
+        }
+    }
+
+    @Override
+    public void remove(boolean keepData) {
+        super.remove(keepData);
+        this.dropIfPickedUp();
     }
 
     @Override
@@ -315,24 +389,6 @@ public abstract class TestElementEntity extends LivingEntity {
         this.setHurtDir(-this.getHurtDir());
         this.setHurtTime(10);
         this.setDamage(this.getDamage() + this.getDamage() * 10.0F);
-    }
-
-    public boolean isFizzling() {
-        return this.getFizzleTicks() > 0;
-    }
-
-    public void startFizzling() {
-        if (canFizzle && !this.isFizzling()) {
-            this.setFizzleTicks(this.getFizzleTicks() + 1);
-        }
-    }
-
-    public int getFizzleLight(int packedLight) {
-        int fizzleAmount = (int) (this.getFizzleTicks() * 0.6);
-        return LightTexture.pack(
-                Math.max(0, LightTexture.block(packedLight) - fizzleAmount),
-                Math.max(0, LightTexture.sky(packedLight) - fizzleAmount)
-        );
     }
 
     @Override

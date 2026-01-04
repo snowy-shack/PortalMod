@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.button;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -21,13 +20,12 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivator;
+import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
@@ -44,7 +42,6 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
     public static final int BUTTON_DELAY = 20;
-    public static final double REACH = 2;
 
     public StandingButtonBlock(Properties properties) {
         super(properties);
@@ -86,6 +83,11 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(HALF, PRESSED, ACTIVE, MODE);
+    }
+
+    @Override
+    public Direction getUpperDirection(BlockState state) {
+        return Direction.UP;
     }
 
     public boolean canActivate(BlockState blockState) {
@@ -150,7 +152,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         }
 
         double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < REACH) {
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < PortalGun.REACH) {
             this.activate(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
@@ -178,21 +180,6 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
             this.updateAllNeighbors(level, pos, level.getBlockState(pos));
             this.playSound(level, pos, false);
         }
-    }
-
-    @Override
-    public boolean canSurvive(BlockState blockState, IWorldReader world, BlockPos pos) {
-        BlockPos belowPos = pos.below();
-        BlockState belowState = world.getBlockState(belowPos);
-        return blockState.getValue(HALF) == DoubleBlockHalf.LOWER ? belowState.isFaceSturdy(world, belowPos, Direction.UP) : belowState.is(this);
-    }
-
-    @Override
-    public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
-        if (blockState.canSurvive(world, pos)) {
-            return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
-        }
-        return Blocks.AIR.defaultBlockState();
     }
 
     @Override
