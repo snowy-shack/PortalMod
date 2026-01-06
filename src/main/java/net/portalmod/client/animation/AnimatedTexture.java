@@ -22,6 +22,10 @@ public class AnimatedTexture {
         this.frames = frames;
         this.framerate = framerate;
     }
+
+    public ResourceLocation getTextureLocation() {
+        return this.material.texture();
+    }
     
     public IVertexBuilder buffer(IRenderTypeBuffer renderTypeBuffer, Function<ResourceLocation, RenderType> renderType) {
         return material.buffer(renderTypeBuffer, renderType);

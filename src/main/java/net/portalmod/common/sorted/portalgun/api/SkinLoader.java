@@ -14,10 +14,10 @@ public class SkinLoader {
         try {
             SkinTexture skinTexture = new SkinTexture(skinId);
             TextureManager tm = Minecraft.getInstance().textureManager;
-            tm.register(new ResourceLocation(PortalMod.MODID, "gun/test"), skinTexture);
+            tm.register(new ResourceLocation(PortalMod.MODID, "gun/" + skinId), skinTexture);
 
             animatedTexture = new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS,
-                    new ResourceLocation(PortalMod.MODID, "gun/test"), skinTexture.getFrameCount(), 2);
+                    new ResourceLocation(PortalMod.MODID, "gun/" + skinId), skinTexture.getFrameCount(), 2);
 
             return animatedTexture;
         } catch(Exception e) {

@@ -117,19 +117,6 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         } else {
             animate = false;
         }
-        
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
-        matrixStack.translate(0, -1.5, 0);
-        
-//        Colour colour = new Colour(Color.HSBtoRGB((int)(System.currentTimeMillis() / 10 % 360) / 360f, .8f, 1));
-        
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
-        irendertypebuffer$impl.endBatch();
-//        IVertexBuilder ivertexbuilder = TEX.buffer(renderTypeBuffer, RenderType::entityCutoutNoCull);
-        IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(
-                RenderType.entityCutoutNoCull(new ResourceLocation(PortalMod.MODID, "gun/test")));
-        
-//        ResourceLocation gun = new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim");
 
         Colour colour = new Colour(255, 0, 0, 255);
         Colour oppositeColour = new Colour(255, 0, 0, 255);
@@ -174,20 +161,34 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
         PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
 
-//        TEX.setupAnimation();
-        TEST_TEXTURE.setupAnimation();
+        renderGun(matrixStack, gunUUID, model, renderTypeBuffer,
+                new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(PortalMod.MODID, "gun/default"), 1, 2),
+                stripeColour, lastPortalColor, gunLightOn, animate, packedLight, packedOverlay);
+
+        matrixStack.popPose();
+    }
+
+    public static void renderGun(MatrixStack matrixStack, UUID gunUUID, PortalGunModel model, IRenderTypeBuffer renderTypeBuffer, AnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
+        matrixStack.pushPose();
+
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
+        matrixStack.translate(0, -1.5, 0);
+
+        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
+        irendertypebuffer$impl.endBatch();
+
+        IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));
+
+        texture.setupAnimation();
         model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
         model.render(gunUUID, model.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
         irendertypebuffer$impl.endBatch();
-//        TEX.endAnimation();
-        TEST_TEXTURE.endAnimation();
+        texture.endAnimation();
 
         ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
         model.render(gunUUID, model.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);
+        irendertypebuffer$impl.endBatch();
 
-//        ivertexbuilder = PORTALGUN_MATERIAL.buffer(renderTypeBuffer, RenderType::entityTranslucent);
-//        PORTALGUN_MODEL.render(gunUUID, PORTALGUN_MODEL.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, currentColour, !animate);
-        
         matrixStack.popPose();
     }
 
