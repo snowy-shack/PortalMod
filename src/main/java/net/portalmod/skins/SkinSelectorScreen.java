@@ -29,19 +29,30 @@ import org.lwjgl.opengl.GL11;
 
 public class SkinSelectorScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
+    private static final int WIDTH  = 328;
+    private static final int HEIGHT = 172;
 
     private final Screen lastScreen;
+
+    private static final int SKIN_PREVIEW_X      = 217;
+    private static final int SKIN_PREVIEW_Y      = 17;
+    private static final int SKIN_PREVIEW_WIDTH  = 100;
+    private static final int SKIN_PREVIEW_HEIGHT = 100;
     private SkinPreviewWidget skinPreviewWidget;
 
+    private static final int SKIN_LIST_X       = 8;
+    private static final int SKIN_LIST_Y       = 18;
+    private static final int SKIN_LIST_WIDTH   = 189;
+    private static final int SKIN_LIST_HEIGHT  = 142;
     private static final int SKIN_ENTRY_HEIGHT = 30;
     private final List<SkinEntryWidget> skinList;
     private Rectangle listRegion;
 
-    private static final int SCROLLBAR_THUMB_U = 336;
-    private static final int SCROLLBAR_THUMB_V = 0;
-    private static final int SCROLLBAR_THUMB_EDGE_HEIGHT = 4;
+    private static final int SCROLLBAR_THUMB_U             = 336;
+    private static final int SCROLLBAR_THUMB_V             = 0;
+    private static final int SCROLLBAR_THUMB_EDGE_HEIGHT   = 4;
     private static final int SCROLLBAR_THUMB_CENTER_HEIGHT = 6;
-    private static final int SCROLLBAR_THUMB_WIDTH = 7;
+    private static final int SCROLLBAR_THUMB_WIDTH         = 7;
     private float scrollAmount;
     private boolean draggingScrollbar;
     private float draggingScrollbarRelativeY;
@@ -55,10 +66,12 @@ public class SkinSelectorScreen extends Screen {
 
     @Override
     protected void init() {
-        this.skinPreviewWidget = new SkinPreviewWidget(this.getX() + 217, this.getY() + 17, 100, 100);
+        this.skinPreviewWidget = new SkinPreviewWidget(this.getX() + SKIN_PREVIEW_X, this.getY() + SKIN_PREVIEW_Y,
+                SKIN_PREVIEW_WIDTH, SKIN_PREVIEW_HEIGHT);
         this.addWidget(this.skinPreviewWidget);
 
-        this.listRegion = new Rectangle(this.getX() + 8, this.getY() + 18, 189, 142);
+        this.listRegion = new Rectangle(this.getX() + SKIN_LIST_X, this.getY() + SKIN_LIST_Y,
+                SKIN_LIST_WIDTH, SKIN_LIST_HEIGHT);
         this.initSkinList();
     }
 
@@ -93,11 +106,11 @@ public class SkinSelectorScreen extends Screen {
     }
 
     private int getX() {
-        return (this.width - 328) / 2;
+        return (this.width - WIDTH) / 2;
     }
 
     private int getY() {
-        return (this.height - 172) / 2;
+        return (this.height - HEIGHT) / 2;
     }
 
     public void selectEntry(SkinEntryWidget entry) {
@@ -110,7 +123,7 @@ public class SkinSelectorScreen extends Screen {
         super.renderBackground(matrixStack, i);
 
         this.minecraft.getTextureManager().bind(TEXTURE);
-        blit(matrixStack, this.getX(), this.getY(), 0, 0, 328, 172, 512, 512);
+        blit(matrixStack, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
     }
 
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -214,7 +227,7 @@ public class SkinSelectorScreen extends Screen {
         int y1 = rectangle.y + rectangle.height;
 
         BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         bufferbuilder.vertex(matrix, x0, y0, 0).endVertex();
         bufferbuilder.vertex(matrix, x0, y1, 0).endVertex();
         bufferbuilder.vertex(matrix, x1, y1, 0).endVertex();
