@@ -44,7 +44,10 @@ public class SkinEntryWidget extends Widget {
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         FontRenderer font = Minecraft.getInstance().font;
-        drawString(matrixStack, font, "§l" + this.skin.name, this.x + 7, this.y + 7, 16777215);
+
+        String credit = (this.skin.artist != null) ? "- by " + this.skin.artist : "";
+
+        drawString(matrixStack, font, "§l" + this.skin.name + " §r" + credit, this.x + 7, this.y + 7, 16777215);
         drawString(matrixStack, font, this.skin.description, this.x + 7, this.y + 7 + 10, 16777215);
     }
 
