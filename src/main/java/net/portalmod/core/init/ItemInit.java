@@ -37,7 +37,7 @@ public class ItemInit {
 
     // Fundamental Items
     public static final RegistryObject<Item> PORTALGUN = ITEMS.register("portalgun",
-            () -> new PortalGun(properties().stacksTo(1).setISTER(() -> PortalGunISTER::new)));
+            () -> new PortalGun(properties().stacksTo(1).fireResistant().setISTER(() -> PortalGunISTER::new)));
 
     public static final RegistryObject<Item> LONGFALL_BOOTS = ITEMS.register("longfall_boots",
             () -> new LongFallBoots(ArmorMaterialInit.LONGFALL_BOOTS, EquipmentSlotType.FEET, properties().fireResistant()));
