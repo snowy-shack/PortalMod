@@ -57,16 +57,18 @@ public class SkinSelectorScreen extends Screen {
     private static final int SCROLLBAR_THUMB_EDGE_HEIGHT   = 4;
     private static final int SCROLLBAR_THUMB_CENTER_HEIGHT = 6;
     private static final int SCROLLBAR_THUMB_WIDTH         = 7;
-    private float scrollAmount;
+    private static final int SCROLL_AMOUNT                 = 15;
+    private float scrollOffset;
     private boolean draggingScrollbar;
     private float draggingScrollbarRelativeY;
+    private Rectangle scrollbarRegion;
 
     public SkinSelectorScreen(Screen lastScreen) {
         super(new TranslationTextComponent("options." + PortalMod.MODID + ".skins.title"));
         this.lastScreen = lastScreen;
         this.skins = new ArrayList<>();
         this.skinEntryList = new ArrayList<>();
-        this.scrollAmount = 0;
+        this.scrollOffset = 0;
     }
 
     @Override
@@ -77,6 +79,9 @@ public class SkinSelectorScreen extends Screen {
 
         this.listRegion = new Rectangle(this.getX() + SKIN_LIST_X, this.getY() + SKIN_LIST_Y,
                 SKIN_LIST_WIDTH, SKIN_LIST_HEIGHT);
+        this.scrollbarRegion = new Rectangle(
+                this.listRegion.x + this.listRegion.width + 1, this.listRegion.y + 1,
+                SCROLLBAR_THUMB_WIDTH, this.listRegion.height - 2);
         this.initSkinList();
 
         this.initialized = true;
@@ -175,7 +180,7 @@ public class SkinSelectorScreen extends Screen {
         RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_REPLACE, GL11.GL_REPLACE);
 
         matrixStack.pushPose();
-        matrixStack.translate(0, -this.scrollAmount * (this.getListHeight() - this.listRegion.height), 0);
+        matrixStack.translate(0, -this.scrollOffset * this.getScrollableRange(), 0);
         this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
         matrixStack.popPose();
 
@@ -214,32 +219,24 @@ public class SkinSelectorScreen extends Screen {
     }
 
     private int getScrollbarThumbHeight() {
-        int scrollbarHeight = (int)((float)this.listRegion.height / this.getListHeight() * this.getScrollbarRegion().height);
+        int scrollbarHeight = (int)((float)this.listRegion.height / this.getListHeight() * this.scrollbarRegion.height);
         return (scrollbarHeight - 2 * SCROLLBAR_THUMB_EDGE_HEIGHT) / SCROLLBAR_THUMB_CENTER_HEIGHT * SCROLLBAR_THUMB_CENTER_HEIGHT + 2 * SCROLLBAR_THUMB_EDGE_HEIGHT;
     }
 
     private int getScrollbarThumbRange() {
-        return this.getScrollbarRegion().height - this.getScrollbarThumbHeight();
+        return this.scrollbarRegion.height - this.getScrollbarThumbHeight();
     }
 
-    private Rectangle getScrollbarRegion() {
-        return new Rectangle(
-                this.listRegion.x + this.listRegion.width + 1,
-                this.listRegion.y + 1,
-                SCROLLBAR_THUMB_WIDTH,
-                this.listRegion.height - 2
-        );
+    private int getScrollableRange() {
+        return this.getListHeight() - this.listRegion.height;
     }
 
     private Rectangle getScrollbarThumbRegion() {
-        Rectangle scrollbarRegion = this.getScrollbarRegion();
-        int thumbHeight = this.getScrollbarThumbHeight();
-
         return new Rectangle(
-                scrollbarRegion.x,
-                scrollbarRegion.y + (int)(this.scrollAmount * this.getScrollbarThumbRange()),
+                this.scrollbarRegion.x,
+                this.scrollbarRegion.y + (int)(this.scrollOffset * this.getScrollbarThumbRange()),
                 SCROLLBAR_THUMB_WIDTH,
-                thumbHeight
+                this.getScrollbarThumbHeight()
         );
     }
 
@@ -278,7 +275,7 @@ public class SkinSelectorScreen extends Screen {
         }
 
         if(listRegion.contains(x, y))
-            return super.mouseClicked(x, y + this.scrollAmount * (this.getListHeight() - this.listRegion.height), button);
+            return super.mouseClicked(x, y + this.scrollOffset * this.getScrollableRange(), button);
         return super.mouseClicked(x, y, button);
     }
 
@@ -293,8 +290,8 @@ public class SkinSelectorScreen extends Screen {
     @Override
     public void mouseMoved(double x, double y) {
         if(this.draggingScrollbar) {
-            this.scrollAmount = (float)(y - this.getScrollbarRegion().y - this.draggingScrollbarRelativeY) / this.getScrollbarThumbRange();
-            this.scrollAmount = MathHelper.clamp(this.scrollAmount, 0, 1);
+            this.scrollOffset = (float)(y - this.scrollbarRegion.y - this.draggingScrollbarRelativeY) / this.getScrollbarThumbRange();
+            this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
         }
 
         this.skinPreviewWidget.mouseMoved(x,y);
@@ -303,8 +300,8 @@ public class SkinSelectorScreen extends Screen {
     @Override
     public boolean mouseScrolled(double x, double y, double amount) {
         if(this.listRegion.contains(x, y)) {
-            this.scrollAmount -= (float)amount * 20 / this.getListHeight();
-            this.scrollAmount = MathHelper.clamp(this.scrollAmount, 0, 1);
+            this.scrollOffset -= (float)amount * SCROLL_AMOUNT / this.getScrollableRange();
+            this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
         }
 
         return super.mouseScrolled(x, y, amount);
