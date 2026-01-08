@@ -8,6 +8,8 @@ import java.util.List;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.texture.Texture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -100,10 +102,19 @@ public class SkinSelectorScreen extends Screen {
             this.fetchSkinList();
         }
 
+        TextureManager tm = Minecraft.getInstance().textureManager;
+        Texture missingno = tm.getTexture(new ResourceLocation("missingno"));
+
         this.skinEntryList.clear();
 
         int i = 0;
         for(PortalGunSkin skin : this.skins) {
+            ResourceLocation location = new ResourceLocation(PortalMod.MODID, "gun/" + skin.skin_id);
+            Texture texture = tm.getTexture(location);
+
+            if(texture == null || texture == missingno)
+                continue;
+
             SkinEntryWidget widget = new SkinEntryWidget(
                     this.listRegion.x, this.listRegion.y + SKIN_ENTRY_HEIGHT * i++,
                     this.listRegion.width, SKIN_ENTRY_HEIGHT,
