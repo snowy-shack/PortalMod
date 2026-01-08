@@ -33,6 +33,7 @@ public class SkinSelectorScreen extends Screen {
     private static final int HEIGHT = 172;
 
     private final Screen lastScreen;
+    private boolean initialized;
 
     private static final int SKIN_PREVIEW_X      = 217;
     private static final int SKIN_PREVIEW_Y      = 17;
@@ -45,7 +46,8 @@ public class SkinSelectorScreen extends Screen {
     private static final int SKIN_LIST_WIDTH   = 189;
     private static final int SKIN_LIST_HEIGHT  = 142;
     private static final int SKIN_ENTRY_HEIGHT = 30;
-    private final List<SkinEntryWidget> skinList;
+    private final List<PortalGunSkin> skins;
+    private final List<SkinEntryWidget> skinEntryList;
     private Rectangle listRegion;
 
     private static final int SCROLLBAR_THUMB_U             = 336;
@@ -60,7 +62,8 @@ public class SkinSelectorScreen extends Screen {
     public SkinSelectorScreen(Screen lastScreen) {
         super(new TranslationTextComponent("options." + PortalMod.MODID + ".skins.title"));
         this.lastScreen = lastScreen;
-        this.skinList = new ArrayList<>();
+        this.skins = new ArrayList<>();
+        this.skinEntryList = new ArrayList<>();
         this.scrollAmount = 0;
     }
 
@@ -73,9 +76,11 @@ public class SkinSelectorScreen extends Screen {
         this.listRegion = new Rectangle(this.getX() + SKIN_LIST_X, this.getY() + SKIN_LIST_Y,
                 SKIN_LIST_WIDTH, SKIN_LIST_HEIGHT);
         this.initSkinList();
+
+        this.initialized = true;
     }
 
-    private void initSkinList() {
+    private void fetchSkinList() {
         HttpGet request = new HttpGet("https://api.portalmod.net/v1/skins");
 
         String data;
@@ -87,21 +92,29 @@ public class SkinSelectorScreen extends Screen {
             return;
         }
 
-        List<PortalGunSkin> skins = new Gson().fromJson(data, PortalGunSkin.Deserializer.class);
+        this.skins.addAll(new Gson().fromJson(data, PortalGunSkin.Deserializer.class));
+    }
+
+    private void initSkinList() {
+        if(!this.initialized) {
+            this.fetchSkinList();
+        }
+
+        this.skinEntryList.clear();
 
         int i = 0;
-        for(PortalGunSkin skin : skins) {
+        for(PortalGunSkin skin : this.skins) {
             SkinEntryWidget widget = new SkinEntryWidget(
                     this.listRegion.x, this.listRegion.y + SKIN_ENTRY_HEIGHT * i++,
                     this.listRegion.width, SKIN_ENTRY_HEIGHT,
                     this, this.skinPreviewWidget, skin
             );
-            skinList.add(widget);
+            skinEntryList.add(widget);
             this.addWidget(widget);
         }
 
-        if(!this.skinList.isEmpty()) {
-            this.skinList.get(0).setSelected(true, false);
+        if(!this.skinEntryList.isEmpty()) {
+            this.skinEntryList.get(0).setSelected(true, false);
         }
     }
 
@@ -114,7 +127,7 @@ public class SkinSelectorScreen extends Screen {
     }
 
     public void selectEntry(SkinEntryWidget entry) {
-        this.skinList.forEach(item -> item.setSelected(false, false));
+        this.skinEntryList.forEach(item -> item.setSelected(false, false));
         entry.setSelected(true, true);
     }
 
@@ -152,7 +165,7 @@ public class SkinSelectorScreen extends Screen {
 
         matrixStack.pushPose();
         matrixStack.translate(0, -this.scrollAmount * (this.getListHeight() - this.listRegion.height), 0);
-        this.skinList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
+        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
         matrixStack.popPose();
 
         GL11.glDisable(GL11.GL_STENCIL_TEST);
@@ -237,7 +250,7 @@ public class SkinSelectorScreen extends Screen {
     }
 
     private int getListHeight() {
-        return this.skinList.size() * SKIN_ENTRY_HEIGHT;
+        return this.skinEntryList.size() * SKIN_ENTRY_HEIGHT;
     }
 
     @Override
