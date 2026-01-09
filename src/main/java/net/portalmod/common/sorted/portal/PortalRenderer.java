@@ -59,7 +59,6 @@ public class PortalRenderer {
     // todo create a state class and dump everything in idk
     public int recursion = 0;
     public ActiveRenderInfo currentCamera;
-    public PortalCamera currentUnteleportedCamera = null;
     public int renderedPortals = 0;
     public boolean currentlyRenderingPortals = false;
     private boolean fabulousGraphics = false;
@@ -446,10 +445,6 @@ public class PortalRenderer {
 
                 currentCamera = portalCamera;
 
-                PortalCamera prevUnteleportedCamera = currentUnteleportedCamera;
-                currentUnteleportedCamera = prevUnteleportedCamera == null ? null
-                        : new PortalCamera(setupCamera(prevUnteleportedCamera, portal, partialTicks), partialTicks);
-
                 Vec3 oldCameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf;
                 PMState.cameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf == null ? null
                         : PMState.cameraPosOverrideForRenderingSelf.clone().transform(getPortalToPortalMatrix(portal, otherPortal));
@@ -461,7 +456,6 @@ public class PortalRenderer {
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
 
                 currentCamera = camera;
-                currentUnteleportedCamera = prevUnteleportedCamera;
                 PMState.cameraPosOverrideForRenderingSelf = oldCameraPosOverrideForRenderingSelf;
 
                 clipMatrix.popPose();

@@ -607,8 +607,6 @@ public class ClientEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onCameraSetup(final EntityViewRenderEvent.CameraSetup event) {
         PMState.cameraPosOverrideForRenderingSelf = null;
-        PortalRenderer.getInstance().currentUnteleportedCamera = null;
-        PMState.positionsToSkipRenderingSelf.clear();
 
         if(Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
             Optional<Float> optionalPitch = CameraAnimator.getInstance().getRelativePitch();
@@ -626,7 +624,6 @@ public class ClientEvents {
                 ((ActiveRenderInfoAccessor)event.getInfo()).pmSetPosition(event.getInfo().getPosition().add(pos.to3d()));
             });
 
-            PortalRenderer.getInstance().currentUnteleportedCamera = new PortalCamera(event.getInfo(), (float)event.getRenderPartialTicks());
             PortalEntityClient.teleportCameraAndApply(event);
         }
 

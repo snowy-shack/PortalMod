@@ -214,25 +214,9 @@ public class LevelRendererMixinFinal {
             )
     )
     private boolean pmShouldRenderSelf(EntityRendererManager erm, Entity entity, ClippingHelper clippingHelper, double camX, double camY, double camZ) {
-        if(!PortalModOptionsScreen.RENDER_SELF.get())
+        if(!PortalModOptionsScreen.RENDER_SELF.get() || entity != Minecraft.getInstance().cameraEntity)
             return erm.shouldRender(entity, clippingHelper, camX, camY, camZ);
-
-        Vec3 entityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks);
-        ActiveRenderInfo currentCamera = PortalRenderer.getInstance().getCurrentCamera();
-        Vec3 cameraPos = PMState.cameraPosOverrideForRenderingSelf != null
-                ? PMState.cameraPosOverrideForRenderingSelf
-                : new Vec3(currentCamera.getPosition());
-
-        PortalCamera unteleportedCamera = PortalRenderer.getInstance().currentUnteleportedCamera;
-        double d2 = unteleportedCamera == null ? 0
-                : entityPos.clone().sub(unteleportedCamera.getPosition()).magnitudeSqr();
-
-        boolean isInList = unteleportedCamera != null && PMState.positionsToSkipRenderingSelf.stream()
-                .anyMatch(x -> entityPos.clone().sub(unteleportedCamera.getPosition()).sub(x).magnitudeSqr() < 0.001);
-
-        double d = entityPos.clone().sub(cameraPos).magnitudeSqr();
-        return erm.shouldRender(entity, clippingHelper, camX, camY, camZ)
-                && d >= 0.001 && !(unteleportedCamera != null && d2 < 0.001 && isInList);
+        return DuplicateEntityRenderer.shouldRenderSelf(entity, clippingHelper);
     }
 
     // BEWARE: PORTAL RENDERING
