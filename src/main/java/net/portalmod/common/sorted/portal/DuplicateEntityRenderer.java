@@ -11,9 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.portalmod.PMGlobals;
 import net.portalmod.PMState;
-import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -63,41 +61,45 @@ public class DuplicateEntityRenderer {
         }
     }
 
-    private static boolean shouldRender(Entity entity, PortalEntity portal, PortalEntity otherPortal, ClippingHelper clippingHelper, Vec3 camPos, Mat4 matrix, float partialTicks) {
+    public static boolean shouldRenderSelf(Entity entity, ClippingHelper clippingHelper) {
+        return shouldRender(entity, Mat4.identity(), clippingHelper);
+    }
+
+    private static boolean shouldRenderEntity(Entity entity, ClippingHelper clippingHelper, Vec3 camPos, Mat4 matrix) {
         if(!entity.shouldRender(camPos.x, camPos.y, camPos.z))
             return false;
 
         if(entity.noCulling)
             return true;
 
-        Vec3 realEntityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks);
-        Vec3 duplicateEntityPos = DuplicateEntityRenderer.getEntityEyePositionAssumingSelf(entity, PMGlobals.partialTicks, matrix);
+        return shouldRender(entity, matrix, clippingHelper);
+    }
 
+    private static boolean shouldRender(Entity entity, Mat4 matrix, ClippingHelper clippingHelper) {
         ActiveRenderInfo currentCamera = PortalRenderer.getInstance().getCurrentCamera();
         Vec3 cameraPos = PMState.cameraPosOverrideForRenderingSelf != null
                 ? PMState.cameraPosOverrideForRenderingSelf
                 : new Vec3(currentCamera.getPosition());
-        double d = duplicateEntityPos.clone().sub(cameraPos).magnitudeSqr();
 
-        PortalCamera unteleportedCamera = PortalRenderer.getInstance().currentUnteleportedCamera;
-        double d2 = unteleportedCamera == null ? 0
-                : duplicateEntityPos.clone().sub(unteleportedCamera.getPosition()).magnitudeSqr();
+        ActiveRenderInfoAccessor mainCameraAccessor = (ActiveRenderInfoAccessor)Minecraft.getInstance().gameRenderer.getMainCamera();
+        float partialTicks = Minecraft.getInstance().getFrameTime();
+        float eyeHeight = MathHelper.lerp(partialTicks, mainCameraAccessor.pmGetEyeHeightOld(), mainCameraAccessor.pmGetEyeHeight());
 
-        boolean alignedVerticalPortals = portal.getDirection().getAxis().isVertical() && portal.getDirection() == otherPortal.getDirection().getOpposite();
+        Vec3 partialTickedOffset = new Vec3(entity.getPosition(partialTicks)).sub(entity.position());
+        AxisAlignedBB aabb = entity.getBoundingBox().move(partialTickedOffset.to3d());
+        aabb = transformAABB(aabb, matrix);
+        AxisAlignedBB aabbCull = entity.getBoundingBoxForCulling().move(partialTickedOffset.to3d()).inflate(0.5);
+        aabbCull = transformAABB(aabbCull, matrix);
 
-        if(unteleportedCamera != null && d2 < 0.001 && alignedVerticalPortals)
-            PMState.positionsToSkipRenderingSelf.add(duplicateEntityPos.clone().sub(unteleportedCamera.getPosition()));
+        if(entity != Minecraft.getInstance().cameraEntity)
+            return clippingHelper.isVisible(aabbCull);
 
-        if(d < 0.001 || (unteleportedCamera != null && d2 < 0.001 && alignedVerticalPortals))
+        if(aabb.contains(cameraPos.to3d()) ^ aabb.contains(cameraPos.clone().sub(0, eyeHeight, 0).to3d()))
             return false;
 
-        Vec3 offset = duplicateEntityPos.clone().sub(realEntityPos);
-        AxisAlignedBB aabb = entity.getBoundingBoxForCulling().move(offset.to3d()).inflate(0.5);
-        if(aabb.hasNaN() || aabb.getSize() == 0) {
-            aabb = new AxisAlignedBB(duplicateEntityPos.to3d(), duplicateEntityPos.to3d()).inflate(2);
-        }
-
-        return clippingHelper.isVisible(aabb);
+        Vec3 duplicateEntityPos = new Vec3(entity.getPosition(partialTicks)).add(0, eyeHeight, 0).transform(matrix);
+        float distance = (float)cameraPos.clone().sub(duplicateEntityPos).magnitudeSqr();
+        return distance > 0.001 && clippingHelper.isVisible(aabbCull);
     }
 
     private static void renderDuplicateEntity(Entity entity, double camX, double camY, double camZ, float partialTicks, MatrixStack matrixStack, ClippingHelper clippingHelper) {
@@ -120,18 +122,11 @@ public class DuplicateEntityRenderer {
             ActiveRenderInfo camera = PortalRenderer.getInstance().getCurrentCamera();
             EntityRendererManager erm = Minecraft.getInstance().levelRenderer.entityRenderDispatcher;
 
-            float portalDistance = (float)new Vec3(entity.getBoundingBox().getCenter()).sub(portal.position()).magnitudeSqr();
-            float otherPortalDistance = (float)new Vec3(entity.getBoundingBox().getCenter()).sub(otherPortal.position()).magnitudeSqr();
-
-            if(entities.contains(otherPortal) && otherPortalDistance < portalDistance)
-                continue;
-
             Mat4 changeOfBasisMatrix = PortalRenderer.getPortalToPortalRotationMatrix(portal, otherPortal);
             Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalMatrix(portal, otherPortal);
 
-            boolean shouldRender = shouldRender(entity, portal, otherPortal, clippingHelper,
-                    new Vec3(camera.getPosition()).transform(portalToPortalMatrix),
-                    portalToPortalMatrix, partialTicks)
+            Vec3 cameraPos = new Vec3(camera.getPosition()).transform(portalToPortalMatrix);
+            boolean shouldRender = shouldRenderEntity(entity, clippingHelper, cameraPos, portalToPortalMatrix)
                     || entity.hasIndirectPassenger(Minecraft.getInstance().player);
 
             if(!shouldRender)
@@ -173,18 +168,9 @@ public class DuplicateEntityRenderer {
         }
     }
 
-    public static Vec3 getEntityEyePositionAssumingSelf(Entity entity, float partialTicks, Mat4 matrix) {
-        ActiveRenderInfo camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        ActiveRenderInfoAccessor cameraAccessor = (ActiveRenderInfoAccessor)camera;
-        double eyeHeight = MathHelper.lerp(partialTicks, cameraAccessor.pmGetEyeHeightOld(), cameraAccessor.pmGetEyeHeight())
-                - camera.getEntity().getEyeHeight() + entity.getEyeHeight();
-
-        Vec3 oldPos = new Vec3(entity.xo, entity.yo, entity.zo).add(0, eyeHeight, 0).transform(matrix);
-        Vec3 newPos = new Vec3(entity.position()).add(0, eyeHeight, 0).transform(matrix);
-        return oldPos.lerp(newPos, partialTicks);
-    }
-
-    public static Vec3 getEntityEyePositionAssumingSelf(Entity entity, float partialTicks) {
-        return getEntityEyePositionAssumingSelf(entity, partialTicks, Mat4.identity());
+    private static AxisAlignedBB transformAABB(AxisAlignedBB aabb, Mat4 matrix) {
+        Vec3 min = new Vec3(aabb.minX, aabb.minY, aabb.minZ).transform(matrix);
+        Vec3 max = new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ).transform(matrix);
+        return new AxisAlignedBB(min.to3d(), max.to3d());
     }
 }
