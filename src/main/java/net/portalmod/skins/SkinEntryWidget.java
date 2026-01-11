@@ -24,6 +24,10 @@ public class SkinEntryWidget extends Widget {
         this.skin = skin;
     }
 
+    public PortalGunSkin getSkin() {
+        return this.skin;
+    }
+
     public void setSelected(boolean selected, boolean animate) {
         this.selected = selected;
 
@@ -53,6 +57,6 @@ public class SkinEntryWidget extends Widget {
 
     @Override
     public void onClick(double x, double y) {
-        this.parent.selectEntry(this);
+        this.parent.selectEntry(this, true);
     }
 }
