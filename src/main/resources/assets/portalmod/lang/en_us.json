@@ -300,7 +300,8 @@
   "options.portalmod.render_self":  "Render Self Player",
   "options.portalmod.highlights":   "Portal Highlights",
 
-  "options.portalmod.skins.title": "Select your Portal Gun skin:",
+  "options.portalmod.skins.title": "Skin Selector",
+  "options.portalmod.skins.apply": "Apply",
 
   "debug.portalmod.reload_shaders.help":    "F3 + Z = Reload PortalMod shaders",
   "debug.portalmod.reload_shaders.message": "PortalMod shaders reloaded",
