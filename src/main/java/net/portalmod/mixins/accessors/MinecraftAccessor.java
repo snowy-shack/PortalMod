@@ -14,4 +14,7 @@ public interface MinecraftAccessor {
 
     @Accessor(remap = false, value = "mainRenderTarget")
     void pmSetMainRenderTarget(Framebuffer framebuffer);
+
+    @Accessor(remap = false, value = "pausePartialTick")
+    float pmGetPausePartialTick();
 }

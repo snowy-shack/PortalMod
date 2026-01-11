@@ -17,6 +17,7 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.RenderUtil;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
+import net.portalmod.mixins.accessors.MinecraftAccessor;
 
 import java.util.List;
 
@@ -81,8 +82,9 @@ public class DuplicateEntityRenderer {
                 ? PMState.cameraPosOverrideForRenderingSelf
                 : new Vec3(currentCamera.getPosition());
 
-        ActiveRenderInfoAccessor mainCameraAccessor = (ActiveRenderInfoAccessor)Minecraft.getInstance().gameRenderer.getMainCamera();
-        float partialTicks = Minecraft.getInstance().getFrameTime();
+        Minecraft mc = Minecraft.getInstance();
+        ActiveRenderInfoAccessor mainCameraAccessor = (ActiveRenderInfoAccessor)mc.gameRenderer.getMainCamera();
+        float partialTicks = mc.isPaused() ? ((MinecraftAccessor)mc).pmGetPausePartialTick() : mc.getFrameTime();
         float eyeHeight = MathHelper.lerp(partialTicks, mainCameraAccessor.pmGetEyeHeightOld(), mainCameraAccessor.pmGetEyeHeight());
 
         Vec3 partialTickedOffset = new Vec3(entity.getPosition(partialTicks)).sub(entity.position());
@@ -91,7 +93,7 @@ public class DuplicateEntityRenderer {
         AxisAlignedBB aabbCull = entity.getBoundingBoxForCulling().move(partialTickedOffset.to3d()).inflate(0.5);
         aabbCull = transformAABB(aabbCull, matrix);
 
-        if(entity != Minecraft.getInstance().cameraEntity)
+        if(entity != mc.cameraEntity)
             return clippingHelper.isVisible(aabbCull);
 
         if(aabb.contains(cameraPos.to3d()) ^ aabb.contains(cameraPos.clone().sub(0, eyeHeight, 0).to3d()))
