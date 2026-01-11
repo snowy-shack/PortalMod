@@ -24,11 +24,11 @@ public class PortalModOptionsScreen extends Screen {
     public static final ForgeConfigSpec.ConfigValue<Integer> RECURSION;
     public static final ForgeConfigSpec.ConfigValue<Boolean> RENDER_SELF;
     public static final ForgeConfigSpec.ConfigValue<Boolean> HIGHLIGHTS;
+    public static final ForgeConfigSpec.ConfigValue<String>  PORTALGUN_SKIN;
 
     private final Screen lastScreen;
     private ToggleButton CROSSHAIR_BUTTON;
     private ToggleButton TOOLTIPS_BUTTON;
-    private ToggleButton CUSTOM_GUN_BUTTON;
     private ToggleButton MENU_BUTTON;
     private Slider RECURSION_SLIDER;
     private ToggleButton RENDER_SELF_BUTTON;
@@ -46,6 +46,7 @@ public class PortalModOptionsScreen extends Screen {
         RECURSION = builder.define("recursion", 3);
         RENDER_SELF = builder.define("render_self", true);
         HIGHLIGHTS = builder.define("highlights", true);
+        PORTALGUN_SKIN = builder.define("portalgun_skin", "default");
 
         CONFIG = builder.build();
     }
@@ -95,20 +96,16 @@ public class PortalModOptionsScreen extends Screen {
         MENU_BUTTON = new ToggleButton(this.width / 2 + 5, baseY + (buttonHeight + 5), buttonWidth, buttonHeight,
                 new TranslationTextComponent("options." + PortalMod.MODID + ".menu"), $1 -> {}, MENU.get());
 
-        // TODO remove
-//        CUSTOM_GUN_BUTTON = new ToggleButton(this.width / 2 - buttonWidth - 5, baseY + (buttonHeight + 5) * 2, buttonWidth, buttonHeight,
-//                new TranslationTextComponent("options." + PortalMod.MODID + ".custom_gun"), $1 -> {}, CUSTOM_GUN.get());
-        
         SKIN_PAGE_BUTTON = new Button(this.width / 2 - buttonWidth - 5, baseY + (buttonHeight + 5) * 4, buttonWidth * 2 + 10, buttonHeight,
                 new TranslationTextComponent("options." + PortalMod.MODID + ".skins"), button -> {
-                    Minecraft.getInstance().setScreen(new SkinSelectorScreen(this));
-                });
+                        this.save();
+                        Minecraft.getInstance().setScreen(new SkinSelectorScreen(this));
+        });
         
         this.addButton(CROSSHAIR_BUTTON);
         this.addButton(TOOLTIPS_BUTTON);
         this.addButton(RENDER_SELF_BUTTON);
         this.addButton(HIGHLIGHTS_BUTTON);
-//        this.addButton(CUSTOM_GUN_BUTTON);
         this.addButton(MENU_BUTTON);
         this.addButton(RECURSION_SLIDER);
         this.addButton(SKIN_PAGE_BUTTON);
@@ -138,17 +135,21 @@ public class PortalModOptionsScreen extends Screen {
     
     private void close(boolean goBackElseClose) {
         boolean prevMenu = MENU.get();
-        CROSSHAIR.set(CROSSHAIR_BUTTON.getValue());
-        TOOLTIPS.set(TOOLTIPS_BUTTON.getValue());
-//        CUSTOM_GUN.set(CUSTOM_GUN_BUTTON.getValue());
-        MENU.set(MENU_BUTTON.getValue());
-        RECURSION.set((int)Math.round(RECURSION_SLIDER.getValue()));
-        RENDER_SELF.set(RENDER_SELF_BUTTON.getValue());
-        HIGHLIGHTS.set(HIGHLIGHTS_BUTTON.getValue());
+
+        this.save();
         
         if(prevMenu != MENU.get())
             MainMenuInjector.needsUpdate = true;
         
         this.minecraft.setScreen(goBackElseClose || Minecraft.getInstance().level == null ? lastScreen : null);
+    }
+
+    private void save() {
+        CROSSHAIR.set(CROSSHAIR_BUTTON.getValue());
+        TOOLTIPS.set(TOOLTIPS_BUTTON.getValue());
+        MENU.set(MENU_BUTTON.getValue());
+        RECURSION.set((int)Math.round(RECURSION_SLIDER.getValue()));
+        RENDER_SELF.set(RENDER_SELF_BUTTON.getValue());
+        HIGHLIGHTS.set(HIGHLIGHTS_BUTTON.getValue());
     }
 }

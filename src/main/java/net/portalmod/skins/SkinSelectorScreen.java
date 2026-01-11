@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.Texture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -14,6 +16,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
+import net.portalmod.client.screens.PortalModOptionsScreen;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -50,6 +53,7 @@ public class SkinSelectorScreen extends Screen {
     private static final int SKIN_ENTRY_HEIGHT = 30;
     private final List<PortalGunSkin> skins;
     private final List<SkinEntryWidget> skinEntryList;
+    private SkinEntryWidget selectedSkin;
     private Rectangle listRegion;
 
     private static final int SCROLLBAR_THUMB_U             = 336;
@@ -62,6 +66,8 @@ public class SkinSelectorScreen extends Screen {
     private boolean draggingScrollbar;
     private float draggingScrollbarRelativeY;
     private Rectangle scrollbarRegion;
+
+    private Button applyButton;
 
     public SkinSelectorScreen(Screen lastScreen) {
         super(new TranslationTextComponent("options." + PortalMod.MODID + ".skins.title"));
@@ -83,6 +89,8 @@ public class SkinSelectorScreen extends Screen {
                 this.listRegion.x + this.listRegion.width + 1, this.listRegion.y + 1,
                 SCROLLBAR_THUMB_WIDTH, this.listRegion.height - 2);
         this.initSkinList();
+
+        this.initApplyButton();
 
         this.initialized = true;
     }
@@ -130,8 +138,40 @@ public class SkinSelectorScreen extends Screen {
         }
 
         if(!this.skinEntryList.isEmpty()) {
-            this.skinEntryList.get(0).setSelected(true, false);
+            Optional<SkinEntryWidget> optionalEntry = skinEntryList.stream()
+                    .filter(entry -> entry.getSkin().skin_id.equals(PortalModOptionsScreen.PORTALGUN_SKIN.get()))
+                    .findAny();
+
+            if(optionalEntry.isPresent()) {
+                this.selectEntry(optionalEntry.get(), false);
+            } else {
+                PortalModOptionsScreen.PORTALGUN_SKIN.set("default");
+
+                Optional<SkinEntryWidget> optionalDefault = skinEntryList.stream()
+                        .filter(entry -> entry.getSkin().skin_id.equals("default"))
+                        .findAny();
+
+                if(optionalDefault.isPresent()) {
+                    this.selectEntry(optionalDefault.get(), false);
+                } else {
+                    this.selectEntry(this.skinEntryList.get(0), false);
+                }
+            }
+
         }
+    }
+
+    private void initApplyButton() {
+        int height = 20;
+        int x = this.getX() + SKIN_PREVIEW_X;
+        int y = (int) (this.listRegion.getY() + this.listRegion.getHeight() - height);
+        TranslationTextComponent text = new TranslationTextComponent("options." + PortalMod.MODID + ".skins.apply");
+
+        this.applyButton = new Button(x, y, SKIN_PREVIEW_WIDTH, height, text, button -> {
+            PortalModOptionsScreen.PORTALGUN_SKIN.set(this.selectedSkin.getSkin().skin_id);
+            this.close(false);
+        });
+        this.addButton(this.applyButton);
     }
 
     private int getX() {
@@ -142,9 +182,10 @@ public class SkinSelectorScreen extends Screen {
         return (this.height - HEIGHT) / 2;
     }
 
-    public void selectEntry(SkinEntryWidget entry) {
+    public void selectEntry(SkinEntryWidget entry, boolean animate) {
         this.skinEntryList.forEach(item -> item.setSelected(false, false));
-        entry.setSelected(true, true);
+        entry.setSelected(true, animate);
+        this.selectedSkin = entry;
     }
 
     @Override
@@ -157,10 +198,11 @@ public class SkinSelectorScreen extends Screen {
 
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
-        this.font.draw(matrixStack, "Skin Selector", (float)this.getX() + 8, (float)this.getY() + 6, 4210752);
+        this.font.draw(matrixStack, this.title, (float)this.getX() + 8, (float)this.getY() + 6, 4210752);
         this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
         this.renderScrollbar(matrixStack);
+        this.applyButton.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
     private void renderSkinList(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -309,7 +351,7 @@ public class SkinSelectorScreen extends Screen {
 
     @Override
     public void onClose() {
-        close(false);
+        this.close(true);
     }
 
     private void close(boolean goBackElseClose) {
