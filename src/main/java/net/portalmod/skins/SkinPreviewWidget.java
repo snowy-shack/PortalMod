@@ -32,6 +32,8 @@ public class SkinPreviewWidget extends Widget {
     private float zRot;
     private float xRotOld;
     private float yRotOld;
+
+    private static final float MOMENTUM_LIMIT = 200;
     private float xRotMomentum;
     private float yRotMomentum;
     private boolean clockwise;
@@ -209,8 +211,8 @@ public class SkinPreviewWidget extends Widget {
         this.clampXRot();
 
         float delta = this.getDeltaTicks();
-        this.xRotMomentum = MathHelper.clamp(deltaXRot / delta, -50f, 50f);
-        this.yRotMomentum = MathHelper.clamp(deltaYRot / delta, -50f, 50f);
+        this.xRotMomentum = MathHelper.clamp(deltaXRot / delta, -MOMENTUM_LIMIT, MOMENTUM_LIMIT);
+        this.yRotMomentum = MathHelper.clamp(deltaYRot / delta, -MOMENTUM_LIMIT, MOMENTUM_LIMIT);
 
         if(this.yRotMomentum != 0) {
             this.clockwise = this.yRotMomentum < 0;
