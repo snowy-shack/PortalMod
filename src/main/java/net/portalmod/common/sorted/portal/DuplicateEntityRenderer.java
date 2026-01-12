@@ -12,7 +12,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.PMState;
-import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.RenderUtil;
@@ -42,7 +42,7 @@ public class DuplicateEntityRenderer {
                     || camera.getEntity() == entity
                     || (entity == mc.player && !mc.player.isSpectator());
 
-            if(!PortalModOptionsScreen.RENDER_SELF.get()) {
+            if(!PortalModConfigManager.RENDER_SELF.get()) {
                 shouldRender &= entity != camera.getEntity()
                         || camera.isDetached()
                         || camera.getEntity() instanceof LivingEntity && ((LivingEntity)camera.getEntity()).isSleeping();

@@ -11,12 +11,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
-import net.portalmod.PMGlobals;
-import net.portalmod.PMState;
 import net.portalmod.client.render.PortalCamera;
-import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.portal.*;
-import net.portalmod.core.math.Vec3;
+import net.portalmod.core.config.PortalModConfigManager;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
@@ -199,7 +196,7 @@ public class LevelRendererMixinFinal {
             )
     )
     private boolean pmRenderSelf(ActiveRenderInfo instance) {
-        if(!PortalModOptionsScreen.RENDER_SELF.get())
+        if(!PortalModConfigManager.RENDER_SELF.get())
             return instance.isDetached();
         return true;
     }
@@ -214,7 +211,7 @@ public class LevelRendererMixinFinal {
             )
     )
     private boolean pmShouldRenderSelf(EntityRendererManager erm, Entity entity, ClippingHelper clippingHelper, double camX, double camY, double camZ) {
-        if(!PortalModOptionsScreen.RENDER_SELF.get() || entity != Minecraft.getInstance().cameraEntity)
+        if(!PortalModConfigManager.RENDER_SELF.get() || entity != Minecraft.getInstance().cameraEntity)
             return erm.shouldRender(entity, clippingHelper, camX, camY, camZ);
         return DuplicateEntityRenderer.shouldRenderSelf(entity, clippingHelper);
     }
