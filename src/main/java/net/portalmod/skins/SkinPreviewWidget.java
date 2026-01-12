@@ -209,8 +209,8 @@ public class SkinPreviewWidget extends Widget {
         this.clampXRot();
 
         float delta = this.getDeltaTicks();
-        this.xRotMomentum = deltaXRot / delta;
-        this.yRotMomentum = deltaYRot / delta;
+        this.xRotMomentum = MathHelper.clamp(deltaXRot / delta, -50f, 50f);
+        this.yRotMomentum = MathHelper.clamp(deltaYRot / delta, -50f, 50f);
 
         if(this.yRotMomentum != 0) {
             this.clockwise = this.yRotMomentum < 0;
