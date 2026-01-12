@@ -20,12 +20,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.portalmod.PortalMod;
-import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PortalEnd;
-import net.portalmod.common.sorted.portal.PortalManager;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.BlockTagInit;
-import net.portalmod.core.util.Colour;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +39,7 @@ public class PortalGunCrosshairRenderer {
 
         ItemStack itemStack = mc.player.getMainHandItem();
         Optional<UUID> uuid = PortalGun.getUUID(itemStack);
-        boolean isClassicCrosshair = PortalModOptionsScreen.CROSSHAIR.get();
+        boolean isClassicCrosshair = PortalModConfigManager.CROSSHAIR.get();
         boolean isFirstPerson = mc.options.getCameraType().isFirstPerson();
         boolean isSpectator = mc.gameMode.getPlayerMode() == GameType.SPECTATOR;
 

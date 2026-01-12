@@ -4,13 +4,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.portalmod.client.render.BlockColorHandler;
-import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,8 +52,6 @@ public class PortalMod {
     }
 
     private void createConfigs() {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-                ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,
-                        PortalModOptionsScreen.CONFIG, "portalmod-client.toml"));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalModConfigManager::init);
     }
 }

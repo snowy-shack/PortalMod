@@ -71,6 +71,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.core.chunkviewer.ChunkViewer;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.injectors.MainMenuInjector;
@@ -231,7 +232,7 @@ public class ClientEvents {
         // im so done with this
         ChunkViewer.getInstance().setVisible(false);
 
-        event.setGui(MainMenuInjector.getInjectedMenu(PortalModOptionsScreen.MENU.get(), MainMenuInjector.fading));
+        event.setGui(MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading));
         MainMenuInjector.needsUpdate = false;
         MainMenuInjector.fading = false;
     }
