@@ -16,7 +16,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.core.config.PortalModConfigManager;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -139,13 +139,13 @@ public class SkinSelectorScreen extends Screen {
 
         if(!this.skinEntryList.isEmpty()) {
             Optional<SkinEntryWidget> optionalEntry = skinEntryList.stream()
-                    .filter(entry -> entry.getSkin().skin_id.equals(PortalModOptionsScreen.PORTALGUN_SKIN.get()))
+                    .filter(entry -> entry.getSkin().skin_id.equals(PortalModConfigManager.PORTALGUN_SKIN.get()))
                     .findAny();
 
             if(optionalEntry.isPresent()) {
                 this.selectEntry(optionalEntry.get(), false);
             } else {
-                PortalModOptionsScreen.PORTALGUN_SKIN.set("default");
+                PortalModConfigManager.PORTALGUN_SKIN.set("default");
 
                 Optional<SkinEntryWidget> optionalDefault = skinEntryList.stream()
                         .filter(entry -> entry.getSkin().skin_id.equals("default"))
@@ -168,7 +168,7 @@ public class SkinSelectorScreen extends Screen {
         TranslationTextComponent text = new TranslationTextComponent("options." + PortalMod.MODID + ".skins.apply");
 
         this.applyButton = new Button(x, y, SKIN_PREVIEW_WIDTH, height, text, button -> {
-            PortalModOptionsScreen.PORTALGUN_SKIN.set(this.selectedSkin.getSkin().skin_id);
+            PortalModConfigManager.PORTALGUN_SKIN.set(this.selectedSkin.getSkin().skin_id);
             this.close(false);
         });
         this.addButton(this.applyButton);

@@ -16,7 +16,7 @@ import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
-import net.portalmod.client.screens.PortalModOptionsScreen;
+import net.portalmod.core.config.PortalModConfigManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +52,7 @@ public class ModUtil {
     }
 
     public static void addTooltip(String name, List<ITextComponent> list) {
-        if (!PortalModOptionsScreen.TOOLTIPS.get()) {
+        if (!PortalModConfigManager.TOOLTIPS.get()) {
             return;
         }
 

@@ -24,8 +24,8 @@ import net.portalmod.PMGlobals;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
-import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -174,7 +174,7 @@ public class PortalRenderer {
 
         int ticks = mc.player.tickCount;
         int age = portal.getAge();
-        boolean open = portal.isOpen() && recursion <= PortalModOptionsScreen.RECURSION.get();
+        boolean open = portal.isOpen() && recursion <= PortalModConfigManager.RECURSION.get();
         boolean spawning = age < 4;
 
         String path = "textures/portal/"
@@ -305,7 +305,7 @@ public class PortalRenderer {
             mainFBO.bindWrite(false);
         }
 
-        if(PortalModOptionsScreen.HIGHLIGHTS.get())
+        if(PortalModConfigManager.HIGHLIGHTS.get())
             renderHighlights(camera, projectionMatrix);
 
         GL11.glEnable(GL_ALPHA_TEST);
@@ -520,7 +520,7 @@ public class PortalRenderer {
     }
 
     private boolean isDeepest() {
-        return recursion > PortalModOptionsScreen.RECURSION.get();
+        return recursion > PortalModConfigManager.RECURSION.get();
     }
 
     private boolean isShallowest() {
