@@ -50,7 +50,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         this.gravity = 0;
 
         this.setSpriteFromAge(sprite);
-        this.quadSize = 1/32f - this.random.nextFloat() * 0.02f;
+        this.quadSize = 1/32f - (float)this.random.nextGaussian() * 0.005f;
 
         this.rCol = data.getRed();
         this.gCol = data.getGreen();
@@ -69,9 +69,9 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
     }
 
     private void calculateAlpha() {
-        this.alpha = MathHelper.clamp((float)Math.pow((this.lifetime - this.age) / decay, 2), 0, 0.5f);
+        this.alpha = MathHelper.clamp((float)Math.pow((this.lifetime - this.age) / decay, 2), 0, 0.8f);
         if(this.smooth)
-            this.alpha *= 1 - (float)Math.exp(-this.age / 5f);
+            this.alpha *= 1 - (float)Math.exp(-this.age / 7f);
 
         if(this.portal != null)
             this.alpha *= MathHelper.clamp((float)this.portal.getAge() / 30f * this.portal.getAge() / 30f, 0f, 1f);
@@ -106,7 +106,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
             float endAngle = (i + deltaAngle + randomAngle) * (float)Math.PI / 180;
 
             float randomRadius = (random.nextFloat() - .5f) * 0.1f;
-            float startRadius = 0.6f + randomRadius;
+            float startRadius = 0.55f + randomRadius;
             float endRadius = 0.45f + randomRadius;
 
             createRadialParticle(portal, random, startRadius, endRadius, startAngle, endAngle,
