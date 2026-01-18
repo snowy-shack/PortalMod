@@ -122,13 +122,28 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable {
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         boolean waterlogged = context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
+
         BlockState state = this.defaultBlockState()
                 .setValue(WATERLOGGED, waterlogged)
-                .setValue(FACING, PlatformBeamBlock.getPlacementDirection(context));
+                .setValue(FACING, this.getPlacementDirection(context))
+                .setValue(HALF, context.getPlayer().isShiftKeyDown() ? Half.BOTTOM : Half.TOP)
+                .setValue(ORIGINAL_HALF, context.getPlayer().isShiftKeyDown() ? Half.BOTTOM : Half.TOP);
 
-        return state.setValue(HALF, context.getPlayer().isShiftKeyDown() ? Half.BOTTOM : Half.TOP)
-                .setValue(ORIGINAL_HALF, context.getPlayer().isShiftKeyDown() ? Half.BOTTOM : Half.TOP)
-                .setValue(BEAM, hasBeamBelow(state, context.getLevel(), context.getClickedPos()));
+        return state.setValue(BEAM, hasBeamBelow(state, context.getLevel(), context.getClickedPos()));
+    }
+
+    public Direction getPlacementDirection(BlockItemUseContext context) {
+        BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
+
+        // Align direction when placed next to each other
+        if (clickedState.getBlock() instanceof PlatformBlock) {
+            Direction facing = clickedState.getValue(PlatformBlock.FACING);
+            if (facing.getAxis() != context.getClickedFace().getAxis()) {
+                return facing;
+            }
+        }
+
+        return context.getClickedFace();
     }
 
     @Override

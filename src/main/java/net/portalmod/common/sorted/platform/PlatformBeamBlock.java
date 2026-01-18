@@ -61,16 +61,29 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         return this.defaultBlockState()
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER)
-                .setValue(FACING, getPlacementDirection(context));
+                .setValue(FACING, this.getPlacementDirection(context));
     }
 
-    public static Direction getPlacementDirection(BlockItemUseContext context) {
-        // Extend beam if placed on top of another beam
+    public Direction getPlacementDirection(BlockItemUseContext context) {
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
-        if (clickedState.getBlock() instanceof PlatformBeamBlock && clickedState.getValue(PlatformBeamBlock.FACING).getAxis() == context.getClickedFace().getAxis()){
-            return context.getClickedFace();
+
+        // Ensure you don't randomly flip the beam if placing on another
+        if (clickedState.getBlock() instanceof PlatformBeamBlock) {
+            Direction facing = clickedState.getValue(PlatformBeamBlock.FACING);
+            if (facing.getAxis() == context.getClickedFace().getAxis()) {
+                return facing;
+            }
         }
-        return context.getNearestLookingDirection().getOpposite();
+
+        // When hitting the underside of a platform, flip the beam the right side up
+        if (clickedState.getBlock() instanceof PlatformBlock) {
+            Direction facing = clickedState.getValue(PlatformBlock.FACING);
+            if (facing.getOpposite() == context.getClickedFace()) {
+                return facing;
+            }
+        }
+
+        return context.getClickedFace();
     }
 
     @Override
