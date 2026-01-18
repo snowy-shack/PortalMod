@@ -40,7 +40,8 @@ public class PortalEntityClient {
 
         AxisAlignedBB playerAABB = player.getBoundingBox()
                 .move(new Vec3(player.position()).negate().to3d())
-                .move(player.xo, player.yo, player.zo);
+                .move(player.xo, player.yo, player.zo)
+                .expandTowards(new Vec3(player.position()).sub(player.xo, player.yo, player.zo).to3d());
 
         if(PMState.cameraPosOverrideForRenderingSelf != null)
             playerAABB = playerAABB.inflate(1);
