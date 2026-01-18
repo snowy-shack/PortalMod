@@ -281,7 +281,12 @@ public abstract class TestElementEntity extends LivingEntity {
         this.boardingCooldown = 0;
 
         Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
-        this.setDeltaMovement(momentum);
+
+        // Random movement so the cube cant fall perfectly onto a player which makes them swim
+        this.setDeltaMovement(momentum.add(
+                ModUtil.symmetricRandom(0.01f),
+                0,
+                ModUtil.symmetricRandom(0.01f)));
     }
 
     public static void dropHeldEntities(PlayerEntity player, boolean yeet, ItemStack itemStack) {
