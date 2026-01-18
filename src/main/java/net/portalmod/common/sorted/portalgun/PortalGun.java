@@ -50,8 +50,6 @@ import java.util.UUID;
 
 public class PortalGun extends Item {
 
-    public static final double REACH = 2;
-
     public String defaultLeftColor;
     public String defaultRightColor;
     public String defaultAccentColor;
