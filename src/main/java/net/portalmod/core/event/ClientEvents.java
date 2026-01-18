@@ -69,10 +69,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.core.chunkviewer.ChunkViewer;
-import net.portalmod.core.init.FluidTagInit;
-import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.init.KeyInit;
-import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.*;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.core.util.ChangeDetector;
@@ -375,8 +372,8 @@ public class ClientEvents {
 
         // Press button
         Block block = Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock();
-        if (block instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < PortalGun.REACH) {
-
+        double buttonReach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
+        if (block instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < buttonReach) {
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
             return;
@@ -396,7 +393,13 @@ public class ClientEvents {
             if (entityRayTraceResult == null) return;
 
             Entity entity = entityRayTraceResult.getEntity();
-            if (entity instanceof TestElementEntity && entity.position().subtract(player.getEyePosition(1)).length() < PortalGun.REACH + entity.getBbWidth() / 2) {
+
+            // Set reach origin to feet so it is possible to pick things up from above further than from below
+            Vector3d reachPosition = player.position().add(0, 0.2, 0);
+
+            double grabReach = player.getAttributeValue(AttributeInit.GRAB_REACH.get());
+
+            if (entity instanceof TestElementEntity && entity.position().subtract(reachPosition).length() < grabReach + entity.getBbWidth() / 2) {
                 ((TestElementEntity) entity).pickUp(player);
 
                 consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());

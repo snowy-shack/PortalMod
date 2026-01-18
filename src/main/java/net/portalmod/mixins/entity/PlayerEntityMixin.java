@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -18,6 +19,7 @@ import net.minecraftforge.common.ForgeMod;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
+import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.SoundInit;
@@ -164,5 +166,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
         if (damageSource == FluidInit.GOO_DAMAGE) {
             cir.setReturnValue(SoundInit.GOO_DAMAGE.get());
         }
+    }
+
+    @Inject(
+            remap = false,
+            method = "createAttributes",
+            at = @At("RETURN"),
+            cancellable = true
+    )
+    private static void pmAddAttributes(CallbackInfoReturnable<AttributeModifierMap.MutableAttribute> cir) {
+        cir.setReturnValue(cir.getReturnValue()
+                .add(AttributeInit.GRAB_REACH.get())
+                .add(AttributeInit.BUTTON_REACH.get())
+        );
     }
 }

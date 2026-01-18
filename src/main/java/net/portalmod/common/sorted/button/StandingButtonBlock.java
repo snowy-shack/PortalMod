@@ -25,7 +25,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivator;
-import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
@@ -152,7 +152,8 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         }
 
         double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < PortalGun.REACH) {
+        double reach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < reach) {
             this.activate(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }

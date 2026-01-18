@@ -318,5 +318,8 @@
   "advancements.portalmod.eat_forest_cake.title":           "Gullible",
   "advancements.portalmod.eat_forest_cake.description":     "Fall for the Cake",
   
-  "stat.portalmod.portals_shot": "Portals Shot"
+  "stat.portalmod.portals_shot": "Portals Shot",
+
+  "attribute.name.generic.portalmod.button_reach": "Button Press Reach Distance",
+  "attribute.name.generic.portalmod.grab_reach": "Entity Grabbing Reach Distance"
 }
