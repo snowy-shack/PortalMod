@@ -21,7 +21,11 @@ import net.portalmod.common.sorted.portalgun.PortalGunModel;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.util.Colour;
 
+import java.util.Optional;
+
 public class SkinPreviewWidget extends Widget {
+    private final SkinSelectorScreen parent;
+
     private boolean dragging;
     private float mousePrevX;
     private float mousePrevY;
@@ -43,8 +47,9 @@ public class SkinPreviewWidget extends Widget {
     private String selectedSkin;
     private String nextSelectedSkin;
 
-    public SkinPreviewWidget(int x, int y, int width, int height) {
+    public SkinPreviewWidget(int x, int y, int width, int height, SkinSelectorScreen parent) {
         super(x, y, width, height, StringTextComponent.EMPTY);
+        this.parent = parent;
 
         this.xRot = 30;
         this.yRot = -135;
@@ -59,6 +64,7 @@ public class SkinPreviewWidget extends Widget {
         IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
         Colour lastPortalColor = new Colour(64, 59, 75, 255);
         Colour stripeColour = new Colour(255, 255, 255, 0);
+        Colour tint = Optional.ofNullable(parent.getSkinTint()).orElse(Colour.WHITE);
 
         Minecraft.getInstance().textureManager.bind(AtlasTexture.LOCATION_BLOCKS);
         Minecraft.getInstance().textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS).setFilter(false, false);
@@ -85,7 +91,7 @@ public class SkinPreviewWidget extends Widget {
 
         PortalGunISTER.renderGun(matrixStack, null, this.getModel(), irendertypebuffer$impl,
                 new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(PortalMod.MODID, "gun/" + selectedSkin), 1, 1),
-                stripeColour, lastPortalColor, false, false, 15728880, OverlayTexture.NO_OVERLAY);
+                stripeColour, lastPortalColor, tint, false, false, 15728880, OverlayTexture.NO_OVERLAY);
 
         matrixStack.popPose();
 

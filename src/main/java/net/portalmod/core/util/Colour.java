@@ -1,6 +1,7 @@
 package net.portalmod.core.util;
 
 import net.minecraft.util.math.MathHelper;
+import net.portalmod.core.math.Vec3;
 
 public class Colour {
 
@@ -39,36 +40,67 @@ public class Colour {
         this.b = (int) MathHelper.clamp(this.b + amount * 255, 0, 255);
     }
     
-    public static Colour fromHSV(int h, float s, float v) {
-        float r, g, b;
-        
-        MathHelper.clamp(s, 0, 1);
-        MathHelper.clamp(v, 0, 1);
-        
-//        if(s <= 0.0)
-//            return new Colour(v, v, v, 1);
-        
-        float hh = h % 360 / 60f;
-        long i = (long)hh;
-        float ff = hh - i;
-        float p = v * (1f - s);
-        float q = v * (1f - (s * ff));
-        float t = v * (1f - (s * (1f - ff)));
-        
-        switch((int)i) {
-        case 0:  r = v; g = t; b = p; break;
-        case 1:  r = q; g = v; b = p; break;
-        case 2:  r = p; g = v; b = t; break;
-        case 3:  r = p; g = q; b = v; break;
-        case 4:  r = t; g = p; b = v; break;
-        default: r = v; g = p; b = q; break;
+    public static Colour fromHSV(float h, float s, float v) {
+        float c = v * s;
+        float x = c * (1 - Math.abs((h / 60 % 2) - 1));
+        float m = v - c;
+
+        float rr = 0;
+        float gg = 0;
+        float bb = 0;
+
+        if(h < 60) {
+            rr = c;
+            gg = x;
+        } else if(h < 120) {
+            rr = x;
+            gg = c;
+        } else if(h < 180) {
+            gg = c;
+            bb = x;
+        } else if(h < 240) {
+            gg = x;
+            bb = c;
+        } else if(h < 300) {
+            bb = c;
+            rr = x;
+        } else {
+            bb = x;
+            rr = c;
         }
-        
-        return new Colour(r, g, b, 1);
+
+        return new Colour(rr + m, gg + m, bb + m, 1f);
+    }
+
+    public Vec3 getHSV() {
+        float rr = r / 255f;
+        float gg = g / 255f;
+        float bb = b / 255f;
+
+        float max = Math.max(rr, Math.max(gg, bb));
+        float min = Math.min(rr, Math.min(gg, bb));
+        float delta = max - min;
+
+        float h = 0;
+        if(delta == 0) {
+            h = 0;
+        } else if(max == rr) {
+            h = 60 * ((gg - bb) / delta % 6);
+        } else if(max == gg) {
+            h = 60 * ((bb - rr) / delta + 2);
+        } else if(max == bb) {
+            h = 60 * ((rr - gg) / delta + 4);
+        }
+
+        return new Vec3(h, (max == 0) ? 0 : (delta / max), max);
     }
     
     public int getValue() {
         return (a & 0xFF << 24) | (r & 0xFF << 16) | (g & 0xFF << 8) | (b & 0xFF);
+    }
+
+    public int getRGBValue() {
+        return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
     }
     
     public int getIntR() { return r; }

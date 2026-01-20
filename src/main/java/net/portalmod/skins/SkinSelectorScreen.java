@@ -17,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.core.config.PortalModConfigManager;
+import net.portalmod.core.util.Colour;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -40,11 +41,18 @@ public class SkinSelectorScreen extends Screen {
     private final Screen lastScreen;
     private boolean initialized;
 
-    private static final int SKIN_PREVIEW_X      = 217;
-    private static final int SKIN_PREVIEW_Y      = 17;
+    private static final int SKIN_PREVIEW_X      = 211;
+    private static final int SKIN_PREVIEW_Y      = 11;
     private static final int SKIN_PREVIEW_WIDTH  = 100;
     private static final int SKIN_PREVIEW_HEIGHT = 100;
     private SkinPreviewWidget skinPreviewWidget;
+
+    private static final int COLOR_PICKER_X      = 218;
+    private static final int COLOR_PICKER_Y      = 113;
+    private static final int COLOR_PICKER_WIDTH  = 75;
+    private static final int COLOR_PICKER_HEIGHT = 57;
+    private ColorPickerWidget colorPickerWidget;
+    private Rectangle colorPickerMaskRegion;
 
     private static final int SKIN_LIST_X       = 8;
     private static final int SKIN_LIST_Y       = 18;
@@ -80,9 +88,14 @@ public class SkinSelectorScreen extends Screen {
     @Override
     protected void init() {
         this.skinPreviewWidget = new SkinPreviewWidget(this.getX() + SKIN_PREVIEW_X, this.getY() + SKIN_PREVIEW_Y,
-                SKIN_PREVIEW_WIDTH, SKIN_PREVIEW_HEIGHT);
+                SKIN_PREVIEW_WIDTH, SKIN_PREVIEW_HEIGHT, this);
         this.addWidget(this.skinPreviewWidget);
 
+        this.colorPickerWidget = new ColorPickerWidget(this.getX() + COLOR_PICKER_X, this.getY() + COLOR_PICKER_Y,
+                COLOR_PICKER_WIDTH, COLOR_PICKER_HEIGHT);
+        this.addWidget(this.colorPickerWidget);
+
+        this.colorPickerMaskRegion = new Rectangle(this.getX() + 214, this.getY() + 111, 97, 61);
         this.listRegion = new Rectangle(this.getX() + SKIN_LIST_X, this.getY() + SKIN_LIST_Y,
                 SKIN_LIST_WIDTH, SKIN_LIST_HEIGHT);
         this.scrollbarRegion = new Rectangle(
@@ -163,12 +176,17 @@ public class SkinSelectorScreen extends Screen {
 
     private void initApplyButton() {
         int height = 20;
-        int x = this.getX() + SKIN_PREVIEW_X;
-        int y = (int) (this.listRegion.getY() + this.listRegion.getHeight() - height);
+        int x = this.getX() + SKIN_PREVIEW_X - SKIN_PREVIEW_WIDTH + 1;
+        int y = this.getY() + HEIGHT + 1;
         TranslationTextComponent text = new TranslationTextComponent("options." + PortalMod.MODID + ".skins.apply");
 
         this.applyButton = new Button(x, y, SKIN_PREVIEW_WIDTH, height, text, button -> {
             PortalModConfigManager.PORTALGUN_SKIN.set(this.selectedSkin.getSkin().skin_id);
+
+            if(this.selectedSkin.getSkin().tintable) {
+                PortalModConfigManager.SKIN_TINT.set(this.colorPickerWidget.getTint().getRGBValue());
+            }
+
             this.close(false);
         });
         this.addButton(this.applyButton);
@@ -185,7 +203,20 @@ public class SkinSelectorScreen extends Screen {
     public void selectEntry(SkinEntryWidget entry, boolean animate) {
         this.skinEntryList.forEach(item -> item.setSelected(false, false));
         entry.setSelected(true, animate);
+
+        if((this.selectedSkin != null && !this.selectedSkin.getSkin().tintable) && entry.getSkin().tintable) {
+            this.colorPickerWidget.startShowAnimation();
+        }
+
+        if((this.selectedSkin != null && this.selectedSkin.getSkin().tintable) && !entry.getSkin().tintable) {
+            this.colorPickerWidget.startHideAnimation();
+        }
+
         this.selectedSkin = entry;
+    }
+
+    public Colour getSkinTint() {
+        return this.selectedSkin.getSkin().tintable ? this.colorPickerWidget.getTint() : Colour.WHITE;
     }
 
     @Override
@@ -200,35 +231,40 @@ public class SkinSelectorScreen extends Screen {
         this.renderBackground(matrixStack);
         this.font.draw(matrixStack, this.title, (float)this.getX() + 8, (float)this.getY() + 6, 4210752);
         this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.renderColorPicker(matrixStack, mouseX, mouseY, partialTicks);
         this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
         this.renderScrollbar(matrixStack);
         this.applyButton.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
+    private void setupScissorTest(Rectangle rect) {
+        float scale = (float)Minecraft.getInstance().getWindow().getGuiScale();
+        RenderSystem.enableScissor(
+                (int)(scale * rect.x),
+                (int)(scale * (this.height - (rect.y + rect.height))),
+                (int)(scale * rect.width),
+                (int)(scale * rect.height)
+        );
+    }
+
+    private void renderColorPicker(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        if(!(this.selectedSkin.getSkin().tintable || this.colorPickerWidget.isAnimating()))
+            return;
+
+        this.setupScissorTest(this.colorPickerMaskRegion);
+        this.colorPickerWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+        RenderSystem.disableScissor();
+    }
+
     private void renderSkinList(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        GL11.glEnable(GL11.GL_STENCIL_TEST);
-        RenderSystem.stencilMask(0xFF);
-        RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, false);
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_REPLACE, GL11.GL_REPLACE);
-
-        RenderSystem.colorMask(false, false, false, false);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        this.drawRectangle(matrixStack, listRegion);
-        RenderSystem.colorMask(true, true, true, true);
-
-        RenderSystem.stencilMask(0);
-        RenderSystem.stencilFunc(GL11.GL_EQUAL, 1, 0xFF);
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_REPLACE, GL11.GL_REPLACE);
-
         matrixStack.pushPose();
         matrixStack.translate(0, -this.scrollOffset * this.getScrollableRange(), 0);
-        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
-        matrixStack.popPose();
 
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0);
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        this.setupScissorTest(this.listRegion);
+        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
+        RenderSystem.disableScissor();
+
+        matrixStack.popPose();
     }
 
     private void renderScrollbar(MatrixStack matrixStack) {
@@ -325,6 +361,7 @@ public class SkinSelectorScreen extends Screen {
     public boolean mouseReleased(double x, double y, int button) {
         this.draggingScrollbar = false;
         this.skinPreviewWidget.mouseReleasedAnywhere(button);
+        this.colorPickerWidget.mouseReleasedAnywhere(button);
 
         return super.mouseReleased(x, y, button);
     }
@@ -336,7 +373,8 @@ public class SkinSelectorScreen extends Screen {
             this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
         }
 
-        this.skinPreviewWidget.mouseMoved(x,y);
+        this.skinPreviewWidget.mouseMoved(x, y);
+        this.colorPickerWidget.mouseMoved(x, y);
     }
 
     @Override
