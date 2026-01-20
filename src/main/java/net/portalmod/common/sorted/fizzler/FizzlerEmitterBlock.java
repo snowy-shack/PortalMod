@@ -171,23 +171,12 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        Direction clickedFace = context.getClickedFace();
         BlockState half = super.getStateForPlacement(context);
+        Direction clickedFace = context.getClickedFace();
 
-        if (half != null && clickedFace.getAxis() != Direction.Axis.Y) {
-            boolean top = half.getValue(HALF) == DoubleBlockHalf.UPPER;
+        if (half == null || clickedFace.getAxis() == Direction.Axis.Y) return null;
 
-            BlockState supportSelf = context.getLevel()
-                    .getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()));
-            BlockState supportPartner = context.getLevel()
-                    .getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()).relative(top ? Direction.DOWN : Direction.UP));
-
-            if (supportSelf.isFaceSturdy(context.getLevel(), context.getClickedPos(), clickedFace.getOpposite()) &&
-                    supportPartner.isFaceSturdy(context.getLevel(), context.getClickedPos(), clickedFace.getOpposite())) {
-                return half.setValue(FACING, clickedFace);
-            }
-        }
-        return null;
+        return half.setValue(FACING, clickedFace);
     }
 
     @Override

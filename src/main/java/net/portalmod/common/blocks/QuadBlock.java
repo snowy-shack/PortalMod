@@ -11,14 +11,11 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
-import net.portalmod.core.math.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Predicate;
 
 public class QuadBlock extends MultiBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -79,11 +76,9 @@ public class QuadBlock extends MultiBlock {
         return StatePropertiesPredicate.Builder.properties().hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
-    public boolean checkEachBlock(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing, Predicate<BlockState> p) {
-        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
-            if(p.test(level.getBlockState(targetPos)))
-                return false;
-        return true;
+    @Override
+    public boolean lookDirectionInfluencesPositions() {
+        return false;
     }
 
     public List<BlockPos> getAllBlocks(BlockPos pos, QuadBlockCorner base, Direction facing) {
@@ -120,83 +115,36 @@ public class QuadBlock extends MultiBlock {
 
     @Nullable
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        Vec3 playerView = new Vec3(context.getPlayer().getViewVector(1));
         Direction direction = context.getClickedFace();
         Direction.Axis axis = direction.getAxis();
-        QuadBlockCorner corner;
+        boolean isPositive = direction.getAxisDirection() == Direction.AxisDirection.POSITIVE;
 
-        Tuple<Direction, Direction> directions = placementDirectionsFromFacing(axis);
-        Direction a = directions.getA();
-        Direction b = directions.getB();
+        // Determine directions of the corners for this placement face
+        Direction upDirection = axis == Direction.Axis.Y ? Direction.NORTH : Direction.UP;
+        Direction leftDirection = axis == Direction.Axis.Y ? (isPositive ? Direction.WEST : Direction.EAST) : direction.getClockWise();
 
-        if(direction.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-            if(direction.getAxis() == Direction.Axis.X)
-                playerView.z *= -1;
-            else
-                playerView.x *= -1;
+        boolean prefersUp = clickedOnPositiveHalf(context, upDirection.getOpposite());
+        boolean prefersLeft = clickedOnPositiveHalf(context, leftDirection.getOpposite());
+
+        boolean[] flipUp   = {false, false, true, true};
+        boolean[] flipLeft = {false, true, false, true};
+
+        for (int i = 0; i < 4; i++) {
+            QuadBlockCorner corner = QuadBlockCorner.getCorner(prefersUp ^ flipUp[i], prefersLeft ^ flipLeft[i]);
+
+            if (this.isCornerPlaceable(context, corner)) {
+                return this.defaultBlockState()
+                        .setValue(FACING, direction)
+                        .setValue(CORNER, corner);
+            }
         }
-
-        double x = a.getAxisDirection().getStep() * -playerView.to3d().get(a.getAxis());
-        double y = b.getAxisDirection().getStep() * -playerView.to3d().get(b.getAxis());
-        corner = QuadBlockCorner.fromCoords(x, y);
-//        System.out.println(x);
-//        System.out.println(y);
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
-
-        boolean xNeg = false;
-        boolean yNeg = false;
-
-        if(x < y)
-            xNeg = true;
-        else
-            yNeg = true;
-
-        corner = QuadBlockCorner.fromCoords(x * (xNeg ? -1 : 1), y * (yNeg ? -1 : 1));
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
-
-        corner = QuadBlockCorner.fromCoords(x * (xNeg ? 1 : -1), y * (yNeg ? 1 : -1));
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
-
-        corner = QuadBlockCorner.fromCoords(-x, -y);
-
-        if(this.isPlaceable(context, corner))
-            return this.defaultBlockState()
-                    .setValue(FACING, direction)
-                    .setValue(CORNER, corner);
 
         return null;
     }
 
-    private boolean isPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
-        World level = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-
-        return checkEachBlock(level, pos, corner, context.getClickedFace(), s -> !s.canBeReplaced(context))
-                && canSurvive(level, pos, corner, context.getClickedFace());
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, IWorldReader level, BlockPos pos) {
-        return canSurvive(level, pos, state.getValue(CORNER), state.getValue(FACING));
-    }
-
-    private boolean canSurvive(IWorldReader level, BlockPos pos, QuadBlockCorner corner, Direction facing) {
-        for(BlockPos targetPos : this.getAllBlocks(pos, corner, facing))
-            if(!canSupportCenter(level, targetPos.relative(facing.getOpposite()), facing))
-                return false;
-        return true;
+    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+        return this.getAllBlocks(context.getClickedPos(), corner, context.getClickedFace()).stream()
+                .allMatch(pos -> canPlaceAt(context, pos));
     }
 
     @Override

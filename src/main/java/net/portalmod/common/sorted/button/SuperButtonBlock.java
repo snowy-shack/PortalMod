@@ -141,16 +141,12 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext selectionContext) {
-        VoxelShape shape = this.getShape(state);
+        VoxelShape shape = this.getShapeGroup(state).getVariant(state.getValue(PRESSED) ? "pressed" : "normal");
         return shape != null ? shape : VoxelShapes.empty();
     }
     
     private VoxelShapeGroup getShapeGroup(BlockState state) {
         return SHAPES.get(state.getValue(FACING), state.getValue(CORNER));
-    }
-    
-    private VoxelShape getShape(BlockState state) {
-        return this.getShapeGroup(state).getVariant(state.getValue(PRESSED) ? "pressed" : "normal");
     }
 
     @Override
@@ -187,7 +183,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
     
     private void checkPressed(BlockState state, World level, BlockPos pos) {
-        List<BlockPos> blocks = this.getAllBlocks(pos, state.getValue(CORNER), state.getValue(FACING));
+        List<BlockPos> blocks = this.getAllPositions(state, pos);
         boolean wasPressed = state.getValue(PRESSED);
         boolean wasActive = state.getValue(ACTIVE);
         ButtonMode mode = state.getValue(MODE);

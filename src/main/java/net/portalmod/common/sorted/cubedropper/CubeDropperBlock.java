@@ -18,7 +18,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
@@ -165,85 +164,51 @@ public class CubeDropperBlock extends MultiBlock {
                 .hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
+    @Override
+    public boolean lookDirectionInfluencesPositions() {
+        return false;
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        World world = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-        PlayerEntity player = context.getPlayer();
+        if (context.getClickedFace() != Direction.DOWN) return null;
 
-        if (context.getClickedFace() != Direction.DOWN) {
-            return null;
-        }
+        boolean prefersLeft = clickedOnPositiveHalf(context, Direction.Axis.X);
+        boolean prefersUp = clickedOnPositiveHalf(context, Direction.Axis.Z);
 
-        List<QuadBlockCorner> possibleCorners = new ArrayList<>();
+        boolean[] flipUp   = {false, false, true, true};
+        boolean[] flipLeft = {false, true, false, true};
 
-        if (canPlace(new BlockPos[]{
-                pos.relative(Direction.EAST),
-                pos.relative(Direction.SOUTH),
-                pos.relative(Direction.SOUTH).relative(Direction.EAST),
-                pos.below(),
-                pos.below().relative(Direction.EAST),
-                pos.below().relative(Direction.SOUTH),
-                pos.below().relative(Direction.SOUTH).relative(Direction.EAST)
-        }, context, world)) {
-            possibleCorners.add(QuadBlockCorner.UP_LEFT);
-        }
+        for (int i = 0; i < 4; i++) {
+            QuadBlockCorner corner = QuadBlockCorner.getCorner(prefersUp ^ flipUp[i], prefersLeft ^ flipLeft[i]);
 
-        if (canPlace(new BlockPos[]{
-                pos.relative(Direction.WEST),
-                pos.relative(Direction.SOUTH),
-                pos.relative(Direction.SOUTH).relative(Direction.WEST),
-                pos.below(),
-                pos.below().relative(Direction.WEST),
-                pos.below().relative(Direction.SOUTH),
-                pos.below().relative(Direction.SOUTH).relative(Direction.WEST)
-        }, context, world)) {
-            possibleCorners.add(QuadBlockCorner.UP_RIGHT);
-        }
-
-        if (canPlace(new BlockPos[]{
-                pos.relative(Direction.WEST),
-                pos.relative(Direction.NORTH),
-                pos.relative(Direction.NORTH).relative(Direction.WEST),
-                pos.below(),
-                pos.below().relative(Direction.WEST),
-                pos.below().relative(Direction.NORTH),
-                pos.below().relative(Direction.NORTH).relative(Direction.WEST)
-        }, context, world)) {
-            possibleCorners.add(QuadBlockCorner.DOWN_RIGHT);
-        }
-
-        if (canPlace(new BlockPos[]{
-                pos.relative(Direction.EAST),
-                pos.relative(Direction.NORTH),
-                pos.relative(Direction.NORTH).relative(Direction.EAST),
-                pos.below(),
-                pos.below().relative(Direction.EAST),
-                pos.below().relative(Direction.NORTH),
-                pos.below().relative(Direction.NORTH).relative(Direction.EAST)
-        }, context, world)) {
-            possibleCorners.add(QuadBlockCorner.DOWN_LEFT);
-        }
-
-        if (possibleCorners.isEmpty()) {
-            return null;
-        }
-
-        QuadBlockCorner preferredCorner = QuadBlockCorner.values()[MathHelper.positiveModulo(MathHelper.floor(player.yRot / 90 + 1), 4)];
-        if (possibleCorners.contains(preferredCorner)) {
-            return defaultBlockState().setValue(CORNER, preferredCorner);
-        }
-        return defaultBlockState().setValue(CORNER, possibleCorners.get(0));
-    }
-
-    public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
-        for (BlockPos pos : posArray) {
-            if (!world.getBlockState(pos).canBeReplaced(context)) {
-                return false;
+            if (this.isCornerPlaceable(context, corner)) {
+                return this.defaultBlockState().setValue(CORNER, corner);
             }
         }
-        return true;
+
+        return null;
+    }
+
+    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+        BlockPos topLeftPos = context.getClickedPos();
+
+        if (!corner.isLeft()) topLeftPos = topLeftPos.west();
+        if (!corner.isUp()) topLeftPos = topLeftPos.north();
+
+        BlockPos[] topLeftOffsets = {
+                topLeftPos,
+                topLeftPos.east(),
+                topLeftPos.south(),
+                topLeftPos.south().east(),
+                topLeftPos.below(),
+                topLeftPos.below().east(),
+                topLeftPos.below().south(),
+                topLeftPos.below().south().east(),
+        };
+
+        return Arrays.stream(topLeftOffsets).allMatch(pos -> canPlaceAt(context, pos));
     }
 
     @Override

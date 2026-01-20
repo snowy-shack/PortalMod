@@ -118,6 +118,11 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
+    public boolean lookDirectionInfluencesPositions() {
+        return true;
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(FACING, OPEN, HALF, SIDE);
     }
@@ -204,7 +209,7 @@ public class ChamberDoorBlock extends MultiBlock {
 
     public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
         for (BlockPos pos : posArray) {
-            if (!world.getBlockState(pos).canBeReplaced(context)) {
+            if (!canPlaceAt(context, pos)) {
                 return false;
             }
         }
