@@ -16,6 +16,7 @@ public class PortalModConfigManager {
     public static ForgeConfigSpec.ConfigValue<Boolean> HIGHLIGHTS;
     public static ForgeConfigSpec.ConfigValue<String>  PORTALGUN_SKIN;
     public static ForgeConfigSpec.ConfigValue<Boolean> HAS_SKINS;
+    public static ForgeConfigSpec.ConfigValue<Integer> SKIN_TINT;
 
     public static void init() {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -30,6 +31,7 @@ public class PortalModConfigManager {
         HIGHLIGHTS     = builder.define("highlights", true);
         PORTALGUN_SKIN = builder.define("portalgun_skin", "default");
         HAS_SKINS      = builder.define("has_skins", false);
+        SKIN_TINT      = builder.define("skin_tint", 0);
 
         CONFIG = builder.build();
 
