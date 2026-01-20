@@ -64,4 +64,22 @@ public class ShaderInit {
                     .add(GL_VERTEX_SHADER, "blit/blit.vsh")
                     .add(GL_FRAGMENT_SHADER, "blit/blit.fsh")
                     .build());
+
+    public static final Registry.Entry<Shader> COLOR_PICKER_SV = REGISTRY.register("color_picker_sv",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "gui/color_picker/vertex.vsh")
+                    .add(GL_FRAGMENT_SHADER, "gui/color_picker/sv.fsh")
+                    .build());
+
+    public static final Registry.Entry<Shader> COLOR_PICKER_HUE = REGISTRY.register("color_picker_hue",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "gui/color_picker/vertex.vsh")
+                    .add(GL_FRAGMENT_SHADER, "gui/color_picker/hue.fsh")
+                    .build());
+
+    public static final Registry.Entry<Shader> COLOR_PICKER_SOLID = REGISTRY.register("color_picker_hue",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "gui/color_picker/vertex.vsh")
+                    .add(GL_FRAGMENT_SHADER, "gui/color_picker/solid.fsh")
+                    .build());
 }

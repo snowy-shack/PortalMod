@@ -161,14 +161,15 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
         PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
 
+        // todo use the player's tint
         renderGun(matrixStack, gunUUID, model, renderTypeBuffer,
                 new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(PortalMod.MODID, "gun/default"), 1, 2),
-                stripeColour, lastPortalColor, gunLightOn, animate, packedLight, packedOverlay);
+                stripeColour, lastPortalColor, Colour.WHITE, gunLightOn, animate, packedLight, packedOverlay);
 
         matrixStack.popPose();
     }
 
-    public static void renderGun(MatrixStack matrixStack, UUID gunUUID, PortalGunModel model, IRenderTypeBuffer renderTypeBuffer, AnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
+    public static void renderGun(MatrixStack matrixStack, UUID gunUUID, PortalGunModel model, IRenderTypeBuffer renderTypeBuffer, AnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, Colour tint, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
 
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
@@ -180,7 +181,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));
 
         texture.setupAnimation();
-        model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, new Colour(255, 255, 255, 255), !animate);
+        model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, tint, !animate);
         model.render(gunUUID, model.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
         irendertypebuffer$impl.endBatch();
         texture.endAnimation();
