@@ -49,6 +49,12 @@ public abstract class MultiBlock extends Block {
      */
     public abstract StatePropertiesPredicate.Builder mainBlockPredicate();
 
+    /**
+     * Defines whether the positions of extra placed blocks depend on where the player is looking.
+     * If this is the case, placement will not be instantaneous to prevent a desync.
+     */
+    public abstract boolean lookDirectionInfluencesPositions();
+
     public boolean isMainBlock(BlockState blockState) {
         return predicate.matches(blockState);
     }
@@ -95,7 +101,7 @@ public abstract class MultiBlock extends Block {
 
     @Override
     public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if (world.isClientSide) return;
+        if (world.isClientSide && this.lookDirectionInfluencesPositions()) return;
 
         this.getConnectedBlockStates(world, blockState, pos)
                 .forEach(world::setBlockAndUpdate);
@@ -135,11 +141,22 @@ public abstract class MultiBlock extends Block {
         return PushReaction.BLOCK;
     }
 
+    public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction direction) {
+        boolean isPositiveDirection = direction.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+        return clickedOnPositiveHalf(context, direction.getAxis()) == isPositiveDirection;
+    }
+
     public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction.Axis axis) {
         BlockPos pos = context.getClickedPos();
 
         if (axis == Direction.Axis.X) return context.getClickLocation().x - pos.getX() > 0.5;
         if (axis == Direction.Axis.Y) return context.getClickLocation().y - pos.getY() > 0.5;
         return context.getClickLocation().z - pos.getZ() > 0.5;
+    }
+
+    public static boolean canPlaceAt(BlockItemUseContext context, BlockPos pos) {
+        return context.getLevel().getBlockState(pos).canBeReplaced(context)
+                && pos.getY() < context.getLevel().getMaxBuildHeight()
+                && pos.getY() >= 0;
     }
 }
