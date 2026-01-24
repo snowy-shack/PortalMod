@@ -228,22 +228,17 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public boolean isSignalSource(BlockState state) {
+    public boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
     @Override
-    public int getSignal(BlockState state, IBlockReader level, BlockPos pos, Direction direction) {
-        TileEntity blockEntity = level.getBlockEntity(this.getMainPosition(state, pos));
+    public int getAnalogOutputSignal(BlockState state, World world, BlockPos pos) {
+        TileEntity blockEntity = world.getBlockEntity(this.getMainPosition(state, pos));
         if (state.getValue(OPEN) && blockEntity instanceof ChamberDoorTileEntity) {
             return ((ChamberDoorTileEntity) blockEntity).isAutomatic() ? 15 : 0;
         }
         return 0;
-    }
-
-    @Override
-    public int getDirectSignal(BlockState state, IBlockReader level, BlockPos pos, Direction direction) {
-        return this.getSignal(state, level, pos, direction);
     }
 
     @Override
