@@ -1,6 +1,5 @@
 package net.portalmod.common.sorted.door;
 
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -8,17 +7,11 @@ import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
+import net.minecraft.state.*;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.Tuple;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -66,6 +59,23 @@ public class ChamberDoorBlock extends MultiBlock {
                 .setValue(SIDE, Side.LEFT));
     }
 
+    public enum Side implements IStringSerializable {
+        LEFT,
+        RIGHT;
+
+        public String toString() {
+            return this.getSerializedName();
+        }
+
+        public String getSerializedName() {
+            return this == LEFT ? "left" : "right";
+        }
+
+        public Side flip() {
+            return this == LEFT ? RIGHT : LEFT;
+        }
+    }
+
     @Override
     public BlockPos getMainPosition(BlockState blockState, BlockPos pos) {
         if (blockState.getValue(SIDE) == Side.RIGHT) {
@@ -78,8 +88,8 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        Direction horizontal = blockState.getValue(FACING).getCounterClockWise();
+    public List<BlockPos> getConnectedPositions(BlockState mainState, BlockPos mainPos) {
+        Direction horizontal = mainState.getValue(FACING).getCounterClockWise();
         return new ArrayList<>(Arrays.asList(
                 mainPos.above(),
                 mainPos.above().relative(horizontal),
@@ -88,7 +98,7 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getOtherParts(BlockState blockState, BlockPos pos) {
         Direction facing = blockState.getValue(FACING);
         boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
         boolean isLeft = blockState.getValue(SIDE) == Side.LEFT;
@@ -113,12 +123,20 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public StatePropertiesPredicate.Builder mainBlockPredicate() {
-        return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.LOWER).hasProperty(SIDE, Side.LEFT);
+    public boolean isSamePart(BlockState one, BlockState two) {
+        return one.getValue(FACING) == two.getValue(FACING)
+                && one.getValue(HALF) == two.getValue(HALF)
+                && one.getValue(SIDE) == two.getValue(SIDE);
     }
 
     @Override
-    public boolean lookDirectionInfluencesPositions() {
+    public void addMainBlockProperties(Map<Property<?>, Comparable<?>> map) {
+        map.put(HALF, DoubleBlockHalf.LOWER);
+        map.put(SIDE, Side.LEFT);
+    }
+
+    @Override
+    public boolean lookDirectionInfluencesLocation() {
         return true;
     }
 
@@ -209,7 +227,7 @@ public class ChamberDoorBlock extends MultiBlock {
 
     public static boolean canPlace(BlockPos[] posArray, BlockItemUseContext context, World world) {
         for (BlockPos pos : posArray) {
-            if (!canPlaceAt(context, pos)) {
+            if (!ModUtil.canPlaceAt(context, pos)) {
                 return false;
             }
         }
@@ -258,20 +276,29 @@ public class ChamberDoorBlock extends MultiBlock {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
-        ModUtil.addTooltip("chamber_door", list);
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
-    public enum Side implements IStringSerializable {
-        LEFT,
-        RIGHT;
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        Direction facing = state.getValue(FACING);
 
-        public String toString() {
-            return this.getSerializedName();
+        if (mirror == Mirror.NONE) {
+            return state;
         }
 
-        public String getSerializedName() {
-            return this == LEFT ? "left" : "right";
+        BlockState sideFlipped = state.setValue(SIDE, state.getValue(SIDE).flip());
+
+        if (mirror.mirror(facing) == facing) {
+            return sideFlipped;
         }
+
+        return sideFlipped.setValue(FACING, facing.getOpposite());
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip("chamber_door", list);
     }
 }

@@ -12,10 +12,7 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -212,7 +209,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         Direction facing = context.getClickedFace();
 
         BlockPos upperPos = context.getClickedPos().relative(facing);
-        if (canPlaceAt(context, upperPos)) {
+        if (ModUtil.canPlaceAt(context, upperPos)) {
             return this.defaultBlockState().setValue(FACING, facing);
         }
 
@@ -241,5 +238,15 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     @Override
     public boolean connectsInDirection(Direction direction, BlockState state) {
         return state.getValue(HALF) == DoubleBlockHalf.LOWER && direction.getAxis() != state.getValue(FACING).getAxis();
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 }

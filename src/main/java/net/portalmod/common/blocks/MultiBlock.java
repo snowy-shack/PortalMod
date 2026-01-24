@@ -1,6 +1,5 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -17,15 +16,18 @@ import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class MultiBlock extends Block {
 
-    private final StatePropertiesPredicate predicate = mainBlockPredicate().build();
+    private final Map<Property<?>, Comparable<?>> mainProperties = new HashMap<>();
 
-    public MultiBlock(Properties properties) {
-        super(properties);
+    public MultiBlock(Properties blockProperties) {
+        super(blockProperties);
+
+        this.addMainBlockProperties(this.mainProperties);
     }
 
     /**
@@ -36,27 +38,37 @@ public abstract class MultiBlock extends Block {
     /**
      * Provides all block positions of the multiblock, given the main block.
      */
-    public abstract List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos);
+    public abstract List<BlockPos> getConnectedPositions(BlockState mainState, BlockPos mainPos);
 
     /**
      * Provides a map of {@link BlockPos} to {@link BlockState} of each additional block that would need to be placed to complete the structure.
      * Keep in mind that the provided block may NOT be the main block.
      */
-    public abstract Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos);
+    public abstract Map<BlockPos, BlockState> getOtherParts(BlockState blockState, BlockPos pos);
 
     /**
-     * @return a predicate for determining whether a blockstate is the main block.
+     * @return whether two blockstates are the same exact part of the structure, including rotations, but excluding any extra states like 'active'.
      */
-    public abstract StatePropertiesPredicate.Builder mainBlockPredicate();
+    public abstract boolean isSamePart(BlockState one, BlockState two);
+
+    /**
+     * Adds the needed properties and values to a map for determining whether a blockstate is the main block.
+     */
+    public abstract void addMainBlockProperties(Map<Property<?>, Comparable<?>> map);
 
     /**
      * Defines whether the positions of extra placed blocks depend on where the player is looking.
      * If this is the case, placement will not be instantaneous to prevent a desync.
      */
-    public abstract boolean lookDirectionInfluencesPositions();
+    public abstract boolean lookDirectionInfluencesLocation();
+
+
+    // ----- Utility methods -----
 
     public boolean isMainBlock(BlockState blockState) {
-        return predicate.matches(blockState);
+        return this.mainProperties.entrySet().stream()
+                .allMatch(entry ->
+                        blockState.getValue(entry.getKey()).equals(entry.getValue()));
     }
 
     public List<BlockPos> getAllPositions(BlockState blockState, BlockPos pos) {
@@ -89,21 +101,42 @@ public abstract class MultiBlock extends Block {
         }
     }
 
+    public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction direction) {
+        boolean isPositiveDirection = direction.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+        return clickedOnPositiveHalf(context, direction.getAxis()) == isPositiveDirection;
+    }
+
+    public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction.Axis axis) {
+        BlockPos pos = context.getClickedPos();
+
+        if (axis == Direction.Axis.X) return context.getClickLocation().x - pos.getX() > 0.5;
+        if (axis == Direction.Axis.Y) return context.getClickLocation().y - pos.getY() > 0.5;
+        return context.getClickLocation().z - pos.getZ() > 0.5;
+    }
+
+
+    // ----- Overrides -----
+
     @Override
-    public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
-        for (BlockPos connectedPos : this.getAllPositions(blockState, pos)) {
-            if (!connectedPos.equals(pos) && !world.getBlockState(connectedPos).is(this)) {
-                return Blocks.AIR.defaultBlockState();
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+        if (this.getAllPositions(state, pos).contains(neighborPos)) {
+            if (neighborState.is(this) && this.isSamePart(neighborState, this.getOtherParts(state, pos).get(neighborPos))) {
+                // In the mojang code, this is where they sync their blockstate with the other part,
+                // but we don't have to do that because they are already in sync due to using
+                // setBlockStateValue() instead of only setting the state of one part
+                return state;
             }
+            return Blocks.AIR.defaultBlockState();
         }
-        return blockState;
+
+        return state;
     }
 
     @Override
     public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if (world.isClientSide && this.lookDirectionInfluencesPositions()) return;
+        if (world.isClientSide && this.lookDirectionInfluencesLocation()) return;
 
-        this.getConnectedBlockStates(world, blockState, pos)
+        this.getOtherParts(blockState, pos)
                 .forEach(world::setBlockAndUpdate);
     }
 
@@ -139,24 +172,5 @@ public abstract class MultiBlock extends Block {
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.BLOCK;
-    }
-
-    public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction direction) {
-        boolean isPositiveDirection = direction.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-        return clickedOnPositiveHalf(context, direction.getAxis()) == isPositiveDirection;
-    }
-
-    public static boolean clickedOnPositiveHalf(BlockItemUseContext context, Direction.Axis axis) {
-        BlockPos pos = context.getClickedPos();
-
-        if (axis == Direction.Axis.X) return context.getClickLocation().x - pos.getX() > 0.5;
-        if (axis == Direction.Axis.Y) return context.getClickLocation().y - pos.getY() > 0.5;
-        return context.getClickLocation().z - pos.getZ() > 0.5;
-    }
-
-    public static boolean canPlaceAt(BlockItemUseContext context, BlockPos pos) {
-        return context.getLevel().getBlockState(pos).canBeReplaced(context)
-                && pos.getY() < context.getLevel().getMaxBuildHeight()
-                && pos.getY() >= 0;
     }
 }
