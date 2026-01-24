@@ -9,6 +9,8 @@ import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -47,6 +49,18 @@ public class ChamberLightsBlock extends DoubleBlock {
     @Override
     public Direction getUpperDirection(BlockState state) {
         return Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
+    }
+
+    @Override
+    public boolean isSamePart(BlockState one, BlockState two) {
+        return super.isSamePart(one, two)
+                && one.getValue(AXIS) == two.getValue(AXIS)
+                && one.getValue(ROTATED) == two.getValue(ROTATED);
+    }
+
+    @Override
+    public boolean lookDirectionInfluencesLocation() {
+        return true;
     }
 
     @Override
@@ -142,5 +156,42 @@ public class ChamberLightsBlock extends DoubleBlock {
                     0.3f, 1, false
             );
         }
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        Direction.Axis axis = state.getValue(AXIS);
+
+        if (axis == Direction.Axis.Y) {
+            if (rotation == Rotation.NONE || rotation == Rotation.CLOCKWISE_180) {
+                return state;
+            }
+            return state.cycle(ROTATED);
+        }
+
+        if (rotation == Rotation.NONE) {
+            return state;
+        }
+
+        if (rotation == Rotation.CLOCKWISE_180) {
+            return state.cycle(HALF);
+        }
+
+        BlockState rotated = state.setValue(AXIS, axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
+
+        if (rotation == Rotation.CLOCKWISE_90 && axis == Direction.Axis.Z || rotation == Rotation.COUNTERCLOCKWISE_90 && axis == Direction.Axis.X) {
+            return rotated.cycle(HALF);
+        }
+
+        return rotated;
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        Direction.Axis axis = state.getValue(AXIS);
+        if (axis == Direction.Axis.X && mirror == Mirror.FRONT_BACK || axis == Direction.Axis.Z && mirror == Mirror.LEFT_RIGHT) {
+            return state.cycle(HALF);
+        }
+        return state;
     }
 }

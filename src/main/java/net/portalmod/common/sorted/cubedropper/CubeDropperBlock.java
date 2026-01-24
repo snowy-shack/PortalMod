@@ -1,6 +1,5 @@
 package net.portalmod.common.sorted.cubedropper;
 
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -11,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
+import net.minecraft.state.Property;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
@@ -110,7 +110,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
+    public List<BlockPos> getConnectedPositions(BlockState mainState, BlockPos mainPos) {
         return new ArrayList<>(Arrays.asList(
                 mainPos.relative(Direction.EAST),
                 mainPos.relative(Direction.SOUTH),
@@ -123,7 +123,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getOtherParts(BlockState blockState, BlockPos pos) {
         QuadBlockCorner corner = blockState.getValue(CORNER);
         boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
         boolean isLeft = corner.isLeft();
@@ -158,14 +158,19 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public StatePropertiesPredicate.Builder mainBlockPredicate() {
-        return StatePropertiesPredicate.Builder.properties()
-                .hasProperty(HALF, DoubleBlockHalf.UPPER)
-                .hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
+    public boolean isSamePart(BlockState one, BlockState two) {
+        return one.getValue(HALF) == two.getValue(HALF)
+                && one.getValue(CORNER) == two.getValue(CORNER);
     }
 
     @Override
-    public boolean lookDirectionInfluencesPositions() {
+    public void addMainBlockProperties(Map<Property<?>, Comparable<?>> map) {
+        map.put(HALF, DoubleBlockHalf.UPPER);
+        map.put(CORNER, QuadBlockCorner.UP_LEFT);
+    }
+
+    @Override
+    public boolean lookDirectionInfluencesLocation() {
         return false;
     }
 
@@ -208,7 +213,7 @@ public class CubeDropperBlock extends MultiBlock {
                 topLeftPos.below().south().east(),
         };
 
-        return Arrays.stream(topLeftOffsets).allMatch(pos -> canPlaceAt(context, pos));
+        return Arrays.stream(topLeftOffsets).allMatch(pos -> ModUtil.canPlaceAt(context, pos));
     }
 
     @Override
@@ -289,6 +294,21 @@ public class CubeDropperBlock extends MultiBlock {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return this.isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create() : null;
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        int times = ModUtil.getRotationAmount(rotation);
+        return state.setValue(CORNER, state.getValue(CORNER).rotate(times));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        switch (mirror) {
+            case FRONT_BACK: return state.setValue(CORNER, state.getValue(CORNER).mirrorLeftRight());
+            case LEFT_RIGHT: return state.setValue(CORNER, state.getValue(CORNER).mirrorUpDown());
+        }
+        return state;
     }
 
     @Override

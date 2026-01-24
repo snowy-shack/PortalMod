@@ -15,6 +15,8 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -136,13 +138,13 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
-        Block adjacent = world.getBlockState(pos.relative(blockState.getValue(FACING))).getBlock();
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+        Block adjacent = world.getBlockState(pos.relative(state.getValue(FACING))).getBlock();
         if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
-            blockState = blockState.setValue(ACTIVE, false);
+            state = state.setValue(ACTIVE, false);
         }
 
-        return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
+        return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
     }
 
     @Override
@@ -198,6 +200,20 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        Direction facing = state.getValue(FACING);
+        if (mirror.mirror(facing) != facing) {
+            return state.setValue(FACING, facing.getOpposite());
+        }
+        return state;
     }
 
     @Override

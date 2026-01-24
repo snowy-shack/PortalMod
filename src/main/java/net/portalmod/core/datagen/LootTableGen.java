@@ -2,6 +2,7 @@ package net.portalmod.core.datagen;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.block.DoorBlock;
 import net.minecraft.block.SlabBlock;
@@ -11,6 +12,7 @@ import net.minecraft.data.loot.BlockLootTables;
 import net.minecraft.item.Items;
 import net.minecraft.loot.*;
 import net.minecraft.loot.conditions.BlockStateProperty;
+import net.minecraft.state.Property;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 import net.portalmod.common.blocks.ForestCakeBlock;
@@ -20,6 +22,7 @@ import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.core.init.BlockInit;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -79,12 +82,20 @@ public class LootTableGen extends LootTableProvider {
         }
 
         public LootTable.Builder multiBlockCondition(MultiBlock block) {
+            StatePropertiesPredicate.Builder properties = StatePropertiesPredicate.Builder.properties();
+            HashMap<Property<?>, Comparable<?>> propertyMap = new HashMap<>();
+
+            block.addMainBlockProperties(propertyMap);
+
+            propertyMap.forEach((property, comparable) ->
+                    properties.hasProperty(property, comparable.toString()));
+
             return LootTable.lootTable()
                     .withPool(applyExplosionCondition(block, LootPool.lootPool()
                             .setRolls(ConstantRange.exactly(1))
                             .add(ItemLootEntry.lootTableItem(block)
                                     .when(BlockStateProperty.hasBlockStateProperties(block)
-                                            .setProperties(block.mainBlockPredicate())))));
+                                            .setProperties(properties)))));
         }
 
         @Override

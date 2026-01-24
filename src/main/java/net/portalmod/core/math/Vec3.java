@@ -1,5 +1,6 @@
 package net.portalmod.core.math;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
@@ -276,5 +277,9 @@ public class Vec3 {
     
     public Vector3i to3i() {
         return new Vector3i(this.x, this.y, this.z);
+    }
+
+    public BlockPos toBlockPos() {
+        return new BlockPos(this.x, this.y, this.z);
     }
 }

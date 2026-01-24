@@ -1,18 +1,18 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
+import net.minecraft.state.Property;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -43,8 +43,8 @@ public class QuadBlock extends MultiBlock {
     }
 
     @Override
-    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        Direction facing = blockState.getValue(FACING);
+    public List<BlockPos> getConnectedPositions(BlockState mainState, BlockPos mainPos) {
+        Direction facing = mainState.getValue(FACING);
 
         Direction horizontal = facing == Direction.UP ? Direction.EAST : facing == Direction.DOWN ? Direction.WEST : facing.getCounterClockWise();
         Direction vertical = facing.getAxis() == Direction.Axis.Y ? Direction.SOUTH : Direction.DOWN;
@@ -57,7 +57,7 @@ public class QuadBlock extends MultiBlock {
     }
 
     @Override
-    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getOtherParts(BlockState blockState, BlockPos pos) {
         QuadBlockCorner base = blockState.getValue(CORNER);
         Direction facing = blockState.getValue(FACING);
 
@@ -72,12 +72,18 @@ public class QuadBlock extends MultiBlock {
     }
 
     @Override
-    public StatePropertiesPredicate.Builder mainBlockPredicate() {
-        return StatePropertiesPredicate.Builder.properties().hasProperty(CORNER, QuadBlockCorner.UP_LEFT);
+    public boolean isSamePart(BlockState one, BlockState two) {
+        return one.getValue(FACING) == two.getValue(FACING)
+                && one.getValue(CORNER) == two.getValue(CORNER);
     }
 
     @Override
-    public boolean lookDirectionInfluencesPositions() {
+    public void addMainBlockProperties(Map<Property<?>, Comparable<?>> map) {
+        map.put(CORNER, QuadBlockCorner.UP_LEFT);
+    }
+
+    @Override
+    public boolean lookDirectionInfluencesLocation() {
         return false;
     }
 
@@ -144,16 +150,48 @@ public class QuadBlock extends MultiBlock {
 
     public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
         return this.getAllBlocks(context.getClickedPos(), corner, context.getClickedFace()).stream()
-                .allMatch(pos -> canPlaceAt(context, pos));
+                .allMatch(pos -> ModUtil.canPlaceAt(context, pos));
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        Direction facing = state.getValue(FACING);
+
+        if (facing.getAxis() == Direction.Axis.Y) {
+            int times = ModUtil.getRotationAmount(rotation);
+            if (facing == Direction.DOWN) {
+                times = 4 - times;
+            }
+            return state.setValue(CORNER, state.getValue(CORNER).rotate(times));
+        }
+
+        return state.setValue(FACING, rotation.rotate(facing));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        Direction facing = state.getValue(FACING);
+
+        if (facing.getAxis() == Direction.Axis.Y) {
+            switch (mirror) {
+                case FRONT_BACK:
+                    return state.setValue(CORNER, state.getValue(CORNER).mirrorLeftRight());
+                case LEFT_RIGHT:
+                    return state.setValue(CORNER, state.getValue(CORNER).mirrorUpDown());
+            }
+            return state;
+        }
+
+        if (mirror == Mirror.NONE) {
+            return state;
+        }
+
+        BlockState sideFlipped = state.setValue(CORNER, state.getValue(CORNER).mirrorLeftRight());
+
+        if (mirror.mirror(facing) == facing) {
+            return sideFlipped;
+        }
+
+        return sideFlipped.setValue(FACING, facing.getOpposite());
     }
 }
