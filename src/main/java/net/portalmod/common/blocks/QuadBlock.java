@@ -82,11 +82,6 @@ public class QuadBlock extends MultiBlock {
         map.put(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
-    @Override
-    public boolean lookDirectionInfluencesLocation() {
-        return false;
-    }
-
     public List<BlockPos> getAllBlocks(BlockPos pos, QuadBlockCorner base, Direction facing) {
         List<BlockPos> poses = new ArrayList<>();
         for(QuadBlockCorner corner : QuadBlockCorner.values())

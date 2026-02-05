@@ -62,26 +62,21 @@ public abstract class DoubleBlock extends MultiBlock {
         map.put(HALF, DoubleBlockHalf.LOWER);
     }
 
-    @Override
-    public boolean lookDirectionInfluencesLocation() {
-        return false;
-    }
-
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         // Basic implementation for vertical double blocks but this can be overridden if needed
-        return getPlacementHalf(context, Direction.Axis.Y)
+        return getPlacementHalf(context, Direction.UP)
                 .map(doubleBlockHalf -> this.defaultBlockState().setValue(HALF, doubleBlockHalf))
                 .orElse(null);
     }
 
-    public static Optional<DoubleBlockHalf> getPlacementHalf(BlockItemUseContext context, Direction.Axis axis) {
+    public static Optional<DoubleBlockHalf> getPlacementHalf(BlockItemUseContext context, Direction upDirection) {
         BlockPos pos = context.getClickedPos();
-        boolean placedOnUpperSide = clickedOnPositiveHalf(context, axis);
+        boolean placedOnUpperSide = clickedOnPositiveHalf(context, upDirection);
 
-        boolean canBeLower = ModUtil.canPlaceAt(context, pos.relative(Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE)));
-        boolean canBeUpper = ModUtil.canPlaceAt(context, pos.relative(Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE)));
+        boolean canBeLower = ModUtil.canPlaceAt(context, pos.relative(upDirection));
+        boolean canBeUpper = ModUtil.canPlaceAt(context, pos.relative(upDirection.getOpposite()));
 
         // Placement preference
         if (!placedOnUpperSide && canBeUpper) return Optional.of(DoubleBlockHalf.UPPER);
