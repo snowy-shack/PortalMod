@@ -6,6 +6,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -27,41 +28,21 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
-    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
+    public static final BooleanProperty ROTATED = BooleanProperty.create("rotated");
 
     public FizzlerFieldBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
                 .setValue(AXIS, Direction.Axis.X)
+                .setValue(ROTATED, false)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
-        this.initAABBs();
     }
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(AXIS, HALF);
-    }
-
-
-    private static final Map<Direction.Axis, VoxelShapeGroup> SHAPES = new HashMap<>();
-    private static final VoxelShapeGroup SHAPE_GROUP = new VoxelShapeGroup.Builder()
-            .add(0,0,7,16,16,9)
-            .build();
-
-    private void initAABBs() {
-        for(Direction.Axis axis : Direction.Axis.values()) {
-            Mat4 matrix = Mat4.identity();
-            matrix.translate(new Vec3(.5));
-
-            matrix.rotateDeg(Vector3f.YP, (axis == Direction.Axis.X) ? 0 : 90);
-            matrix.translate(new Vec3(-.5));
-
-            SHAPES.put(axis, SHAPE_GROUP.clone().transform(matrix));
-        }
+        builder.add(AXIS, ROTATED, HALF);
     }
 
     @Override
@@ -70,12 +51,47 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
     public VoxelShape getFieldShape(BlockState state) {
-        return SHAPES.get(state.getValue(AXIS)).getShape();
+        VoxelShapeGroup group = new VoxelShapeGroup.Builder()
+                .add(7, 0, 0, 9, 16, 16)
+                .build();
+
+        Direction.Axis axis = state.getValue(AXIS);
+        boolean rotated = state.getValue(ROTATED);
+
+        Mat4 matrix = Mat4.identity();
+        matrix.translate(new Vec3(.5));
+
+        if (axis == Direction.Axis.X) {
+            matrix.rotateDeg(Vector3f.YP, 90);
+        }
+
+        if (axis == Direction.Axis.Y) {
+            matrix.rotateDeg(Vector3f.XP, 90);
+        }
+
+        if (rotated) {
+            matrix.rotateDeg(Vector3f.ZP, 90);
+        }
+
+        matrix.translate(new Vec3(-.5));
+
+        return group.transform(matrix).getShape();
     }
 
     @Override
     public Direction getUpperDirection(BlockState state) {
-        return Direction.UP;
+        Direction.Axis axis = state.getValue(AXIS);
+        boolean rotated = state.getValue(ROTATED);
+
+        if (axis == Direction.Axis.Y) {
+            return rotated ? Direction.EAST : Direction.SOUTH;
+        }
+
+        if (axis == Direction.Axis.X) {
+            return rotated ? Direction.SOUTH : Direction.UP;
+        }
+
+        return rotated ? Direction.EAST : Direction.UP;
     }
 
     @Override
@@ -89,19 +105,21 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
         BlockState leftBlock = world.getBlockState(pos.relative(facing));
         BlockState rightBlock = world.getBlockState(pos.relative(facing.getOpposite()));
 
-        if (!this.validHorizontalConnection(state, leftBlock, facing) || !(this.validHorizontalConnection(state, rightBlock, facing.getOpposite()))) {
+        if (!this.isValidConnection(state, leftBlock, facing) || !(this.isValidConnection(state, rightBlock, facing.getOpposite()))) {
             world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         }
     }
 
-    public boolean validHorizontalConnection(BlockState state, BlockState neighbor, Direction direction) {
+    public boolean isValidConnection(BlockState state, BlockState neighbor, Direction direction) {
         if (neighbor.getBlock() instanceof FizzlerFieldBlock) {
             return neighbor.getValue(AXIS) == state.getValue(AXIS)
+                    && neighbor.getValue(ROTATED) == state.getValue(ROTATED)
                     && neighbor.getValue(HALF) == state.getValue(HALF);
         }
 
         if (neighbor.getBlock() instanceof FizzlerEmitterBlock) {
             return neighbor.getValue(FizzlerEmitterBlock.FACING) == direction.getOpposite()
+                    && neighbor.getValue(FizzlerEmitterBlock.ROTATED) == state.getValue(ROTATED)
                     && neighbor.getValue(FizzlerEmitterBlock.HALF) == state.getValue(HALF)
                     && neighbor.getValue(FizzlerEmitterBlock.ACTIVE);
         }

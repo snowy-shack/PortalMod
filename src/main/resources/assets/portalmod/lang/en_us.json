@@ -187,6 +187,7 @@
   "tooltip.portalmod.fizzler_emitter_2": "- Fizzles §aCubes§7 and §aTurrets§7",
   "tooltip.portalmod.fizzler_emitter_3": "- Closes §9Portals§7 for each §9Portal Gun§7 in inventory",
   "tooltip.portalmod.fizzler_emitter_4": "- Can be controlled by adjacent §bAntline Indicators§7",
+  "tooltip.portalmod.fizzler_emitter_5": "- §6Crouch§7 to place horizontally",
 
   "tooltip.portalmod.faithplate_1": "Launches entities to a specified location",
   "tooltip.portalmod.faithplate_2": "- §6Wrench§7: Configure the fling target",

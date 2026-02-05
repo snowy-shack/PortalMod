@@ -1,8 +1,18 @@
 {
   "variants": {
-    "axis=x,half=upper": {"model": "portalmod:block/fizzler_field_top", "y": 90},
-    "axis=z,half=upper": {"model": "portalmod:block/fizzler_field_top"},
-    "axis=x,half=lower": {"model": "portalmod:block/fizzler_field_bottom", "y": 90},
-    "axis=z,half=lower": {"model": "portalmod:block/fizzler_field_bottom"}
+    "rotated=false,half=lower,axis=y": {"model": "portalmod:block/fizzler_field_bottom", "x": 90, "y": 180},
+    "rotated=false,half=upper,axis=y": {"model": "portalmod:block/fizzler_field_top", "x": 90, "y": 180},
+    "rotated=true,half=lower,axis=y":  {"model": "portalmod:block/fizzler_field_bottom", "x": 90, "y": 90},
+    "rotated=true,half=upper,axis=y":  {"model": "portalmod:block/fizzler_field_top", "x": 90, "y": 90},
+
+    "rotated=false,half=lower,axis=x": {"model": "portalmod:block/fizzler_field_bottom", "y": 90},
+    "rotated=false,half=lower,axis=z": {"model": "portalmod:block/fizzler_field_bottom"},
+    "rotated=false,half=upper,axis=x": {"model": "portalmod:block/fizzler_field_top", "y": 90},
+    "rotated=false,half=upper,axis=z": {"model": "portalmod:block/fizzler_field_top"},
+
+    "rotated=true,half=lower,axis=x": {"model": "portalmod:block/fizzler_field_bottom_horizontal", "y": 270},
+    "rotated=true,half=lower,axis=z": {"model": "portalmod:block/fizzler_field_bottom_horizontal", "y": 180},
+    "rotated=true,half=upper,axis=x": {"model": "portalmod:block/fizzler_field_top_horizontal", "y": 270},
+    "rotated=true,half=upper,axis=z": {"model": "portalmod:block/fizzler_field_top_horizontal", "y": 180}
   }
 }

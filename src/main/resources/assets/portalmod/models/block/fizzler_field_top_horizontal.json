@@ -1,5 +1,5 @@
 {
-	"parent": "portalmod:block/pane_no_ao",
+	"parent": "portalmod:block/pane_no_ao_flat",
 	"textures": {
 		"left":  "portalmod:block/fizzler_field_top",
 		"right": "portalmod:block/fizzler_field_top"

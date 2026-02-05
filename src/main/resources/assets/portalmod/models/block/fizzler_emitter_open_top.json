@@ -1,6 +1,10 @@
 {
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
 	"ambientocclusion": false,
 	"textures": {
+		"1": "portalmod:block/fizzler_field_top_left",
+		"2": "portalmod:block/fizzler_field_top_right",
 		"particle": "portalmod:block/fizzler_emitter",
 		"base": "portalmod:block/fizzler_emitter"
 	},
@@ -59,6 +63,24 @@
 				"east": {"uv": [16, 0, 14, 16], "texture": "#base"},
 				"west": {"uv": [15, 0, 13, 16], "texture": "#base"},
 				"up": {"uv": [3, 1, 5, 0], "rotation": 90, "texture": "#base"}
+			}
+		},
+		{
+			"from": [8, 0, 0],
+			"to": [8, 15, 12],
+			"shade": false,
+			"faces": {
+				"east": {"uv": [4, 1, 16, 16], "texture": "#1"},
+				"west": {"uv": [0, 1, 12, 16], "texture": "#2"}
+			}
+		},
+		{
+			"from": [8, 15, 0],
+			"to": [8, 16, 14],
+			"shade": false,
+			"faces": {
+				"east": {"uv": [2, 0, 16, 1], "texture": "#1"},
+				"west": {"uv": [0, 0, 14, 1], "texture": "#2"}
 			}
 		}
 	]

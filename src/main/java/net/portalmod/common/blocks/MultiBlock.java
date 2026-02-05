@@ -57,10 +57,12 @@ public abstract class MultiBlock extends Block {
     public abstract void addMainBlockProperties(Map<Property<?>, Comparable<?>> map);
 
     /**
-     * Defines whether the positions of extra placed blocks depend on where the player is looking.
+     * Defines whether the world positions of extra placed blocks depend on where the player is looking.
      * If this is the case, placement will not be instantaneous to prevent a desync.
      */
-    public abstract boolean lookDirectionInfluencesLocation();
+    public boolean lookDirectionInfluencesLocation() {
+        return false;
+    }
 
 
     // ----- Utility methods -----

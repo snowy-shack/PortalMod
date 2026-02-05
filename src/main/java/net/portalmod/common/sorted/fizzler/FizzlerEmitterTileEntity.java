@@ -36,12 +36,14 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
 
     private void handleAntlineActivation() {
         World world = this.level;
-        BlockState blockState = this.getBlockState();
+        BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
 
-        boolean activated = blockState.getValue(FizzlerEmitterBlock.ACTIVE);
-        Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
-        int distance = this.distanceToOtherSide(facing);
+        boolean activated = state.getValue(FizzlerEmitterBlock.ACTIVE);
+        Direction facing = state.getValue(FizzlerEmitterBlock.FACING);
+        Direction upDirection = ((FizzlerEmitterBlock) state.getBlock()).getUpperDirection(state);
+
+        int distance = this.distanceToOtherSide(facing, upDirection);
 
         // No other side or path is blocked
         if (distance == 0) {
@@ -50,35 +52,33 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
 
         // Indicator powered
         BlockPos otherFizzlerPos = pos.relative(facing, distance);
-        List<BlockPos> indicatorPositions = getIndicatorPositions(blockState, world, pos);
+        List<BlockPos> indicatorPositions = getIndicatorPositions(state, world, pos);
         indicatorPositions.addAll(getIndicatorPositions(world.getBlockState(otherFizzlerPos), world, otherFizzlerPos));
         IndicatorInfo indicatorInfo = IndicatorActivated.checkPositions(world, indicatorPositions);
         if (indicatorInfo.hasIndicators) {
             if (indicatorInfo.allIndicatorsActivated != activated) {
-                this.setActive(indicatorInfo.allIndicatorsActivated, distance, facing);
+                this.setActive(indicatorInfo.allIndicatorsActivated, distance, facing, upDirection);
             }
             return;
         }
 
         // No indicators
         if (!activated) {
-            this.setActive(true, distance, facing);
+            this.setActive(true, distance, facing, upDirection);
         }
     }
 
     // Activate both emitters and change field
-    public void setActive(boolean active, int distance, Direction facing) {
+    public void setActive(boolean active, int distance, Direction facing, Direction upDirection) {
         if (distance > 0) {
-            setField(active, distance, facing);
+            setField(active, distance, facing, upDirection);
 
             BlockPos oppositeEmitterPos = this.getBlockPos().relative(facing, distance);
             BlockState oppositeEmitterState = this.level.getBlockState(oppositeEmitterPos);
 
             SoundEvent soundEvent = active ? SoundInit.FIZZLER_ACTIVATE.get() : SoundInit.FIZZLER_DEACTIVATE.get();
             float pitch = (ModUtil.randomSoundPitch() + 2) / 3; // 3x lower random pitch
-
-            this.level.playSound(null, this.getBlockPos(), soundEvent, SoundCategory.BLOCKS, 1, pitch);
-            this.level.playSound(null, oppositeEmitterPos, soundEvent, SoundCategory.BLOCKS, 1, pitch);
+            this.level.playSound(null, this.getBlockPos().relative(facing, distance / 2), soundEvent, SoundCategory.BLOCKS, 1, pitch);
 
             ((FizzlerEmitterBlock) oppositeEmitterState.getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, oppositeEmitterState, this.level, oppositeEmitterPos);
 
@@ -89,47 +89,46 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
         }
     }
 
-    public void setField(boolean active, int distance, Direction facing) {
+    public void setField(boolean active, int distance, Direction facing, Direction upDirection) {
+        boolean rotated = this.getBlockState().getValue(FizzlerEmitterBlock.ROTATED);
         for (int i = 1; i < distance; i++) {
             if (active) {
-                BlockState fizzlerField = BlockInit.FIZZLER_FIELD.get().defaultBlockState().setValue(FizzlerFieldBlock.AXIS, facing.getAxis());
+                BlockState fizzlerField = BlockInit.FIZZLER_FIELD.get().defaultBlockState()
+                        .setValue(FizzlerFieldBlock.ROTATED, rotated)
+                        .setValue(FizzlerFieldBlock.AXIS, facing.getAxis());
                 this.level.setBlock(this.getBlockPos().relative(facing, i), fizzlerField, 2);
-                this.level.setBlock(this.getBlockPos().relative(facing, i).above(), fizzlerField.setValue(FizzlerFieldBlock.HALF, DoubleBlockHalf.UPPER), 2);
+                this.level.setBlock(this.getBlockPos().relative(facing, i).relative(upDirection), fizzlerField.setValue(FizzlerFieldBlock.HALF, DoubleBlockHalf.UPPER), 2);
             } else {
                 this.level.setBlock(this.getBlockPos().relative(facing, i), Blocks.AIR.defaultBlockState(), 2);
-                this.level.setBlock(this.getBlockPos().relative(facing, i).above(), Blocks.AIR.defaultBlockState(), 2);
+                this.level.setBlock(this.getBlockPos().relative(facing, i).relative(upDirection), Blocks.AIR.defaultBlockState(), 2);
             }
         }
     }
 
-    public int distanceToOtherSide(Direction direction) {
+    public int distanceToOtherSide(Direction direction, Direction upDirection) {
         for (int i = 1; i <= MAX_DISTANCE; i++) {
             BlockState lowerState = this.level.getBlockState(this.getBlockPos().relative(direction, i));
-            BlockState upperState = this.level.getBlockState(this.getBlockPos().relative(direction, i).above());
-
-            if (this.isBlocking(lowerState, direction, false) || this.isBlocking(upperState, direction, true)) {
-                return 0;
-            }
+            BlockState upperState = this.level.getBlockState(this.getBlockPos().relative(direction, i).relative(upDirection));
 
             if (this.isOtherSide(lowerState, direction, false) && this.isOtherSide(upperState, direction, true)) {
                 return i;
+            }
+
+            if (this.isBlockingField(lowerState, direction, false) || this.isBlockingField(upperState, direction, true)) {
+                return 0;
             }
         }
 
         return 0;
     }
 
-    public boolean isBlocking(BlockState state, Direction direction, boolean upper) {
-        if (state.getBlock().is(Blocks.AIR) || state.getBlock() instanceof FizzlerEmitterBlock) {
-            return false;
-        }
-
+    public boolean isBlockingField(BlockState state, Direction direction, boolean upper) {
         if (state.getBlock() instanceof FizzlerFieldBlock) {
             return state.getValue(FizzlerFieldBlock.AXIS) != direction.getAxis()
                     || upper != (state.getValue(FizzlerFieldBlock.HALF) == DoubleBlockHalf.UPPER);
         }
 
-        return true;
+        return !state.getMaterial().isReplaceable();
     }
 
     public boolean isOtherSide(BlockState state, Direction direction, boolean upper) {
@@ -146,14 +145,14 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
         Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
 
         return new ArrayList<>(Arrays.asList(
-                pos.relative(facing.getClockWise()),
-                pos.relative(facing.getClockWise()).relative(facing.getOpposite()),
-                pos.relative(facing.getCounterClockWise()),
-                pos.relative(facing.getCounterClockWise()).relative(facing.getOpposite()),
-                pos.above().relative(facing.getClockWise()),
-                pos.above().relative(facing.getClockWise()).relative(facing.getOpposite()),
-                pos.above().relative(facing.getCounterClockWise()),
-                pos.above().relative(facing.getCounterClockWise()).relative(facing.getOpposite())
+//                pos.relative(facing.getClockWise()),
+//                pos.relative(facing.getClockWise()).relative(facing.getOpposite()),
+//                pos.relative(facing.getCounterClockWise()),
+//                pos.relative(facing.getCounterClockWise()).relative(facing.getOpposite()),
+//                pos.above().relative(facing.getClockWise()),
+//                pos.above().relative(facing.getClockWise()).relative(facing.getOpposite()),
+//                pos.above().relative(facing.getCounterClockWise()),
+//                pos.above().relative(facing.getCounterClockWise()).relative(facing.getOpposite())
         ));
     }
 }

@@ -169,11 +169,6 @@ public class CubeDropperBlock extends MultiBlock {
         map.put(CORNER, QuadBlockCorner.UP_LEFT);
     }
 
-    @Override
-    public boolean lookDirectionInfluencesLocation() {
-        return false;
-    }
-
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {

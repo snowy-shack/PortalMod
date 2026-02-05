@@ -120,20 +120,20 @@ public class ChamberLightsBlock extends DoubleBlock {
         boolean prefersHorizontal = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
 
         // Check what placements are possible
-        Optional<DoubleBlockHalf> verticalTopHalf = getPlacementHalf(context, Direction.Axis.Y);
-        Optional<DoubleBlockHalf> horizontalTopHalf = getPlacementHalf(context, axis);
+        Optional<DoubleBlockHalf> verticalTopHalf = getPlacementHalf(context, Direction.UP);
+        Optional<DoubleBlockHalf> horizontalTopHalf = getPlacementHalf(context, Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE));
 
         if (!verticalTopHalf.isPresent() && !horizontalTopHalf.isPresent()) {
             // Neither is possible
             return null;
         }
 
-        boolean willGetHorizontal = prefersHorizontal && horizontalTopHalf.isPresent() || !verticalTopHalf.isPresent();
+        boolean willBeHorizontal = prefersHorizontal && horizontalTopHalf.isPresent() || !verticalTopHalf.isPresent();
 
         BlockState blockstate = this.defaultBlockState()
-                .setValue(HALF, willGetHorizontal ? horizontalTopHalf.get() : verticalTopHalf.get());
+                .setValue(HALF, willBeHorizontal ? horizontalTopHalf.get() : verticalTopHalf.get());
 
-        if (willGetHorizontal) {
+        if (willBeHorizontal) {
             return blockstate.setValue(AXIS, axis)
                     .setValue(ROTATED, context.getNearestLookingDirection().getAxis() == Direction.Axis.Y);
         }
