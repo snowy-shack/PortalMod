@@ -54,9 +54,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PMGlobals;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
-import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
-import net.portalmod.client.screens.PortalModOptionsScreen;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
@@ -80,13 +78,23 @@ import net.portalmod.core.util.ChangeDetector;
 import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor;
+import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.CLIENT)
 public class ClientEvents {
+
+    @SubscribeEvent
+    public static void onClientTick(final TickEvent.ClientTickEvent event) {
+        if(event.phase == TickEvent.Phase.START)
+            SkinManager.getClientInstance().tick();
+    }
+
+    @SubscribeEvent
+    public static void onClientLogin(final ClientPlayerNetworkEvent.LoggedInEvent event) {
+        SkinManager.getClientInstance().onClientLogin();
+    }
 
 //    @SubscribeEvent
 //    public static void onClientLevelLoad(final WorldEvent.Load event) {

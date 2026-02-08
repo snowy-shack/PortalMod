@@ -1,4 +1,4 @@
-package net.portalmod.skins;
+package net.portalmod.common.sorted.portalgun.skins;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.MainWindow;
@@ -33,8 +33,8 @@ public class ColorPickerWidget extends Widget {
     private static final int SV_PICKER_Y         = 4;
     private static final int SV_PICKER_WIDTH     = 49;
     private static final int SV_PICKER_HEIGHT    = 49;
-    private static final float SV_PICKER_VAL_MIN = 0.1f;
-    private static final float SV_PICKER_VAL_MAX = 0.9f;
+    public static final float SV_PICKER_VAL_MIN = 0.1f;
+    public static final float SV_PICKER_VAL_MAX = 0.9f;
     private final VertexRenderer svPickerColorQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
     private Rectangle svPickerRegion;
 

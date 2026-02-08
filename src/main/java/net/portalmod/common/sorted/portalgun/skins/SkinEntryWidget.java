@@ -1,4 +1,4 @@
-package net.portalmod.skins;
+package net.portalmod.common.sorted.portalgun.skins;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;

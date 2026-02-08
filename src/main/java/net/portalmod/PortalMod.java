@@ -1,5 +1,6 @@
 package net.portalmod;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -13,11 +14,12 @@ import net.portalmod.core.init.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+
 @Mod(PortalMod.MODID)
 public class PortalMod {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "portalmod";
-    public static final String API_BEARER = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFseWRwbWZldnhhYWJsdW1uY3lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjMzNjg1NjUsImV4cCI6MTk3ODk0NDU2NX0.ISXdn1qWzDqpyHwfTORCdf8GNkpL_mCzXG6LrZv9Bys";
 
     public PortalMod() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -53,5 +55,9 @@ public class PortalMod {
 
     private void createConfigs() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalModConfigManager::init);
+    }
+
+    public static File getModFolder() {
+        return new File(Minecraft.getInstance().gameDirectory, PortalMod.MODID);
     }
 }

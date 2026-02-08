@@ -1,4 +1,4 @@
-package net.portalmod.skins;
+package net.portalmod.common.sorted.portalgun.skins;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -9,12 +9,9 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.StringTextComponent;
-import net.portalmod.PortalMod;
-import net.portalmod.client.animation.AnimatedTexture;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunModel;
@@ -90,7 +87,7 @@ public class SkinPreviewWidget extends Widget {
         matrixStack.translate(0, -.2, 0);
 
         PortalGunISTER.renderGun(matrixStack, null, this.getModel(), irendertypebuffer$impl,
-                new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(PortalMod.MODID, "gun/" + selectedSkin), 1, 1),
+                SkinManager.getClientInstance().getSkinTexture(selectedSkin),
                 stripeColour, lastPortalColor, tint, false, false, 15728880, OverlayTexture.NO_OVERLAY);
 
         matrixStack.popPose();
