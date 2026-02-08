@@ -22,6 +22,8 @@ import net.portalmod.core.packet.AbstractPacket;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
 import net.portalmod.core.packet.SEntityPortalTeleportLerpPacket;
 import net.portalmod.core.packet.SEntityPortalTeleportPacketNew;
+import net.portalmod.common.sorted.portalgun.skins.CSetPlayerSkinPacket;
+import net.portalmod.common.sorted.portalgun.skins.SSetPlayerSkinPacket;
 
 public class PacketInit {
     private static int id = 0;
@@ -42,11 +44,13 @@ public class PacketInit {
         register(new SPortalPairPacket(),               NetworkDirection.PLAY_TO_CLIENT);
         register(new SForgetPortalPacket(),             NetworkDirection.PLAY_TO_CLIENT);
         register(new SPortalShotPacket(),               NetworkDirection.PLAY_TO_CLIENT);
+        register(new SSetPlayerSkinPacket(),            NetworkDirection.PLAY_TO_CLIENT);
 
         register(new CFaithPlateUpdatedPacket(),        NetworkDirection.PLAY_TO_SERVER);
         register(new CFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_SERVER);
         register(new CPortalGunInteractionPacket(),     NetworkDirection.PLAY_TO_SERVER);
         register(new CPlayerPortalTeleportPacket(),     NetworkDirection.PLAY_TO_SERVER);
+        register(new CSetPlayerSkinPacket(),            NetworkDirection.PLAY_TO_SERVER);
 
         // TODO use this below too
         

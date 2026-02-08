@@ -16,27 +16,20 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
-import net.portalmod.client.animation.AnimatedTexture;
+import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.core.init.AnimationInit;
 import net.portalmod.core.util.Colour;
+import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
 import java.util.UUID;
 
 public class PortalGunISTER extends ItemStackTileEntityRenderer {
-    public static final ResourceLocation PORTALGUN_TEXTURE = new ResourceLocation(PortalMod.MODID, "gun/portalgun");
     public static final ResourceLocation PORTALGUN_TEXTURE2 = new ResourceLocation(PortalMod.MODID, "gun/portalgun_color");
-    public static final ResourceLocation MISSINGNO_TEXTURE = new ResourceLocation("missingno");
-    public static RenderMaterial PORTALGUN_MATERIAL;
     public static RenderMaterial PORTALGUN_MATERIAL2;
-    public static RenderMaterial MISSINGNO_MATERIAL;
-    public final AnimatedTexture TEX = new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS,
-            new ResourceLocation(PortalMod.MODID, "gun/portalgun"), 1 /*3*/, 1); //FIXME
-    public static AnimatedTexture TEST_TEXTURE;
+    public static UUID renderingPortalGunOwner;
 
     public PortalGunISTER() {
-        PORTALGUN_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE);
         PORTALGUN_MATERIAL2 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE2);
-        MISSINGNO_MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, MISSINGNO_TEXTURE);
     }
     
     @Override
@@ -161,15 +154,32 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
         PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
 
-        // todo use the player's tint
+        String skin = "default";
+        switch(transformType) {
+            case FIRST_PERSON_LEFT_HAND:
+            case FIRST_PERSON_RIGHT_HAND:
+            case THIRD_PERSON_LEFT_HAND:
+            case THIRD_PERSON_RIGHT_HAND:
+            case HEAD:
+                skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(renderingPortalGunOwner);
+                break;
+
+            case GUI:
+                skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(null);
+                break;
+        }
+
+        int intTint = SkinManager.getClientInstance().getTintForPlayerOnSkin(renderingPortalGunOwner, skin);
+        Colour tint = intTint == 0 ? Colour.WHITE : new Colour(intTint);
+
         renderGun(matrixStack, gunUUID, model, renderTypeBuffer,
-                new AnimatedTexture(AtlasTexture.LOCATION_BLOCKS, new ResourceLocation(PortalMod.MODID, "gun/default"), 1, 2),
-                stripeColour, lastPortalColor, Colour.WHITE, gunLightOn, animate, packedLight, packedOverlay);
+                SkinManager.getClientInstance().getSkinTexture(skin),
+                stripeColour, lastPortalColor, tint, gunLightOn, animate, packedLight, packedOverlay);
 
         matrixStack.popPose();
     }
 
-    public static void renderGun(MatrixStack matrixStack, UUID gunUUID, PortalGunModel model, IRenderTypeBuffer renderTypeBuffer, AnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, Colour tint, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
+    public static void renderGun(MatrixStack matrixStack, UUID gunUUID, PortalGunModel model, IRenderTypeBuffer renderTypeBuffer, PortalGunAnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, Colour tint, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
 
         matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));

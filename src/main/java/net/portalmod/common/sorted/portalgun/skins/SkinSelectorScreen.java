@@ -1,30 +1,23 @@
-package net.portalmod.skins;
+package net.portalmod.common.sorted.portalgun.skins;
 
 import java.awt.*;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MainWindow;
+import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.Texture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.portalmod.core.config.PortalModConfigManager;
+import net.portalmod.client.animation.PortalGunAnimatedTexture;
+import net.portalmod.client.screens.widgets.IconButton;
+import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.util.Colour;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-
-import com.google.gson.Gson;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.Minecraft;
@@ -38,8 +31,9 @@ public class SkinSelectorScreen extends Screen {
     private static final int WIDTH  = 328;
     private static final int HEIGHT = 172;
 
-    private final Screen lastScreen;
-    private boolean initialized;
+    private static SkinSelectorScreen instance;
+    private Screen lastScreen;
+    private long loadingStart;
 
     private static final int SKIN_PREVIEW_X      = 211;
     private static final int SKIN_PREVIEW_Y      = 11;
@@ -59,7 +53,6 @@ public class SkinSelectorScreen extends Screen {
     private static final int SKIN_LIST_WIDTH   = 189;
     private static final int SKIN_LIST_HEIGHT  = 142;
     private static final int SKIN_ENTRY_HEIGHT = 30;
-    private final List<PortalGunSkin> skins;
     private final List<SkinEntryWidget> skinEntryList;
     private SkinEntryWidget selectedSkin;
     private Rectangle listRegion;
@@ -75,18 +68,32 @@ public class SkinSelectorScreen extends Screen {
     private float draggingScrollbarRelativeY;
     private Rectangle scrollbarRegion;
 
+    private static final int REFRESH_TIMEOUT = 5 * 60 * 1000;
+    private static final int APPLY_BUTTON_WIDTH = 70;
+    private Button refreshButton;
     private Button applyButton;
+    private volatile long lastRefresh = 0;
 
-    public SkinSelectorScreen(Screen lastScreen) {
+    private SkinSelectorScreen() {
         super(new TranslationTextComponent("options." + PortalMod.MODID + ".skins.title"));
-        this.lastScreen = lastScreen;
-        this.skins = new ArrayList<>();
+        this.loadingStart = -1;
         this.skinEntryList = new ArrayList<>();
-        this.scrollOffset = 0;
+    }
+
+    public static SkinSelectorScreen getInstance(Screen lastScreen) {
+        if(instance == null)
+            instance = new SkinSelectorScreen();
+
+        instance.lastScreen = lastScreen;
+        instance.scrollOffset = 0;
+        return instance;
     }
 
     @Override
     protected void init() {
+        this.initRefreshButton();
+        this.initApplyButton();
+
         this.skinPreviewWidget = new SkinPreviewWidget(this.getX() + SKIN_PREVIEW_X, this.getY() + SKIN_PREVIEW_Y,
                 SKIN_PREVIEW_WIDTH, SKIN_PREVIEW_HEIGHT, this);
         this.addWidget(this.skinPreviewWidget);
@@ -101,64 +108,43 @@ public class SkinSelectorScreen extends Screen {
         this.scrollbarRegion = new Rectangle(
                 this.listRegion.x + this.listRegion.width + 1, this.listRegion.y + 1,
                 SCROLLBAR_THUMB_WIDTH, this.listRegion.height - 2);
-        this.initSkinList();
 
-        this.initApplyButton();
-
-        this.initialized = true;
-    }
-
-    private void fetchSkinList() {
-        HttpGet request = new HttpGet("https://api.portalmod.net/v1/skins");
-
-        String data;
-        try(CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpEntity response = client.execute(request).getEntity();
-            data = IOUtils.toString(response.getContent(), StandardCharsets.UTF_8);
-        } catch(IOException e) {
-            e.printStackTrace();
-            return;
+        if(!this.isLoading()) {
+            this.initSkinList();
         }
-
-        this.skins.addAll(new Gson().fromJson(data, PortalGunSkin.Deserializer.class));
     }
 
     private void initSkinList() {
-        if(!this.initialized) {
-            this.fetchSkinList();
-        }
-
-        TextureManager tm = Minecraft.getInstance().textureManager;
-        Texture missingno = tm.getTexture(new ResourceLocation("missingno"));
-
         this.skinEntryList.clear();
+        this.children.removeIf(child -> child instanceof SkinEntryWidget);
+
+        List<PortalGunSkin> skins = SkinManager.getClientInstance().getSkinCatalog().values().stream()
+                .filter(skin -> SkinManager.getClientInstance().playerHasSkin(null, skin.skin_id))
+                .collect(Collectors.toList());
 
         int i = 0;
-        for(PortalGunSkin skin : this.skins) {
-            ResourceLocation location = new ResourceLocation(PortalMod.MODID, "gun/" + skin.skin_id);
-            Texture texture = tm.getTexture(location);
+        for(PortalGunSkin skin : skins) {
+            if(SkinManager.getClientInstance().getSkinTexture(skin.skin_id) instanceof PortalGunAnimatedTexture) {
+                SkinEntryWidget widget = new SkinEntryWidget(
+                        this.listRegion.x, this.listRegion.y + SKIN_ENTRY_HEIGHT * i++,
+                        this.listRegion.width, SKIN_ENTRY_HEIGHT,
+                        this, this.skinPreviewWidget, skin
+                );
 
-            if(texture == null || texture == missingno)
-                continue;
-
-            SkinEntryWidget widget = new SkinEntryWidget(
-                    this.listRegion.x, this.listRegion.y + SKIN_ENTRY_HEIGHT * i++,
-                    this.listRegion.width, SKIN_ENTRY_HEIGHT,
-                    this, this.skinPreviewWidget, skin
-            );
-            skinEntryList.add(widget);
-            this.addWidget(widget);
+                skinEntryList.add(widget);
+                this.addWidget(widget);
+            }
         }
 
         if(!this.skinEntryList.isEmpty()) {
             Optional<SkinEntryWidget> optionalEntry = skinEntryList.stream()
-                    .filter(entry -> entry.getSkin().skin_id.equals(PortalModConfigManager.PORTALGUN_SKIN.get()))
+                    .filter(entry -> entry.getSkin().skin_id.equals(SkinManager.getClientInstance().getSelectedSkinForPlayer(null)))
                     .findAny();
 
             if(optionalEntry.isPresent()) {
                 this.selectEntry(optionalEntry.get(), false);
             } else {
-                PortalModConfigManager.PORTALGUN_SKIN.set("default");
+                SkinManager.getClientInstance().setConfigSelectedSkin("default");
 
                 Optional<SkinEntryWidget> optionalDefault = skinEntryList.stream()
                         .filter(entry -> entry.getSkin().skin_id.equals("default"))
@@ -174,21 +160,41 @@ public class SkinSelectorScreen extends Screen {
         }
     }
 
+    private void initRefreshButton() {
+        int height = 20;
+        int x = this.getX() + SKIN_PREVIEW_X - APPLY_BUTTON_WIDTH + 1 - height - 1;
+        int y = this.getY() + HEIGHT + 1;
+
+        this.refreshButton = new IconButton(x, y, TEXTURE, 0, 208, button -> {
+            long millis = System.currentTimeMillis();
+            this.loadingStart = millis;
+            this.lastRefresh = millis;
+
+            SkinManager.getClientInstance().onSkinCatalogRefresh();
+            SkinManager.getClientInstance().enqueueCallback(() -> {
+                this.initSkinList();
+                this.loadingStart = -1;
+            });
+        });
+        this.refreshButton.active = System.currentTimeMillis() - this.lastRefresh >= REFRESH_TIMEOUT;
+
+        this.addButton(this.refreshButton);
+    }
+
     private void initApplyButton() {
         int height = 20;
-        int x = this.getX() + SKIN_PREVIEW_X - SKIN_PREVIEW_WIDTH + 1;
+        int x = this.getX() + SKIN_PREVIEW_X - APPLY_BUTTON_WIDTH + 1;
         int y = this.getY() + HEIGHT + 1;
         TranslationTextComponent text = new TranslationTextComponent("options." + PortalMod.MODID + ".skins.apply");
 
-        this.applyButton = new Button(x, y, SKIN_PREVIEW_WIDTH, height, text, button -> {
-            PortalModConfigManager.PORTALGUN_SKIN.set(this.selectedSkin.getSkin().skin_id);
-
-            if(this.selectedSkin.getSkin().tintable) {
-                PortalModConfigManager.SKIN_TINT.set(this.colorPickerWidget.getTint().getRGBValue());
-            }
-
+        this.applyButton = new Button(x, y, APPLY_BUTTON_WIDTH, height, text, button -> {
+            SkinManager.getClientInstance().onSkinSelected(
+                    this.selectedSkin.getSkin().skin_id,
+                    this.colorPickerWidget.getTint().getRGBValue()
+            );
             this.close(false);
         });
+
         this.addButton(this.applyButton);
     }
 
@@ -230,10 +236,17 @@ public class SkinSelectorScreen extends Screen {
     public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         this.font.draw(matrixStack, this.title, (float)this.getX() + 8, (float)this.getY() + 6, 4210752);
-        this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderColorPicker(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
-        this.renderScrollbar(matrixStack);
+
+        if(!this.isLoading()) {
+            this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+            this.renderColorPicker(matrixStack, mouseX, mouseY, partialTicks);
+            this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
+            this.renderScrollbar(matrixStack);
+        } else {
+            this.renderLoadingBlob();
+        }
+
+        this.refreshButton.render(matrixStack, mouseX, mouseY, partialTicks);
         this.applyButton.render(matrixStack, mouseX, mouseY, partialTicks);
     }
 
@@ -245,6 +258,23 @@ public class SkinSelectorScreen extends Screen {
                 (int)(scale * rect.width),
                 (int)(scale * rect.height)
         );
+    }
+
+    private void drawTexturedRectangle(MatrixStack matrixStack, Rectangle rectangle) {
+        Matrix4f matrix = matrixStack.last().pose();
+        int x0 = rectangle.x;
+        int y0 = rectangle.y;
+        int x1 = rectangle.x + rectangle.width;
+        int y1 = rectangle.y + rectangle.height;
+
+        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
+        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        bufferbuilder.vertex(matrix, x0, y0, 0).uv(0, 1).endVertex();
+        bufferbuilder.vertex(matrix, x0, y1, 0).uv(0, 0).endVertex();
+        bufferbuilder.vertex(matrix, x1, y1, 0).uv(1, 0).endVertex();
+        bufferbuilder.vertex(matrix, x1, y0, 0).uv(1, 1).endVertex();
+        bufferbuilder.end();
+        WorldVertexBufferUploader.end(bufferbuilder);
     }
 
     private void renderColorPicker(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -296,6 +326,33 @@ public class SkinSelectorScreen extends Screen {
                 SCROLLBAR_THUMB_WIDTH, height, 512, 512);
     }
 
+    private void renderLoadingBlob() {
+        MainWindow mainWindow = Minecraft.getInstance().getWindow();
+        float scale = (float)mainWindow.getGuiScale();
+
+        Matrix4f projection = Matrix4f.orthographic(
+                mainWindow.getWidth(),
+                mainWindow.getHeight(),
+                1000f,
+                net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane()
+        );
+
+        RenderSystem.enableBlend();
+
+        ShaderInit.LOADER.get().bind()
+                .setFloat("resolution", this.listRegion.width, this.listRegion.height)
+                .setFloat("millis", (float)(System.currentTimeMillis() - this.loadingStart) / 1000f);
+
+        MatrixStack combined = new MatrixStack();
+        combined.scale(1, -1, 1);
+        combined.last().pose().multiply(projection);
+        combined.translate(0, 0, -2000);
+        combined.scale(scale, scale, 1);
+        this.drawTexturedRectangle(combined, this.listRegion);
+
+        ShaderInit.LOADER.get().unbind();
+    }
+
     private int getScrollbarThumbHeight() {
         int scrollbarHeight = (int)((float)this.listRegion.height / this.getListHeight() * this.scrollbarRegion.height);
         return (scrollbarHeight - 2 * SCROLLBAR_THUMB_EDGE_HEIGHT) / SCROLLBAR_THUMB_CENTER_HEIGHT * SCROLLBAR_THUMB_CENTER_HEIGHT + 2 * SCROLLBAR_THUMB_EDGE_HEIGHT;
@@ -318,30 +375,19 @@ public class SkinSelectorScreen extends Screen {
         );
     }
 
-    private void drawRectangle(MatrixStack matrixStack, Rectangle rectangle) {
-        Matrix4f matrix = matrixStack.last().pose();
-        int x0 = rectangle.x;
-        int y0 = rectangle.y;
-        int x1 = rectangle.x + rectangle.width;
-        int y1 = rectangle.y + rectangle.height;
-
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-        bufferbuilder.vertex(matrix, x0, y0, 0).endVertex();
-        bufferbuilder.vertex(matrix, x0, y1, 0).endVertex();
-        bufferbuilder.vertex(matrix, x1, y1, 0).endVertex();
-        bufferbuilder.vertex(matrix, x1, y0, 0).endVertex();
-        bufferbuilder.end();
-        WorldVertexBufferUploader.end(bufferbuilder);
-    }
-
     private int getListHeight() {
         return this.skinEntryList.size() * SKIN_ENTRY_HEIGHT;
+    }
+
+    private boolean isLoading() {
+        return this.loadingStart != -1;
     }
 
     @Override
     public void tick() {
         super.tick();
+        this.refreshButton.active = System.currentTimeMillis() - this.lastRefresh >= REFRESH_TIMEOUT;
+
         this.skinPreviewWidget.tick();
     }
 
@@ -352,9 +398,26 @@ public class SkinSelectorScreen extends Screen {
             this.draggingScrollbarRelativeY = (float)y - this.getScrollbarThumbRegion().y;
         }
 
-        if(listRegion.contains(x, y))
-            return super.mouseClicked(x, y + this.scrollOffset * this.getScrollableRange(), button);
-        return super.mouseClicked(x, y, button);
+        boolean onList = listRegion.contains(x, y);
+        if(onList)
+            y += this.scrollOffset * this.getScrollableRange();
+
+        for(IGuiEventListener child : this.children()) {
+            if(this.isLoading())
+                return false;
+
+            if(onList == child instanceof SkinEntryWidget) {
+                if(child instanceof ColorPickerWidget && !this.selectedSkin.getSkin().tintable)
+                    return false;
+
+                if(child.mouseClicked(x, y, button)) {
+                    this.setFocused(child);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -380,8 +443,10 @@ public class SkinSelectorScreen extends Screen {
     @Override
     public boolean mouseScrolled(double x, double y, double amount) {
         if(this.listRegion.contains(x, y)) {
-            this.scrollOffset -= (float)amount * SCROLL_AMOUNT / this.getScrollableRange();
-            this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
+            if(this.listRegion.height <= this.getListHeight()) {
+                this.scrollOffset -= (float) amount * SCROLL_AMOUNT / this.getScrollableRange();
+                this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
+            }
         }
 
         return super.mouseScrolled(x, y, amount);
