@@ -5,7 +5,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -18,6 +20,7 @@ import net.portalmod.common.sorted.portal.PartialPortalPair;
 import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.portal.SPortalPairPacket;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +28,17 @@ import java.util.HashMap;
 @Mod.EventBusSubscriber(modid = PortalMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CommonEvents {
     // todo tidy up all event classes
+
+    @SubscribeEvent
+    public static void onServerTick(final TickEvent.ServerTickEvent event) {
+        if(event.phase == TickEvent.Phase.START)
+            SkinManager.getServerInstance().tick();
+    }
+
+    @SubscribeEvent
+    public static void onServerLogin(final PlayerEvent.PlayerLoggedInEvent event) {
+        SkinManager.getServerInstance().onServerLogin((ServerPlayerEntity)event.getPlayer());
+    }
 
     @SubscribeEvent
     public static void onPlayerJoin(final EntityJoinWorldEvent event) {
