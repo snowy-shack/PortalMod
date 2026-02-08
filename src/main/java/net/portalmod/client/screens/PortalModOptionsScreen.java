@@ -13,7 +13,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.client.screens.widgets.ToggleButton;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.injectors.MainMenuInjector;
-import net.portalmod.skins.SkinSelectorScreen;
+import net.portalmod.common.sorted.portalgun.skins.SkinSelectorScreen;
 
 public class PortalModOptionsScreen extends Screen {
     private static final int BUTTON_WIDTH = 150;
@@ -93,7 +93,7 @@ public class PortalModOptionsScreen extends Screen {
     private Button createSkinPageButton(int x, int y) {
         return new Button(x, y, BUTTON_WIDTH * 2 + 10, BUTTON_HEIGHT, this.getText("skins"), b -> {
             this.save();
-            Minecraft.getInstance().setScreen(new SkinSelectorScreen(this));
+            Minecraft.getInstance().setScreen(SkinSelectorScreen.getInstance(this));
         });
     }
     

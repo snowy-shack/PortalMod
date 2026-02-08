@@ -26,7 +26,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.portalmod.PortalMod;
-import net.portalmod.client.animation.AnimatedTexture;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
 import net.portalmod.common.sorted.antline.AntlineLoader;
@@ -40,33 +39,26 @@ import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.portal.PortalEntityRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
-import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
-import net.portalmod.common.sorted.portalgun.api.SkinLoader;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Random;
+import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientModEvents {
 
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
-        File gameFolder = Minecraft.getInstance().gameDirectory;
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        SkinManager.getClientInstance().onClientStartup();
 
 //        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PortalModOptionsScreen.CONFIG, "portalmod-client.toml");
 
         KeyInit.init();
         Minecraft.getInstance().getMainRenderTarget().enableStencil();
-
-        File modFolder = new File(gameFolder.getAbsolutePath() + PortalMod.MODID);
-        System.out.println(modFolder.mkdir());
 
         RenderTypeLookup.setRenderLayer(BlockInit.ANTLINE.get(),                 RenderType.cutout());
 //        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),           RenderType.cutout());
@@ -118,15 +110,6 @@ public class ClientModEvents {
 
             ShaderInit.REGISTRY.registerAll();
         });
-
-        ArrayList<AnimatedTexture> temp = new ArrayList<>();
-        temp.add(SkinLoader.loadSkin("supporter"));
-        temp.add(SkinLoader.loadSkin("booster"));
-        temp.add(SkinLoader.loadSkin("potatos"));
-        temp.add(SkinLoader.loadSkin("tintable"));
-        temp.add(SkinLoader.loadSkin("default"));
-
-        PortalGunISTER.TEST_TEXTURE = temp.get( new Random().nextInt(temp.size()) );
     }
 
     private static void registerItemProperty(Item item, String name, IItemPropertyGetter getter) {
@@ -173,9 +156,6 @@ public class ClientModEvents {
 //                event.addSprite(texture);
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
-            event.addSprite(PortalGunISTER.PORTALGUN_TEXTURE);
-//            event.addSprite(PortalGunISTER.PORTALGUN_TEXTURE2);
-            event.addSprite(new ResourceLocation(PortalMod.MODID, "gun/portalgun_nitro_anim"));
         }
     }
 }
