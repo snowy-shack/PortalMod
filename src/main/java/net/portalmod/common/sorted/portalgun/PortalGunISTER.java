@@ -170,7 +170,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         }
 
         int intTint = SkinManager.getClientInstance().getTintForPlayerOnSkin(renderingPortalGunOwner, skin);
-        Colour tint = intTint == 0 ? Colour.WHITE : new Colour(intTint);
+        Colour tint = intTint == 0 ? Colour.WHITE : new Colour(intTint).opaque();
 
         renderGun(matrixStack, gunUUID, model, renderTypeBuffer,
                 SkinManager.getClientInstance().getSkinTexture(skin),
