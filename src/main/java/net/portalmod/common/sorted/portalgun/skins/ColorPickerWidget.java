@@ -79,7 +79,7 @@ public class ColorPickerWidget extends Widget {
         this.init();
     }
 
-    private void init() {
+    protected void init() {
         this.svPickerRegion = new Rectangle(this.getSVPickerX(), this.getSVPickerY(), SV_PICKER_WIDTH, SV_PICKER_HEIGHT);
         this.huePickerRegion = new Rectangle(this.getHuePickerX(), this.getHuePickerY(), HUE_PICKER_WIDTH, HUE_PICKER_HEIGHT);
 
