@@ -39,7 +39,12 @@ public class Colour {
         this.g = (int) MathHelper.clamp(this.g + amount * 255, 0, 255);
         this.b = (int) MathHelper.clamp(this.b + amount * 255, 0, 255);
     }
-    
+
+    public Colour opaque() {
+        this.a = 255;
+        return this;
+    }
+
     public static Colour fromHSV(float h, float s, float v) {
         float c = v * s;
         float x = c * (1 - Math.abs((h / 60 % 2) - 1));
