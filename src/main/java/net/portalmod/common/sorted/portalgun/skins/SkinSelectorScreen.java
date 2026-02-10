@@ -210,12 +210,14 @@ public class SkinSelectorScreen extends Screen {
         this.skinEntryList.forEach(item -> item.setSelected(false, false));
         entry.setSelected(true, animate);
 
-        if((this.selectedSkin != null && !this.selectedSkin.getSkin().tintable) && entry.getSkin().tintable) {
-            this.colorPickerWidget.startShowAnimation();
-        }
+        if(animate) {
+            if((this.selectedSkin != null && !this.selectedSkin.getSkin().tintable) && entry.getSkin().tintable) {
+                this.colorPickerWidget.startShowAnimation();
+            }
 
-        if((this.selectedSkin != null && this.selectedSkin.getSkin().tintable) && !entry.getSkin().tintable) {
-            this.colorPickerWidget.startHideAnimation();
+            if((this.selectedSkin != null && this.selectedSkin.getSkin().tintable) && !entry.getSkin().tintable) {
+                this.colorPickerWidget.startHideAnimation();
+            }
         }
 
         this.selectedSkin = entry;
