@@ -172,6 +172,7 @@ public class SkinSelectorScreen extends Screen {
 
             SkinManager.getClientInstance().onSkinCatalogRefresh();
             SkinManager.getClientInstance().enqueueCallback(() -> {
+                this.colorPickerWidget.init();
                 this.initSkinList();
                 this.loadingStart = -1;
             });
