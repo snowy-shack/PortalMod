@@ -38,7 +38,7 @@ public class SkinManager {
     private final Deque<Runnable> pendingTasks;
     private final Deque<Runnable> pendingCallbacks;
     private Thread taskThread;
-    private boolean callbackPending;
+    private volatile boolean callbackPending;
 
     private SkinManager(boolean clientSide) {
         this.clientSide = clientSide;
@@ -566,7 +566,7 @@ public class SkinManager {
         this.enqueueTask(() -> {
             UUID uuid = player.getUUID();
             String skin = packet.getSkin();
-            int tint = this.isSkinTintable(skin) ? packet.getTint() : 0;
+            int tint = packet.getTint();
 
             try {
                 this.loadPlayer(uuid);
