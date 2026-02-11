@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "state=single": {
+      "model": "portalmod:block/eroded_lunecast"
+    },
+    "state=bottom": {
+      "model": "portalmod:block/eroded_lunecast_panel_bottom"
+    },
+    "state=top": {
+      "model": "portalmod:block/eroded_lunecast_panel_top"
+    },
+    "axis=x,state=bottom_left": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "axis=z,state=bottom_left": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_bottom"
+    },
+    "axis=x,state=bottom_right": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_bottom",
+      "y": 270,
+      "uvlock": true
+    },
+    "axis=z,state=bottom_right": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_bottom",
+      "y": 180,
+      "uvlock": true
+    },
+    "axis=x,state=top_left": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_top",
+      "y": 90,
+      "uvlock": true
+    },
+    "axis=z,state=top_left": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_top"
+    },
+    "axis=x,state=top_right": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_top",
+      "y": 270,
+      "uvlock": true
+    },
+    "axis=z,state=top_right": {
+      "model": "portalmod:block/eroded_lunecast_panel_corner_top",
+      "y": 180,
+      "uvlock": true
+    }
+  }
+}
