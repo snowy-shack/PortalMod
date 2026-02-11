@@ -2,7 +2,7 @@
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
     "side": "portalmod:block/eroded_blackplate_tiles",
-    "top": "portalmod:block/eroded_blackplate_top",
-    "bottom": "portalmod:block/eroded_blackplate_bottom"
+    "bottom": "portalmod:block/eroded_blackplate_bottom",
+    "top": "portalmod:block/eroded_blackplate_top"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "parent": "portalmod:block/cube_corner_top",
+  "textures": {
+    "top": "portalmod:block/lunecast_top",
+    "back": "portalmod:block/lunecast_panel_top",
+    "left": "portalmod:block/lunecast_panel_top_left",
+    "right": "portalmod:block/lunecast_panel_top_right"
+  }
+}

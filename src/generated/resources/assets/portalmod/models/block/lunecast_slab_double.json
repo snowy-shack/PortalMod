@@ -2,7 +2,7 @@
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
     "side": "portalmod:block/lunecast_tiles",
-    "top": "portalmod:block/lunecast_top",
-    "bottom": "portalmod:block/lunecast_bottom"
+    "bottom": "portalmod:block/lunecast_bottom",
+    "top": "portalmod:block/lunecast_top"
   }
 }

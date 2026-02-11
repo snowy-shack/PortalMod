@@ -15,15 +15,16 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.portalmod.core.math.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class LargePanelBlock extends Block {
+public class PanelBlock extends Block implements PortalHelper {
     public static final EnumProperty<PanelState> STATE = EnumProperty.create("state", PanelState.class);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
 
-    public LargePanelBlock(Properties properties) {
+    public PanelBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(STATE, PanelState.SINGLE).setValue(AXIS, Direction.Axis.X));
     }
@@ -173,5 +174,17 @@ public class LargePanelBlock extends Block {
             };
         }
         return new BlockPos[]{pos};
+    }
+
+    @Override
+    public Vec3 helpPortal(Vec3 hitPos, Direction face, BlockState state, World world) {
+        if (!state.getValue(STATE).isQuadruple() || face.getAxis() != state.getValue(AXIS)) {
+            return hitPos;
+        }
+
+        // logic to return the center of the panel
+
+
+        return hitPos;
     }
 }
