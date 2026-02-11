@@ -65,7 +65,6 @@ public class ItemInit {
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
     public static final RegistryObject<Item> FIZZLER_EMITTER = registerBlockItem("fizzler_emitter", BlockInit.FIZZLER_EMITTER);
     public static final RegistryObject<Item> FAITHPLATE = registerBlockItem("faithplate", BlockInit.FAITHPLATE);
-    public static final RegistryObject<Item> PELLET_LAUNCHER = registerBlockItem("pellet_launcher", BlockInit.PELLET_LAUNCHER);
 
     public static final RegistryObject<Item> CHAMBER_SIGN = ITEMS.register("chamber_sign", () -> new ChamberSignItem(properties()));
 
@@ -110,6 +109,8 @@ public class ItemInit {
 //
 //    public static final RegistryObject<BlockItem> LASER_RELAY = ITEMS.register("laser_relay",
 //            () -> new BlockItem(BlockInit.LASER_RELAY.get(), properties()));
+
+//    public static final RegistryObject<Item> PELLET_LAUNCHER = registerBlockItem("pellet_launcher", BlockInit.PELLET_LAUNCHER);
 
     // Blocks
     public static final RegistryObject<Item> LUNECAST = registerBlockItem("lunecast", BlockInit.LUNECAST);
@@ -179,10 +180,8 @@ public class ItemInit {
 
     public static final RegistryObject<Item> PUSH_DOOR = registerBlockItem("push_door", BlockInit.PUSH_DOOR);
 
-    // Test Items, remove later
-    public static final RegistryObject<Item> TEST_BLOCK = registerBlockItem("test_block", BlockInit.TEST_BLOCK);
-    public static final RegistryObject<Item> GABE = registerSpawnEgg("gabe", EntityInit.GABE);
-    public static final RegistryObject<Item> FIZZLER_FIELD = registerBlockItem("fizzler_field", BlockInit.FIZZLER_FIELD);
+//    public static final RegistryObject<Item> TEST_BLOCK = registerBlockItem("test_block", BlockInit.TEST_BLOCK);
+//    public static final RegistryObject<Item> FIZZLER_FIELD = registerBlockItem("fizzler_field", BlockInit.FIZZLER_FIELD);
 
     public static RegistryObject<Item> registerBlockItem(String name, RegistryObject<Block> block) {
         return ItemInit.ITEMS.register(name, () -> new BlockItem(block.get(), properties()));
