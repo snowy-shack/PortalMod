@@ -12,13 +12,18 @@ import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.core.math.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class PanelBlock extends Block implements PortalHelper {
     public static final EnumProperty<PanelState> STATE = EnumProperty.create("state", PanelState.class);
@@ -81,7 +86,6 @@ public class PanelBlock extends Block implements PortalHelper {
 
         // Place the other 3 blocks
         if (panelState.isQuadruple()) {
-//            Direction direction = Direction.fromAxisAndDirection(axis, panelState.isLeft() ? Direction.AxisDirection.NEGATIVE : Direction.AxisDirection.POSITIVE);
             Direction direction = axis == Direction.Axis.X ? panelState.isLeft() ? Direction.EAST : Direction.WEST : panelState.isLeft() ? Direction.NORTH : Direction.SOUTH;
 
             // New block
@@ -118,18 +122,28 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public BlockState updateShape(BlockState blockState, Direction p_196271_2_, BlockState p_196271_3_, IWorld world, BlockPos blockPos, BlockPos p_196271_6_) {
-        for (BlockPos connectedPos : getConnectedPositions(blockState, blockPos)) {
-            if (world.getBlockState(connectedPos).is(this)) {
-                continue;
-            }
-            PanelState panelState = blockState.getValue(STATE);
-            if (panelState.isQuadruple() && !(connectedPos.getX() == blockPos.getX() && connectedPos.getZ() == blockPos.getZ())) {
-                return defaultBlockState().setValue(STATE, panelState.isBottom() ? PanelState.BOTTOM : PanelState.TOP);
-            }
-            return defaultBlockState();
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+        PanelState panelState = state.getValue(STATE);
+        Direction.Axis axis = state.getValue(AXIS);
+
+        // Is single or connection is not in that direction
+        if (panelState.isSingle() || !getConnectedPositions(state, pos).contains(neighborPos)) {
+            return state;
         }
-        return blockState;
+
+        // Incorrect sideways connection
+        if (panelState.isQuadruple() && direction.getAxis() != Direction.Axis.Y
+                && (!neighborState.is(this) || axis != neighborState.getValue(AXIS) || panelState.oppositeHorizontal() != neighborState.getValue(STATE))) {
+            return state.setValue(STATE, panelState.isBottom() ? PanelState.BOTTOM : PanelState.TOP);
+        }
+
+        // Incorrect vertical connection
+        if (direction.getAxis() == Direction.Axis.Y
+                && (!neighborState.is(this) || panelState.isBottom() == neighborState.getValue(STATE).isBottom())) {
+            return state.setValue(STATE, PanelState.SINGLE);
+        }
+
+        return state;
     }
 
     public static boolean areTwoBlocksInInventory(PlayerEntity player, Block block) {
@@ -159,21 +173,57 @@ public class PanelBlock extends Block implements PortalHelper {
         }
     }
 
-    public BlockPos[] getConnectedPositions(BlockState state, BlockPos pos) {
+    public Set<BlockPos> getConnectedPositions(BlockState state, BlockPos pos) {
+        Set<BlockPos> set = new HashSet<>();
         PanelState panelState = state.getValue(STATE);
         Direction.Axis axis = state.getValue(AXIS);
+
         if (panelState.isDouble()) {
-            return new BlockPos[]{pos.relative(panelState.getVerticalFacing())};
+            set.add(pos.relative(panelState.getVerticalFacing()));
         }
+
         if (panelState.isQuadruple()) {
             Direction direction = axis == Direction.Axis.X ? panelState.isLeft() ? Direction.EAST : Direction.WEST : panelState.isLeft() ? Direction.NORTH : Direction.SOUTH;
-            return new BlockPos[]{
-                    pos.relative(panelState.getVerticalFacing()),
-                    pos.relative(panelState.getVerticalFacing()).relative(direction),
-                    pos.relative(direction)
-            };
+            set.add(pos.relative(panelState.getVerticalFacing()));
+            set.add(pos.relative(panelState.getVerticalFacing()).relative(direction));
+            set.add(pos.relative(direction));
         }
-        return new BlockPos[]{pos};
+
+        return set;
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        if (!state.getValue(STATE).isQuadruple()) {
+            return state;
+        }
+
+        if (ModUtil.getRotationAmount(rotation) % 2 == 1) {
+            state = state.cycle(AXIS);
+        }
+
+        Direction.Axis axis = state.getValue(AXIS);
+        if (axis == Direction.Axis.Z && rotation == Rotation.CLOCKWISE_90
+                || axis == Direction.Axis.X && rotation == Rotation.COUNTERCLOCKWISE_90
+                || rotation == Rotation.CLOCKWISE_180) {
+            return state.setValue(STATE, state.getValue(STATE).oppositeHorizontal());
+        }
+
+        return state;
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        if (!state.getValue(STATE).isQuadruple()) {
+            return state;
+        }
+
+        Direction.Axis axis = state.getValue(AXIS);
+        if (axis == Direction.Axis.X && mirror == Mirror.FRONT_BACK || axis == Direction.Axis.Z && mirror == Mirror.LEFT_RIGHT) {
+            return state.setValue(STATE, state.getValue(STATE).oppositeHorizontal());
+        }
+
+        return state;
     }
 
     @Override

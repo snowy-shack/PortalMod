@@ -8,11 +8,14 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.TileEntityTypeInit;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,6 +92,41 @@ public class AntlineTileEntity extends TileEntity {
     @Override
     public IModelData getModelData() {
         return sideMap.toModelData();
+    }
+
+    @Override
+    public void rotate(Rotation rotation) {
+        SideMap initial = (SideMap) this.sideMap.clone();
+
+        // Horizontal faces
+        for (Direction direction : Direction.values()) {
+            Side side = initial.get(direction);
+            side.setSideDirection(rotation.rotate(side.toDirection()));
+            this.sideMap.put(rotation.rotate(direction), side);
+        }
+
+        // Up/Down
+        this.sideMap.get(Direction.UP).rotate(ModUtil.getRotationAmount(rotation));
+        this.sideMap.get(Direction.DOWN).rotate(ModUtil.getRotationAmount(rotation));
+    }
+
+    @Override
+    public void mirror(Mirror mirror) {
+        if (mirror == Mirror.NONE) return;
+
+        SideMap initial = (SideMap) this.sideMap.clone();
+
+        for (Direction direction : Direction.values()) {
+            Side side = initial.get(direction);
+            // Turn side the other way
+            side.setSideDirection(mirror.mirror(side.toDirection()));
+
+            // Flip connections
+            boolean onWall = direction.getAxis() != Direction.Axis.Y;
+            side.mirror(onWall || (mirror == Mirror.FRONT_BACK));
+
+            this.sideMap.put(mirror.mirror(direction), side);
+        }
     }
 
     // chunk update
@@ -176,17 +214,16 @@ public class AntlineTileEntity extends TileEntity {
         }
     }
 
+    // Values:
+    //  0000 - dot
+    //  0100 - relative east connected
+    //  1111 - empty
+    // 0???? - inactive
+    // 1???? - active
+
     public static class Side {
         private byte value;
-        private final Direction sideDir;
-
-        public void setActualValue(byte value) {
-            this.value = value;
-        }
-
-        public void setValue(byte value) {
-            this.value = (byte) ((this.value & 0b00010000) | (value & 0x0F));
-        }
+        private Direction sideDir;
 
         public Side(Direction sideDir, byte value) {
             this.sideDir = sideDir;
@@ -199,6 +236,18 @@ public class AntlineTileEntity extends TileEntity {
 
         public static Side dot(Direction direction) {
             return new Side(direction, (byte) 0);
+        }
+
+        public void setActualValue(byte value) {
+            this.value = value;
+        }
+
+        public void setValue(byte value) {
+            this.value = (byte) ((this.value & 0b00010000) | (value & 0x0F));
+        }
+
+        public void setSideDirection(Direction direction) {
+            this.sideDir = direction;
         }
 
         public boolean isEmpty() {
@@ -300,6 +349,24 @@ public class AntlineTileEntity extends TileEntity {
 
         public Direction toDirection() {
             return this.sideDir;
+        }
+
+        public void rotate(int times) {
+            times = Math.floorMod(times, 4);
+            byte value = this.getValue();
+            this.setValue((byte) (value >> times | value << 4 - times));
+        }
+
+        public void mirror(boolean flipEastWest) {
+            if (flipEastWest) {
+                int east = this.getValue() & valueByDirection(Direction.EAST);
+                int west = this.getValue() & valueByDirection(Direction.WEST);
+                this.setValue((byte) (this.getValue() & ~east & ~west | east >> 2 | west << 2));
+            } else {
+                int north = this.getValue() & valueByDirection(Direction.NORTH);
+                int south = this.getValue() & valueByDirection(Direction.SOUTH);
+                this.setValue((byte) (this.getValue() & ~north & ~south | north >> 2 | south << 2));
+            }
         }
     }
 }

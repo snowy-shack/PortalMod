@@ -6,7 +6,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -130,5 +133,20 @@ public class ModUtil {
         }
 
         lastChatNumber = (lastChatNumber + 1) % 1000;
+    }
+
+    public static boolean canPlaceAt(BlockItemUseContext context, BlockPos pos) {
+        return context.getLevel().getBlockState(pos).canBeReplaced(context)
+                && pos.getY() < context.getLevel().getMaxBuildHeight()
+                && pos.getY() >= 0;
+    }
+
+    public static int getRotationAmount(Rotation rotation) {
+        switch (rotation) {
+            case CLOCKWISE_90: return 1;
+            case CLOCKWISE_180: return 2;
+            case COUNTERCLOCKWISE_90: return 3;
+        }
+        return 0;
     }
 }

@@ -4,15 +4,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
+import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer;
+import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -27,17 +27,19 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivator;
 import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.math.BiHashMap;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class StandingButtonBlock extends DoubleBlock implements AntlineActivator {
 
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final EnumProperty<ButtonMode> MODE = EnumProperty.create("mode", ButtonMode.class);
@@ -46,6 +48,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     public StandingButtonBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
+                .setValue(FACING, Direction.UP)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(PRESSED, false)
                 .setValue(ACTIVE, false)
@@ -54,7 +57,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         this.initAABBs();
     }
 
-    private static final Map<DoubleBlockHalf, VoxelShapeGroup> SHAPE = new HashMap<>();
+    private static final BiHashMap<Direction, DoubleBlockHalf, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
     private static final VoxelShapeGroup LOWER = new VoxelShapeGroup.Builder()
         .add(4, 0, 4, 12, 2, 12)
@@ -70,34 +73,49 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
             .build();
 
     private void initAABBs() {
-        for(DoubleBlockHalf half : DoubleBlockHalf.values()) {
-            SHAPE.put(half, (half == DoubleBlockHalf.UPPER) ? UPPER.clone() : LOWER.clone());
+        for (Direction facing : Direction.values()) {
+            Vec3 normal = new Vec3(facing.getNormal());
+
+            Mat4 matrix = Mat4.identity();
+            matrix.translate(new Vec3(.5));
+
+            if (facing == Direction.DOWN) {
+                matrix.scale(normal.mul(2).add(1));
+            }
+
+            if (facing.getAxis() != Direction.Axis.Y) {
+                matrix.rotateDeg(normal.cross(Direction.UP.getNormal()).to3f(), -90);
+            }
+
+            matrix.translate(new Vec3(-.5));
+
+            for(DoubleBlockHalf half : DoubleBlockHalf.values()) {
+                VoxelShapeGroup shape = (half == DoubleBlockHalf.UPPER) ? UPPER : LOWER;
+                SHAPE.put(facing, half, shape.clone().transform(matrix));
+            }
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(HALF)).getVariant(state.getValue(PRESSED) ? "on" : "off");
+        return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(PRESSED) ? "on" : "off");
     }
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(HALF, PRESSED, ACTIVE, MODE);
+        builder.add(FACING, HALF, PRESSED, ACTIVE, MODE);
     }
 
     @Override
     public Direction getUpperDirection(BlockState state) {
-        return Direction.UP;
+        return state.getValue(FACING);
     }
 
-    public boolean canActivate(BlockState blockState) {
-//        if (blockState.getValue(MODE) == ButtonMode.PERSISTENT) {
-//            return !blockState.getValue(PRESSED) &&  !blockState.getValue(ACTIVE);
-//        }
+    public boolean canPress(BlockState blockState) {
         return !blockState.getValue(PRESSED);
     }
 
-    public void activate(BlockState blockState, World world, BlockPos pos) {
+    public void press(BlockState blockState, World world, BlockPos pos) {
         ButtonMode mode = blockState.getValue(MODE);
         Boolean wasActive = blockState.getValue(ACTIVE);
         this.setBlockStateValue(PRESSED, true, blockState, world, pos);
@@ -153,8 +171,8 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
         double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
         double reach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canActivate(blockState) && rayLength < reach) {
-            this.activate(blockState, world, pos);
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canPress(blockState) && rayLength < reach) {
+            this.press(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
 
@@ -172,15 +190,30 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos pos2, boolean b) {
         if (level.isClientSide) return;
 
+        Direction facing = state.getValue(FACING);
+
         // Reset when powered from below
         if (state.getValue(ACTIVE)
                 && state.getValue(HALF) == DoubleBlockHalf.LOWER
-                && level.hasSignal(pos.below(), Direction.UP)
+                && level.hasSignal(pos.relative(facing.getOpposite()), facing)
         ) {
             this.setBlockStateValue(ACTIVE, false, state, level, pos);
             this.updateAllNeighbors(level, pos, level.getBlockState(pos));
             this.playSound(level, pos, false);
         }
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockItemUseContext context) {
+        Direction facing = context.getClickedFace();
+
+        BlockPos upperPos = context.getClickedPos().relative(facing);
+        if (ModUtil.canPlaceAt(context, upperPos)) {
+            return this.defaultBlockState().setValue(FACING, facing);
+        }
+
+        return null;
     }
 
     @Override
@@ -195,11 +228,25 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
     @Override
     public Direction getHorsedOn(BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? Direction.DOWN : null;
+        if (state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            return null;
+        }
+
+        return state.getValue(FACING).getOpposite();
     }
 
     @Override
     public boolean connectsInDirection(Direction direction, BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER && direction.getAxis() != Direction.Axis.Y;
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER && direction.getAxis() != state.getValue(FACING).getAxis();
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 }
