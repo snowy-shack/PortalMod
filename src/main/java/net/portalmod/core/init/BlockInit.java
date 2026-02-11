@@ -26,8 +26,7 @@ import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.gel.RepulsionGelBlock;
 import net.portalmod.common.sorted.goo.GooBlock;
-import net.portalmod.common.sorted.panel.LargePanelBlock;
-import net.portalmod.common.sorted.panel.SmallPanelBlock;
+import net.portalmod.common.sorted.panel.PanelBlock;
 import net.portalmod.common.sorted.pellet.PelletLauncherBlock;
 import net.portalmod.common.sorted.platform.PlatformBeamBlock;
 import net.portalmod.common.sorted.platform.PlatformBlock;
@@ -206,11 +205,11 @@ public class BlockInit {
 
 
     public static RegistryObject<Block> registerLunecast(String name) {
-        return BLOCKS.register(name, () -> new SmallPanelBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
+        return BLOCKS.register(name, () -> new PanelBlock(AbstractBlock.Properties.copy(Blocks.WHITE_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerBlackplate(String name) {
-        return BLOCKS.register(name, () -> new LargePanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
+        return BLOCKS.register(name, () -> new PanelBlock(AbstractBlock.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerLunecastPlatform(String name) {
