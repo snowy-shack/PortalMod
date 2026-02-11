@@ -1,14 +1,14 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.EnumProperty;
+import net.minecraft.state.Property;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -34,12 +34,12 @@ public abstract class DoubleBlock extends MultiBlock {
     }
 
     @Override
-    public List<BlockPos> getConnectedPositions(BlockState blockState, BlockPos mainPos) {
-        return new ArrayList<>(Collections.singletonList(mainPos.relative(this.getUpperDirection(blockState))));
+    public List<BlockPos> getConnectedPositions(BlockState mainState, BlockPos mainPos) {
+        return new ArrayList<>(Collections.singletonList(mainPos.relative(this.getUpperDirection(mainState))));
     }
 
     @Override
-    public Map<BlockPos, BlockState> getConnectedBlockStates(World world, BlockState blockState, BlockPos pos) {
+    public Map<BlockPos, BlockState> getOtherParts(BlockState blockState, BlockPos pos) {
         boolean isLower = blockState.getValue(HALF) == DoubleBlockHalf.LOWER;
         Direction direction = this.getUpperDirection(blockState);
 
@@ -52,27 +52,36 @@ public abstract class DoubleBlock extends MultiBlock {
     }
 
     @Override
-    public StatePropertiesPredicate.Builder mainBlockPredicate() {
-        return StatePropertiesPredicate.Builder.properties().hasProperty(HALF, DoubleBlockHalf.LOWER);
+    public boolean isSamePart(BlockState one, BlockState two) {
+        return one.getValue(HALF) == two.getValue(HALF)
+                && this.getUpperDirection(one) == this.getUpperDirection(two);
+    }
+
+    @Override
+    public void addMainBlockProperties(Map<Property<?>, Comparable<?>> map) {
+        map.put(HALF, DoubleBlockHalf.LOWER);
+    }
+
+    @Override
+    public boolean lookDirectionInfluencesLocation() {
+        return false;
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
+        // Basic implementation for vertical double blocks but this can be overridden if needed
         return getPlacementHalf(context, Direction.Axis.Y)
                 .map(doubleBlockHalf -> this.defaultBlockState().setValue(HALF, doubleBlockHalf))
                 .orElse(null);
     }
 
     public static Optional<DoubleBlockHalf> getPlacementHalf(BlockItemUseContext context, Direction.Axis axis) {
-        World world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         boolean placedOnUpperSide = clickedOnPositiveHalf(context, axis);
 
-        boolean canBeLower = world.getBlockState(pos.relative(
-                Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE))).canBeReplaced(context);
-        boolean canBeUpper = world.getBlockState(pos.relative(
-                Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE))).canBeReplaced(context);
+        boolean canBeLower = ModUtil.canPlaceAt(context, pos.relative(Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE)));
+        boolean canBeUpper = ModUtil.canPlaceAt(context, pos.relative(Direction.fromAxisAndDirection(axis, Direction.AxisDirection.NEGATIVE)));
 
         // Placement preference
         if (!placedOnUpperSide && canBeUpper) return Optional.of(DoubleBlockHalf.UPPER);

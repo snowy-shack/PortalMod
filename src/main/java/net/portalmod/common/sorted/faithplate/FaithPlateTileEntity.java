@@ -7,12 +7,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -27,11 +28,9 @@ import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
-import net.portalmod.core.util.ModUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static net.portalmod.common.sorted.faithplate.FaithPlateBlock.*;
@@ -236,6 +235,18 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
     public int getCooldown() {
         return cooldown;
+    }
+
+    @Override
+    public void rotate(Rotation rotation) {
+        this.targetPos = this.targetPos.rotate(rotation);
+        this.targetFace = rotation.rotate(this.targetFace);
+    }
+
+    @Override
+    public void mirror(Mirror mirror) {
+        this.targetPos = new Vec3(this.targetPos).mul(mirror == Mirror.FRONT_BACK ? -1 : 1, 1, mirror == Mirror.LEFT_RIGHT ? -1 : 1).toBlockPos();
+        this.targetFace = mirror.mirror(this.targetFace);
     }
 
     // chunk update

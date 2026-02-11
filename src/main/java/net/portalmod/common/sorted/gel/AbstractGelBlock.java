@@ -12,11 +12,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.util.*;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -178,6 +176,41 @@ public class AbstractGelBlock extends BreakableBlock {
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.DESTROY;
+    }
+
+    public BlockState rotate(BlockState state) {
+        boolean north = state.getValue(NORTH);
+        boolean east = state.getValue(EAST);
+        boolean south = state.getValue(SOUTH);
+        boolean west = state.getValue(WEST);
+
+        return state.setValue(NORTH, west)
+                .setValue(EAST, north)
+                .setValue(SOUTH, east)
+                .setValue(WEST, south);
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        for (int i = 0; i < ModUtil.getRotationAmount(rotation); i++) {
+            state = this.rotate(state);
+        }
+        return state;
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        boolean north = state.getValue(NORTH);
+        boolean east = state.getValue(EAST);
+        boolean south = state.getValue(SOUTH);
+        boolean west = state.getValue(WEST);
+
+        switch (mirror) {
+            case LEFT_RIGHT: return state.setValue(NORTH, south).setValue(SOUTH, north);
+            case FRONT_BACK: return state.setValue(EAST, west).setValue(WEST, east);
+        }
+
+        return state;
     }
 
     public static BlockState addSide(Direction side, BlockState state) {

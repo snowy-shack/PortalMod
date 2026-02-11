@@ -15,6 +15,8 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -136,13 +138,13 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public BlockState updateShape(BlockState blockState, Direction direction, BlockState updateBlockState, IWorld world, BlockPos pos, BlockPos updatePos) {
-        Block adjacent = world.getBlockState(pos.relative(blockState.getValue(FACING))).getBlock();
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+        Block adjacent = world.getBlockState(pos.relative(state.getValue(FACING))).getBlock();
         if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
-            blockState = blockState.setValue(ACTIVE, false);
+            state = state.setValue(ACTIVE, false);
         }
 
-        return super.updateShape(blockState, direction, updateBlockState, world, pos, updatePos);
+        return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
     }
 
     @Override
@@ -171,23 +173,12 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        Direction clickedFace = context.getClickedFace();
         BlockState half = super.getStateForPlacement(context);
+        Direction clickedFace = context.getClickedFace();
 
-        if (half != null && clickedFace.getAxis() != Direction.Axis.Y) {
-            boolean top = half.getValue(HALF) == DoubleBlockHalf.UPPER;
+        if (half == null || clickedFace.getAxis() == Direction.Axis.Y) return null;
 
-            BlockState supportSelf = context.getLevel()
-                    .getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()));
-            BlockState supportPartner = context.getLevel()
-                    .getBlockState(context.getClickedPos().relative(clickedFace.getOpposite()).relative(top ? Direction.DOWN : Direction.UP));
-
-            if (supportSelf.isFaceSturdy(context.getLevel(), context.getClickedPos(), clickedFace.getOpposite()) &&
-                    supportPartner.isFaceSturdy(context.getLevel(), context.getClickedPos(), clickedFace.getOpposite())) {
-                return half.setValue(FACING, clickedFace);
-            }
-        }
-        return null;
+        return half.setValue(FACING, clickedFace);
     }
 
     @Override
@@ -209,6 +200,20 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        Direction facing = state.getValue(FACING);
+        if (mirror.mirror(facing) != facing) {
+            return state.setValue(FACING, facing.getOpposite());
+        }
+        return state;
     }
 
     @Override

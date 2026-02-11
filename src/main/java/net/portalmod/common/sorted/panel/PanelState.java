@@ -53,7 +53,21 @@ public enum PanelState implements IStringSerializable {
             case BOTTOM_RIGHT:
                 return TOP_RIGHT;
         }
-        return SINGLE;
+        throw new IllegalStateException(this.name + " state has no vertical direction");
+    }
+
+    public PanelState oppositeHorizontal() {
+        switch (this) {
+            case TOP_LEFT:
+                return TOP_RIGHT;
+            case TOP_RIGHT:
+                return TOP_LEFT;
+            case BOTTOM_LEFT:
+                return BOTTOM_RIGHT;
+            case BOTTOM_RIGHT:
+                return BOTTOM_LEFT;
+        }
+        throw new IllegalStateException(this.name + " state has no horizontal direction");
     }
 
     public Direction getVerticalFacing() {
@@ -62,8 +76,12 @@ public enum PanelState implements IStringSerializable {
             case TOP_LEFT:
             case TOP_RIGHT:
                 return Direction.DOWN;
+            case BOTTOM:
+            case BOTTOM_LEFT:
+            case BOTTOM_RIGHT:
+                return Direction.UP;
         }
-        return Direction.UP;
+        throw new IllegalStateException(this.name + " state has no vertical direction");
     }
 
     @Override

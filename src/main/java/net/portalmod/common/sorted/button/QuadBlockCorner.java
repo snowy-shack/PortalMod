@@ -3,20 +3,24 @@ package net.portalmod.common.sorted.button;
 import net.minecraft.util.IStringSerializable;
 
 public enum QuadBlockCorner implements IStringSerializable {
-    UP_LEFT("up_left", 0, 1, 90),
-    UP_RIGHT("up_right", 1, 1, 0),
-    DOWN_RIGHT("down_right", 1, 0, -90),
-    DOWN_LEFT("down_left", 0, 0, 180);
+    UP_LEFT("up_left", 0, 1, 90, true, true),
+    UP_RIGHT("up_right", 1, 1, 0, true, false),
+    DOWN_RIGHT("down_right", 1, 0, -90, false, false),
+    DOWN_LEFT("down_left", 0, 0, 180, false, true);
 
     private final String name;
     private final int x, y;
     private final int rot;
-    
-    QuadBlockCorner(String name, int x, int y, int rot) {
+    private final boolean isUp;
+    private final boolean isLeft;
+
+    QuadBlockCorner(String name, int x, int y, int rot, boolean isUp, boolean isLeft) {
         this.name = name;
         this.x = x;
         this.y = y;
         this.rot = rot;
+        this.isUp = isUp;
+        this.isLeft = isLeft;
     }
     
     public String toString() {
@@ -38,28 +42,37 @@ public enum QuadBlockCorner implements IStringSerializable {
     public int getRot() {
         return this.rot;
     }
-    
-    public static QuadBlockCorner fromCoords(double dx, double dy) {
-        int x = dx > 0 ? 1 : 0;
-        int y = dy > 0 ? 1 : 0;
-        
-        if(x == 0) {
-            if(y == 0)
-                return DOWN_LEFT;
-            return UP_LEFT;
-        } else {
-            if(y == 0)
-                return DOWN_RIGHT;
-            return UP_RIGHT;
-        }
+
+    public static QuadBlockCorner getCorner(boolean up, boolean left) {
+        if (up) return left ? UP_LEFT : UP_RIGHT;
+        return left ? DOWN_LEFT : DOWN_RIGHT;
     }
 
     public boolean isLeft() {
-        return this == UP_LEFT || this == DOWN_LEFT;
+        return this.isLeft;
     }
 
     public boolean isUp() {
-        return this == UP_LEFT || this == UP_RIGHT;
+        return this.isUp;
+    }
+
+    public QuadBlockCorner rotate(int times) {
+        QuadBlockCorner result = this;
+
+        for (int i = 0; i < (times % 4 + 4) % 4; i++) {
+            result = result.rotate();
+        }
+
+        return result;
+    }
+
+    private QuadBlockCorner rotate() {
+        switch (this) {
+            case UP_LEFT: return UP_RIGHT;
+            case UP_RIGHT: return DOWN_RIGHT;
+            case DOWN_RIGHT: return DOWN_LEFT;
+            default: return UP_LEFT;
+        }
     }
 
     public QuadBlockCorner mirrorLeftRight() {
@@ -67,9 +80,8 @@ public enum QuadBlockCorner implements IStringSerializable {
             case UP_LEFT: return UP_RIGHT;
             case UP_RIGHT: return UP_LEFT;
             case DOWN_LEFT: return DOWN_RIGHT;
-            case DOWN_RIGHT: return DOWN_LEFT;
+            default: return DOWN_LEFT;
         }
-        return UP_LEFT;
     }
 
     public QuadBlockCorner mirrorUpDown() {
@@ -77,8 +89,7 @@ public enum QuadBlockCorner implements IStringSerializable {
             case UP_LEFT: return DOWN_LEFT;
             case UP_RIGHT: return DOWN_RIGHT;
             case DOWN_LEFT: return UP_LEFT;
-            case DOWN_RIGHT: return UP_RIGHT;
+            default: return UP_RIGHT;
         }
-        return UP_LEFT;
     }
  }
