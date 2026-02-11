@@ -90,6 +90,7 @@
   "entity.portalmod.storage_cube":   "Storage Cube",
   "entity.portalmod.companion_cube": "Companion Cube",
   "entity.portalmod.vintage_cube":   "Vintage Cube",
+  "entity.portalmod.gabe":           "Gabe Newell",
   "entity.portalmod.portal":         "Portal",
   "entity.portalmod.turret":         "Sentry Turret",
   "entity.portalmod.chamber_sign":   "Chamber Sign",
