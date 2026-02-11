@@ -7,7 +7,7 @@
       "model": "portalmod:block/lunecast_slab"
     },
     "type=double": {
-      "model": "portalmod:block/lunecast_tiles"
+      "model": "portalmod:block/lunecast_slab_double"
     }
   }
 }

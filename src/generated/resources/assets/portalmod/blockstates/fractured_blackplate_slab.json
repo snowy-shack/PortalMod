@@ -7,7 +7,7 @@
       "model": "portalmod:block/fractured_blackplate_slab"
     },
     "type=double": {
-      "model": "portalmod:block/fractured_blackplate_tiles"
+      "model": "portalmod:block/fractured_blackplate_slab_double"
     }
   }
 }
