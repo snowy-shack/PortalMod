@@ -83,7 +83,7 @@ public class FrameBlock extends Block implements IWaterLoggable {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return FILLED_SHAPE.get(state.getValue(FACING)).getShape();
+        return (this.isFilled || context.isHoldingItem(this.asItem()) ? FILLED_SHAPE : HOLLOW_SHAPE).get(state.getValue(FACING)).getShape();
     }
 
     @Override
