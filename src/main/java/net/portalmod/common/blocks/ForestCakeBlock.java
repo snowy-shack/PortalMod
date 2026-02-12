@@ -39,7 +39,7 @@ public class ForestCakeBlock extends CakeBlock {
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
         ActionResultType used = super.use(blockState, world, pos, player, hand, result);
-        if (used.consumesAction()) {
+        if (used == ActionResultType.SUCCESS) {
             boolean ateCandle = blockState.getValue(BITES) == 0;
             world.playSound(player, pos, (ateCandle ? SoundInit.CAKE_EAT_CANDLE.get() : SoundEvents.GENERIC_EAT), SoundCategory.PLAYERS, 1, 1);
         }
