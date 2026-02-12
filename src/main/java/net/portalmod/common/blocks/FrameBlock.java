@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.registry.DefaultedRegistry;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.portalmod.core.math.Mat4;
@@ -24,9 +25,13 @@ import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class FrameBlock extends Block implements IWaterLoggable {
+    public static Set<Block> FRAME_BLOCKS = new HashSet<>();
+
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public boolean isFilled;
@@ -85,7 +90,13 @@ public class FrameBlock extends Block implements IWaterLoggable {
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return (this.isFilled || context.isHoldingItem(this.asItem()) ? FILLED_SHAPE : HOLLOW_SHAPE).get(state.getValue(FACING)).getShape();
+        if (FRAME_BLOCKS.isEmpty()) {
+            DefaultedRegistry.BLOCK.stream().filter(block -> block instanceof FrameBlock).forEach(block -> FRAME_BLOCKS.add(block));
+        }
+
+        boolean holdingFrame = FRAME_BLOCKS.stream().anyMatch(block -> context.isHoldingItem(block.asItem()));
+
+        return (this.isFilled || holdingFrame ? FILLED_SHAPE : HOLLOW_SHAPE).get(state.getValue(FACING)).getShape();
     }
 
     @Override
