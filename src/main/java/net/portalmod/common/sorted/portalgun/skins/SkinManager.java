@@ -456,9 +456,9 @@ public class SkinManager {
         float valueMin = ColorPickerWidget.SV_PICKER_VAL_MIN;
         float valueMax = ColorPickerWidget.SV_PICKER_VAL_MAX;
 
-        hsv.x = MathHelper.clamp(hsv.x / 360, 0, 1);
+        hsv.x = MathHelper.clamp(hsv.x, 0, 360);
         hsv.y = MathHelper.clamp(hsv.y, 0, 1);
-        hsv.z = MathHelper.clamp(1 - (hsv.z - valueMin) / (valueMax - valueMin), 0, 1);
+        hsv.z = MathHelper.clamp(hsv.z, valueMin, valueMax);
         return Colour.fromHSV((float)hsv.x, (float)hsv.y, (float)hsv.z).getRGBValue();
     }
 

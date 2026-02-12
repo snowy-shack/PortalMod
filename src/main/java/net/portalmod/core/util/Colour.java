@@ -20,7 +20,7 @@ public class Colour {
     }
     
     public Colour(float r, float g, float b, float a) {
-        this((int)(r * 255), (int)(g * 255), (int)(b * 255), (int)(a * 255));
+        this(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255), Math.round(a * 255));
     }
 
     public Colour(float[] rgb) {
