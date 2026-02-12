@@ -17,8 +17,8 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
-import net.portalmod.core.util.ModUtil;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -228,13 +228,26 @@ public class PanelBlock extends Block implements PortalHelper {
 
     @Override
     public Vec3 helpPortal(Vec3 hitPos, Direction face, BlockState state, World world) {
-        if (!state.getValue(STATE).isQuadruple() || face.getAxis() != state.getValue(AXIS)) {
+        PanelState panelState = state.getValue(STATE);
+        if (!panelState.isQuadruple() || face.getAxis() != state.getValue(AXIS)) {
+            // Not front face of 2x2 panel
             return hitPos;
         }
 
-        // logic to return the center of the panel
+        double yPos = panelState.isBottom() ? Math.ceil(hitPos.y) : Math.floor(hitPos.y);
 
+        if (face.getAxis() == Direction.Axis.X) {
+            return new Vec3(
+                    hitPos.x,
+                    yPos,
+                    panelState.isLeft() ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+            );
+        }
 
-        return hitPos;
+        return new Vec3(
+                !panelState.isLeft() ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
+                yPos,
+                hitPos.z
+        );
     }
 }
