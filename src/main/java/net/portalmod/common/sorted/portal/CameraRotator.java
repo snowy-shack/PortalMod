@@ -67,10 +67,18 @@ public class CameraRotator {
 
         if(isLocalPlayer) {
             ClientPlayerEntity player = (ClientPlayerEntity)entity;
-            player.xBobO += player.xRot - xRotOld;
-            player.yBobO += player.yRot - yRotOld;
-            player.xBob += player.xRot - xRotOld;
-            player.yBob += player.yRot - yRotOld;
+            float xRotDelta = player.xRot - xRotOld;
+            float yRotDelta = player.yRot - yRotOld;
+
+            player.xBob  += xRotDelta;
+            player.xBobO += xRotDelta;
+            player.yBob  += yRotDelta;
+            player.yBobO += yRotDelta;
+
+            player.yBodyRot  += yRotDelta;
+            player.yBodyRotO += yRotDelta;
+            player.yHeadRot  += yRotDelta;
+            player.yHeadRotO += yRotDelta;
         }
     }
 }
