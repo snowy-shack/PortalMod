@@ -107,7 +107,8 @@ public class SkinManager {
         if(this.clientSide)
             this.fetchNewSkins(new HashSet<>(payload.skins));
 
-        this.players.put(player, payload);
+        if(player != null)
+            this.players.put(player, payload);
     }
 
     private void cachePlayer(UUID player) throws IOException {
@@ -134,7 +135,8 @@ public class SkinManager {
         }
 
         ArrayList<String> skins = this.gson.fromJson(data, new TypeToken<ArrayList<String>>(){}.getType());
-        this.players.put(player, new PortalGunPlayer(skins));
+        if(player != null)
+            this.players.put(player, new PortalGunPlayer(skins));
     }
 
     // SKIN CATALOG
@@ -295,6 +297,8 @@ public class SkinManager {
                 player = this.getOwnUUID().get();
         }
 
+        if(player == null)
+            return new PortalGunPlayer();
         return this.players.getOrDefault(player, new PortalGunPlayer());
     }
 
@@ -314,6 +318,8 @@ public class SkinManager {
                 player = this.getOwnUUID().get();
         }
 
+        if(player == null)
+            return "default";
         return this.selectedSkinPerPlayer.getOrDefault(player, "default");
     }
 
@@ -324,7 +330,8 @@ public class SkinManager {
             this.fetchNewSkins(Collections.singleton(skin));
         }
 
-        this.selectedSkinPerPlayer.put(player, skin);
+        if(player != null)
+            this.selectedSkinPerPlayer.put(player, skin);
     }
 
     public int getTintForPlayer(UUID player) {
@@ -333,6 +340,8 @@ public class SkinManager {
                 player = this.getOwnUUID().get();
         }
 
+        if(player == null)
+            return 0;
         return this.tintPerPlayer.getOrDefault(player, 0);
     }
 
@@ -346,7 +355,8 @@ public class SkinManager {
                 player = this.getOwnUUID().get();
         }
 
-        this.tintPerPlayer.put(player, tint);
+        if(player != null)
+            this.tintPerPlayer.put(player, tint);
     }
 
     public void setSkinAndTintForPlayer(UUID player, String skin, int tint) {
