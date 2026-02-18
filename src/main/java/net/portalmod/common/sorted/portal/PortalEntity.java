@@ -63,6 +63,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     private Direction up = Direction.UP;
     private UUID gunUUID;
     private int age = 0;
+    private boolean removalScheduled;
 
     private String hue = "blue";
     private String primary_color = "blue";
@@ -80,7 +81,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void tick() {
         if(this.getY() < -64.0D)
             this.outOfWorld();
-        if(!level.isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
+        if(!level.isClientSide && this.isAlive() && (!this.survives() || this.hasMoved() || this.removalScheduled))
             this.remove();
 
         if(level.isClientSide) {
@@ -1200,6 +1201,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(this.level.isClientSide)
             return Optional.ofNullable(ClientPortalManager.getInstance().get(this.gunUUID, this.end.other()));
         return Optional.ofNullable(PortalManager.getInstance().get(this.gunUUID, this.end.other()));
+    }
+
+    public void scheduleRemoval() {
+        this.removalScheduled = true;
     }
 
     @Override
