@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
@@ -10,6 +12,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.*;
@@ -27,8 +30,13 @@ public class PortalPlacer {
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
-
         Mat4 toAbsolute = new OrthonormalBasis(right, up).getChangeOfBasisFromCanonicalMatrix();
+        BlockState shotBlockState = level.getBlockState(position.clone().add(new Vec3(face.getOpposite()).mul(0.001)).toBlockPos());
+        Block shotBlock = shotBlockState.getBlock();
+
+        if(shotBlock instanceof PortalHelper) {
+            position = ((PortalHelper)shotBlock).helpPortal(position, face, shotBlockState, level);
+        }
 
         AxisAlignedBB portalAABB = new AxisAlignedBB(-.5, -1, 0,  .5,  1, 1/16f);
         portalAABB = AABBUtil.transform(portalAABB, toAbsolute);
@@ -40,9 +48,10 @@ public class PortalPlacer {
 
         VoxelShape collision = getCollision(level, face, position, toAbsolute, skipFrontBlock);
 
+        Vec3 finalPosition = position;
         List<AxisAlignedBB> bumpingPortals = PortalEntity.getPortals(level, portalAABB.inflate(2),
                 portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
-                        && new Vec3(portal.position()).choose(face.getAxis()) - position.choose(face.getAxis()) < 0.01
+                        && new Vec3(portal.position()).choose(face.getAxis()) - finalPosition.choose(face.getAxis()) < 0.01
                         && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end))
                 .stream().map(Entity::getBoundingBox).collect(Collectors.toList());
 
