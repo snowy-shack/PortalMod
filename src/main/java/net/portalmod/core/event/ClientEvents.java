@@ -377,7 +377,7 @@ public class ClientEvents {
         // Drop entity
         ItemStack itemStack = player.getMainHandItem();
         if (player.hasPassenger(TestElementEntity.class)) {
-            TestElementEntity.dropHeldEntities(player, false, itemStack);
+            TestElementEntity.dropHeldEntities(player, false, false, itemStack);
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());

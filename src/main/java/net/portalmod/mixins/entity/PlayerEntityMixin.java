@@ -16,9 +16,12 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
+import net.portalmod.common.sorted.portal.PortalHandler;
+import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
 import net.portalmod.core.init.FluidInit;
@@ -38,7 +41,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements IClientTeleportable, IGetPose {
+public abstract class PlayerEntityMixin extends LivingEntity implements IClientTeleportable, IGetPose, PortalHandler {
     public PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World level) {
         super(entityType, level);
     }
@@ -62,6 +65,24 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     @Override
     public void removeJustPortaled() {
         this.clientJustPortaled = false;
+    }
+
+    @Override
+    public void onTeleport(PortalEntity from, PortalEntity to) {
+        for(Entity passenger : this.getPassengers()) {
+            if(passenger instanceof TestElementEntity) {
+                ((TestElementEntity)passenger).onHolderTeleport(from, to);
+            }
+        }
+    }
+
+    @Override
+    public void onTeleportPacket() {
+        for(Entity passenger : this.getPassengers()) {
+            if(passenger instanceof TestElementEntity) {
+                ((TestElementEntity)passenger).onHolderTeleportPacket();
+            }
+        }
     }
 
     @Redirect(

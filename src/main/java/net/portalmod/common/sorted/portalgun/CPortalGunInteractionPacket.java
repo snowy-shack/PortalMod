@@ -103,11 +103,15 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     break;
 
                 case DROP_ENTITY:
-                    TestElementEntity.dropHeldEntities(player, false, player.getMainHandItem());
+                    TestElementEntity.dropHeldEntities(player, false, false, player.getMainHandItem());
                     break;
 
                 case THROW_ENTITY:
-                    TestElementEntity.dropHeldEntities(player, true, player.getMainHandItem());
+                    TestElementEntity.dropHeldEntities(player, true, false, player.getMainHandItem());
+                    break;
+
+                case RELEASE_ENTITY:
+                    TestElementEntity.dropHeldEntities(player, false, true, player.getMainHandItem());
                     break;
 
                 case SHOOT_PORTAL:
