@@ -465,6 +465,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         // todo send custom packet for this
         ((ITeleportable)entity).setLastUsedPortal(portal.getId());
         ((ITeleportable2)entity).setJustUsedPortal(targetPortal.getId());
+
+        if(entity instanceof PortalHandler) {
+            ((PortalHandler)entity).onTeleport(portal, targetPortal);
+        }
+
         if(justExited == null && entity instanceof PlayerEntity && entity.level.isClientSide)
 //            if(PortalEntityClient.hasConnection())
                 // todo don't send from client instead do on server
