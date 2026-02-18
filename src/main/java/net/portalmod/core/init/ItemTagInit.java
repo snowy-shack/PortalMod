@@ -10,8 +10,6 @@ public class ItemTagInit {
     private ItemTagInit() {}
     public static void init() {}
 
-    //todo add platforms to lunecast and blackplate after merge
-    // also add beam to decoration
     public static final Tags.IOptionalNamedTag<Item> LUNECAST = itemTag("lunecast");
     public static final Tags.IOptionalNamedTag<Item> BLACKPLATE = itemTag("blackplate");
     public static final Tags.IOptionalNamedTag<Item> GOO_PROTECTION = itemTag("goo_protection");

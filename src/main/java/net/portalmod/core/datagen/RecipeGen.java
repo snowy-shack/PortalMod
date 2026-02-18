@@ -312,16 +312,16 @@ public class RecipeGen extends RecipeProvider {
         blackplateStairs(c, ItemInit.FRACTURED_BLACKPLATE_STAIRS.get(), ItemInit.FRACTURED_BLACKPLATE.get());
         blackplateStairs(c, ItemInit.VINTAGE_BLACKPLATE_STAIRS.get(), ItemInit.VINTAGE_BLACKPLATE.get());
 
-        lunecastPlatform(c, ItemInit.LUNECAST_PLATFORM.get(), ItemInit.LUNECAST_SLAB.get());
-        lunecastPlatform(c, ItemInit.ARBORED_LUNECAST_PLATFORM.get(), ItemInit.ARBORED_LUNECAST_SLAB.get());
-        lunecastPlatform(c, ItemInit.ERODED_LUNECAST_PLATFORM.get(), ItemInit.ERODED_LUNECAST_SLAB.get());
-        lunecastPlatform(c, ItemInit.FRACTURED_LUNECAST_PLATFORM.get(), ItemInit.FRACTURED_LUNECAST_SLAB.get());
-        lunecastPlatform(c, ItemInit.VINTAGE_LUNECAST_PLATFORM.get(), ItemInit.VINTAGE_LUNECAST_SLAB.get());
-        blackplatePlatform(c, ItemInit.BLACKPLATE_PLATFORM.get(), ItemInit.BLACKPLATE_SLAB.get());
-        blackplatePlatform(c, ItemInit.ARBORED_BLACKPLATE_PLATFORM.get(), ItemInit.ARBORED_BLACKPLATE_SLAB.get());
-        blackplatePlatform(c, ItemInit.ERODED_BLACKPLATE_PLATFORM.get(), ItemInit.ERODED_BLACKPLATE_SLAB.get());
-        blackplatePlatform(c, ItemInit.FRACTURED_BLACKPLATE_PLATFORM.get(), ItemInit.FRACTURED_BLACKPLATE_SLAB.get());
-        blackplatePlatform(c, ItemInit.VINTAGE_BLACKPLATE_PLATFORM.get(), ItemInit.VINTAGE_BLACKPLATE_SLAB.get());
+        lunecastPlatform(c, ItemInit.LUNECAST_PLATFORM.get(), ItemInit.LUNECAST.get());
+        lunecastPlatform(c, ItemInit.ARBORED_LUNECAST_PLATFORM.get(), ItemInit.ARBORED_LUNECAST.get());
+        lunecastPlatform(c, ItemInit.ERODED_LUNECAST_PLATFORM.get(), ItemInit.ERODED_LUNECAST.get());
+        lunecastPlatform(c, ItemInit.FRACTURED_LUNECAST_PLATFORM.get(), ItemInit.FRACTURED_LUNECAST.get());
+        lunecastPlatform(c, ItemInit.VINTAGE_LUNECAST_PLATFORM.get(), ItemInit.VINTAGE_LUNECAST.get());
+        blackplatePlatform(c, ItemInit.BLACKPLATE_PLATFORM.get(), ItemInit.BLACKPLATE.get());
+        blackplatePlatform(c, ItemInit.ARBORED_BLACKPLATE_PLATFORM.get(), ItemInit.ARBORED_BLACKPLATE.get());
+        blackplatePlatform(c, ItemInit.ERODED_BLACKPLATE_PLATFORM.get(), ItemInit.ERODED_BLACKPLATE.get());
+        blackplatePlatform(c, ItemInit.FRACTURED_BLACKPLATE_PLATFORM.get(), ItemInit.FRACTURED_BLACKPLATE.get());
+        blackplatePlatform(c, ItemInit.VINTAGE_BLACKPLATE_PLATFORM.get(), ItemInit.VINTAGE_BLACKPLATE.get());
 
         ShapedRecipeBuilder.shaped(ItemInit.CHAMBER_LIGHTS.get(), 2)
                 .pattern("g#g").define('#', ItemInit.BLACKPLATE.get())
