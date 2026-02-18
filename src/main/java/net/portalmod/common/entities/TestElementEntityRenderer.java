@@ -3,6 +3,7 @@ package net.portalmod.common.entities;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
@@ -18,6 +19,9 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
     public void render(T entity, float p_225623_2_, float p_225623_3_, MatrixStack matrixStack, IRenderTypeBuffer p_225623_5_, int light) {
         float f5 = (float)entity.getHurtTime() - p_225623_3_;
         float f6 = Math.max(0, entity.getDamage() - p_225623_3_);
+
+        int rawBrightness = entity.level.getLightEngine().getRawBrightness(entity.blockPosition(), 0);
+        light = LightTexture.pack(rawBrightness, rawBrightness); // Fixup the light to be that of the entity
 
         matrixStack.pushPose();
 
