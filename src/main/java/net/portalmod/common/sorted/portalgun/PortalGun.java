@@ -440,7 +440,6 @@ public class PortalGun extends Item {
      * @return whether any portals got fizzled.
      */
     public static boolean fizzleGunItem(ItemStack itemStack) {
-//        if (true) return false; // FIXME Temporary disable to prevent crashes
         Optional<UUID> gunUUID = PortalGun.getUUID(itemStack);
         if (!gunUUID.isPresent()) return false;
 
@@ -449,13 +448,11 @@ public class PortalGun extends Item {
 
         if (pair.has(PortalEnd.PRIMARY)) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
-            ((ServerWorld) primary.level).removeEntity(primary, false);
-            PortalManager.getInstance().remove(gunUUID.get(), primary);
+            primary.scheduleRemoval();
         }
         if (pair.has(PortalEnd.SECONDARY)) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
-            ((ServerWorld) secondary.level).removeEntity(secondary, false);
-            PortalManager.getInstance().remove(gunUUID.get(), secondary);
+            secondary.scheduleRemoval();
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);
