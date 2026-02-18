@@ -35,6 +35,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.init.*;
+import net.portalmod.core.math.AABBUtil;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
@@ -233,7 +234,15 @@ public class PortalGun extends Item {
             hue = nbt.getString(isPrimary ? "LeftColor" : "RightColor");
         }
 
-        PortalEntity portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position, face, up);
+        boolean inFizzler = AABBUtil.getBlocksWithin(player.getBoundingBox()).stream()
+                .map(pos -> level.getBlockState(pos).getBlock())
+                .anyMatch(block -> block == BlockInit.FIZZLER_EMITTER.get() || block == BlockInit.FIZZLER_FIELD.get());
+
+        PortalEntity portal = null;
+
+        if(!inFizzler) {
+            portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up);
+        }
 
         if(portal == null)
             return;
