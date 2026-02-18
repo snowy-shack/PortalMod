@@ -45,6 +45,7 @@
         "accessors.MinecraftAccessor",
         "accessors.SplashesAccessor",
         "entity.CatRendererMixin",
+        "entity.EnderPearlMixin",
         "entity.KeyBindingMixin",
         "entity.RabbitRendererMixin",
         "level.ChunkArrayMixin",
