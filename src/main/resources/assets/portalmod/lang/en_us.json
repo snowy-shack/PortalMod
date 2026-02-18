@@ -259,6 +259,7 @@
   "subtitles.block.fizzler_emitter.deactivate": "Fizzler deactivates",
   "subtitles.block.antline_indicator.activate": "Antline Indicator activates",
   "subtitles.block.antline_indicator.deactivate": "Antline Indicator deactivates",
+  "subtitles.block.antline_timer.tick": "Antline Timer ticks",
   "subtitles.block.antline_timer.deactivate": "Antline Timer ticks",
   "subtitles.block.push_door.open": "Push Door opens",
   "subtitles.block.push_door.close": "Push Door closes",
@@ -270,12 +271,14 @@
   "subtitles.block.cube_dropper.deactivate": "Cube Dropper deactivates",
   "subtitles.block.gel.bounce": "Repulsion Gel wobbles",
   "subtitles.block.gel.collect": "Gel collected",
-  "subtitles.block.forest_cake.eat_candle": "Cake's candle gets eaten",
+  "subtitles.block.forest_cake.eat_candle": "Eating candle",
 
   "subtitles.entity.fizzle": "Entity fizzles",
   "subtitles.entity.cube.hit": "Cube lands",
   "subtitles.entity.cube.gabe": "Gabe speaks",
   "subtitles.entity.portal.open": "Portal Opens",
+  "subtitles.entity.portal.teleports": "Portal Teleports",
+  "subtitles.chamber_sign.place": "Chamber Sign Placed",
 
   "subtitles.item.portalgun.fire":     "Portal Gun fires",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
