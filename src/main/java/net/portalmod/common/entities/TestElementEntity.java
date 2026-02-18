@@ -23,8 +23,8 @@ import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
@@ -32,6 +32,7 @@ import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.particles.PortalGunSparkParticle;
 import net.portalmod.common.sorted.fizzler.Fizzler;
+import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
@@ -39,10 +40,11 @@ import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -61,7 +63,12 @@ public abstract class TestElementEntity extends LivingEntity {
 
     public int maxFizzleTime = 35;
     public boolean canFizzle;
-    public Vector3d lastPos;
+    public Vec3 serverOldPos;
+
+    private Vec3 oldRidingVec;
+    private boolean holderJustTeleported;
+    private int oldPortalChainLength;
+    private Float eyeHeightOld;
 
     public TestElementEntity(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
         super(p_i48577_1_, p_i48577_2_);
@@ -70,10 +77,6 @@ public abstract class TestElementEntity extends LivingEntity {
 
     @Override
     public void tick() {
-        if (this.lastPos == null) {
-            this.lastPos = this.position().scale(1);
-        }
-
         if (this.getWiggle() > 0) {
             this.setWiggle(this.getWiggle() - 1);
         }
@@ -93,12 +96,10 @@ public abstract class TestElementEntity extends LivingEntity {
         } else {
             this.checkTraversedBlocks();
         }
-
-        this.lastPos = this.position().scale(1);
     }
 
     public void checkTraversedBlocks() {
-        AxisAlignedBB movementBox = new AxisAlignedBB(this.lastPos, this.position());
+        AxisAlignedBB movementBox = new AxisAlignedBB(ModUtil.getOldPos(this), this.position());
         Stream<BlockPos> collidedPositions = BlockPos.betweenClosedStream(movementBox);
         collidedPositions.forEach(pos -> {
             BlockState state = this.level.getBlockState(pos);
@@ -227,38 +228,121 @@ public abstract class TestElementEntity extends LivingEntity {
             return;
         }
 
-        this.yRot = this.getVehicle().getYHeadRot();
-        this.yBodyRot = this.yRot;
-
         PlayerEntity player = (PlayerEntity)getVehicle();
-        Vector3d eyePos = player.getEyePosition(1).add(0, -0.4, 0);
 
-        float xRot = player.getViewXRot(1);
-        float yRot = player.getViewYRot(1);
+        if(!this.level.isClientSide) {
+            // server assigns old position stored in serverOldPos
+            // since the former resets every tick
+            // and thus cannot be assigned from the packet itself
+            if(this.serverOldPos != null) {
+                this.xo = this.serverOldPos.x;
+                this.yo = this.serverOldPos.y;
+                this.zo = this.serverOldPos.z;
+                this.xOld = this.serverOldPos.x;
+                this.yOld = this.serverOldPos.y;
+                this.zOld = this.serverOldPos.z;
+            }
+        } else {
+            Vec3 eyePos = new Vec3(player.getEyePosition(1).add(0, -0.4, 0));
+            Vec3 eyeOldPos = new Vec3(player.getEyePosition(0).add(0, -0.4, 0));
+            Vec3 originalEyePos = eyePos.clone();
 
-        xRot *= (float)Math.PI / 180f;
-        yRot *= -(float)Math.PI / 180f;
-        float cosy = MathHelper.cos(yRot);
-        float siny = MathHelper.sin(yRot);
-        float cosx = MathHelper.cos(xRot);
-        float sinx = MathHelper.sin(xRot);
-        float x = siny * cosx;
-        float y = -sinx;
-        float z = cosy * cosx;
+            // account for eye height
+            if(eyeHeightOld != null) {
+                eyeOldPos = eyeOldPos.sub(0, player.getEyeHeight(), 0);
+                eyeOldPos.add(0, eyeHeightOld, 0);
+            }
+            eyeHeightOld = player.getEyeHeight();
 
-        this.xo = this.getX();
-        this.yo = this.getY();
-        this.zo = this.getZ();
+            Vec3 ridingVersor = new Vec3(0, 0, 1)
+                    .transform(new Mat4(Vector3f.XP.rotationDegrees(player.getViewXRot(1))))
+                    .transform(new Mat4(Vector3f.YN.rotationDegrees(player.getViewYRot(1))));
 
-        Vector3d ridingPos = new Vector3d(
-                eyePos.x + x * HOLDING_DISTANCE,
-                eyePos.y + y * HOLDING_DISTANCE,
-                eyePos.z + z * HOLDING_DISTANCE);
+            Vec3 ridingVec = ridingVersor.clone().mul(HOLDING_DISTANCE);
 
-        this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
+            // get portals along the holding ray
+            Vec3 from = eyePos;
+            Vec3 to = eyePos.clone().add(ridingVec);
+            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(this.level, from, to, portal -> true);
+            boolean passedPortal = portalChain.size() != this.oldPortalChainLength;
+            this.oldPortalChainLength = portalChain.size();
 
-        if(this.position().distanceTo(ridingPos) > 1) {
-            dropHeldEntities(player, false, player.getMainHandItem());
+            // compute the matrices from them
+            Mat4 portalMatrix = Mat4.identity();
+            Mat4 portalRotationMatrix = Mat4.identity();
+            for(PortalEntity portal : portalChain) {
+                if(!portal.getOtherPortal().isPresent())
+                    break;
+
+                Mat4 matrix = portal.getSourceBasis().getChangeOfBasisMatrix(portal.getOtherPortal().get().getDestinationBasis());
+
+                portalMatrix = Mat4.identity()
+                        .translate(new Vec3(portal.getOtherPortal().get().position()))
+                        .mul(matrix)
+                        .translate(new Vec3(portal.position()).negate())
+                        .mul(portalMatrix);
+
+                portalRotationMatrix = Mat4.identity()
+                        .mul(matrix)
+                        .mul(portalRotationMatrix);
+            }
+
+            eyePos = eyePos.transform(portalMatrix);
+            eyeOldPos = eyeOldPos.transform(portalMatrix);
+            ridingVec = ridingVec.transform(portalRotationMatrix);
+            ridingVersor = ridingVersor.transform(portalRotationMatrix);
+
+            // calculate rotation
+            Vec3 lookVec = new Vec3(0, 0, 1)
+                    .transform(new Mat4(Vector3f.YN.rotationDegrees(this.getVehicle().getYHeadRot())))
+                    .transform(portalRotationMatrix);
+            this.yRot = -(float)(Math.atan2(lookVec.x, lookVec.z) * 180 / Math.PI);
+            this.yBodyRot = this.yRot;
+
+            if(passedPortal) {
+                this.yRotO = this.yRot;
+                this.yBodyRotO = this.yBodyRot;
+            }
+
+            // old position
+            Vec3 oldRidingVec = Optional.ofNullable(this.oldRidingVec).orElse(new Vec3(this.position()).sub(eyeOldPos)).clone();
+            oldRidingVec = oldRidingVec.transform(portalRotationMatrix);
+            oldRidingVec = holderJustTeleported ? ridingVersor.clone().mul(oldRidingVec.magnitude()) : oldRidingVec;
+            holderJustTeleported = false;
+
+            // teleport entity every tick
+            Vec3 oldPos = eyeOldPos.clone().add(oldRidingVec);
+            Vec3 center = new Vec3(this.getBoundingBox().getCenter()).sub(0, this.getBoundingBox().getYsize() / 2, 0);
+            this.setBoundingBox(this.getBoundingBox().move(center.negate().to3d()).move(oldPos.to3d()));
+            this.setPosAndOldPos(oldPos.x, oldPos.y, oldPos.z);
+
+            // move the entity
+            Vector3d ridingPos = eyePos.clone().add(ridingVec).to3d();
+            this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
+
+            // tell the server
+            PacketInit.INSTANCE.sendToServer(new CTestElementHoldingPacket(this.getId(),
+                    new Vec3(ModUtil.getOldPos(this)), new Vec3(this.position()), this.yBodyRotO, this.yBodyRot));
+
+            // detach if too far
+            if(this.position().distanceTo(ridingPos) > 1) {
+                dropHeldEntities(player, false, true, player.getMainHandItem());
+                PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.RELEASE_ENTITY).build());
+            }
+
+            // calculate unteleported position for next tick
+            Vec3 unteleportedPos = new Vec3(this.position());
+
+            for(int i = portalChain.size() - 1; i >= 0; i--) {
+                PortalEntity portal = portalChain.get(i);
+                if(!portal.getOtherPortal().isPresent())
+                    break;
+
+                Mat4 matrix = portal.getOtherPortal().get().getSourceBasis().getChangeOfBasisMatrix(portal.getDestinationBasis());
+                unteleportedPos = unteleportedPos.sub(portal.getOtherPortal().get().position()).transform(matrix).add(portal.position());
+            }
+
+            this.oldRidingVec = unteleportedPos.clone().sub(originalEyePos);
         }
 
         this.fallDistance = 0;
@@ -271,8 +355,22 @@ public abstract class TestElementEntity extends LivingEntity {
 
         if (this.isFizzling()) {
             this.awardKill();
-            dropHeldEntities(player, false, player.getMainHandItem());
+            dropHeldEntities(player, false, false, player.getMainHandItem());
         }
+    }
+
+    public void onHolderTeleport(PortalEntity from, PortalEntity to) {
+        holderJustTeleported = true;
+    }
+
+    public void onHolderTeleportPacket() {
+        holderJustTeleported = true;
+    }
+
+    @Override
+    public boolean startRiding(Entity entity) {
+        this.oldRidingVec = null;
+        return super.startRiding(entity);
     }
 
     @Override
@@ -280,7 +378,12 @@ public abstract class TestElementEntity extends LivingEntity {
         this.removeVehicle();
         this.boardingCooldown = 0;
 
-        Vector3d momentum = this.position().subtract(ModUtil.getOldPos(this));
+        Vector3d momentum;
+        if(this.level.isClientSide) {
+            momentum = this.position().subtract(ModUtil.getOldPos(this));
+        } else {
+            momentum = this.position().subtract(this.serverOldPos.to3d());
+        }
 
         // Random movement so the cube cant fall perfectly onto a player which makes them swim
         this.setDeltaMovement(momentum.add(
@@ -289,30 +392,47 @@ public abstract class TestElementEntity extends LivingEntity {
                 ModUtil.symmetricRandom(0.01f)));
     }
 
-    public static void dropHeldEntities(PlayerEntity player, boolean yeet, ItemStack itemStack) {
+    public static void dropHeldEntities(PlayerEntity player, boolean yeet, boolean nullifyMomentum, ItemStack itemStack) {
         List<Entity> passengers = player.getPassengers();
-        for (int i = passengers.size() - 1; i >= 0; --i) {
-            Entity entity = passengers.get(0);
-            if (!(entity instanceof TestElementEntity)) {
+        for(int i = passengers.size() - 1; i >= 0; --i) {
+            Entity entity = passengers.get(i);
+            if(!(entity instanceof TestElementEntity)) {
                 continue;
             }
 
             entity.stopRiding();
 
-            if (itemStack.getItem() instanceof PortalGun) {
+            if(itemStack.getItem() instanceof PortalGun) {
                 PortalGun.dropCube(player, itemStack);
             }
 
-            float maxSpeed = 0.5f;
+            final float maxSpeed = 0.5f;
+            final float strength = .3f;
 
-            boolean exceedsLimit = entity.getDeltaMovement().add(player.getDeltaMovement().reverse()).length() > maxSpeed;
-            if (exceedsLimit) entity.setDeltaMovement(entity.getDeltaMovement().normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
+            Vector3d velocity = entity.getDeltaMovement();
+            boolean exceedsLimit = velocity.add(player.getDeltaMovement().reverse()).length() > maxSpeed;
 
-            if (yeet) {
-                float strength = .3f;
-                entity.setDeltaMovement(entity.getDeltaMovement().add(player.getViewVector(0)
-                        .multiply(strength, strength, strength)));
+            if(nullifyMomentum) {
+                entity.setDeltaMovement(Vector3d.ZERO);
+            } else {
+                if(exceedsLimit) {
+                    entity.setDeltaMovement(velocity.normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
+                }
+
+                if(yeet) {
+                    entity.setDeltaMovement(velocity.add(player.getViewVector(0).multiply(strength, strength, strength)));
+                }
             }
+        }
+    }
+
+    @Override
+    public boolean isControlledByLocalInstance() {
+        Entity entity = this.getVehicle();
+        if(entity instanceof PlayerEntity) {
+            return ((PlayerEntity)entity).isLocalPlayer();
+        } else {
+            return !this.level.isClientSide;
         }
     }
 
@@ -332,7 +452,7 @@ public abstract class TestElementEntity extends LivingEntity {
         if (this.isPickedUp()) {
             PlayerEntity player = (PlayerEntity) this.getVehicle();
             assert player != null;
-            dropHeldEntities(player, false, player.getMainHandItem());
+            dropHeldEntities(player, false, false, player.getMainHandItem());
         }
     }
 

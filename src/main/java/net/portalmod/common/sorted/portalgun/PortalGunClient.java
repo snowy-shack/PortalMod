@@ -11,7 +11,7 @@ public class PortalGunClient {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (player.hasPassenger(TestElementEntity.class)) {
-            TestElementEntity.dropHeldEntities(player, true, player.getMainHandItem());
+            TestElementEntity.dropHeldEntities(player, true, false, player.getMainHandItem());
 
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.THROW_ENTITY).build());
         } else PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.PRIMARY).build());

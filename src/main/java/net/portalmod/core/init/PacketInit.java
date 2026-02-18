@@ -8,6 +8,7 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import net.portalmod.PortalMod;
+import net.portalmod.common.entities.CTestElementHoldingPacket;
 import net.portalmod.common.sorted.antline.SAntlineUpdatePacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateLaunchPacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
@@ -51,6 +52,7 @@ public class PacketInit {
         register(new CPortalGunInteractionPacket(),     NetworkDirection.PLAY_TO_SERVER);
         register(new CPlayerPortalTeleportPacket(),     NetworkDirection.PLAY_TO_SERVER);
         register(new CSetPlayerSkinPacket(),            NetworkDirection.PLAY_TO_SERVER);
+        register(new CTestElementHoldingPacket(),       NetworkDirection.PLAY_TO_SERVER);
 
         // TODO use this below too
         

@@ -9,21 +9,25 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
+import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.core.config.PortalModConfigManager;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ModUtil {
@@ -48,6 +52,49 @@ public class ModUtil {
 
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.ANY, null);
         return level.clip(rayCtx);
+    }
+
+    public static List<PortalEntity> getPortalsAlongRay(World level, Vec3 from, Vec3 to, Predicate<PortalEntity> filter) {
+        List<PortalEntity> portalChain = new ArrayList<>();
+        from = from.clone();
+        to = to.clone();
+
+        int limit = 100;
+        while(limit-- > 0) {
+            AxisAlignedBB rayAABB = new AxisAlignedBB(from.to3d(), to.to3d());
+
+            Vec3 finalFrom = from.clone();
+            Optional<PortalEntity> optionalPortal = PortalEntity.getPortals(level, rayAABB, filter)
+                    .stream().reduce((o, n) ->
+                            n.position().distanceTo(finalFrom.to3d()) < o.position().distanceTo(finalFrom.to3d()) ? n : o);
+
+            if(!optionalPortal.isPresent())
+                break;
+
+            PortalEntity portal = optionalPortal.get();
+            AxisAlignedBB clipAABB = portal.getBoundingBox().move(new Vec3(portal.getNormal()).mul(-1/16f).to3d());
+            boolean traversesPortal = clipAABB.clip(from.to3d(), to.to3d()).isPresent();
+
+            if(!traversesPortal)
+                break;
+
+            boolean rightDirection = from.clone().sub(portal.position()).dot(portal.getNormal()) > 0
+                    && to.clone().sub(portal.position()).dot(portal.getNormal()) < 0;
+
+            if(!rightDirection)
+                break;
+
+            if(!portal.getOtherPortal().isPresent())
+                break;
+
+            portalChain.add(portal);
+
+            Mat4 matrix = portal.getSourceBasis().getChangeOfBasisMatrix(portal.getOtherPortal().get().getDestinationBasis());
+            from = from.sub(portal.position()).transform(matrix).add(portal.getOtherPortal().get().position());
+            to = to.sub(portal.position()).transform(matrix).add(portal.getOtherPortal().get().position());
+        }
+
+        return portalChain;
     }
 
     public static Vector3d getOldPos(Entity entity) {
