@@ -12,6 +12,7 @@ public class CriteriaTriggerInit {
     
     public static final Registry.Entry<CodeBoundTrigger> SHOOT_MOON = registerCBT("shoot_moon");
     public static final Registry.Entry<CodeBoundTrigger> FAITH_PLATE_ELYTRA = registerCBT("faith_plate_elytra");
+    public static final Registry.Entry<CodeBoundTrigger> TRIPLE_TELEPORT = registerCBT("triple_teleportation");
     public static final Registry.Entry<CodeBoundTrigger> PLACE_PORTALS = registerCBT("place_portals");
     public static final Registry.Entry<CodeBoundTrigger> PORTAL_SURFACE = registerCBT("portal_surface");
     public static final Registry.Entry<CodeBoundTrigger> BOUNCE_ON_GEL = registerCBT("bounce_on_gel");

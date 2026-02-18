@@ -1,0 +1,28 @@
+{
+  "parent": "portalmod:portalmod/portal_surface",
+  "criteria": {
+    "condition_name": {
+      "trigger": "portalmod:triple_teleportation"
+    }
+  },
+  "display": {
+    "icon": {
+      "item": "minecraft:ender_pearl"
+    },
+    "title": {
+      "translate": "advancements.portalmod.ender_pearl_portals.title"
+    },
+    "description": {
+      "translate": "advancements.portalmod.ender_pearl_portals.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "requirements": [
+    [
+      "condition_name"
+    ]
+  ]
+}
