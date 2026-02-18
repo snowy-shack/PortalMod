@@ -3,6 +3,7 @@ package net.portalmod.core.packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
+import net.portalmod.common.sorted.portal.PortalHandler;
 
 import java.util.function.Supplier;
 
@@ -19,7 +20,10 @@ public class CPlayerPortalTeleportPacket implements AbstractPacket<CPlayerPortal
 
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> ((IClientTeleportable)context.get().getSender()).setJustPortaled(true));
+        context.get().enqueueWork(() -> {
+            ((PortalHandler)context.get().getSender()).onTeleportPacket();
+            ((IClientTeleportable)context.get().getSender()).setJustPortaled(true);
+        });
         context.get().setPacketHandled(true);
         return true;
     }
