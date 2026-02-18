@@ -20,6 +20,7 @@
         "entity.EntityTypeMixin",
         "entity.LivingEntityMixin",
         "entity.PlayerEntityMixin",
+        "entity.ProjectileEntityMixin",
         "entity.TrackedEntityMixin",
         "fluid.FlowingFluidBlockMixin",
         "fluid.FlowingFluidMixin",
