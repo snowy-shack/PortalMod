@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
@@ -33,6 +34,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.AABBUtil;
@@ -161,6 +163,10 @@ public class PortalGun extends Item {
             Vector3d vector3d = ctx.getFrom();
             Vector3d vector3d1 = ctx.getTo();
             VoxelShape voxelshape = ctx.getBlockShape(blockstate, level, pos);
+
+            Block block = blockstate.getBlock();
+            if(block == BlockInit.FIZZLER_EMITTER.get() || block == BlockInit.FIZZLER_FIELD.get())
+                voxelshape = ((FizzlerFieldBlock)block).getFieldShape(blockstate);
 
             BlockRayTraceResult blockraytraceresult = level.clipWithInteractionOverride(vector3d, vector3d1, pos, voxelshape, blockstate);
             VoxelShape voxelshape1 = ctx.getFluidShape(fluidstate, level, pos);
