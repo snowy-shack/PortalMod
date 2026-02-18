@@ -29,7 +29,7 @@ public class EnderPearlMixin implements PortalHandler {
         Entity owner = ((EnderPearlEntity)(Object)this).getOwner();
 
         if(portalmod_passedPortals.size() == 2 && owner instanceof ServerPlayerEntity) {
-            CriteriaTriggerInit.FAITH_PLATE_ELYTRA.get().trigger((ServerPlayerEntity)owner);
+            CriteriaTriggerInit.TRIPLE_TELEPORT.get().trigger((ServerPlayerEntity)owner);
         }
     }
 
