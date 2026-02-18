@@ -53,7 +53,7 @@ public class PortalGun extends Item {
     public String defaultAccentColor;
     private final PortalGunModel model;
 
-    private static final HashMap<UUID, Item> BY_UUID = new HashMap<>();
+    private static final HashMap<UUID, PortalGun> BY_UUID = new HashMap<>();
 
     public PortalGun(Properties properties) {
         this(properties, new PortalGunModel(), "blue", "orange", "none");
@@ -354,9 +354,9 @@ public class PortalGun extends Item {
         CompoundNBT nbt = itemStack.getOrCreateTag();
 
         // Return optional to make it clear that the UUID is not always present
-        if (nbt.contains("gunUUID")) {
+        if (nbt.contains("gunUUID") && itemStack.getItem() instanceof PortalGun) {
             UUID uuid = nbt.getUUID("gunUUID");
-            BY_UUID.put(uuid, itemStack.getItem());
+            BY_UUID.put(uuid, (PortalGun) itemStack.getItem());
             return Optional.of(uuid);
         }
 
@@ -405,7 +405,7 @@ public class PortalGun extends Item {
     }
 
     public static PortalGunModel getModel(UUID gunUUID) {
-        return ((PortalGun)BY_UUID.get(gunUUID)).getModel();
+        return BY_UUID.get(gunUUID).getModel();
     }
 
     public static Colour getAccentColour(CompoundNBT nbt) {
@@ -440,7 +440,7 @@ public class PortalGun extends Item {
      * @return whether any portals got fizzled.
      */
     public static boolean fizzleGunItem(ItemStack itemStack) {
-        if (true) return false; // FIXME Temporary disable to prevent crashes
+//        if (true) return false; // FIXME Temporary disable to prevent crashes
         Optional<UUID> gunUUID = PortalGun.getUUID(itemStack);
         if (!gunUUID.isPresent()) return false;
 
@@ -448,14 +448,14 @@ public class PortalGun extends Item {
         if (pair == null) return false;
 
         if (pair.has(PortalEnd.PRIMARY)) {
-            PortalEntity blue = pair.get(PortalEnd.PRIMARY);
-            ((ServerWorld) blue.level).removeEntity(blue, false);
-            PortalManager.getInstance().remove(gunUUID.get(), blue);
+            PortalEntity primary = pair.get(PortalEnd.PRIMARY);
+            ((ServerWorld) primary.level).removeEntity(primary, false);
+            PortalManager.getInstance().remove(gunUUID.get(), primary);
         }
         if (pair.has(PortalEnd.SECONDARY)) {
-            PortalEntity orange = pair.get(PortalEnd.SECONDARY);
-            ((ServerWorld) orange.level).removeEntity(orange, false);
-            PortalManager.getInstance().remove(gunUUID.get(), orange);
+            PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
+            ((ServerWorld) secondary.level).removeEntity(secondary, false);
+            PortalManager.getInstance().remove(gunUUID.get(), secondary);
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);
