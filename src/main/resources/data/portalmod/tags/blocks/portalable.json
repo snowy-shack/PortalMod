@@ -14,6 +14,12 @@
     "portalmod:fractured_lunecast_slab",
     "portalmod:fractured_lunecast_stairs",
     "portalmod:vintage_lunecast",
-    "minecraft:end_stone"
+    "minecraft:end_stone",
+
+    "portalmod:lunecast_platform",
+    "portalmod:eroded_lunecast_platform",
+    "portalmod:arbored_lunecast_platform",
+    "portalmod:vintage_lunecast_platform",
+    "portalmod:fractured_lunecast_platform"
   ]
 }
