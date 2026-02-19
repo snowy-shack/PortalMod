@@ -64,10 +64,7 @@ import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
-import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
-import net.portalmod.common.sorted.portalgun.PortalGun;
-import net.portalmod.common.sorted.portalgun.PortalGunCrosshairRenderer;
-import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
+import net.portalmod.common.sorted.portalgun.*;
 import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
@@ -343,6 +340,7 @@ public class ClientEvents {
 //            ChunkViewer.getInstance().setVisible(true);
 //        }
 
+        PortalGunClient.tick();
         handleInteractKey();
     }
 
@@ -437,24 +435,20 @@ public class ClientEvents {
     }
 
     @SubscribeEvent
-    public static void onMouseClick(final InputEvent.ClickInputEvent event) {
-        if(event.getHand() != Hand.MAIN_HAND)
+    public static void onMouseClick(final InputEvent.RawMouseEvent event) {
+        Minecraft mc = Minecraft.getInstance();
+        PlayerEntity player = mc.player;
+        if(player == null)
             return;
-        
-        boolean isItemFrame = Minecraft.getInstance().getEntityRenderDispatcher().crosshairPickEntity instanceof ItemFrameEntity;
-        if(isItemFrame && event.isUseItem())
-            return;
-        
-        if(Minecraft.getInstance().player.getMainHandItem().getItem() instanceof PortalGun) {
-            if(event.isAttack())
-                PortalGun.handleLeftClick();
-            if(event.isUseItem())
-                PortalGun.handleRightClick();
-            if(event.isPickBlock())
-                return;
 
-            event.setCanceled(true);
-            event.setSwingHand(false);
+        if(mc.overlay == null && mc.screen == null) {
+            if(player.getMainHandItem().getItem() instanceof PortalGun) {
+                boolean handled = PortalGunClient.handleMouseButtons(event.getButton(), event.getAction());
+
+                if(handled) {
+                    event.setCanceled(true);
+                }
+            }
         }
     }
     
