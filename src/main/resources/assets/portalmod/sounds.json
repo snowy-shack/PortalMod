@@ -212,7 +212,7 @@
         "subtitle": "subtitles.item.portalgun.hold"
     },
     "item.portalgun.fizzle": {
-        "sounds": [ "portalmod:error" ],
+        "sounds": [ "portalmod:item/portalgun/fizzle" ],
         "subtitle": "subtitles.item.portalgun.fizzle"
     },
     "item.wrench.use": {
