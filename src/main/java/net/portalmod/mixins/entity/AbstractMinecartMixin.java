@@ -41,8 +41,7 @@ public class AbstractMinecartMixin {
             )
     )
     private void pmClientTeleport(AbstractMinecartEntity instance, double x, double y, double z) {
-        if(true)
-            return;
+//        if(true) return;
 
 //        AbstractMinecartEntity entity = (AbstractMinecartEntity)(Object)this;
 //
