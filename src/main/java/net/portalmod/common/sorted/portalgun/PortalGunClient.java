@@ -55,7 +55,10 @@ public class PortalGunClient {
         boolean isItemFrame = Minecraft.getInstance().getEntityRenderDispatcher().crosshairPickEntity instanceof ItemFrameEntity;
 
         if(action == GLFW.GLFW_PRESS) {
-            Minecraft.getInstance().mouseHandler.grabMouse();
+            if(!Minecraft.getInstance().mouseHandler.isMouseGrabbed()) {
+                Minecraft.getInstance().mouseHandler.grabMouse();
+                return true;
+            }
         }
 
         if(button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
