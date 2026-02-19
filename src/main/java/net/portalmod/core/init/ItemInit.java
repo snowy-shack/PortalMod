@@ -15,12 +15,13 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.ISTERWrapper;
+import net.portalmod.common.items.BulletsItem;
 import net.portalmod.common.items.ModSpawnEggItem;
-import net.portalmod.common.items.TooltipItem;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineBlockItem;
 import net.portalmod.common.sorted.gel.container.EmptyGelContainer;
 import net.portalmod.common.sorted.gel.container.GelContainer;
+import net.portalmod.common.sorted.goo.GooBucketItem;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
@@ -63,6 +64,7 @@ public class ItemInit {
     public static final RegistryObject<Item> ANTLINE_RECEIVER = registerBlockItem("antline_receiver", BlockInit.ANTLINE_RECEIVER);
 
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
+    public static final RegistryObject<Item> PUSH_DOOR = registerBlockItem("push_door", BlockInit.PUSH_DOOR);
     public static final RegistryObject<Item> FIZZLER_EMITTER = registerBlockItem("fizzler_emitter", BlockInit.FIZZLER_EMITTER);
     public static final RegistryObject<Item> FAITHPLATE = registerBlockItem("faithplate", BlockInit.FAITHPLATE);
 
@@ -73,7 +75,7 @@ public class ItemInit {
                     properties().setISTER(() -> ISTERWrapper::new))); // todo remove ister
 
     public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
-            () -> new BucketItem(FluidInit.GOO_FLUID, properties().stacksTo(1)));
+            () -> new GooBucketItem(FluidInit.GOO_FLUID, properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CONTAINER = ITEMS.register("container",
             () -> new EmptyGelContainer(properties().stacksTo(16)));
@@ -87,7 +89,7 @@ public class ItemInit {
     public static final RegistryObject<Item> TURRET = registerSpawnEgg("turret", EntityInit.TURRET, "turret");
 
     public static final RegistryObject<Item> BULLETS = ITEMS.register("bullets",
-            () -> new TooltipItem(properties(), "bullets"));
+            () -> new BulletsItem(properties()));
 
     public static final RegistryObject<Item> RADIO = registerBlockItem("radio", BlockInit.RADIO);
 
@@ -177,8 +179,6 @@ public class ItemInit {
     public static final RegistryObject<Item> RUSTY_IRON_FRAME = registerBlockItem("rusty_iron_frame", BlockInit.RUSTY_IRON_FRAME);
     public static final RegistryObject<Item> RUSTY_BARRED_IRON_FRAME = registerBlockItem("rusty_barred_iron_frame", BlockInit.RUSTY_BARRED_IRON_FRAME);
     public static final RegistryObject<Item> RUSTY_MESHED_IRON_FRAME = registerBlockItem("rusty_meshed_iron_frame", BlockInit.RUSTY_MESHED_IRON_FRAME);
-
-    public static final RegistryObject<Item> PUSH_DOOR = registerBlockItem("push_door", BlockInit.PUSH_DOOR);
 
 //    public static final RegistryObject<Item> TEST_BLOCK = registerBlockItem("test_block", BlockInit.TEST_BLOCK);
 //    public static final RegistryObject<Item> FIZZLER_FIELD = registerBlockItem("fizzler_field", BlockInit.FIZZLER_FIELD);

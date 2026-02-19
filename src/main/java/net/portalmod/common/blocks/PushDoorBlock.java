@@ -2,19 +2,25 @@ package net.portalmod.common.blocks;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoorBlock;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Random;
 
 public class PushDoorBlock extends DoorBlock {
@@ -70,5 +76,10 @@ public class PushDoorBlock extends DoorBlock {
             world.setBlock(blockPos, blockState, 10);
             this.playCloseSound(world, blockPos);
         }
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip("push_door", list);
     }
 }

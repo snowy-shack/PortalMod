@@ -2,19 +2,27 @@ package net.portalmod.common.sorted.gel.container;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.BooleanProperty;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 
 public class GelContainer extends BlockItem {
@@ -24,14 +32,6 @@ public class GelContainer extends BlockItem {
     public GelContainer(Block block, Properties properties, int color) {
         super(block, properties);
         this.color = color;
-    }
-
-    @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        ActionResult<ItemStack> original = super.use(world, player, hand);
-
-
-        return original;
     }
 
     @Override
@@ -117,5 +117,10 @@ public class GelContainer extends BlockItem {
     @Override
     public int getRGBDurabilityForDisplay(ItemStack stack) {
         return color == 0 ? super.getRGBDurabilityForDisplay(stack) : color;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip(this.getBlock().getRegistryName().getPath(), list);
     }
 }
