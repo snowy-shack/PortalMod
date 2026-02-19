@@ -250,8 +250,12 @@ public class PortalGun extends Item {
             portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up);
         }
 
-        if(portal == null)
+        if(portal == null) {
+            PortalPhotonParticle.createFailParticles(level, position, new Vec3(face), new Vec3(up), hue);
+            PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
+                    new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
             return;
+        }
 
         triggerPortalAdvancements(level, (ServerPlayerEntity)player, portal, ray.getLocation().subtract(from).length());
 

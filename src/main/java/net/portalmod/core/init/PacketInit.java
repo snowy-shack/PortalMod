@@ -18,6 +18,7 @@ import net.portalmod.common.sorted.portal.SPortalPairPacket;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
 import net.portalmod.common.sorted.portal.SPortalShotPacket;
+import net.portalmod.common.sorted.portalgun.SPortalGunFailShotPacket;
 import net.portalmod.common.sorted.radio.SRadioUpdatePacket;
 import net.portalmod.core.packet.AbstractPacket;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
@@ -46,6 +47,7 @@ public class PacketInit {
         register(new SForgetPortalPacket(),             NetworkDirection.PLAY_TO_CLIENT);
         register(new SPortalShotPacket(),               NetworkDirection.PLAY_TO_CLIENT);
         register(new SSetPlayerSkinPacket(),            NetworkDirection.PLAY_TO_CLIENT);
+        register(new SPortalGunFailShotPacket(),        NetworkDirection.PLAY_TO_CLIENT);
 
         register(new CFaithPlateUpdatedPacket(),        NetworkDirection.PLAY_TO_SERVER);
         register(new CFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_SERVER);
