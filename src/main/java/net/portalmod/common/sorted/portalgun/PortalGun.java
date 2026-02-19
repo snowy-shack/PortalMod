@@ -251,7 +251,6 @@ public class PortalGun extends Item {
         }
 
         if(portal == null) {
-            PortalPhotonParticle.createFailParticles(level, position, new Vec3(face), new Vec3(up), hue);
             PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                     new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
             return;
