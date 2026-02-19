@@ -1,10 +1,7 @@
 package net.portalmod.common.sorted.faithplate;
 
-import java.util.Random;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -33,6 +30,8 @@ import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
+
+import java.util.Random;
 
 public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate");
@@ -131,7 +130,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         double a = parabola.getA();
         double b = parabola.getB();
 
-        final float increment = .01f;
+        final float increment = .15f;
 
         for(float i = 0;; i += increment) {
             float x = (float)(i * parabola.getComponentX());
