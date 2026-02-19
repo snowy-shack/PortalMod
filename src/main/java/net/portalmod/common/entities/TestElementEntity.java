@@ -375,7 +375,11 @@ public abstract class TestElementEntity extends LivingEntity {
 
     @Override
     public void stopRiding() {
+        Entity vehicle = this.getVehicle();
+
         this.removeVehicle();
+        if (!(vehicle instanceof PlayerEntity)) return;
+
         this.boardingCooldown = 0;
 
         Vector3d momentum;
