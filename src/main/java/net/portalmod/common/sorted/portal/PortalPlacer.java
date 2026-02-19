@@ -34,7 +34,9 @@ public class PortalPlacer {
         BlockState shotBlockState = level.getBlockState(position.clone().add(new Vec3(face.getOpposite()).mul(0.001)).toBlockPos());
         Block shotBlock = shotBlockState.getBlock();
 
-        if(shotBlock instanceof PortalHelper) {
+        if(shotBlock instanceof PortalHelper && PortalHelper.isCooldown(gunUUID, end)) {
+            PortalHelper.updateLastUsed(gunUUID, end);
+
             position = ((PortalHelper)shotBlock).helpPortal(position, face, shotBlockState, level);
         }
 
