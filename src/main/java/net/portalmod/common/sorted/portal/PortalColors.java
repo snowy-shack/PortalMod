@@ -39,7 +39,11 @@ public class PortalColors {
         this.COLORS.put("yellow",     new Color(0xf1c734));
     }
 
+    public Color getColor(String color) {
+        return this.COLORS.get(color);
+    }
+
     public Color getColor(PortalEntity portal) {
-        return this.COLORS.get(portal.getColor());
+        return this.getColor(portal.getColor());
     }
 }

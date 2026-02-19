@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particles.BasicParticleType;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -22,6 +23,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
     private final float decay;
     private final float end;
     private final boolean smooth;
+    private final boolean useGravity;
 
     protected PortalPhotonParticle(ClientWorld level, double x, double y, double z, double xd, double yd, double zd, PortalPhotonParticleData data, IAnimatedSprite sprite) {
         super(level, x, y, z, xd, yd, zd);
@@ -32,13 +34,25 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         this.y0 = y;
         this.z0 = z;
 
-        this.x1 = xd;
-        this.y1 = yd;
-        this.z1 = zd;
+        this.useGravity = data.usesGravity();
 
-        this.xd = 0;
-        this.yd = 0;
-        this.zd = 0;
+        if(this.useGravity) {
+            this.x1 = 0;
+            this.y1 = 0;
+            this.z1 = 0;
+            this.xd = xd;
+            this.yd = yd;
+            this.zd = zd;
+            this.gravity = 0.08f;
+        } else {
+            this.x1 = xd;
+            this.y1 = yd;
+            this.z1 = zd;
+            this.xd = 0;
+            this.yd = 0;
+            this.zd = 0;
+            this.gravity = 0;
+        }
 
         this.speed = data.getSpeed();
         this.decay = data.getDecay();
@@ -47,7 +61,6 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         this.calculateAlpha();
 
         this.lifetime = 20;
-        this.gravity = 0;
 
         this.setSpriteFromAge(sprite);
         this.quadSize = 1/32f - (float)this.random.nextGaussian() * 0.005f;
@@ -59,9 +72,11 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
 
     @Override
     public void tick() {
-        super.tick();
+        this.xo = this.x;
+        this.yo = this.y;
+        this.zo = this.z;
 
-        if(this.portal != null && !this.portal.isAlive())
+        if(this.age++ >= this.lifetime || this.portal != null && !this.portal.isAlive())
             this.remove();
 
         this.calculateAlpha();
@@ -78,12 +93,26 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
     }
 
     private void calculatePos() {
-        double f = 1 - Math.exp(-this.age / this.speed) - this.end;
-        this.setPos(
-                MathHelper.lerp(f, this.x0, this.x1),
-                MathHelper.lerp(f, this.y0, this.y1),
-                MathHelper.lerp(f, this.z0, this.z1)
-        );
+        if(this.useGravity) {
+            this.yd -= 1.2 * this.gravity;
+            this.move(this.xd, this.yd, this.zd);
+
+            this.xd *= 0.85F;
+            this.yd *= 0.9F;
+            this.zd *= 0.85F;
+
+            if(this.onGround) {
+                this.yd *= -1;
+            }
+
+        } else {
+            double f = 1 - Math.exp(-this.age / this.speed) - this.end;
+            this.setPos(
+                    MathHelper.lerp(f, this.x0, this.x1),
+                    MathHelper.lerp(f, this.y0, this.y1),
+                    MathHelper.lerp(f, this.z0, this.z1)
+            );
+        }
     }
 
     @Override
@@ -163,6 +192,39 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         }
     }
 
+    public static void createFailParticles(World level, Vec3 position, Vec3 normal, Vec3 upVector, String hue) {
+        Random random = new Random();
+
+        for(int i = 0; i < 360; i += 10) {
+            float randomAngle = (random.nextFloat() - .5f) * 4;
+            float angle = (i + randomAngle) * (float)Math.PI / 180;
+
+            Color color = PortalColors.getInstance().getColor(hue);
+            Mat4 modelMatrix = Mat4.identity()
+                    .mul(new OrthonormalBasis(upVector.clone().cross(normal), upVector).getChangeOfBasisFromCanonicalMatrix());
+
+            if(color == null)
+                return;
+
+            float x0 = 0;
+            float y0 = 0;
+            float x1 = (float)Math.cos(angle);
+            float y1 = (float)Math.sin(angle);
+
+            Vec3 pos0 = new Vec3(x0, y0, 0).transform(modelMatrix).add(position);
+            Vec3 pos1 = new Vec3(x1, y1, .7).transform(modelMatrix);
+
+            float randomRadius = random.nextFloat() * 0.3f;
+            pos1.x *= 0.1 + randomRadius;
+            pos1.y *= 0.4 + randomRadius;
+            pos1.z *= 0.1 + randomRadius;
+
+            createParticle(level, null, random, pos0, pos1, color,
+                    random.nextFloat() * 2 + 4,
+                    random.nextFloat() * 18 + 15, false, true);
+        }
+    }
+
     private static void createRadialParticle(PortalEntity portal, Random random, float startRadius, float endRadius, float startAngle, float endAngle, float speed, float decay, boolean smooth, boolean linked) {
         Mat4 modelMatrix = portal.getSourceBasis().getChangeOfBasisFromCanonicalMatrix();
         Color color = PortalColors.getInstance().getColor(portal);
@@ -193,23 +255,24 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         Vec3 pos0 = new Vec3(x0, y0, outwards ? 0 : 0.1).transform(modelMatrix).add(portal.position());
         Vec3 pos1 = new Vec3(x1, y1, outwards ? 0.1 : 0).transform(modelMatrix).add(portal.position());
 
-        createParticle(portal, random, pos0, pos1, color, speed, decay, smooth, linked);
+        createParticle(portal.level, linked ? portal : null, random, pos0, pos1, color, speed, decay, smooth, false);
     }
 
-    private static void createParticle(PortalEntity portal, Random random, Vec3 pos0, Vec3 pos1, Color color, float speed, float decay, boolean smooth, boolean linked) {
+    private static void createParticle(World level, PortalEntity portal, Random random, Vec3 pos0, Vec3 pos1, Color color, float speed, float decay, boolean smooth, boolean useGravity) {
         float randomR = random.nextFloat() * 0.1f;
         float randomG = random.nextFloat() * 0.1f;
         float randomB = random.nextFloat() * 0.1f;
 
-        portal.level.addParticle(
+        level.addParticle(
                 new PortalPhotonParticleData(
-                        linked ? portal : null,
+                        portal,
                         MathHelper.clamp(color.getRed() / 255f   + randomR, 0, 1),
                         MathHelper.clamp(color.getGreen() / 255f + randomG, 0, 1),
                         MathHelper.clamp(color.getBlue() / 255f  + randomB, 0, 1),
                         speed,
                         decay,
-                        smooth
+                        smooth,
+                        useGravity
                 ),
                 pos0.x, pos0.y, pos0.z,
                 pos1.x, pos1.y, pos1.z
@@ -261,8 +324,9 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         private final float speed;
         private final float decay;
         private final boolean smooth;
+        private final boolean useGravity;
 
-        public PortalPhotonParticleData(PortalEntity portal, float r, float g, float b, float speed, float decay, boolean smooth) {
+        public PortalPhotonParticleData(PortalEntity portal, float r, float g, float b, float speed, float decay, boolean smooth, boolean useGravity) {
             super(false);
             this.portal = portal;
             this.r = r;
@@ -271,6 +335,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
             this.speed = speed;
             this.decay = decay;
             this.smooth = smooth;
+            this.useGravity = useGravity;
         }
 
         @Override
@@ -304,6 +369,10 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
 
         public boolean isSmooth() {
             return this.smooth;
+        }
+
+        public boolean usesGravity() {
+            return this.useGravity;
         }
     }
 }
