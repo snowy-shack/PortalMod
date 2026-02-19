@@ -13,6 +13,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.sorted.panel.PortalHelper;
+import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.*;
@@ -33,6 +34,9 @@ public class PortalPlacer {
         Mat4 toAbsolute = new OrthonormalBasis(right, up).getChangeOfBasisFromCanonicalMatrix();
         BlockState shotBlockState = level.getBlockState(position.clone().add(new Vec3(face.getOpposite()).mul(0.001)).toBlockPos());
         Block shotBlock = shotBlockState.getBlock();
+
+        if(!shotBlock.is(BlockTagInit.PORTALABLE))
+            return null;
 
         if(shotBlock instanceof PortalHelper && PortalHelper.isCooldown(gunUUID, end)) {
             PortalHelper.updateLastUsed(gunUUID, end);
