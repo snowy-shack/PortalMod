@@ -72,7 +72,6 @@ public class CommonEvents {
                 .getOrDefault(((ServerWorld)event.getWorld()).dimension(), new HashMap<>())
                 .getOrDefault(event.getChunk().getPos(), new ArrayList<>())
                 .forEach(portal -> {
-                    portal.removed = false;
                     event.getWorld().addFreshEntity(portal);
                 });
     }

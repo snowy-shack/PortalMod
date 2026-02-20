@@ -59,7 +59,6 @@ public class PortalManager extends WorldSavedData {
 
                 PortalEntity blue = new PortalEntity(level);
                 blue.load(primary);
-                blue.inChunk = true;
                 portalPair.set(PortalEnd.PRIMARY, blue);
 
                 ChunkPos chunkPos = new ChunkPos(MathHelper.floor(blue.getX()) >> 4, MathHelper.floor(blue.getZ()) >> 4);
@@ -77,7 +76,6 @@ public class PortalManager extends WorldSavedData {
 
                 PortalEntity orange = new PortalEntity(level);
                 orange.load(secondary);
-                orange.inChunk = true;
                 portalPair.set(PortalEnd.SECONDARY, orange);
 
                 ChunkPos chunkPos = new ChunkPos(MathHelper.floor(orange.getX()) >> 4, MathHelper.floor(orange.getZ()) >> 4);
