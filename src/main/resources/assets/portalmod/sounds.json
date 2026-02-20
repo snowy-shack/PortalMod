@@ -64,10 +64,6 @@
         ],
       "subtitle": "subtitles.item.bucket.fill"
     },
-    "portal.teleport": {
-        "sounds": [ "portalmod:portalmod/teleport" ],
-        "subtitle": "subtitles.portal.teleport"
-    },
 
 
 
@@ -193,6 +189,9 @@
     "entity.portal.open": {
         "sounds": [ "portalmod:entity/portal/open" ],
         "subtitle": "subtitles.entity.portal.open" },
+    "entity.portal.teleport": {
+        "sounds": [ "portalmod:entity/portal/teleport" ],
+        "subtitle": "subtitles.entity.portal.teleports" },
     "item.portalgun.fire_primary": {
         "sounds": [ "portalmod:item/portalgun/fire_primary" ],
         "subtitle": "subtitles.item.portalgun.fire"

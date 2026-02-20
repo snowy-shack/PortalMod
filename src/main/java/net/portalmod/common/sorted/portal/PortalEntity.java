@@ -31,10 +31,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PMGlobals;
-import net.portalmod.core.init.BlockTagInit;
-import net.portalmod.core.init.EntityInit;
-import net.portalmod.core.init.ItemInit;
-import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.math.AABBUtil;
@@ -467,8 +464,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         ((ITeleportable)entity).setLastUsedPortal(portal.getId());
         ((ITeleportable2)entity).setJustUsedPortal(targetPortal.getId());
 
+        // todo do these only once and not recursively
         if(entity instanceof PortalHandler) {
             ((PortalHandler)entity).onTeleport(portal, targetPortal);
+        }
+
+        if(entity instanceof ClientPlayerEntity) {
+            float pitch = 0.9f + (float)entity.getDeltaMovement().length() / 4 * 0.4f;
+            level.playSound((PlayerEntity)entity, targetPortal.position().x, targetPortal.position().y, targetPortal.position().z,
+                    SoundInit.PORTAL_TELEPORT.get(), SoundCategory.PLAYERS, 0.5f, pitch);
         }
 
         if(justExited == null && entity instanceof PlayerEntity && entity.level.isClientSide)
