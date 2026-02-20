@@ -5,7 +5,7 @@
         ],
         "subtitle": "subtitles.block.radio.loop"
     },
-    "block.radio.dinosaur": {
+    "block.radio.transmission": {
         "sounds": [
             "portalmod:block/radio/dinosaur1",
             "portalmod:block/radio/dinosaur2",
@@ -95,16 +95,16 @@
         "sounds": [ "portalmod:block/push_door/close" ],
         "subtitle": "subtitles.block.push_door.close" },
 
+    "block.button.activate": {
+        "sounds": [ "portalmod:block/super_button/activate" ],
+        "subtitle": "subtitles.block.button.activate" },
+    "block.button.deactivate": {
+        "sounds": [ "portalmod:block/super_button/deactivate" ],
+        "subtitle": "subtitles.block.button.deactivate" },
     "block.super_button.press": {
         "sounds": [ "portalmod:block/super_button/press" ]},
     "block.super_button.release": {
         "sounds": [ "portalmod:block/super_button/release" ]},
-    "block.super_button.activate": {
-        "sounds": [ "portalmod:block/super_button/activate" ],
-        "subtitle": "subtitles.block.super_button.activate" },
-    "block.super_button.deactivate": {
-        "sounds": [ "portalmod:block/super_button/deactivate" ],
-        "subtitle": "subtitles.block.super_button.deactivate" },
 
     "block.fizzler_emitter.activate": {
         "sounds": [ "portalmod:block/fizzler_emitter/activate" ],

@@ -14,7 +14,7 @@ public class SoundInit {
 
     // BLOCKS
     public static final RegistryObject<SoundEvent> RADIO_LOOP = register("block.radio.loop");
-    public static final RegistryObject<SoundEvent> RADIO_DINOSAUR1 = register("block.radio.dinosaur");
+    public static final RegistryObject<SoundEvent> RADIO_DINOSAUR1 = register("block.radio.transmission");
 
     public static final RegistryObject<SoundEvent> GEL_BREAK = register("block.gel.break");
     public static final RegistryObject<SoundEvent> GEL_COLLECT = register("block.gel.collect");
@@ -34,8 +34,8 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CUBE_DROPPER_OPEN = register("block.cube_dropper.open");
     public static final RegistryObject<SoundEvent> CUBE_DROPPER_CLOSE = register("block.cube_dropper.close");
 
-    public static final RegistryObject<SoundEvent> BUTTON_ACTIVATE = register("block.super_button.activate");
-    public static final RegistryObject<SoundEvent> BUTTON_DEACTIVATE = register("block.super_button.deactivate");
+    public static final RegistryObject<SoundEvent> BUTTON_ACTIVATE = register("block.button.activate");
+    public static final RegistryObject<SoundEvent> BUTTON_DEACTIVATE = register("block.button.deactivate");
     public static final RegistryObject<SoundEvent> STANDING_BUTTON_PRESS = register("block.standing_button.press");
     public static final RegistryObject<SoundEvent> STANDING_BUTTON_RELEASE = register("block.standing_button.release");
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_PRESS = register("block.super_button.press");
