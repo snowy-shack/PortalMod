@@ -120,23 +120,27 @@
   "tooltip.portalmod.cube_dropper_3": "- §6Wrench§7: Removes the current §aCube§7",
   "tooltip.portalmod.cube_dropper_4": "- Activated by adjacent §bAntline Indicators§7",
 
-  "tooltip.portalmod.standing_button_1": "Can be pressed by Players",
+  "tooltip.portalmod.standing_button_1": "Can be pressed by players",
   "tooltip.portalmod.standing_button_2": "- §6Wrench§7: Cycles through Button Modes:",
   "tooltip.portalmod.standing_button_3": "  - Normal",
   "tooltip.portalmod.standing_button_4": "  - Persistent",
   "tooltip.portalmod.standing_button_5": "  - Toggle",
   "tooltip.portalmod.standing_button_6": "- Activates §bAntlines§7",
 
-  "tooltip.portalmod.super_button_1": "Can be pressed by heavy Entities",
+  "tooltip.portalmod.super_button_1": "Can be pressed by heavy entities",
   "tooltip.portalmod.super_button_2": "- §6Wrench§7: Cycles through Button Modes:",
   "tooltip.portalmod.super_button_3": "  - Normal",
   "tooltip.portalmod.super_button_4": "  - Persistent",
   "tooltip.portalmod.super_button_5": "  - Toggle",
   "tooltip.portalmod.super_button_6": "- Activates §bAntlines§7 when pressed",
 
+  "tooltip.portalmod.antline_1": "Connects §aButtons§7 to §bAntline Indicators§7",
+  "tooltip.portalmod.antline_2": "- Cannot power §aTesting Elements§7 without §bAntline Indicator§7",
+  "tooltip.portalmod.antline_3": "- Hold crouch to create branching connections",
+
   "tooltip.portalmod.antline_indicator_1": "Can activate adjacent §aTesting Elements§7 when activated",
   "tooltip.portalmod.antline_indicator_2": "- §6Wrench§7: Reverses the output",
-  "tooltip.portalmod.antline_indicator_3": "- Combine with other §bAntline Indicators§7 to have multiple required inputs",
+  "tooltip.portalmod.antline_indicator_3": "- Combine with other §bAntline Indicators§7 to have multiple inputs required",
 
   "tooltip.portalmod.antline_timer_1": "Can activate adjacent §aTesting Elements§7 when activated",
   "tooltip.portalmod.antline_timer_2": "- Will stay active for a certain amount of time",
@@ -150,10 +154,6 @@
   "tooltip.portalmod.antline_encoder_1": "Converts §cRedstone power§7 to §bAntline power§7",
   "tooltip.portalmod.antline_encoder_2": "- Can be used in combination with §bAntline Decoders§7 to power §aTesting Elements§7 without a direct connection",
   "tooltip.portalmod.antline_encoder_3": "- §6Wrench§7: Changes the appearance",
-
-  "tooltip.portalmod.antline_1": "Connects §aButtons§7 with §bAntline Indicators§7",
-  "tooltip.portalmod.antline_2": "- Cannot power §aTesting Elements§7 without §bAntline Indicator§7",
-  "tooltip.portalmod.antline_3": "- Hold crouch to create branching connections",
 
   "tooltip.portalmod.chamber_lights_1": "Lights up test chambers",
   "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by §cRedstone§7",
@@ -187,14 +187,14 @@
   "tooltip.portalmod.bullets_1": "Provides a §aTurret§7 with ammo",
   "tooltip.portalmod.bullets_2": "- Allows a §aTurret§7 to shoot 20 times",
   "tooltip.portalmod.bullets_3": "- Hold crouch to add a whole stack",
-  "tooltip.portalmod.bullets_4": "- Click with a §6Wrench§7 to take all Bullets from a §aTurret§7",
+  "tooltip.portalmod.bullets_4": "- Click with a §6Wrench§7 to take all §aBullets§7 from a §aTurret§7",
 
   "tooltip.portalmod.portalgun_1": "Shoots §9Portals§7",
   "tooltip.portalmod.portalgun_2": "- Can pick up §aCubes§7 and §aTurrets§7",
-  "tooltip.portalmod.portalgun_3": "- Crafting: ",
+  "tooltip.portalmod.portalgun_3": "- Crafting:",
   "tooltip.portalmod.portalgun_4": "  - §aDye§7 above the §9Portal Gun§7 to change accent color",
   "tooltip.portalmod.portalgun_5": "  - §aDyes§7 to the left or right to change §9Portal§7 colors",
-  "tooltip.portalmod.portalgun_6": "  - §aChain§7 below the §9Portal Gun§7 to make it single-Portaled",
+  "tooltip.portalmod.portalgun_6": "  - §aChain§7 below the §9Portal Gun§7 to make it single-portaled",
 
   "tooltip.portalmod.portalgun.colors":  "§7Portal colors:",
   "tooltip.portalmod.colors.black":      "§0Black§r",
@@ -215,22 +215,22 @@
   "tooltip.portalmod.colors.white":      "§fWhite§r",
 
   "tooltip.portalmod.platform_1": "Connects to Platform Beams",
-  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the platform — useful for creating stairs",
-  "tooltip.portalmod.platform_3": "  - Power with §cRedstone§7 to force the upper variant to appear",
-  "tooltip.portalmod.platform_4": "- Click with a §6Wrench§7 or Platform Beam to manually add a beam to the platform",
+  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the Platform — useful for creating stairs",
+  "tooltip.portalmod.platform_3": "  - Power with §cRedstone§7 to force the upper variant",
+  "tooltip.portalmod.platform_4": "- Click with a §6Wrench§7 or Platform Beam to manually add a beam to the Platform",
 
   "tooltip.portalmod.platform_beam_1": "Connects to Platforms",
-  "tooltip.portalmod.platform_beam_2": "- When pulled by a piston, all connected Beam blocks get pulled along",
+  "tooltip.portalmod.platform_beam_2": "- When pulled by a piston, connected blocks get pulled along",
 
   "tooltip.portalmod.goo_bucket_1": "Deadly liquid",
   "tooltip.portalmod.goo_bucket_2": "- Does not damage you if you're holding a §6Wrench§7",
   "tooltip.portalmod.goo_bucket_3": "- Breaks unfortunate §aCubes§7",
 
-  "tooltip.portalmod.repulsion_gel_1": "Holds 16 repulsion gel",
+  "tooltip.portalmod.repulsion_gel_1": "Holds 16 units of repulsion gel",
   "tooltip.portalmod.repulsion_gel_2": "- Bounces you right back",
   "tooltip.portalmod.repulsion_gel_3": "- Automatically bounces you when moving at high speeds",
 
-  "tooltip.portalmod.propulsion_gel_1": "Holds 16 propulsion gel",
+  "tooltip.portalmod.propulsion_gel_1": "Holds 16 units of propulsion gel",
   "tooltip.portalmod.propulsion_gel_2": "- Increases your movement speed",
 
   "actionbar.portalmod.button_mode.normal":      "Set Button Mode to Normal",
@@ -269,7 +269,7 @@
   "subtitles.block.gel.collect":                  "Gel collected",
   "subtitles.block.gel.break":                    "Gel broken",
   "subtitles.block.gel.place":                    "Gel placed",
-  "subtitles.block.gel.step":                     "Gel got stepped on",
+  "subtitles.block.gel.step":                     "Gel gets stepped on",
   "subtitles.block.forest_cake.eat_candle":       "Eating candle",
 
   "subtitles.entity.turret.fire":        "Turret fires",
@@ -344,7 +344,7 @@
   "advancements.portalmod.faith_plate_elytra.title":        "We Have Liftoff",
   "advancements.portalmod.faith_plate_elytra.description":  "Launch yourself with a Faith Plate for Elytra flight",
   "advancements.portalmod.bounce_on_gel.title":             "Leap of Faith",
-  "advancements.portalmod.bounce_on_gel.description":       "Bounce on repulsion gel from a height of over 100m",
+  "advancements.portalmod.bounce_on_gel.description":       "Bounce on Repulsion Gel from a height of over 100 blocks",
   "advancements.portalmod.eat_forest_cake.title":           "Gullible",
   "advancements.portalmod.eat_forest_cake.description":     "Fall for the Cake",
   
