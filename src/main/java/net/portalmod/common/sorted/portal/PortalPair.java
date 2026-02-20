@@ -36,6 +36,10 @@ public class PortalPair {
     public boolean isFull() {
         return this.blue != null && this.orange != null;
     }
+
+    public boolean areInSameDimension(PortalEnd end, PortalEntity portal) {
+        return !this.has(end) || this.get(end).level.dimension() == portal.level.dimension();
+    }
     
     public void set(PortalEnd end, PortalEntity portal) {
         if(end == PortalEnd.PRIMARY)
