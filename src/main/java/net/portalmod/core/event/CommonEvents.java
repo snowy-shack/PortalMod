@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
+import net.portalmod.common.commands.PortalCommand;
 import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PartialPortalPair;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -28,6 +30,11 @@ import java.util.HashMap;
 @Mod.EventBusSubscriber(modid = PortalMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CommonEvents {
     // todo tidy up all event classes
+
+    @SubscribeEvent
+    public static void onRegisterCommands(final RegisterCommandsEvent event) {
+        PortalCommand.register(event.getDispatcher());
+    }
 
     @SubscribeEvent
     public static void onServerTick(final TickEvent.ServerTickEvent event) {

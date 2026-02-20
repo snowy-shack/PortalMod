@@ -199,7 +199,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
             float randomAngle = (random.nextFloat() - .5f) * 4;
             float angle = (i + randomAngle) * (float)Math.PI / 180;
 
-            Color color = PortalColors.getInstance().getColor(hue);
+            Color color = PortalColors.getColor(hue);
             Mat4 modelMatrix = Mat4.identity()
                     .mul(new OrthonormalBasis(upVector.clone().cross(normal), upVector).getChangeOfBasisFromCanonicalMatrix());
 
@@ -227,7 +227,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
 
     private static void createRadialParticle(PortalEntity portal, Random random, float startRadius, float endRadius, float startAngle, float endAngle, float speed, float decay, boolean smooth, boolean linked) {
         Mat4 modelMatrix = portal.getSourceBasis().getChangeOfBasisFromCanonicalMatrix();
-        Color color = PortalColors.getInstance().getColor(portal);
+        Color color = PortalColors.getColor(portal);
 
         if(portal.level == null || color == null)
             return;

@@ -347,5 +347,12 @@
   "stat.portalmod.portals_shot": "Portals Shot",
 
   "attribute.name.generic.portalmod.button_reach": "Button Press Reach Distance",
-  "attribute.name.generic.portalmod.grab_reach": "Entity Grabbing Reach Distance"
+  "attribute.name.generic.portalmod.grab_reach": "Entity Grabbing Reach Distance",
+
+  "commands.portalmod.portal.open.success":                "Portal opened",
+  "commands.portalmod.portal.open.failed":                 "Failed to open portal",
+  "commands.portalmod.portal.close.single.success":        "Portal closed",
+  "commands.portalmod.portal.close.double.success":        "Portals closed",
+  "commands.portalmod.portal.close.single.failed.null":    "No such portal",
+  "commands.portalmod.portal.close.double.failed.null":    "No such portals"
 }
