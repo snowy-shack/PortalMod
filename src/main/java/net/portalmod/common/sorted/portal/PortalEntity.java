@@ -108,6 +108,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
+        this.recalculateBoundingBox();
+        this.removed = false;
         this.age = 0;
     }
 
@@ -979,14 +981,14 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             return false;
 
         boolean skipFrontBlock = new Vec3(this.position())
-                .add(new Vec3(this.getNormal()).mul(1/16f - .001))
-                .to3i().equals(new Vec3(this.position()).sub(new Vec3(this.getNormal()).mul(.001)).to3i());
+                .add(new Vec3(this.getNormal()).mul(1/16f - .002))
+                .to3i().equals(new Vec3(this.position()).sub(new Vec3(this.getNormal()).mul(.002)).to3i());
 
         return AABBUtil.checkBlocksWithin(
                 this.level,
                 this.getBoundingBox()
                         .move(new Vec3(this.direction.getNormal()).mul(-1/16f).to3d())
-                        .deflate(.001),
+                        .deflate(.002),
                 (pos, state) -> PortalEntity.canSurviveOn(this.level, pos, this.direction, skipFrontBlock)
         );
     }
