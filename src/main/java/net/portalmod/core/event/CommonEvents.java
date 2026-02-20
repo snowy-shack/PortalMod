@@ -38,8 +38,10 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onServerTick(final TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.START)
+        if(event.phase == TickEvent.Phase.START) {
             SkinManager.getServerInstance().tick();
+            PortalManager.getInstance().tick();
+        }
     }
 
     @SubscribeEvent

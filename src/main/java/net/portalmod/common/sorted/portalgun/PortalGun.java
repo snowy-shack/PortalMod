@@ -470,11 +470,11 @@ public class PortalGun extends Item {
 
         if (pair.has(PortalEnd.PRIMARY)) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
-            primary.scheduleRemoval();
+            PortalManager.getInstance().scheduleRemoval(primary);
         }
         if (pair.has(PortalEnd.SECONDARY)) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
-            secondary.scheduleRemoval();
+            PortalManager.getInstance().scheduleRemoval(secondary);
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);
