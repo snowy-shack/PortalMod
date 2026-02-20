@@ -12,17 +12,35 @@ public enum PortalEnd implements IStringSerializable {
     PortalEnd(String name) {
         this.name = name;
     }
+
     public String toString() {
         return this.getSerializedName();
     }
+
     public String getSerializedName() {
         return name;
     }
+
     public PortalEnd other() {
         if(this == PRIMARY)
             return SECONDARY;
         if(this == SECONDARY)
             return PRIMARY;
         return NONE;
+    }
+
+    public enum Safe {
+        PRIMARY(PortalEnd.PRIMARY),
+        SECONDARY(PortalEnd.SECONDARY);
+
+        private final PortalEnd original;
+
+        Safe(PortalEnd original) {
+            this.original = original;
+        }
+
+        public PortalEnd getOriginal() {
+            return this.original;
+        }
     }
 }
