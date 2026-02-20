@@ -22,6 +22,7 @@ public class PortalManager extends WorldSavedData {
     public static final String PATH = PortalMod.MODID + "_portals";
     private final Map<UUID, PortalPair> PORTAL_MAP = new HashMap<>();
     private final HashMap<RegistryKey<World>, HashMap<ChunkPos, List<PortalEntity>>> PORTALS_PER_CHUNK = new HashMap<>();
+    private final Deque<PortalEntity> pendingRemovals = new ArrayDeque<>();
     public boolean unloadingChunk = false;
 
     public PortalManager(String name) {
@@ -36,6 +37,17 @@ public class PortalManager extends WorldSavedData {
         if(instance == null)
             instance = new PortalManager();
         return instance;
+    }
+
+    public void tick() {
+        for(PortalEntity portal : this.pendingRemovals) {
+            ((ServerWorld)portal.level).removeEntity(portal, false);
+        }
+        this.pendingRemovals.clear();
+    }
+
+    public void scheduleRemoval(PortalEntity portal) {
+        this.pendingRemovals.add(portal);
     }
 
     @Override
