@@ -123,6 +123,17 @@ public class PortalManager extends WorldSavedData {
 
     public void put(UUID gunUUID, PortalEnd end, PortalEntity portal) {
         PortalPair pair = PORTAL_MAP.getOrDefault(gunUUID, new PortalPair());
+
+        if(!pair.areInSameDimension(PortalEnd.PRIMARY, portal)) {
+            PortalEntity primary = pair.get(PortalEnd.PRIMARY);
+            ((ServerWorld)primary.level).removeEntity(primary, false);
+        }
+
+        if(!pair.areInSameDimension(PortalEnd.SECONDARY, portal)) {
+            PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
+            ((ServerWorld)secondary.level).removeEntity(secondary, false);
+        }
+
         pair.computeIfPresent(end, PortalEntity::onReplaced);
         pair.set(end, portal);
         portal.inChunk = true;
