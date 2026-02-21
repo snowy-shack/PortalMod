@@ -32,10 +32,13 @@ public class PortalPlacer {
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
         Mat4 toAbsolute = new OrthonormalBasis(right, up).getChangeOfBasisFromCanonicalMatrix();
-        BlockState shotBlockState = level.getBlockState(position.clone().add(new Vec3(face.getOpposite()).mul(0.001)).toBlockPos());
+        BlockPos shotBlockPos = position.clone().add(new Vec3(face.getOpposite()).mul(0.001)).toBlockPos();
+        BlockState shotBlockState = level.getBlockState(shotBlockPos);
+        BlockState behindBlockState = level.getBlockState(shotBlockPos.relative(face.getOpposite()));
         Block shotBlock = shotBlockState.getBlock();
+        Block behindBlock = behindBlockState.getBlock();
 
-        if(!shotBlock.is(BlockTagInit.PORTALABLE))
+        if(!(shotBlock.is(BlockTagInit.PORTALABLE) || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && behindBlock.is(BlockTagInit.PORTALABLE)))
             return null;
 
         if(shotBlock instanceof PortalHelper && PortalHelper.isCooldown(gunUUID, end)) {

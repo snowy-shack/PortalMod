@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PMGlobals;
+import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -1002,6 +1003,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
         boolean behindPortalable = behindBlock.is(BlockTagInit.PORTALABLE);
         boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING); // TODO - multiple sides definitions
+
+        if(frontBlock.getBlock() instanceof AbstractGelBlock) {
+            frontNonBlocking = !frontBlock.getValue(AbstractGelBlock.STATES.get(normal.getOpposite()));
+        }
 
         return (portalable || (inheriting && behindPortalable)) && (skipFrontBlock || frontNonBlocking);
     }
