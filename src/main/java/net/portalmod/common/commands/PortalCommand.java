@@ -11,6 +11,7 @@ import net.minecraft.command.Commands;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.command.arguments.UUIDArgument;
 import net.minecraft.command.arguments.Vec3Argument;
+import net.minecraft.state.properties.AttachFace;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -32,16 +33,16 @@ public class PortalCommand {
                 .then(Commands.argument("end", LowercaseEnumArgument.enumArgument(PortalEnd.Safe.class))
                 .then(Commands.argument("color", LowercaseEnumArgument.enumArgument(PortalColors.class))
                 .then(Commands.argument("pos", Vec3Argument.vec3())
-                .then(Commands.argument("normal", LowercaseEnumArgument.enumArgument(Direction.class))
-                .then(Commands.argument("up", LowercaseEnumArgument.enumArgument(Direction.class))
+                .then(Commands.argument("face", LowercaseEnumArgument.enumArgument(AttachFace.class))
+                .then(Commands.argument("direction", LowercaseEnumArgument.enumArgument(Direction.class))
                 .executes(command -> openPortal(
                         command.getSource(),
                         UUIDArgument.getUuid(command, "uuid"),
                         command.getArgument("end", PortalEnd.Safe.class).getOriginal(),
                         command.getArgument("color", PortalColors.class),
                         Vec3Argument.getVec3(command, "pos"),
-                        command.getArgument("normal", Direction.class),
-                        command.getArgument("up", Direction.class)
+                        command.getArgument("face", AttachFace.class),
+                        command.getArgument("direction", Direction.class)
                 ))))))))
             )
             .then(Commands.literal("close")
@@ -71,8 +72,18 @@ public class PortalCommand {
         return ISuggestionProvider.suggest(uuids.stream().map(UUID::toString), builder);
     }
 
-    private static int openPortal(CommandSource source, UUID uuid, PortalEnd end, PortalColors color, Vector3d position, Direction normal, Direction up) throws CommandSyntaxException {
-        PortalEntity result = PortalPlacer.placePortal(source.getLevel(), end, color.name().toLowerCase(), uuid, new Vec3(position), normal, up);
+    private static int openPortal(CommandSource source, UUID uuid, PortalEnd end, PortalColors color, Vector3d position, AttachFace face, Direction direction) throws CommandSyntaxException {
+        boolean wall = face == AttachFace.WALL;
+
+        PortalEntity result = PortalPlacer.placePortal(
+                source.getLevel(),
+                end,
+                color.name().toLowerCase(),
+                uuid,
+                new Vec3(position),
+                wall ? direction : face == AttachFace.FLOOR ? Direction.UP : Direction.DOWN,
+                wall ? Direction.UP : direction
+        );
 
         if(result == null) {
             throw new SimpleCommandExceptionType(getText("open.failed")).create();
