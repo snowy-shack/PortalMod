@@ -145,6 +145,11 @@ public class AbstractGelBlock extends BreakableBlock {
     }
 
     @Override
+    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+        return this.getShape(state, level, pos, context);
+    }
+
+    @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         VoxelShape shape = VoxelShapes.empty();
         for(Direction facing : Direction.values())
