@@ -13,6 +13,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.sorted.panel.PortalHelper;
+import net.portalmod.common.sorted.portalgun.PortalGunClient;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
@@ -41,9 +42,8 @@ public class PortalPlacer {
         if(!(shotBlock.is(BlockTagInit.PORTALABLE) || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && behindBlock.is(BlockTagInit.PORTALABLE)))
             return null;
 
-        if(shotBlock instanceof PortalHelper && PortalHelper.isCooldown(gunUUID, end)) {
-            PortalHelper.updateLastUsed(gunUUID, end);
-
+        if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, level)) {
+            PortalGunClient.getInstance().setHelped(gunUUID, end, shotBlockPos, face);
             position = ((PortalHelper)shotBlock).helpPortal(position, face, shotBlockState, level);
         }
 
