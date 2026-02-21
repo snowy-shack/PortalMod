@@ -18,7 +18,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
@@ -340,7 +339,7 @@ public class ClientEvents {
 //            ChunkViewer.getInstance().setVisible(true);
 //        }
 
-        PortalGunClient.tick();
+        PortalGunClient.getInstance().tick();
         handleInteractKey();
     }
 
@@ -443,7 +442,7 @@ public class ClientEvents {
 
         if(mc.overlay == null && mc.screen == null) {
             if(player.getMainHandItem().getItem() instanceof PortalGun) {
-                boolean handled = PortalGunClient.handleMouseButtons(event.getButton(), event.getAction());
+                boolean handled = PortalGunClient.getInstance().handleMouseButtons(event.getButton(), event.getAction());
 
                 if(handled) {
                     event.setCanceled(true);
