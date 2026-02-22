@@ -10,11 +10,10 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
 import net.portalmod.core.init.SoundInit;
-import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.util.ModUtil;
 
 import static net.portalmod.common.sorted.faithplate.FaithPlateParabola.GRAVITY;
@@ -143,8 +142,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             // calculations. See https://www.geogebra.org/calculator/qkdz2b9x.
 
             // If air friction is turned off, use a different bounce speed (#83)
-            if (entity instanceof IFaithPlateLaunchable) {
-                boolean launched = ((IFaithPlateLaunchable) entity).isLaunched();
+            if (entity instanceof Flingable) {
+                boolean launched = ((Flingable) entity).isFlinging();
                 if (launched) velocity = (float) Math.sqrt(2 * GRAVITY * x);
             }
 

@@ -3,7 +3,7 @@ package net.portalmod.core.injectors;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Effects;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.gel.PropulsionGelBlock;
 import net.portalmod.common.sorted.gel.RepulsionGelBlock;
@@ -12,7 +12,7 @@ public class LivingEntityInjector {
     public static void onPreTick(LivingEntity entity) {
         RepulsionGelBlock.onPreTick(entity);
         PropulsionGelBlock.onPreTick(entity);
-        if (effectsShouldBeReset(entity, true) && entity.getDeltaMovement().y < 0) ((IFaithPlateLaunchable) entity).setLaunched(false);
+        if (effectsShouldBeReset(entity, true) && entity.getDeltaMovement().y < 0) ((Flingable) entity).setFlinging(false);
 
         if (effectsShouldBeReset(entity, false)) {
             ((IGelAffected) entity).setAffectedBySpeedGel(false);

@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PMGlobals;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
@@ -352,9 +352,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         Vector3d dm = entity.getDeltaMovement();
 
-        if(entity instanceof IFaithPlateLaunchable
+        if(entity instanceof Flingable
                 && portal.getDirection().getAxis().isVertical() && targetPortal.getDirection().getAxis().isHorizontal()) {
-            ((IFaithPlateLaunchable)entity).setLaunched(true);
+            ((Flingable)entity).setFlinging(true);
         }
 
         if(entity instanceof IDragCancelable

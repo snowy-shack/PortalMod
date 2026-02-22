@@ -60,7 +60,7 @@ import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.portalgun.*;
@@ -150,7 +150,7 @@ public class ClientEvents {
         
         if(event.phase == Phase.START)
             if(player.abilities.flying)
-                ((IFaithPlateLaunchable)player).setLaunched(false);
+                ((Flingable)player).setFlinging(false);
         
         if(event.phase == Phase.END)
             if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get())
