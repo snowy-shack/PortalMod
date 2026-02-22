@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.cube.Cube;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
 import net.portalmod.common.sorted.portal.PortalHandler;
 import net.portalmod.common.sorted.portal.PortalEntity;
@@ -170,7 +170,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     private void pmGrantFaithPlateElytraAdvancement(CallbackInfo info) {
         // todo readd launched reset
         if(!this.level.isClientSide) {
-            if(((IFaithPlateLaunchable)this).isLaunched() && ((PlayerEntity)(Object)this).getDeltaMovement().length() > .7) {
+            if(((Flingable)this).isFlinging() && ((PlayerEntity)(Object)this).getDeltaMovement().length() > .7) {
                 CriteriaTriggerInit.FAITH_PLATE_ELYTRA.get().trigger((ServerPlayerEntity)(Object)this);
             }
         }
