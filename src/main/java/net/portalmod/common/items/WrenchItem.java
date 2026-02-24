@@ -38,6 +38,10 @@ public class WrenchItem extends Item {
         world.playSound(null, location.x, location.y, location.z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
+    public static void playFailSound(World world, Vector3d location) {
+        world.playSound(null, location.x, location.y, location.z, SoundInit.WRENCH_FAIL.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    }
+
     public static boolean holdingWrench(Entity entity) {
         return StreamSupport.stream(entity.getHandSlots().spliterator(), false).anyMatch(itemStack -> itemStack.getItem() instanceof WrenchItem);
     }

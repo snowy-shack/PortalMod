@@ -221,5 +221,11 @@
             "portalmod:item/wrench/use3"
         ],
         "subtitle": "subtitles.item.wrench.use"
+    },
+    "item.wrench.fail": {
+        "sounds": [
+            "portalmod:item/wrench/fail"
+        ],
+        "subtitle": "subtitles.item.wrench.fail"
     }
 }
