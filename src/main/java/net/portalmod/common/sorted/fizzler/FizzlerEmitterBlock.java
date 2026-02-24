@@ -19,6 +19,7 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -149,6 +150,10 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
+        VoxelShape voxelshape = getFieldShape(state);
+        VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
+        VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
+
 //        if (entity instanceof TestElementEntity) {
 //            VoxelShape voxelshape = this.getFieldShape(state);
 //            VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
@@ -162,12 +167,14 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
             return;
         }
 
-        if (entity instanceof PlayerEntity) {
-            PortalGun.fizzleGun(level, (PlayerEntity) entity);
-        }
+        if(VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
+            if (entity instanceof PlayerEntity) {
+                PortalGun.fizzleGun(level, (PlayerEntity) entity);
+            }
 
-        if (entity instanceof ItemEntity && ((ItemEntity) entity).getItem().getItem() instanceof PortalGun) {
-            PortalGun.fizzleGunItem(((ItemEntity) entity).getItem());
+            if (entity instanceof ItemEntity && ((ItemEntity) entity).getItem().getItem() instanceof PortalGun) {
+                PortalGun.fizzleGunItem(((ItemEntity) entity).getItem());
+            }
         }
     }
 

@@ -22,7 +22,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -236,8 +238,22 @@ public class PortalGun extends Item {
         }
 
         boolean inFizzler = AABBUtil.getBlocksWithin(player.getBoundingBox()).stream()
-                .map(pos -> level.getBlockState(pos).getBlock())
-                .anyMatch(block -> block == BlockInit.FIZZLER_EMITTER.get() || block == BlockInit.FIZZLER_FIELD.get());
+                .anyMatch(pos -> {
+                    BlockState state = level.getBlockState(pos);
+                    VoxelShape voxelshape;
+
+                    if(state.getBlock() == BlockInit.FIZZLER_EMITTER.get()) {
+                        voxelshape = ((FizzlerEmitterBlock)BlockInit.FIZZLER_EMITTER.get()).getFieldShape(state);
+                    } else if(state.getBlock() == BlockInit.FIZZLER_FIELD.get()) {
+                        voxelshape = ((FizzlerFieldBlock)BlockInit.FIZZLER_FIELD.get()).getFieldShape(state);
+                    } else {
+                        return false;
+                    }
+
+                    VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
+                    VoxelShape entityShape = VoxelShapes.create(player.getBoundingBox());
+                    return VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND);
+                });
 
         PortalEntity portal = null;
 
