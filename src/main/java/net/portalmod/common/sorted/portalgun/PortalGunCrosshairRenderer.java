@@ -74,6 +74,21 @@ public class PortalGunCrosshairRenderer {
         DyeColor secondaryColor = PortalGun.getRightDyeColour(nbt);
         renderCrosshairPart(matrixStack, PortalEnd.PRIMARY, primaryColor, primaryFilled);
         renderCrosshairPart(matrixStack, PortalEnd.SECONDARY, secondaryColor, secondaryFilled);
+
+        if(isClassicCrosshair) {
+            CompoundNBT tag = itemStack.getTag();
+            if(tag != null) {
+                if(tag.contains("LastPortal")) {
+                    int lastPortal = tag.getInt("LastPortal");
+                    if(lastPortal == -1) {
+                        renderCrosshairDot(matrixStack, PortalEnd.PRIMARY, primaryColor);
+                    }
+                    if(lastPortal == 1) {
+                        renderCrosshairDot(matrixStack, PortalEnd.SECONDARY, secondaryColor);
+                    }
+                }
+            }
+        }
     }
 
     private static void renderCrosshairPart(MatrixStack matrixStack, PortalEnd end, DyeColor color, boolean filled) {
@@ -87,6 +102,20 @@ public class PortalGunCrosshairRenderer {
         Minecraft.getInstance().getTextureManager().bind(texture);
         blit(matrixStack, window.getGuiScaledWidth() / 2 + x, window.getGuiScaledHeight() / 2 + y, 0,
                 filled ? size : 0, end == PortalEnd.PRIMARY ? 0 : size, size, size, size * 2, size * 2);
+        RenderSystem.enableBlend();
+    }
+
+    private static void renderCrosshairDot(MatrixStack matrixStack, PortalEnd end, DyeColor color) {
+        ResourceLocation texture = new ResourceLocation(PortalMod.MODID, BASE + "dots_" + color.getName() + ".png");
+        MainWindow window = Minecraft.getInstance().getWindow();
+        int x = -17;
+        int y = -16;
+        int size = 33;
+
+        RenderSystem.disableBlend();
+        Minecraft.getInstance().getTextureManager().bind(texture);
+        blit(matrixStack, window.getGuiScaledWidth() / 2 + x, window.getGuiScaledHeight() / 2 + y, 0,
+                0, end == PortalEnd.PRIMARY ? 0 : size, size, size, size, size * 2);
         RenderSystem.enableBlend();
     }
 
