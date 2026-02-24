@@ -1,6 +1,7 @@
 package net.portalmod.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
@@ -18,18 +19,20 @@ public class WatermarkRenderer {
 
     public static void render(MatrixStack matrixStack) {
         MainWindow window = Minecraft.getInstance().getWindow();
-        int width = 128;
-        int height = 16;
+        int width = 256;
+        int height = 32;
 
-        RenderSystem.disableBlend();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+        RenderSystem.disableAlphaTest();
+
         Minecraft.getInstance().getTextureManager().bind(WM_LEFT);
         blit(matrixStack, 0, 0, 0,
                 0, 0, width, height, width, height);
 
         Minecraft.getInstance().getTextureManager().bind(WM_RIGHT);
-        blit(matrixStack, window.getGuiScaledWidth() - width, window.getGuiScaledHeight() - height, 0,
+        blit(matrixStack, window.getGuiScaledWidth() - width, 0, 0,
                 0, 0, width, height, width, height);
-        RenderSystem.enableBlend();
     }
 
     private static void blit(MatrixStack matrixStack, int x, int y, int z, float u0, float v0, int uw, int uh, int width, int height) {
@@ -58,7 +61,6 @@ public class WatermarkRenderer {
         bufferbuilder.vertex(matrix, (float)x1, (float)y0, (float)z).color(1f, 1f, 1f, 1f).uv(u1, v0).endVertex();
         bufferbuilder.vertex(matrix, (float)x0, (float)y0, (float)z).color(1f, 1f, 1f, 1f).uv(u0, v0).endVertex();
         bufferbuilder.end();
-        RenderSystem.enableAlphaTest();
         WorldVertexBufferUploader.end(bufferbuilder);
     }
 }
