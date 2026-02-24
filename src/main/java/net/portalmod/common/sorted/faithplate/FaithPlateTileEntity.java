@@ -144,7 +144,8 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     }
 
     public static void endConfigurationForPlayer(PlayerEntity player) {
-        PLATE_PER_PLAYER.get(player).configuringPlayer = null;
+        if(PLATE_PER_PLAYER.containsKey(player))
+            PLATE_PER_PLAYER.get(player).configuringPlayer = null;
         PLATE_PER_PLAYER.remove(player);
     }
 
