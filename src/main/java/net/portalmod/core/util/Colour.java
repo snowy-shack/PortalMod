@@ -40,6 +40,10 @@ public class Colour {
         this.b = (int) MathHelper.clamp(this.b + amount * 255, 0, 255);
     }
 
+    public void darken(float amount) {
+        this.lighten(-amount);
+    }
+
     public Colour opaque() {
         this.a = 255;
         return this;

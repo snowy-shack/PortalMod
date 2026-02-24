@@ -138,13 +138,19 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         }
         if(nbt.contains("LastPortal")) {
             int lastPortal = nbt.getInt("LastPortal");
-            if (lastPortal != 0) gunLightOn = true;
-            switch (lastPortal) {
-                case -1 : lastPortalColor = PortalGun.getLeftColour(nbt);
-                break;
-                case 1 : lastPortalColor = PortalGun.getRightColour(nbt);
+            gunLightOn = true;
+
+            if(lastPortal == -1) {
+                lastPortalColor = PortalGun.getLeftColour(nbt);
+            } else if(lastPortal == 1) {
+                lastPortalColor = PortalGun.getRightColour(nbt);
+            } else {
+                gunLightOn = false;
             }
-            lastPortalColor.lighten(0.05f + 0.1f * (float) Math.sin((System.currentTimeMillis() / 10.0 % 360) * Math.PI / 180));
+
+            if(gunLightOn) {
+                lastPortalColor.darken(0.15f + 0.05f * (float) Math.sin((System.currentTimeMillis() / 10.0 % 360) * Math.PI / 180));
+            }
         }
 
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);

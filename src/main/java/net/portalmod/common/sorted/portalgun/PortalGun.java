@@ -46,6 +46,7 @@ import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -398,11 +399,13 @@ public class PortalGun extends Item {
     }
 
     public static Colour getLeftColour(CompoundNBT nbt) {
-        DyeColor color = DyeColor.BLUE;
-        if (nbt.contains("LeftColor")) {
-            color = DyeColor.byName(nbt.getString("LeftColor"), color);
+        Color color = PortalColors.getColor("blue");
+        if(nbt.contains("LeftColor")) {
+            try {
+                color = PortalColors.getColor(nbt.getString("LeftColor"));
+            } catch(NullPointerException e) {}
         }
-        return new Colour(color.getTextureDiffuseColors());
+        return new Colour(color.getRed(), color.getGreen(), color.getBlue(), 255);
     }
 
     public static DyeColor getLeftDyeColour(CompoundNBT nbt) {
@@ -414,11 +417,13 @@ public class PortalGun extends Item {
     }
 
     public static Colour getRightColour(CompoundNBT nbt) {
-        DyeColor color = DyeColor.ORANGE;
-        if (nbt.contains("RightColor")) {
-            color = DyeColor.byName(nbt.getString("RightColor"), color);
+        Color color = PortalColors.getColor("orange");
+        if(nbt.contains("RightColor")) {
+            try {
+                color = PortalColors.getColor(nbt.getString("RightColor"));
+            } catch(NullPointerException e) {}
         }
-        return new Colour(color.getTextureDiffuseColors());
+        return new Colour(color.getRed(), color.getGreen(), color.getBlue(), 255);
     }
 
     public static DyeColor getRightDyeColour(CompoundNBT nbt) {
