@@ -53,6 +53,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
+import net.portalmod.client.render.WatermarkRenderer;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
@@ -664,7 +665,12 @@ public class ClientEvents {
 ////            textureAtlas.bind();
 ////            Screen.blit(new MatrixStack(), 0, 0, 0, 0, 0, 512, 512, 512, 512);
 //        }
-        
+
+
+        if(PortalMod.WATERMARK) {
+            WatermarkRenderer.render(event.getMatrixStack());
+        }
+
         if(event.getType() == ElementType.CROSSHAIRS) {
             PortalGunCrosshairRenderer.render(event.getMatrixStack());
             
