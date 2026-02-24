@@ -6,6 +6,7 @@ import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
@@ -20,10 +21,8 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.BlockInit;
-import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.util.ModUtil;
 
@@ -127,18 +126,28 @@ public class FaithPlateBlock extends Block {
     
     @Override
     public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
-        if(level.isClientSide
-                && player.getItemInHand(hand).getItem() == ItemInit.WRENCH.get()
-                && FaithPlateTER.selected == null
-//                && level.getBlockEntity(pos) instanceof FaithPlateTileEntity
-                && state.getBlock() == BlockInit.FAITHPLATE.get()) {
+        if(!level.isClientSide) {
             if(!state.hasTileEntity())
                 pos = pos.relative(FaithPlateBlock.getOtherBlockDirection(state));
 
-            BlockPos finalPos = pos;
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FaithPlateClient.setScreen(finalPos));
-            return ActionResultType.SUCCESS;
+            TileEntity tileEntity = level.getBlockEntity(pos);
+
+            if(tileEntity instanceof FaithPlateTileEntity) {
+                FaithPlateTileEntity faithPlate = (FaithPlateTileEntity)tileEntity;
+
+                if(WrenchItem.usedWrench(player, hand)) {
+                    if(!faithPlate.isBeingConfigured()) {
+                        faithPlate.startConfiguration((ServerPlayerEntity)player);
+                        WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+                        return ActionResultType.SUCCESS;
+                    } else {
+                        WrenchItem.playFailSound(level, rayTraceResult.getLocation());
+                        return ActionResultType.SUCCESS;
+                    }
+                }
+            }
         }
+
         return ActionResultType.PASS;
     }
 

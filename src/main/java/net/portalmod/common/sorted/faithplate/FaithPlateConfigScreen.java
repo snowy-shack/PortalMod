@@ -133,12 +133,13 @@ public class FaithPlateConfigScreen extends Screen {
         }
 
         nbt.putBoolean("enabled", enable.selected());
-        be.load(nbt);
         PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(be.getBlockPos(), nbt));
+        if(FaithPlateTER.selected == null)
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(be.getBlockPos()));
         Minecraft.getInstance().setScreen(null);
         this.setCursor(0);
     }
-    
+
     private void updateField() {
         if (!panel.enabled) return;
 

@@ -8,6 +8,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.common.commands.PortalCommand;
+import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PartialPortalPair;
 import net.portalmod.common.sorted.portal.PortalManager;
@@ -61,6 +63,17 @@ public class CommonEvents {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(
                     () -> (ServerPlayerEntity)event.getEntity()), new SPortalPairPacket(k, new PartialPortalPair(v)));
         });
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLeave(final EntityLeaveWorldEvent event) {
+        if(event.getWorld().isClientSide() || event.getWorld().getServer() == null)
+            return;
+
+        if(!(event.getEntity() instanceof PlayerEntity))
+            return;
+
+        FaithPlateTileEntity.endConfigurationForPlayer((PlayerEntity)event.getEntity());
     }
 
     @SubscribeEvent

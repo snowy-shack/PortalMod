@@ -18,6 +18,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
+import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
@@ -59,14 +60,13 @@ public class WrenchItem extends Item {
         BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, level, 64);
         Direction face = rayHit.getDirection();
         BlockPos pos = rayHit.getBlockPos();
-
-        BlockPos selected = FaithPlateTER.selected;
         ItemStack itemStack = player.getItemInHand(hand);
 
         // my bad this was naive, we need to detect if you are choosing a target at the moment and idk how yet :)
         // TODO: Why?
 
-        if (selected != null) {
+        if (level.isClientSide && FaithPlateTER.selected != null) {
+            BlockPos selected = FaithPlateTER.selected;
             TileEntity blockEntity = level.getBlockEntity(selected);
 
             if (!(blockEntity instanceof FaithPlateTileEntity)) {
@@ -74,8 +74,7 @@ public class WrenchItem extends Item {
             }
             FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
-            if (level.isClientSide) return ActionResult.success(itemStack);
-
+            // i have no idea why on earth this is needed but i wont touch it
             boolean enabled = false;
             // Set the default height to dist / n
             if (be.getTargetPos() == null) {
@@ -97,6 +96,7 @@ public class WrenchItem extends Item {
             be.load(nbt);
 
             PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(selected));
             FaithPlateTER.selected = null;
 
             return ActionResult.success(itemStack);
