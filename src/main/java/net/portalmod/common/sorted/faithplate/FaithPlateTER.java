@@ -26,6 +26,7 @@ import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.portalmod.PortalMod;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
@@ -228,7 +229,8 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
                     getTargetLight(be.getLevel(), be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace()), overlay);
         }
 
-        if (Minecraft.getInstance().options.renderDebug) {
+        boolean holdingWrench = Minecraft.getInstance().player != null && WrenchItem.holdingWrench(Minecraft.getInstance().player);
+        if (Minecraft.getInstance().options.renderDebug && holdingWrench) {
             if ((selected == null || !selected.equals(be.getBlockPos())))
                 renderPath(be, matrixStack, renderBuffer, be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace(), overlay);
             renderTrigger(be, matrixStack);
