@@ -4,6 +4,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
@@ -31,6 +32,7 @@ import net.portalmod.core.math.VoxelShapeGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static net.portalmod.common.sorted.faithplate.FaithPlateBlock.*;
@@ -44,6 +46,9 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private float height;
     private int cooldown = 0;
     public static int COOLDOWN_DURATION = 10;
+
+    private static final HashMap<PlayerEntity, FaithPlateTileEntity> PLATE_PER_PLAYER = new HashMap<>();
+    private PlayerEntity configuringPlayer;
 
     private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
             .add(0, 16, 0, 16, 17, 16)
@@ -74,81 +79,80 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         if (targetPos == null || targetFace == null || !override) return;
         if (cooldown > 0) return;
 
+        if(this.level == null)
+            return;
 
         for(Entity entity : level.getEntitiesOfClass(LivingEntity.class, this.getTrigger())) {
-            if (entity.isPassenger()) continue;
+            if(entity.isPassenger())
+                continue;
 
-            if (entity instanceof PlayerEntity) {
+            if(entity instanceof PlayerEntity) {
                 PlayerEntity player = (PlayerEntity)entity;
-                if (player.abilities.flying) continue;
+                if(player.abilities.flying)
+                    continue;
             }
 
-            BlockPos targetPos = getTargetPos();
-            
-            Vec3 target = new Vec3(targetPos).add(.5).add(new Vec3(getTargetFace().getNormal()).mul(.5));
-            Vec3 relativeTarget = target.clone().add(getBlockPos()).sub(entity.position());
-            
-            if(targetPos.getX() == 0 && targetPos.getZ() == 0)
-                relativeTarget = new Vec3(getBlockPos()).add(.5, 1, .5).sub(entity.position());
-            
-            FaithPlateParabola parabola = new FaithPlateParabola(relativeTarget.to3d(), height);
-            double angle = parabola.getAngle();
-            double velocity = parabola.getVelocity();
-            double rotation = parabola.getRotation();
-            
-            entity.setDeltaMovement(new Vector3d(
-                    velocity * Math.cos(angle) * Math.cos(rotation),
-                    velocity * Math.sin(angle),
-                    velocity * Math.cos(angle) * Math.sin(rotation)
-            ));
-
-            entity.setShiftKeyDown(false);
-            ((Flingable)entity).setFlinging(true);
-
-            this.cooldown = COOLDOWN_DURATION;
-
-            if(!level.isClientSide) {
-                if(entity.isControlledByLocalInstance() && !(entity instanceof PlayerEntity)) {
-                    PacketInit.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(
-                            () -> entity), new SFaithPlateLaunchPacket(getBlockPos()));
-                }
-            } else {
-                PacketInit.INSTANCE.sendToServer(new CFaithPlateLaunchPacket(getBlockPos()));
-            }
+            this.launchEntity(entity);
         }
     }
 
-//    private void initAABBs() {
-//        VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
-//                .add(0, 16, 0, 16, 17, 16)
-//                .build();
-//
-//        for(FaithPlateBlock.Face face : FaithPlateBlock.Face.values()) {
-//            for(Direction facing : Direction.values()) {
-//                Mat4 matrix = Mat4.identity();
-//
-//                if(facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
-//                    matrix.scale(new Vec3(facing.step()).mul(2).add(1));
-//                    matrix.rotateDeg(facing.step(), corner.getRot() - 90);
-//                } else {
-//                    matrix.rotateDeg(facing.step(), corner.getRot());
-//                }
-//
-//                if(facing.getAxis() == Direction.Axis.X)
-//                    matrix.rotateDeg(Vector3f.ZP, -90)
-//                            .rotateDeg(Vector3f.YP, 90);
-//
-//                if(facing.getAxis() == Direction.Axis.Z)
-//                    matrix.rotateDeg(Vector3f.XP, 90);
-//
-//                matrix.rotateDeg(Vector3f.YP, 90);
-//                matrix.translate(new Vec3(-.5));
-//
-//                TRIGGERS.put(facing, corner, shape.clone().transform(matrix));
-//            }
-//        }
-//    }
-    
+    private void launchEntity(Entity entity) {
+        if(this.level == null)
+            return;
+
+        BlockPos targetPos = getTargetPos();
+
+        Vec3 target = new Vec3(targetPos).add(.5).add(new Vec3(getTargetFace().getNormal()).mul(.5));
+        Vec3 relativeTarget = target.clone().add(getBlockPos()).sub(entity.position());
+
+        if(targetPos.getX() == 0 && targetPos.getZ() == 0)
+            relativeTarget = new Vec3(getBlockPos()).add(.5, 1, .5).sub(entity.position());
+
+        FaithPlateParabola parabola = new FaithPlateParabola(relativeTarget.to3d(), height);
+        double angle = parabola.getAngle();
+        double velocity = parabola.getVelocity();
+        double rotation = parabola.getRotation();
+
+        entity.setDeltaMovement(new Vector3d(
+                velocity * Math.cos(angle) * Math.cos(rotation),
+                velocity * Math.sin(angle),
+                velocity * Math.cos(angle) * Math.sin(rotation)
+        ));
+
+        entity.setShiftKeyDown(false);
+        ((Flingable)entity).setFlinging(true);
+        this.cooldown = COOLDOWN_DURATION;
+
+        if(!this.level.isClientSide) {
+            if(entity.isControlledByLocalInstance() && !(entity instanceof PlayerEntity)) {
+                PacketInit.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(
+                        () -> entity), new SFaithPlateLaunchPacket(getBlockPos()));
+            }
+        } else {
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateLaunchPacket(getBlockPos()));
+        }
+    }
+
+    public void startConfiguration(ServerPlayerEntity player) {
+        this.configuringPlayer = player;
+        PLATE_PER_PLAYER.put(player, this);
+        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new SFaithPlateStartConfigPacket(this.getBlockPos()));
+    }
+
+    public void endConfiguration() {
+        endConfigurationForPlayer(this.configuringPlayer);
+    }
+
+    public static void endConfigurationForPlayer(PlayerEntity player) {
+        PLATE_PER_PLAYER.get(player).configuringPlayer = null;
+        PLATE_PER_PLAYER.remove(player);
+    }
+
+    // todo handle player leave
+    public boolean isBeingConfigured() {
+        return this.configuringPlayer != null;
+    }
+
     public AxisAlignedBB getTrigger() {
         BlockState state = this.getBlockState();
         VoxelShapeGroup triggerTransformed = TRIGGER.clone();

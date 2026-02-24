@@ -147,15 +147,16 @@ public class ClientEvents {
                 ChunkViewer.getInstance().refresh();
             }
         }
-        
+
         if(event.phase == Phase.START)
             if(player.abilities.flying)
                 ((Flingable)player).setFlinging(false);
-        
-        if(event.phase == Phase.END)
+
+        if(event.phase == Phase.END && player.isLocalPlayer()) {
             if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get())
                 FaithPlateTER.selected = null;
-        
+        }
+
 //        if(player.abilities.flying && !player.isPassenger()) {
 //            Vector3d velocity = player.getDeltaMovement().multiply(1, 1. / .6, 1);
 //            if(velocity.y > 10)
