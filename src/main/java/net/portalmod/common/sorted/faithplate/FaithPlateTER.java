@@ -130,7 +130,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         double a = parabola.getA();
         double b = parabola.getB();
 
-        final float increment = .15f;
+        final float increment = .15f / (float)Math.max(Math.abs(a), 1);
 
         for(float i = 0;; i += increment) {
             float x = (float)(i * parabola.getComponentX());
