@@ -227,13 +227,23 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public Vec3 helpPortal(Vec3 hitPos, Direction face, BlockState state, World world) {
-        PanelState panelState = state.getValue(STATE);
-        if (!panelState.isQuadruple() || face.getClockWise().getAxis() != state.getValue(AXIS)) {
-            // Not front face of 2x2 panel
-            return hitPos;
-        }
+    public boolean containsBlock(BlockState state, BlockPos panelPos, BlockPos pos, World world) {
+        return panelPos.equals(pos) || this.getConnectedPositions(state, panelPos).contains(pos);
+    }
 
+    @Override
+    public boolean willHelpPortal(Direction face, BlockState state, World world) {
+        // Only front face of 2x2 panel
+        PanelState panelState = state.getValue(STATE);
+        return panelState.isQuadruple() && face.getClockWise().getAxis() == state.getValue(AXIS);
+    }
+
+    @Override
+    public Vec3 helpPortal(Vec3 hitPos, Direction face, BlockState state, World world) {
+        if(!this.willHelpPortal(face, state, world))
+            return hitPos;
+
+        PanelState panelState = state.getValue(STATE);
         double yPos = panelState.isBottom() ? Math.ceil(hitPos.y) : Math.floor(hitPos.y);
 
         if (face.getAxis() == Direction.Axis.X) {

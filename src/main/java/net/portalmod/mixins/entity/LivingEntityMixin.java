@@ -22,7 +22,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.goo.GooBlock;
@@ -48,7 +48,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Deque;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements IFaithPlateLaunchable, IDragCancelable, IGelAffected {
+public abstract class LivingEntityMixin extends Entity implements Flingable, IDragCancelable, IGelAffected {
     private boolean pmLaunched = false;
 
     public LivingEntityMixin(EntityType<?> entityType, World level) {
@@ -352,12 +352,12 @@ public abstract class LivingEntityMixin extends Entity implements IFaithPlateLau
 //    }
     
     @Override
-    public void setLaunched(boolean launched) {
+    public void setFlinging(boolean launched) {
         pmLaunched = launched;
     }
 
     @Override
-    public boolean isLaunched() {
+    public boolean isFlinging() {
         return pmLaunched;
     }
 

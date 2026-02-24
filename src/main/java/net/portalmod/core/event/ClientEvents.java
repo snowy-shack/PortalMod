@@ -18,7 +18,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
@@ -61,7 +60,7 @@ import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.portalgun.*;
@@ -151,7 +150,7 @@ public class ClientEvents {
         
         if(event.phase == Phase.START)
             if(player.abilities.flying)
-                ((IFaithPlateLaunchable)player).setLaunched(false);
+                ((Flingable)player).setFlinging(false);
         
         if(event.phase == Phase.END)
             if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get())
@@ -340,7 +339,7 @@ public class ClientEvents {
 //            ChunkViewer.getInstance().setVisible(true);
 //        }
 
-        PortalGunClient.tick();
+        PortalGunClient.getInstance().tick();
         handleInteractKey();
     }
 
@@ -443,7 +442,7 @@ public class ClientEvents {
 
         if(mc.overlay == null && mc.screen == null) {
             if(player.getMainHandItem().getItem() instanceof PortalGun) {
-                boolean handled = PortalGunClient.handleMouseButtons(event.getButton(), event.getAction());
+                boolean handled = PortalGunClient.getInstance().handleMouseButtons(event.getButton(), event.getAction());
 
                 if(handled) {
                     event.setCanceled(true);

@@ -1,21 +1,47 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.init.PacketInit;
 import org.lwjgl.glfw.GLFW;
 
-public class PortalGunClient {
-    private static boolean leftButtonPressed = false;
-    private static boolean rightButtonPressed = false;
-    private static long nextShot = 0;
-    private static final int SHOOT_DELAY = 5;
-    private static PressState lastUnresolvedPress = PressState.NONE;
+import java.util.UUID;
 
-    protected static void handleLeftClick() {
+public class PortalGunClient {
+    private static PortalGunClient instance;
+
+    private boolean leftButtonPressed = false;
+    private boolean rightButtonPressed = false;
+    private PressState lastUnresolvedPress = PressState.NONE;
+
+    private static final int SHOOT_DELAY = 5;
+    private long nextShot = 0;
+
+    private static final int HELPER_DELAY = 15;
+    private long nextHelp = 0;
+    private UUID lastHelpedGun;
+    private PortalEnd lastHelpedEnd;
+    private BlockPos lastHelpedPos;
+    private Direction lastHelpedFace;
+
+    private PortalGunClient() {}
+
+    public static PortalGunClient getInstance() {
+        if(instance == null)
+            instance = new PortalGunClient();
+        return instance;
+    }
+
+    private void handleLeftClick() {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (player.hasPassenger(TestElementEntity.class)) {
@@ -25,33 +51,74 @@ public class PortalGunClient {
         } else PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.PRIMARY).build());
     }
 
-    protected static void handleRightClick() {
+    private void handleRightClick() {
         if (!Minecraft.getInstance().player.hasPassenger(TestElementEntity.class))
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
     }
 
-    public static void tick() {
-        if(nextShot > 0)
-            nextShot--;
+    public void tick() {
+        if(this.nextShot > 0)
+            this.nextShot--;
 
-        if(canShoot()) {
-            if(leftButtonPressed) {
-                PortalGun.handleLeftClick();
-                nextShot = SHOOT_DELAY;
+        if(this.nextHelp > 0)
+            this.nextHelp--;
+
+        if(this.canShoot()) {
+            if(this.leftButtonPressed) {
+                this.handleLeftClick();
+                this.nextShot = SHOOT_DELAY;
             }
 
             if(rightButtonPressed) {
-                PortalGun.handleRightClick();
-                nextShot = SHOOT_DELAY;
+                this.handleRightClick();
+                this.nextShot = SHOOT_DELAY;
             }
         }
     }
 
-    private static boolean canShoot() {
-        return nextShot <= 0;
+    private boolean canShoot() {
+        return this.nextShot <= 0;
     }
 
-    public static boolean handleMouseButtons(int button, int action) {
+    public boolean willBeHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face, World level) {
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+
+        if(this.nextHelp > 0) {
+            if(this.lastHelpedGun != null && this.lastHelpedEnd != null && this.lastHelpedPos != null && this.lastHelpedFace != null) {
+                BlockState panelState = level.getBlockState(this.lastHelpedPos);
+                Block panelBlock = panelState.getBlock();
+
+                if(block instanceof PortalHelper && panelBlock instanceof PortalHelper) {
+                    PortalHelper newHelper = (PortalHelper)block;
+                    PortalHelper oldHelper = (PortalHelper)panelBlock;
+
+                    if(newHelper.willHelpPortal(face, state, level)) {
+                        boolean sameGun = gun.equals(this.lastHelpedGun);
+                        boolean sameEnd = end.equals(this.lastHelpedEnd);
+                        boolean samePanel = oldHelper.containsBlock(panelState, this.lastHelpedPos, pos, level);
+                        boolean sameFace = face.equals(this.lastHelpedFace);
+
+                        if(sameGun && sameEnd && samePanel && sameFace) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return block instanceof PortalHelper && ((PortalHelper)block).willHelpPortal(face, state, level);
+    }
+
+    public void setHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face) {
+        this.lastHelpedGun = gun;
+        this.lastHelpedEnd = end;
+        this.lastHelpedPos = pos;
+        this.lastHelpedFace = face;
+        this.nextHelp = HELPER_DELAY;
+    }
+
+    public boolean handleMouseButtons(int button, int action) {
         boolean isItemFrame = Minecraft.getInstance().getEntityRenderDispatcher().crosshairPickEntity instanceof ItemFrameEntity;
 
         if(action == GLFW.GLFW_PRESS) {
@@ -62,14 +129,14 @@ public class PortalGunClient {
         }
 
         if(button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-            leftButtonPressed = action == GLFW.GLFW_PRESS;
+            this.leftButtonPressed = action == GLFW.GLFW_PRESS;
 
-            if(leftButtonPressed) {
-                rightButtonPressed = false;
+            if(this.leftButtonPressed) {
+                this.rightButtonPressed = false;
 
                 if(canShoot()) {
-                    PortalGun.handleLeftClick();
-                    nextShot = SHOOT_DELAY;
+                    this.handleLeftClick();
+                    this.nextShot = SHOOT_DELAY;
                 }
             }
 
@@ -78,29 +145,29 @@ public class PortalGunClient {
 
         if(button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             if(isItemFrame) {
-                if(lastUnresolvedPress == PressState.PORTALGUN && action == GLFW.GLFW_RELEASE) {
-                    lastUnresolvedPress = PressState.NONE;
+                if(this.lastUnresolvedPress == PressState.PORTALGUN && action == GLFW.GLFW_RELEASE) {
+                    this.lastUnresolvedPress = PressState.NONE;
                 } else {
-                    lastUnresolvedPress = PressState.ITEM_FRAME;
+                    this.lastUnresolvedPress = PressState.ITEM_FRAME;
                     return false;
                 }
             } else {
-                if(lastUnresolvedPress == PressState.ITEM_FRAME && action == GLFW.GLFW_RELEASE) {
-                    lastUnresolvedPress = PressState.NONE;
+                if(this.lastUnresolvedPress == PressState.ITEM_FRAME && action == GLFW.GLFW_RELEASE) {
+                    this.lastUnresolvedPress = PressState.NONE;
                     return false;
                 } else {
-                    lastUnresolvedPress = PressState.PORTALGUN;
+                    this.lastUnresolvedPress = PressState.PORTALGUN;
                 }
             }
 
-            rightButtonPressed = action == GLFW.GLFW_PRESS;
+            this.rightButtonPressed = action == GLFW.GLFW_PRESS;
 
-            if(rightButtonPressed) {
-                leftButtonPressed = false;
+            if(this.rightButtonPressed) {
+                this.leftButtonPressed = false;
 
                 if(canShoot()) {
-                    PortalGun.handleRightClick();
-                    nextShot = SHOOT_DELAY;
+                    this.handleRightClick();
+                    this.nextShot = SHOOT_DELAY;
                 }
             }
 
