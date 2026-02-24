@@ -23,9 +23,11 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.packet.SSpawnChamberSignPacket;
 
@@ -267,7 +269,9 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public IPacket<?> getAddEntityPacket() {
-        return new SSpawnChamberSignPacket(this.getId(), this.getUUID(), this.getPos(), this.direction, this.verticallyAligned);
+        return PacketInit.INSTANCE.toVanillaPacket(
+                new SSpawnChamberSignPacket(this.getId(), this.getUUID(), this.getPos(), this.direction, this.verticallyAligned),
+                NetworkDirection.PLAY_TO_CLIENT);
     }
 
     @Override
