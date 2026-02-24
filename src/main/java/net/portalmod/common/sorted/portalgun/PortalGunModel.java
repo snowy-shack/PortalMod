@@ -106,7 +106,7 @@ public class PortalGunModel extends AnimatedModel {
 
             ModelRenderer colour_base = new ModelRenderer(this);
             colour_base.setPos(0.0F, 24.0F, 0.0F); // Light at the top
-            colour_base.texOffs(1, 12).addBox(-0.5F, -5.5F, 3.0F, 1.0F, 0.0F, 2.0F, 0.0F, false); //color_top
+            colour_base.texOffs(-1, 12).addBox(-0.5F, -5.5F, 3.0F, 1.0F, 0.0F, 2.0F, 0.0F, false); //color_top
 
             colour.addChild(colour_front);
             colour.addChild(colour_base);
