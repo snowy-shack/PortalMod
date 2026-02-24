@@ -30,7 +30,7 @@ import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.PMGlobals;
+import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.*;
@@ -814,7 +814,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         ));
 
         VoxelShape shape = VoxelShapes.join(boundingBox, carving, IBooleanFunction.ONLY_FIRST);
-        if(PMGlobals.DEBUG)
+        if(PortalMod.DEBUG)
             DebugRenderer.putShape(portal.toString(), shape, Color.GREEN);
 
         return shape;

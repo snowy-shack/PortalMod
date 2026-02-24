@@ -20,6 +20,8 @@ import java.io.File;
 public class PortalMod {
     public static final Logger LOGGER = LogManager.getLogger();
     public static final String MODID = "portalmod";
+    public static final boolean DEBUG = false;
+    public static final boolean WATERMARK = false;
 
     public PortalMod() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();

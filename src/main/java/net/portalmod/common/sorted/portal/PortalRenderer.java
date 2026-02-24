@@ -20,7 +20,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.*;
-import net.portalmod.PMGlobals;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
@@ -407,7 +406,7 @@ public class PortalRenderer {
     private void renderPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper, Matrix4f projectionMatrix, float partialTicks, boolean fabulousGraphics) {
         recursion++;
 
-        if(PMGlobals.DEBUG) {
+        if(PortalMod.DEBUG) {
             glEnable(GL43.GL_DEBUG_OUTPUT);
             glEnable(GL43.GL_DEBUG_OUTPUT_SYNCHRONOUS);
             GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, "Rendering portal, recursion: " + recursion);
@@ -513,7 +512,7 @@ public class PortalRenderer {
 
         setupSkyAndFog(camera, partialTicks);
 
-        if(PMGlobals.DEBUG)
+        if(PortalMod.DEBUG)
             GL43.glPopDebugGroup();
 
         recursion--;
@@ -528,7 +527,7 @@ public class PortalRenderer {
     }
 
     public void renderHighlights(ActiveRenderInfo camera, Matrix4f projectionMatrix) {
-        if(PMGlobals.DEBUG)
+        if(PortalMod.DEBUG)
             GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, "Highlights");
 
         ClientWorld level = Minecraft.getInstance().level;
@@ -592,7 +591,7 @@ public class PortalRenderer {
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         }
 
-        if(PMGlobals.DEBUG)
+        if(PortalMod.DEBUG)
             GL43.glPopDebugGroup();
     }
     
