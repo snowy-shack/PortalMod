@@ -154,6 +154,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
         PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
 
+        UUID actualRenderingPortalGunOwner = renderingPortalGunOwner;
         String skin = "default";
         switch(transformType) {
             case FIRST_PERSON_LEFT_HAND:
@@ -161,15 +162,16 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             case THIRD_PERSON_LEFT_HAND:
             case THIRD_PERSON_RIGHT_HAND:
             case HEAD:
-                skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(renderingPortalGunOwner);
+                skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(actualRenderingPortalGunOwner);
                 break;
 
             case GUI:
                 skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(null);
+                actualRenderingPortalGunOwner = null;
                 break;
         }
 
-        int intTint = SkinManager.getClientInstance().getTintForPlayerOnSkin(renderingPortalGunOwner, skin);
+        int intTint = SkinManager.getClientInstance().getTintForPlayerOnSkin(actualRenderingPortalGunOwner, skin);
         Colour tint = intTint == 0 ? Colour.WHITE : new Colour(intTint).opaque();
 
         renderGun(matrixStack, gunUUID, model, renderTypeBuffer,
