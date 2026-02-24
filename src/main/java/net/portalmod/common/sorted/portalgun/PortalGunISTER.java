@@ -24,13 +24,9 @@ import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 import java.util.UUID;
 
 public class PortalGunISTER extends ItemStackTileEntityRenderer {
-    public static final ResourceLocation PORTALGUN_TEXTURE2 = new ResourceLocation(PortalMod.MODID, "gun/portalgun_color");
-    public static RenderMaterial PORTALGUN_MATERIAL2;
     public static UUID renderingPortalGunOwner;
 
-    public PortalGunISTER() {
-        PORTALGUN_MATERIAL2 = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, PORTALGUN_TEXTURE2);
-    }
+    public PortalGunISTER() {}
     
     @Override
     public void renderByItem(ItemStack itemStack, TransformType transformType, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, int packedOverlay) {
@@ -198,7 +194,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         irendertypebuffer$impl.endBatch();
         texture.endAnimation();
 
-        ivertexbuilder = PORTALGUN_MATERIAL2.buffer(renderTypeBuffer, RenderType::entityTranslucent);
+        ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));
         model.render(gunUUID, model.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);
         irendertypebuffer$impl.endBatch();
 
