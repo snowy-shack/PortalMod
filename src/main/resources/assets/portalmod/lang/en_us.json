@@ -289,6 +289,7 @@
   "subtitles.item.portalgun.activate": "Portal Gun activates",
   "subtitles.item.portalgun.hold":     "Portal Gun buzzes",
   "subtitles.item.wrench.use":         "Wrench clicks",
+  "subtitles.item.wrench.fail":        "Wrench clanks",
 
   "death.attack.turret":                 "%1$s got perforated by %2$s",
   "death.attack.cube":                   "%2$s threatened to stab %1$s",

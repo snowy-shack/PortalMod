@@ -65,6 +65,7 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
 
     public static final RegistryObject<SoundEvent> WRENCH_USE = register("item.wrench.use");
+    public static final RegistryObject<SoundEvent> WRENCH_FAIL = register("item.wrench.fail");
 
     // ENTITY
     public static final RegistryObject<SoundEvent> PORTAL_OPEN = register("entity.portal.open");
