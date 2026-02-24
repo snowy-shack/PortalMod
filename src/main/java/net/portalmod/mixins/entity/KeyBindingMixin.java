@@ -2,7 +2,7 @@ package net.portalmod.mixins.entity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
-import net.portalmod.common.sorted.faithplate.IFaithPlateLaunchable;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,8 +23,8 @@ public class KeyBindingMixin {
     private void onIsDown(CallbackInfoReturnable<Boolean> cir) {
         PlayerEntity player = Minecraft.getInstance().player;
 
-        if (!(player instanceof IFaithPlateLaunchable)) return;
-        if (!((IFaithPlateLaunchable) player).isLaunched()) return;
+        if (!(player instanceof Flingable)) return;
+        if (!((Flingable) player).isFlinging()) return;
 
         KeyBinding self = (KeyBinding) (Object) this;
 

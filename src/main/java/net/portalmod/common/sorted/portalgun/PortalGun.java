@@ -72,15 +72,6 @@ public class PortalGun extends Item {
         this.model = model;
     }
 
-    public static void handleLeftClick() {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalGunClient::handleLeftClick);
-    }
-    
-    public static void handleRightClick() {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalGunClient::handleRightClick);
-//        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
-    }
-
     // The portalgun tracks whether it is holding something on its own
     // by using nbt instead of having 100 different things triggering the
     // pick and drop animation all over the place
