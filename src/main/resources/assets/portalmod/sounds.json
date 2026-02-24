@@ -38,7 +38,7 @@
             "portalmod:entity/chamber_sign/place1",
             "portalmod:entity/chamber_sign/place2"
         ],
-        "subtitle": "subtitles.chamber_sign.place"
+        "subtitle": "subtitles.entity.chamber_sign.place"
     },
     "entity.player.hurt_goo": {
         "sounds": [

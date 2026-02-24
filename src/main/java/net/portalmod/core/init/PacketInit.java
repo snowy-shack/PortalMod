@@ -1,7 +1,5 @@
 package net.portalmod.core.init;
 
-import java.util.function.Supplier;
-
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -15,17 +13,16 @@ import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.SFaithPlateLaunchPacket;
 import net.portalmod.common.sorted.portal.SForgetPortalPacket;
 import net.portalmod.common.sorted.portal.SPortalPairPacket;
+import net.portalmod.common.sorted.portal.SPortalShotPacket;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.SPortalGunAnimationPacket;
-import net.portalmod.common.sorted.portal.SPortalShotPacket;
 import net.portalmod.common.sorted.portalgun.SPortalGunFailShotPacket;
-import net.portalmod.common.sorted.radio.SRadioUpdatePacket;
-import net.portalmod.core.packet.AbstractPacket;
-import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
-import net.portalmod.core.packet.SEntityPortalTeleportLerpPacket;
-import net.portalmod.core.packet.SEntityPortalTeleportPacketNew;
 import net.portalmod.common.sorted.portalgun.skins.CSetPlayerSkinPacket;
 import net.portalmod.common.sorted.portalgun.skins.SSetPlayerSkinPacket;
+import net.portalmod.common.sorted.radio.SRadioUpdatePacket;
+import net.portalmod.core.packet.*;
+
+import java.util.function.Supplier;
 
 public class PacketInit {
     private static int id = 0;
@@ -48,6 +45,7 @@ public class PacketInit {
         register(new SPortalShotPacket(),               NetworkDirection.PLAY_TO_CLIENT);
         register(new SSetPlayerSkinPacket(),            NetworkDirection.PLAY_TO_CLIENT);
         register(new SPortalGunFailShotPacket(),        NetworkDirection.PLAY_TO_CLIENT);
+        register(new SSpawnChamberSignPacket(),         NetworkDirection.PLAY_TO_CLIENT);
 
         register(new CFaithPlateUpdatedPacket(),        NetworkDirection.PLAY_TO_SERVER);
         register(new CFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_SERVER);

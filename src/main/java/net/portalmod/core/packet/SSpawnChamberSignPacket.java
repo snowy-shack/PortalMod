@@ -1,25 +1,26 @@
 package net.portalmod.core.packet;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.play.IClientPlayNetHandler;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.network.NetworkEvent;
 import net.portalmod.common.sorted.sign.ChamberSignEntity;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
-public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
+public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSignPacket> {
     private int id;
     private UUID uuid;
     private BlockPos pos;
     private Direction direction;
     private boolean verticallyAligned;
+
+    public SSpawnChamberSignPacket() {}
 
     public SSpawnChamberSignPacket(int id, UUID uuid, BlockPos pos, Direction direction, boolean verticallyAligned) {
         this.id = id;
@@ -30,16 +31,17 @@ public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
     }
 
     @Override
-    public void read(PacketBuffer buffer) {
-        this.id = buffer.readInt();
-        this.uuid = buffer.readUUID();
-        this.pos = buffer.readBlockPos();
-        this.direction = Direction.from2DDataValue(buffer.readInt());
-        this.verticallyAligned = buffer.readBoolean();
+    public SSpawnChamberSignPacket decode(PacketBuffer buffer) {
+        int id = buffer.readInt();
+        UUID uuid = buffer.readUUID();
+        BlockPos blockPos = buffer.readBlockPos();
+        Direction direction = Direction.from2DDataValue(buffer.readInt());
+        boolean verticallyAligned = buffer.readBoolean();
+        return new SSpawnChamberSignPacket(id, uuid, blockPos, direction, verticallyAligned);
     }
 
     @Override
-    public void write(PacketBuffer buffer) {
+    public void encode(PacketBuffer buffer) {
         buffer.writeInt(this.id);
         buffer.writeUUID(this.uuid);
         buffer.writeBlockPos(this.pos);
@@ -48,19 +50,20 @@ public class SSpawnChamberSignPacket implements IPacket<IClientPlayNetHandler> {
     }
 
     @Override
-    public void handle(IClientPlayNetHandler clientPlayNetHandler) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            // todo dont use Minecraft
+    public boolean handle(Supplier<NetworkEvent.Context> context) {
+        context.get().enqueueWork(() -> {
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                ClientWorld level = Minecraft.getInstance().level;
+                if (level == null) return;
 
-            Minecraft minecraft = Minecraft.getInstance();
-            PacketThreadUtil.ensureRunningOnSameThread(this, clientPlayNetHandler, minecraft);
+                ChamberSignEntity entity = new ChamberSignEntity(level, this.pos, this.direction, this.verticallyAligned);
+                entity.setId(this.id);
+                entity.setUUID(this.uuid);
 
-            ClientWorld level = minecraft.level;
-            ChamberSignEntity entity = new ChamberSignEntity(level, this.pos, this.direction, this.verticallyAligned);
-            entity.setId(this.id);
-            entity.setUUID(this.uuid);
-
-            level.putNonPlayerEntity(entity.getId(), entity);
+                level.putNonPlayerEntity(entity.getId(), entity);
+            });
         });
+        context.get().setPacketHandled(true);
+        return true;
     }
 }
