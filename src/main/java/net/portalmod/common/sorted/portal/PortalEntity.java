@@ -1232,6 +1232,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(!PortalManager.getInstance().unloadingChunk) {
             PortalManager.getInstance().remove(this.gunUUID, this);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SForgetPortalPacket(this.gunUUID, this.end));
+
+            level.playSound(null, this.position().x, this.position().y, this.position().z,
+                    SoundInit.PORTAL_CLOSE.get(), SoundCategory.NEUTRAL, .8f, 1);
         }
     }
 

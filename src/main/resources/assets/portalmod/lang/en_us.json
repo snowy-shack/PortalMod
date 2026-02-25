@@ -281,6 +281,7 @@
   "subtitles.entity.cube.hit":           "Cube lands",
   "subtitles.entity.cube.gabe":          "Gabe speaks",
   "subtitles.entity.portal.open":        "Portal opens",
+  "subtitles.entity.portal.close":       "Portal closes",
   "subtitles.entity.portal.teleports":   "Portal teleports",
   "subtitles.entity.chamber_sign.place": "Chamber Sign placed",
 

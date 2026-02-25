@@ -69,7 +69,8 @@ public class SoundInit {
 
     // ENTITY
     public static final RegistryObject<SoundEvent> PORTAL_OPEN = register("entity.portal.open");
-    public static final RegistryObject<SoundEvent> PORTAL_TELEPORT = register("entity.portal.teleport"); // TODO: use me
+    public static final RegistryObject<SoundEvent> PORTAL_CLOSE = register("entity.portal.close");
+    public static final RegistryObject<SoundEvent> PORTAL_TELEPORT = register("entity.portal.teleport");
     public static final RegistryObject<SoundEvent> GOO_DAMAGE = register("entity.player.hurt_goo");
 
     public static final RegistryObject<SoundEvent> ENTITY_FIZZLE = register("entity.fizzle");
