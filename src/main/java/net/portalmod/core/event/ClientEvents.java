@@ -65,6 +65,9 @@ import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.portalgun.*;
+import net.portalmod.common.sorted.trigger.CTriggerAbortConfigPacket;
+import net.portalmod.common.sorted.trigger.TriggerTER;
+import net.portalmod.common.sorted.trigger.TriggerTileEntity;
 import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
@@ -146,6 +149,13 @@ public class ClientEvents {
                 if(FaithPlateTER.selected != null) {
                     PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(FaithPlateTER.selected));
                     FaithPlateTER.selected = null;
+                }
+
+                if(TriggerTileEntity.selected != null) {
+                    PacketInit.INSTANCE.sendToServer(new CTriggerAbortConfigPacket(TriggerTileEntity.selected.getBlockPos()));
+                    TriggerTileEntity.selected = null;
+                    TriggerTileEntity.selectingStart = null;
+                    TriggerTileEntity.selectingEnd = null;
                 }
             }
         }
@@ -328,6 +338,33 @@ public class ClientEvents {
 //        if(InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_J)) {
 //            ChunkViewer.getInstance().setVisible(true);
 //        }
+
+        PlayerEntity player = Minecraft.getInstance().player;
+        World level = Minecraft.getInstance().level;
+
+        if(player != null && level != null && Minecraft.getInstance().gameMode != null) {
+            if(TriggerTileEntity.selected != null) {
+                float rayLength = Minecraft.getInstance().gameMode.getPickRange();
+                Vector3d rayPath = player.getViewVector(0).scale(rayLength);
+                Vector3d from = player.getEyePosition(0);
+                Vector3d to = from.add(rayPath);
+
+                RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
+                BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
+
+                BlockPos pos = rayHit.getBlockPos();
+                BlockState state = level.getBlockState(pos);
+
+                if (state.isFaceSturdy(level, pos, rayHit.getDirection()))
+                    pos = pos.relative(rayHit.getDirection());
+
+                if(TriggerTileEntity.selectingEnd == null) {
+                    TriggerTileEntity.selectingStart = pos.subtract(TriggerTileEntity.selected.getBlockPos());
+                } else {
+                    TriggerTileEntity.selectingEnd = pos.subtract(TriggerTileEntity.selected.getBlockPos());
+                }
+            }
+        }
 
         PortalGunClient.getInstance().tick();
         handleInteractKey();
@@ -587,6 +624,8 @@ public class ClientEvents {
 //
 //        }
 //        DEBUG_SHAPES.clear();
+
+        TriggerTER.renderAllTriggers();
         DebugRenderer.renderAllShapes(event.getMatrixStack());
     }
 

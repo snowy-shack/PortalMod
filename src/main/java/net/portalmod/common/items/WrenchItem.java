@@ -22,6 +22,8 @@ import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
+import net.portalmod.common.sorted.trigger.CTriggerEndConfigPacket;
+import net.portalmod.common.sorted.trigger.TriggerTileEntity;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
@@ -65,41 +67,62 @@ public class WrenchItem extends Item {
         // my bad this was naive, we need to detect if you are choosing a target at the moment and idk how yet :)
         // TODO: Why?
 
-        if (level.isClientSide && FaithPlateTER.selected != null) {
-            BlockPos selected = FaithPlateTER.selected;
-            TileEntity blockEntity = level.getBlockEntity(selected);
+        if(level.isClientSide) {
+            if(FaithPlateTER.selected != null) {
+                BlockPos selected = FaithPlateTER.selected;
+                TileEntity blockEntity = level.getBlockEntity(selected);
 
-            if (!(blockEntity instanceof FaithPlateTileEntity)) {
-                return ActionResult.fail(itemStack);
+                if (!(blockEntity instanceof FaithPlateTileEntity)) {
+                    return ActionResult.fail(itemStack);
+                }
+                FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
+
+                // i have no idea why on earth this is needed but i wont touch it
+                boolean enabled = false;
+                // Set the default height to dist / n
+                if (be.getTargetPos() == null) {
+                    be.setHeight((float) (pos.distManhattan(selected) / 4.0));
+                    enabled = true;
+                }
+
+                CompoundNBT nbt = new CompoundNBT();
+                CompoundNBT target = new CompoundNBT();
+                target.putFloat("height", be.getHeight());
+                nbt.putBoolean("enabled", enabled || be.isEnabled());
+
+                target.putByte("side", (byte) face.get3DDataValue());
+                target.putInt("x", pos.getX() - selected.getX());
+                target.putInt("y", pos.getY() - selected.getY());
+                target.putInt("z", pos.getZ() - selected.getZ());
+
+                nbt.put("target", target);
+                be.load(nbt);
+
+                PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
+                PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(selected));
+                FaithPlateTER.selected = null;
+
+                return ActionResult.success(itemStack);
             }
-            FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
-            // i have no idea why on earth this is needed but i wont touch it
-            boolean enabled = false;
-            // Set the default height to dist / n
-            if (be.getTargetPos() == null) {
-                be.setHeight((float) (pos.distManhattan(selected) / 4.0));
-                enabled = true;
+            if(TriggerTileEntity.selected != null) {
+                if(TriggerTileEntity.selectingEnd != null) {
+                    PacketInit.INSTANCE.sendToServer(new CTriggerEndConfigPacket(
+                            TriggerTileEntity.selected.getBlockPos(),
+                            TriggerTileEntity.selectingStart,
+                            TriggerTileEntity.selectingEnd
+                    ));
+
+                    TriggerTileEntity.selected = null;
+                    TriggerTileEntity.selectingStart = null;
+                    TriggerTileEntity.selectingEnd = null;
+                    return ActionResult.success(itemStack);
+
+                } else if(TriggerTileEntity.selectingStart != null) {
+                    TriggerTileEntity.selectingEnd = new BlockPos(TriggerTileEntity.selectingStart);
+                    return ActionResult.success(itemStack);
+                }
             }
-
-            CompoundNBT nbt = new CompoundNBT();
-            CompoundNBT target = new CompoundNBT();
-            target.putFloat("height", be.getHeight());
-            nbt.putBoolean("enabled", enabled || be.isEnabled());
-
-            target.putByte("side", (byte) face.get3DDataValue());
-            target.putInt("x", pos.getX() - selected.getX());
-            target.putInt("y", pos.getY() - selected.getY());
-            target.putInt("z", pos.getZ() - selected.getZ());
-
-            nbt.put("target", target);
-            be.load(nbt);
-
-            PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
-            PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(selected));
-            FaithPlateTER.selected = null;
-
-            return ActionResult.success(itemStack);
         }
 
         return super.use(level, player, hand);

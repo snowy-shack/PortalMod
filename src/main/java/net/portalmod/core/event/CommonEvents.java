@@ -23,6 +23,7 @@ import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PartialPortalPair;
 import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.portal.SPortalPairPacket;
+import net.portalmod.common.sorted.trigger.TriggerTileEntity;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
@@ -74,6 +75,7 @@ public class CommonEvents {
             return;
 
         FaithPlateTileEntity.endConfigurationForPlayer((PlayerEntity)event.getEntity());
+        TriggerTileEntity.endConfigurationForPlayer((PlayerEntity)event.getEntity());
     }
 
     @SubscribeEvent

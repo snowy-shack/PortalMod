@@ -42,6 +42,7 @@ import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
+import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
@@ -93,6 +94,7 @@ public class ClientModEvents {
 //        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLOWING.get(), RenderType.translucent());
 
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
+        ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.TRIGGER.get(), TriggerTER::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
@@ -157,6 +159,9 @@ public class ClientModEvents {
 //                event.addSprite(texture);
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
+            event.addSprite(WatermarkRenderer.WM_LEFT);
+            event.addSprite(WatermarkRenderer.WM_RIGHT);
+            event.addSprite(TriggerTER.FIELD_TEXTURE);
         }
     }
 }

@@ -18,6 +18,9 @@ import net.portalmod.common.sorted.portalgun.SPortalGunFailShotPacket;
 import net.portalmod.common.sorted.portalgun.skins.CSetPlayerSkinPacket;
 import net.portalmod.common.sorted.portalgun.skins.SSetPlayerSkinPacket;
 import net.portalmod.common.sorted.radio.SRadioUpdatePacket;
+import net.portalmod.common.sorted.trigger.CTriggerAbortConfigPacket;
+import net.portalmod.common.sorted.trigger.CTriggerEndConfigPacket;
+import net.portalmod.common.sorted.trigger.STriggerStartConfigPacket;
 import net.portalmod.core.packet.*;
 
 import java.util.function.Supplier;
@@ -45,6 +48,7 @@ public class PacketInit {
         register(new SPortalGunFailShotPacket(),        NetworkDirection.PLAY_TO_CLIENT);
         register(new SSpawnChamberSignPacket(),         NetworkDirection.PLAY_TO_CLIENT);
         register(new SFaithPlateStartConfigPacket(),    NetworkDirection.PLAY_TO_CLIENT);
+        register(new STriggerStartConfigPacket(),       NetworkDirection.PLAY_TO_CLIENT);
 
         register(new CFaithPlateUpdatedPacket(),        NetworkDirection.PLAY_TO_SERVER);
         register(new CFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_SERVER);
@@ -52,7 +56,9 @@ public class PacketInit {
         register(new CPlayerPortalTeleportPacket(),     NetworkDirection.PLAY_TO_SERVER);
         register(new CSetPlayerSkinPacket(),            NetworkDirection.PLAY_TO_SERVER);
         register(new CTestElementHoldingPacket(),       NetworkDirection.PLAY_TO_SERVER);
-        register(new CFaithPlateEndConfigPacket(), NetworkDirection.PLAY_TO_SERVER);
+        register(new CFaithPlateEndConfigPacket(),      NetworkDirection.PLAY_TO_SERVER);
+        register(new CTriggerEndConfigPacket(),         NetworkDirection.PLAY_TO_SERVER);
+        register(new CTriggerAbortConfigPacket(),       NetworkDirection.PLAY_TO_SERVER);
 
         // TODO use this below too
         
