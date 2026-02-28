@@ -15,6 +15,7 @@ import net.portalmod.core.math.Vec3;
 import org.lwjgl.opengl.GL11;
 
 public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
+    private static final long START_TIME = System.currentTimeMillis();
     public static final ResourceLocation FIELD_TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/block/trigger_field.png");
     private static BufferBuilder triggerBuffer;
 
@@ -104,10 +105,12 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         float y1 = y0 + sizeY;
         float z1 = z0 + sizeZ;
 
+        float offset = ((System.currentTimeMillis() - START_TIME) / 100 * 0.125f) % 1.0f;
+
         float u0 = inside ? .5f : 0;
-        float v0 = 0;
+        float v0 = offset;
         float u1 = inside ? 1 : .5f;
-        float v1 = .5f;
+        float v1 = offset + .125f;
 
         bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x0, y0, z1).uv(u1, v1).endVertex();
@@ -122,10 +125,12 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         float x1 = x0 + sizeX;
         float z1 = z0 + sizeZ;
 
+        float offset = ((System.currentTimeMillis() - START_TIME) / 100 * 0.125f) % 1.0f;
+
         float u0 = inside ? .5f : 0;
-        float v0 = 0;
+        float v0 = offset;
         float u1 = inside ? 1 : .5f;
-        float v1 = .5f;
+        float v1 = offset + .125f;
 
         bb.vertex(matrixStack.last().pose(), x1, y0, z1).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x0, y0, z1).uv(u1, v1).endVertex();
@@ -140,10 +145,12 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         float x1 = x0 + sizeX;
         float y1 = y0 + sizeY;
 
+        float offset = ((System.currentTimeMillis() - START_TIME) / 100 * 0.125f) % 1.0f;
+
         float u0 = inside ? .5f : 0;
-        float v0 = 0;
+        float v0 = offset;
         float u1 = inside ? 1 : .5f;
-        float v1 = .5f;
+        float v1 = offset + .125f;
 
         bb.vertex(matrixStack.last().pose(), x1, y0, z0).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u1, v1).endVertex();
@@ -158,10 +165,12 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         float y1 = y0 + sizeY;
         float z1 = z0 + sizeZ;
 
+        float offset = ((System.currentTimeMillis() - START_TIME) / 100 * 0.125f) % 1.0f;
+
         float u0 = inside ? .5f : 0;
-        float v0 = 0;
+        float v0 = offset;
         float u1 = inside ? 1 : .5f;
-        float v1 = .5f;
+        float v1 = offset + .125f;
 
         bb.vertex(matrixStack.last().pose(), x0, y0, z1).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u1, v1).endVertex();
@@ -176,10 +185,12 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         float x1 = x0 + sizeX;
         float z1 = z0 + sizeZ;
 
+        float offset = ((System.currentTimeMillis() - START_TIME) / 100 * 0.125f) % 1.0f;
+
         float u0 = inside ? .5f : 0;
-        float v0 = 0;
+        float v0 = offset;
         float u1 = inside ? 1 : .5f;
-        float v1 = .5f;
+        float v1 = offset + .125f;
 
         bb.vertex(matrixStack.last().pose(), x0, y0, z1).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x1, y0, z1).uv(u1, v1).endVertex();
@@ -194,10 +205,12 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         float x1 = x0 + sizeX;
         float y1 = y0 + sizeY;
 
+        float offset = ((System.currentTimeMillis() - START_TIME) / 100 * 0.125f) % 1.0f;
+
         float u0 = inside ? .5f : 0;
-        float v0 = 0;
+        float v0 = offset;
         float u1 = inside ? 1 : .5f;
-        float v1 = .5f;
+        float v1 = offset + .125f;
 
         bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x1, y0, z0).uv(u1, v1).endVertex();
