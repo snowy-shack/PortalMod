@@ -58,6 +58,7 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
+import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.Flingable;
@@ -153,8 +154,12 @@ public class ClientEvents {
                 ((Flingable)player).setFlinging(false);
 
         if(event.phase == Phase.END && player.isLocalPlayer()) {
-            if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get())
-                FaithPlateTER.selected = null;
+            if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get()) {
+                if(FaithPlateTER.selected != null) {
+                    PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(FaithPlateTER.selected));
+                    FaithPlateTER.selected = null;
+                }
+            }
         }
 
 //        if(player.abilities.flying && !player.isPassenger()) {
