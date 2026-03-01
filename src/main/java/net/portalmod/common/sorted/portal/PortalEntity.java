@@ -61,11 +61,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     private Direction direction = Direction.SOUTH;
     private Direction up = Direction.UP;
     private UUID gunUUID;
-    private int age = 0;
-
     private String hue = "blue";
-    private String primary_color = "blue";
-    private String secondary_color = "orange";
+    private int age = 0;
 
     public PortalEntity(EntityType<? extends PortalEntity> type, World level) {
         super(type, level);
@@ -134,6 +131,25 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return point.clone().transform(portalToPortalMatrix);
     }
 
+    public Vec3 teleportVector(Vec3 vector) {
+        if(!this.isOpen())
+            return vector;
+
+        Optional<PortalEntity> targetPortalOptional = this.getOtherPortal();
+        if(!targetPortalOptional.isPresent()) {
+            PartialPortal targetPartialPortal = ClientPortalManager.getInstance().getPartial(this.gunUUID, this.end.other());
+            if(targetPartialPortal == null)
+                return vector;
+
+            Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalRotationMatrix(this, targetPartialPortal);
+            return vector.clone().transform(portalToPortalMatrix);
+        }
+
+        PortalEntity targetPortal = targetPortalOptional.get();
+        Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalRotationMatrix(this, targetPortal);
+        return vector.clone().transform(portalToPortalMatrix);
+    }
+
     public boolean canPointEnter(Vec3 point) {
         Optional<PortalEntity> targetPortalOptional = this.getOtherPortal();
         if(!this.isOpen() || (!targetPortalOptional.isPresent() && !ClientPortalManager.getInstance().hasPartial(this.gunUUID, this.end.other())))
@@ -144,35 +160,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return distance.dot(this.getNormal()) < 0;
     }
 
-    public boolean canEntityEnter(Entity entity, Vector3d delta) {
-        Optional<PortalEntity> targetPortalOptional = this.getOtherPortal();
-        if(!this.isOpen() || !targetPortalOptional.isPresent())
-            return false;
-
-        Vec3 portalPos = new Vec3(this.position());
-        Vec3 entityPos = new Vec3(entity.getBoundingBox().getCenter().add(delta));
-        Vec3 distance = entityPos.clone().sub(portalPos);
-        return distance.dot(this.getNormal()) < 0;
-    }
-
-    /*
-     * STEPS TO PROPERLY TELEPORT ENTITY:
-     * 1. get all the portals:
-     *    - that are open
-     *    - that the entity is aligned with
-     *    - for which the entity's previous center was in front of its plane
-     *    - for which the entity's next center will be behind its plane
-     *    - that are not behind the last portal (in the recursion) the entity came out of
-     * 2. use the first portal
-     * 3. get the offset between the entity's position and the entity's center
-     * 4. teleport the entity's position
-     * 5. reposition bounding box using 3.'s offset
-     * 6. recurse
-     */
     private static Vector3d recursivelyTeleportEntity(Entity entity, Vector3d delta, PortalEntity justExited, int depth) {
-//        if(true)
-//            return delta;
-
         if(depth > 100 || (!entity.level.isClientSide && entity instanceof PlayerEntity))
             return delta;
 
@@ -184,68 +172,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             }
         }
 
-//        AxisAlignedBB bb = entity.getBoundingBox();
-
         Vec3 positionToCenterVector = new Vec3(entity.getBoundingBox().getCenter()).sub(entity.position());
-//        Vec3 deltaCenterToCenter = new Vec3(delta);
-//        Vec3 toNewPoseVector = new Vec3(0);
-
-//        if(entity instanceof ClientPlayerEntity) {
-////            Pose nextPose = ((IGetPose)entity).pmGetNextPose();
-////            if(nextPose != entity.getPose()) {
-////                AxisAlignedBB aabb = ((EntityAccessor)entity).pmGetBoundingBoxForPose(nextPose);
-////                aabb = aabb.move(new Vec3(entity.position()).add(delta).to3d());
-////                Vector3d center = aabb.getCenter();
-////                toNewPoseVector = new Vec3(center.subtract(entity.getBoundingBox().getCenter()));
-////            }
-//            if(entity.isCrouching() && entity.getPose() != Pose.CROUCHING) {
-//                AxisAlignedBB aabb = ((EntityAccessor)entity).pmGetBoundingBoxForPose(Pose.CROUCHING);
-//                aabb = aabb.move(new Vec3(entity.position()).add(delta).to3d());
-//                Vector3d center = aabb.getCenter();
-//                toNewPoseVector = new Vec3(center.subtract(entity.getBoundingBox().getCenter()));
-//            }
-//        }
 
         World level = entity.level;
         Vector3d tmpDelta = ((EntityAccessor)entity).pmCollide(delta);
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(tmpDelta);
 
-//        Vector3d finalDelta = delta;
-//        Vec3 finalToNewPoseVector = toNewPoseVector;
         List<PortalEntity> portals = getOpenPortals(level, travelAABB, portal -> {
             Vec3 entityOldPos = new Vec3(entity.getBoundingBox().getCenter());
             Vec3 entityPos = entityOldPos.clone().add(tmpDelta);
-//            Vec3 entityPos = entityOldPos.clone().add(tmpDelta).add(finalToNewPoseVector);
-
-//            Field tickField = ObfuscationReflectionHelper.findField(GameRenderer.class, "tick");
-//            try {
-//                int tick = (int)tickField.get(Minecraft.getInstance().gameRenderer);
-//                System.out.print(tick);
-//            } catch(IllegalAccessException e) {
-//                throw new RuntimeException(e);
-//            }
-
-//            System.out.print(" " + entity.level.isClientSide);
-//            System.out.print(" " + portal.isEntityAlignedToPortal(entity));
-//            System.out.print(" " + !portal.canPointEnter(entityOldPos));
-//            System.out.print(" " + portal.canPointEnter(entityPos));
-//            System.out.print(" " + justExited);
-//            System.out.print(" " + (justExited == null));
-//            if(justExited != null) {
-//                System.out.print(" " + new Vec3(portal.position()).sub(justExited.position()).dot(justExited.getNormal()));
-//                System.out.print(" " + (new Vec3(portal.position()).sub(justExited.position()).dot(justExited.getNormal()) > 0));
-//                System.out.print(" " + (portal == justExited));
-//            }
-
-//            System.out.print(" " + (
-//                    portal.isEntityAlignedToPortal(entity)
-//                    && !portal.canPointEnter(entityOldPos) && portal.canPointEnter(entityPos)
-//                    && (justExited == null
-//                    || new Vec3(portal.position()).sub(justExited.position()).dot(justExited.getNormal()) > 0
-//                    || portal == justExited)
-//            ));
-
-//            System.out.print("\n");
 
             return portal.isEntityAlignedToPortal(entity)
                     && !portal.canPointEnter(entityOldPos) && portal.canPointEnter(entityPos)
@@ -254,27 +189,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                         || portal == justExited);
         });
 
-//        System.out.print("\n");
-
         if(portals.isEmpty())
             return delta;
 
-//        Field tickField = ObfuscationReflectionHelper.findField(GameRenderer.class, "tick");
-//        try {
-//            int tick = (int)tickField.get(Minecraft.getInstance().gameRenderer);
-//            System.out.println(tick);
-//            System.out.println(portals);
-//        } catch(IllegalAccessException e) {
-//            throw new RuntimeException(e);
-//        }
-
         PortalEntity portal = portals.get(0);
 
-//        System.out.print(" " + new Vec3(entity.position()).add(delta).add(positionToCenterVector));
-
-//        System.out.println(entity.position());
-
-//        Vec3 teleportedPos = portal.teleportPoint(new Vec3(entity.position()));
         Vec3 teleportedCenter = portal.teleportPoint(new Vec3(entity.getBoundingBox().getCenter()));
         Vec3 oldTeleportedCenter = teleportedCenter.clone();
 
@@ -289,61 +208,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 .move(new Vec3(entity.getBoundingBox().getCenter()).negate().to3d())
                 .move(teleportedCenter.to3d()));
 
-//        System.out.println(entity.position());
-
-//        entity.getViewVector(0);
-
-
-
-
-
-
-
-
-
-
         Optional<PortalEntity> targetPortalOptional = portal.getOtherPortal();
         if(!portal.isOpen() || !targetPortalOptional.isPresent())
             return delta;
 
-//        delta = delta.add(toNewPoseVector.to3d());
-
         PortalEntity targetPortal = targetPortalOptional.get();
-        Vec3 portalPos = new Vec3(portal.getBoundingBox().getCenter());
-        Vec3 targetPortalPos = new Vec3(targetPortal.getBoundingBox().getCenter());
-
-        Mat4 portal1Matrix;
-        Mat4 portal2Matrix;
-
-        {
-            Vector3f z1 = new Vec3(portal.getDirection().getNormal()).to3f();
-            Vector3f y1 = new Vec3(portal.getUpVector().getNormal()).to3f();
-            Vector3f x1 = y1.copy();
-            x1.cross(z1);
-
-            portal1Matrix = new Mat4(
-                    x1.x(), x1.y(), x1.z(), 0,
-                    y1.x(), y1.y(), y1.z(), 0,
-                    z1.x(), z1.y(), z1.z(), 0,
-                    0, 0, 0, 1
-            );
-        }
-
-        {
-            Vector3f z1 = new Vec3(targetPortal.getDirection().getOpposite().getNormal()).to3f();
-            Vector3f y1 = new Vec3(targetPortal.getUpVector().getNormal()).to3f();
-            Vector3f x1 = y1.copy();
-            x1.cross(z1);
-
-            portal2Matrix = new Mat4(
-                    x1.x(), x1.y(), x1.z(), 0,
-                    y1.x(), y1.y(), y1.z(), 0,
-                    z1.x(), z1.y(), z1.z(), 0,
-                    0, 0, 0, 1
-            );
-        }
-
-        portal2Matrix.transpose();
 
         double gravity = 0.08;
         if(entity instanceof LivingEntity)
@@ -403,15 +272,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             ((IDragCancelable)entity).pmSetCancelDrag(true);
         }
 
-        delta = new Vec3(delta)
-                .transform(portal1Matrix)
-                .transform(portal2Matrix)
-                .to3d();
-
-        entity.setDeltaMovement(new Vec3(dm)
-                .transform(portal1Matrix)
-                .transform(portal2Matrix)
-                .to3d());
+        delta = portal.teleportVector(new Vec3(delta)).to3d();
+        entity.setDeltaMovement(portal.teleportVector(new Vec3(dm)).to3d());
 
         OrthonormalBasis portalBasis = portal.getSourceBasis();
         OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
@@ -446,28 +308,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                         .add(new Vec3(targetPortal.direction).mul(target - amount)).to3d());
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//        delta = portal.teleportPoint(new Vec3(delta)).to3d();
-
-//        System.out.print(" " + teleportedPos.clone().add(positionToCenterVector));
-//        System.out.print("\n");
-
-//        Optional<PortalEntity> targetPortalOptional = portal.getOtherPortal();
-//        PortalEntity targetPortal = targetPortalOptional.get();
-
-        // todo square aabb
         // todo send custom packet for this
         ((ITeleportable)entity).setLastUsedPortal(portal.getId());
         ((ITeleportable2)entity).setJustUsedPortal(targetPortal.getId());
@@ -484,28 +324,16 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         }
 
         if(justExited == null && entity instanceof PlayerEntity && entity.level.isClientSide)
-//            if(PortalEntityClient.hasConnection())
                 // todo don't send from client instead do on server
                 PacketInit.INSTANCE.sendToServer(new CPlayerPortalTeleportPacket());
         ((ITeleportLerpable)entity).setHasUsedPortal(true);
 
         return recursivelyTeleportEntity(entity, delta, targetPortal, depth + 1);
-//        return delta;
-//        return Vector3d.ZERO;
-//        return delta;
     }
 
     public static Vector3d teleportEntity(Entity entity, Vector3d delta) {
         ((ITeleportable2)entity).removeJustUsedPortal();
-
-//        Deque<DiscontinuousLerpPos> lerpPosQueue = ((IDiscontinuouslyLerpable)entity).getLerpPosQueue();
-//        if(!lerpPosQueue.isEmpty())
-//            lerpPosQueue.peekLast().extendLerp(entity.position());
-//        if(recursivelyTeleportEntity(entity, delta, null) || lerpPosQueue.isEmpty())
-//            lerpPosQueue.add(new DiscontinuousLerpPos(entity.position()));
-
         return recursivelyTeleportEntity(entity, delta, null, 0);
-//        return delta;
     }
 
     public static Vector3d doFunneling(Entity entity, Vector3d delta) {
@@ -586,111 +414,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return delta.add(idealNextPos.clone().sub(nextEntityPos).mul(.5).to3d());
     }
 
-    public static void afterEntityTick(Entity entity) {
-
-    }
-    
-    private void teleportEntities() {
-        if(!this.isOpen())
-            return;
-        
-        PortalPair pair = PortalPairCache.CLIENT.get(this.gunUUID);
-        if(pair == null)
-            return;
-
-        PortalEntity targetPortal = pair.get(this.end.other());
-        if(targetPortal == null)
-            return;
-        
-        Vector3f normal = new Vec3(this.direction.getNormal()).to3f();
-        Vector3f normal2 = new Vec3(this.direction.getNormal()).to3f();
-        normal.mul(.5f);
-        normal2.mul(PortalEntityRenderer.OFFSET * 10);
-        Vector3d portalPos = Vector3d.atCenterOf(this.blockPosition())
-                .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
-        
-        Vector3f targetnormal = new Vec3(targetPortal.direction.getNormal()).to3f();
-        Vector3f targetnormal2 = new Vec3(targetPortal.direction.getNormal()).to3f();
-        targetnormal.mul(.5f);
-        targetnormal2.mul(PortalEntityRenderer.OFFSET * 10);
-        Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
-                .subtract(new Vector3d(targetnormal)).add(new Vector3d(targetnormal2));
-        
-        List<Entity> entities = this.level.getEntities(this, this.getBoundingBox());
-        for(Entity entity : entities) {
-            Vector3d entityPos = entity.position().add(0, entity.getBbHeight() / 2, 0);
-            Vector3d distance = entityPos.subtract(portalPos);
-            
-            if(distance.dot(new Vec3(this.direction.getNormal()).to3d()) < 0) {
-//                System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                
-                Vector3d move = targetPortalPos.subtract(portalPos);
-                Vector3d pos = entity.position().add(move);
-                entity.setPos(pos.x, pos.y, pos.z);
-                entity.xo += move.x;
-                entity.yo += move.y;
-                entity.zo += move.z;
-                entity.xOld += move.x;
-                entity.yOld += move.y;
-                entity.zOld += move.z;
-                
-                
-                
-//                Vector3d momentum = entity.getDeltaMovement();
-//                Vector3d momentumNew = new Vector3d(momentum.x, momentum.z, -momentum.y);
-//                entity.setDeltaMovement(momentumNew);
-//                
-//                entity.xRot -= 90;
-//                entity.xRotO -= 90;
-                
-//                Vector3d delta = entity.getDeltaMovement();
-//                Vector3d newDelta = new Vector3d(delta.x, delta.y, -delta.z);
-//                entity.setDeltaMovement(newDelta);
-                
-//                if(!this.level.isClientSide && false) {
-//                    PacketInit.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> this),
-//                            new EntityTeleportClientPacket(entity.getId(), move));
-//                }
-                
-//                if(entity instanceof AbstractMinecartEntity) {
-//                    System.out.println("hasdw");
-//                    AbstractMinecartEntityAccessor minecart = (AbstractMinecartEntityAccessor)(AbstractMinecartEntity)entity;
-//                    minecart.pmSetLX(minecart.pmGetLX() + move.x);
-//                    minecart.pmSetLY(minecart.pmGetLY() + move.y);
-//                    minecart.pmSetLZ(minecart.pmGetLZ() + move.z);
-//                }
-            }
-        }
-    }
-
     public Vec3 projectPointOnPortalSurface(Vec3 point) {
         Vec3 portalToPoint = point.sub(this.getBoundingBox().getCenter());
         Vec3 n = new Vec3(this.getDirection().getNormal());
         Vec3 y = new Vec3(this.getUpVector().getNormal());
         Vec3 x = y.clone().cross(n);
         return new Vec3(portalToPoint.dot(x), portalToPoint.dot(y), 0);
-    }
-
-    public boolean isBlockAlignedToPortal(BlockPos pos) {
-        // old code:
-//        for(BlockPos block : this.getBlocksBehind()) {
-//            boolean result = true;
-//            for(Direction.Axis axis : Direction.Axis.values()) {
-//                if(axis == this.getDirection().getAxis())
-//                    continue;
-//                if(pos.get(axis) != block.get(axis)) {
-//                    result = false;
-//                    break;
-//                }
-//            }
-//            if(result)
-//                return true;
-//        }
-//        return false;
-
-        return this.getBlocksBehind().stream().anyMatch(block ->
-                Arrays.stream(Direction.Axis.values()).allMatch(axis ->
-                        axis == this.getDirection().getAxis() || pos.get(axis) == block.get(axis)));
     }
 
     public boolean arePointsAlignedToPortal(Vec3... points) {
@@ -700,33 +429,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public boolean isEntityAlignedToPortal(Entity entity) {
-        return this.arePointsAlignedToPortal(
-//                new Vec3(entity.getBoundingBox().getCenter()),
-                new Vec3(entity.getBoundingBox().getCenter().add(entity.getDeltaMovement())));
+        return this.arePointsAlignedToPortal(new Vec3(entity.getBoundingBox().getCenter().add(entity.getDeltaMovement())));
     }
 
-    public boolean isAABBAlignedToPortal(AxisAlignedBB bb) {
-        AxisAlignedBB bounds = new AxisAlignedBB(-WIDTH / 2, -HEIGHT / 2, -1, WIDTH / 2, HEIGHT / 2, 1);
-        bounds = bounds.inflate(0.1);
-        Vec3 min = new Vec3(bb.minX, bb.minY, bb.minZ);
-        Vec3 max = new Vec3(bb.maxX, bb.maxY, bb.maxZ);
-        Vec3 projectedMin = this.projectPointOnPortalSurface(min);
-        Vec3 projectedMax = this.projectPointOnPortalSurface(max);
-        System.out.println(projectedMin);
-        System.out.println(projectedMax);
-        return bounds.contains(projectedMin.to3d()) && bounds.contains(projectedMax.to3d());
-//        Vec3 projected = this.projectPointOnPortalSurface(new Vec3(bb.getCenter()));
-//        System.out.println(projected);
-//        System.out.println(bounds.contains(projected.to3d()));
-//        return bounds.contains(projected.to3d());
-    }
-    
     public static boolean shouldSkipCollision(IBlockReader blockReader, BlockPos pos, ISelectionContext selectionContext) {
-//        if(true)
-//            return true;
-//        if(pos.getY() >= 50)
-//            return true;
-
         Entity entity = selectionContext.getEntity();
         if(entity == null || blockReader.getBlockState(pos).isAir())
             return false;
@@ -735,21 +441,14 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             PortalEntity portal = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
             if(portal == null)
                 return false;
-//            System.out.println(((ITeleportable2)entity).getJustUsedPortal());
-            if(new Vec3(pos).add(.5).sub(portal.position()).dot(portal.getNormal()) <= 0)
-//            if(true)
-                return true;
-//            if(!currentlyTeleporting)
-//                return false;
-        }
 
-//        if(((ITeleportable2)entity).hasJustUsedPortal() && !currentlyTeleporting)
-//            return false;
+            if(new Vec3(pos).add(.5).sub(portal.position()).dot(portal.getNormal()) <= 0)
+                return true;
+        }
 
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
 
         boolean ret = !getOpenPortals(entity.level, travelAABB, portal ->
-//            portal.isBlockAlignedToPortal(pos)
             new Vec3(Vector3d.atCenterOf(pos)).sub(portal.position()).dot(portal.getNormal()) < 0
             && portal.isEntityAlignedToPortal(entity)
             && !(entity.getDeltaMovement().dot(new Vector3d(portal.getNormal())) > 0
@@ -760,20 +459,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                     .dot(((PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal())).getNormal()) > 0)
                 )
         ).isEmpty();
-//        System.out.println(entity.position());
-//        System.out.println(entity.position().add(entity.getDeltaMovement()));
-//        System.out.println(ret);
-//        System.out.println(ret);
         return ret;
     }
 
     public static VoxelShape getCollisionShape(Entity entity) {
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
-
-//        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> {
-//            PortalEntity justExited = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
-//            return portal != justExited;
-//        });
 
         List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> true);
 
@@ -824,17 +514,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         AxisAlignedBB aabb = this.getBoundingBox().deflate(.001)
                 .move(new Vec3(this.getDirection().getOpposite().getNormal()).mul(1/16f).to3d());
         return AABBUtil.getBlocksWithin(aabb);
-    }
-
-    private List<BlockState> getBlockStates(List<BlockPos> blocks) {
-        return blocks.stream().map(level::getBlockState).collect(Collectors.toList());
-    }
-
-    private void updateBlocksBehind() {
-        for(BlockPos pos : getBlocksBehind()) {
-            BlockState state = level.getBlockState(pos);
-            level.sendBlockUpdated(pos, state, state, 0);
-        }
     }
 
     protected void recalculateBoundingBox() {
@@ -917,15 +596,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public boolean isOpen() {
-//        PortalPair pair = PortalPairCache.select(this.level).get(this.gunUUID);
-//        if(pair == null)
-//            return false;
-//        return pair.isFull();
-        // todo client side too
         if(this.level.isClientSide)
             return ClientPortalManager.getInstance().hasPartial(this.gunUUID, this.end.other());
         return PortalManager.getInstance().has(this.gunUUID, this.end.other());
-//                && PortalManager.get(this.gunUUID, this.end.other()).level == this.level;
     }
 
     public void setEnd(PortalEnd end) {
@@ -1017,168 +690,13 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return (portalable || (inheriting && behindPortalable)) && (skipFrontBlock || frontNonBlocking);
     }
 
-    private enum Intersection {
-        UP, DOWN, BOTH, NONE
-    }
-
-    // todo adapt to unaligned
-    private Intersection getIntersection(PortalEntity portal, @Nullable Direction direction, boolean skipSame) {
-        if(skipSame && this.equals(portal))
-            return Intersection.NONE;
-        
-        BlockPos pos = this.blockPosition();
-        BlockPos targetPos = portal.blockPosition();
-        Intersection result = Intersection.NONE;
-        
-        if(direction != null)
-            pos = pos.relative(direction);
-        
-        if(portal.direction != this.direction)
-            return result;
-        
-        if(pos.equals(targetPos) || pos.equals(targetPos.relative(portal.up)))
-            result = Intersection.DOWN;
-        
-        pos = pos.relative(this.up);
-        if(pos.equals(targetPos) || pos.equals(targetPos.relative(portal.up)))
-            result = (result == Intersection.DOWN ? Intersection.BOTH : Intersection.UP);
-        
-        return result;
-    }
-
-    private boolean intersects(List<PortalEntity> portals) {
-        for(PortalEntity portal : portals)
-            if(this.getIntersection(portal, null, true) != Intersection.NONE)
-                return true;
-        return false;
-    }
-
     @Override
     public void setPos(double x, double y, double z) {
         this.setPosRaw(x, y, z);
     }
 
-    // todo revise 2 methods
-    private void setPos(BlockPos pos) {
-        this.setPos(pos.getX(), pos.getY(), pos.getZ());
-    }
-    
-    private void movePos(Direction direction) {
-        this.setPos(this.blockPosition().relative(direction));
-    }
-    
     private boolean equals(PortalEntity portal) {
         return portal.gunUUID.equals(this.gunUUID) && portal.end == this.end;
-    }
-
-    public boolean adjustShot(BlockRayTraceResult ray) {
-        // todo use blocks behind and ahead instead
-        BlockIterator interactor = new BlockIterator(this.level, this.blockPosition(), true)
-        .and(direction.getOpposite(), BlockTagInit::isPortalable);
-        
-        if(!interactor.getResult())
-            return false;
-        
-        List<PortalEntity> portals = getPortals(this.level, this.position(), 2, portal ->
-            portal != this && portal.isAlive() && portal.getDirection() == this.direction);
-        
-        for(PortalEntity portal : portals) {
-            switch(this.getIntersection(portal, null, true)) {
-                case UP:
-                    this.movePos(up.getOpposite());
-                    if(this.intersects(portals))
-                        return false;
-                    break;
-                    
-                case DOWN:
-                case BOTH:
-                    Vector3d offset = ray.getLocation().subtract(Vector3d.atCenterOf(ray.getBlockPos()));
-                    
-//                    Vector3f targetLeftNormal = new Vec3(portal.direction.getNormal()).to3f();
-//                    targetLeftNormal.cross(new Vec3(portal.up.getNormal()).to3f());
-                    Vector3f targetLeftNormal = new Vec3(portal.direction.getNormal()).cross(new Vec3(portal.up.getNormal()).to3f()).to3f();
-                    Direction targetLeft = Direction.fromNormal((int)targetLeftNormal.x(), (int)targetLeftNormal.y(), (int)targetLeftNormal.z());
-                    
-                    // TODO use abs
-                    double x = targetLeft.getAxis().choose(offset.x, offset.y, offset.z)
-                            * (targetLeft.getAxisDirection() == AxisDirection.NEGATIVE ? 1 : -1);
-                    double y = portal.up.getAxis().choose(offset.x, offset.y, offset.z)
-                            * (portal.up.getAxisDirection() == AxisDirection.NEGATIVE ? -1 : 1);
-                    
-                    boolean invert = blockPosition().equals(portal.blockPosition());
-                    
-                    if(invert)
-                        y *= -1;
-                    
-                    if(y > Math.abs(x)) {
-                        Direction portalUp = portal.up;
-                        
-                        if(invert)
-                            portalUp = portalUp.getOpposite();
-                        
-//                        if(this.getIntersection(portal, null, true) == Intersection.BOTH) {
-//                            this.setPos(this.blockPosition().relative(portalUp).relative(portalUp));
-//                        } else {
-//                            this.movePos(portalUp);
-//                        }
-                        
-                        this.movePos(portalUp);
-                        if(this.getIntersection(portal, null, true) != Intersection.NONE)
-                            this.movePos(portalUp);
-                    } else if(x >= 0) {
-                        this.movePos(targetLeft.getOpposite());
-                        if(this.getIntersection(portal, null, true) != Intersection.NONE)
-                            this.movePos(targetLeft.getOpposite());
-                    } else {
-                        this.movePos(targetLeft);
-                        if(this.getIntersection(portal, null, true) != Intersection.NONE)
-                            this.movePos(targetLeft);
-                    }
-                    
-                    break;
-                    
-                case NONE:
-                    continue;
-            }
-            
-            break;
-        }
-        
-        BlockIterator blockPush = new BlockIterator(this.level, this.blockPosition(), false)
-        .move(up)
-//        .or(b -> b != Blocks.AIR)
-        .or(b -> !b.is(BlockTagInit.PORTAL_NONBLOCKING))
-        .move(direction.getOpposite())
-        .or(b -> !BlockTagInit.isPortalable(b));
-        
-        if(blockPush.getResult()) {
-            blockPush
-            .and((pos, state, block) -> {
-                this.movePos(up.getOpposite());
-                return !this.intersects(portals);
-            });
-            
-            if(!blockPush.getResult())
-                return false;
-        }
-        
-        BlockIterator blockCheck = new BlockIterator(this.level, this.blockPosition(), true)
-//        .and(b -> b == Blocks.AIR)
-//        .and(up, b -> b == Blocks.AIR)
-        .and(b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
-        .and(up, b -> b.is(BlockTagInit.PORTAL_NONBLOCKING))
-        .move(direction.getOpposite())
-        .and(BlockTagInit::isPortalable)
-        .and(up, BlockTagInit::isPortalable)
-        .and((pos, state, block) -> {
-            for(PortalEntity portal : portals)
-                if(this.getIntersection(portal, null, false) == Intersection.BOTH
-                    && this.up == portal.up)
-                    return false;
-            return true;
-        });
-        
-        return blockCheck.getResult();
     }
 
     public static List<PortalEntity> getPortals(World level, Vector3d pos, float size, Predicate<PortalEntity> predicate) {
@@ -1209,11 +727,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public Optional<PortalEntity> getOtherPortal() {
-//        PortalPair pair = PortalPairCache.select(this.level).get(this.gunUUID);
-//        if(pair == null)
-//            return Optional.empty();
-//        return Optional.ofNullable(pair.get(this.end.other()));
-        // todo also client
         if(this.level.isClientSide)
             return Optional.ofNullable(ClientPortalManager.getInstance().get(this.gunUUID, this.end.other()));
         return Optional.ofNullable(PortalManager.getInstance().get(this.gunUUID, this.end.other()));
@@ -1226,9 +739,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(this.level.isClientSide)
             return;
 
-//        updateBlocksBehind();
-//        PortalPairCache.select(this.level).remove(gunUUID, this);
-//        if(!this.level.isClientSide)
         if(!PortalManager.getInstance().unloadingChunk) {
             PortalManager.getInstance().remove(this.gunUUID, this);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SForgetPortalPacket(this.gunUUID, this.end));
@@ -1316,11 +826,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void setHue(String hue) {
         this.hue = hue;
     }
-    public void setColor(String color, boolean isPrimary) {
-        if (isPrimary) { this.primary_color = color;
-        } else this.secondary_color = color;
-        System.out.println("test");
-    }
 
     public String getColor() {
         return this.hue;
@@ -1345,7 +850,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         buffer
         .writeUUID(this.gunUUID)
         .writeEnum(this.end)
-//        .writeBlockPos(this.otherPortalPos)
         .writeByte((byte)this.up.get3DDataValue())
         .writeByte((byte)this.direction.get3DDataValue())
         .writeByte(DyeColor.valueOf(this.hue.toUpperCase()).getId());
@@ -1355,28 +859,18 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void readSpawnData(PacketBuffer buffer) {
         this.gunUUID = buffer.readUUID();
         this.end = buffer.readEnum(PortalEnd.class);
-//        this.otherPortalPos = buffer.readBlockPos();
         this.up = Direction.from3DDataValue(buffer.readByte());
         this.setDirection(Direction.from3DDataValue(buffer.readByte()));
         this.hue = DyeColor.byId(buffer.readByte()).getName();
         this.recalculateBoundingBox();
 
         ClientPortalManager.getInstance().put(this.gunUUID, this.end, this);
-
-//        PortalPairCache.CLIENT.put(this.gunUUID, this.end, this);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundNBT nbt) {
         nbt.putString("end", this.end.getSerializedName());
         nbt.putUUID("gunUUID", this.gunUUID);
-
-//        CompoundNBT otherPortal = new CompoundNBT();
-//        otherPortal.putInt("x", this.otherPortalPos.getX());
-//        otherPortal.putInt("y", this.otherPortalPos.getY());
-//        otherPortal.putInt("z", this.otherPortalPos.getZ());
-//        nbt.put("otherPortal", otherPortal);
-
         nbt.putString("up", this.up.getSerializedName().toUpperCase());
         nbt.putString("facing", this.direction.getSerializedName().toUpperCase());
         nbt.putString("hue", this.hue);
@@ -1386,13 +880,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void readAdditionalSaveData(CompoundNBT nbt) {
         this.end = PortalEnd.valueOf(nbt.getString("end").toUpperCase());
         this.gunUUID = nbt.getUUID("gunUUID");
-
-//        CompoundNBT otherPortal = (CompoundNBT)nbt.get("otherPortal");
-//        int x = otherPortal.getInt("x");
-//        int y = otherPortal.getInt("y");
-//        int z = otherPortal.getInt("z");
-//        this.otherPortalPos = new BlockPos(x, y, z);
-
         this.up = Direction.valueOf(nbt.getString("up"));
         this.setDirection(Direction.valueOf(nbt.getString("facing")));
         this.hue = nbt.getString("hue");
