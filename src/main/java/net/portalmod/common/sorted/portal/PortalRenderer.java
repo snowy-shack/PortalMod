@@ -24,6 +24,7 @@ import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.math.Mat4;
@@ -449,6 +450,7 @@ public class PortalRenderer {
 
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
+                TriggerTER.renderAllTriggers();
 
                 TileEntityRendererDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
