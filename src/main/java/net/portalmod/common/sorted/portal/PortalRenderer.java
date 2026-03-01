@@ -256,13 +256,9 @@ public class PortalRenderer {
         Framebuffer mainFBO = mc.getMainRenderTarget();
         mc.levelRenderer.renderBuffers.bufferSource().endBatch();
 
-        ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
-
         if(recursion == 0) {
             currentlyRenderingPortals = true;
             fabulousGraphics = mc.options.graphicsMode == GraphicsFanciness.FABULOUS;
-
-            renderChunks.addAll(mc.levelRenderer.renderChunks);
 
             if(fabulousGraphics) {
                 int w = mc.getWindow().getWidth();
@@ -284,6 +280,9 @@ public class PortalRenderer {
 
         renderedPortals = 0;
 
+        ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
+        renderChunks.addAll(mc.levelRenderer.renderChunks);
+
         for(Entity entity : level.entitiesForRendering()) {
             if(entity instanceof PortalEntity) {
                 renderPortal((PortalEntity)entity, camera, clippingHelper, projectionMatrix, partialTicks, fabulousGraphics);
@@ -291,11 +290,11 @@ public class PortalRenderer {
             }
         }
 
+        mc.levelRenderer.renderChunks.clear();
+        mc.levelRenderer.renderChunks.addAll(renderChunks);
+
         if(recursion == 0) {
             currentlyRenderingPortals = false;
-
-            mc.levelRenderer.renderChunks.clear();
-            mc.levelRenderer.renderChunks.addAll(renderChunks);
         }
 
         if(fabulousGraphics) {
