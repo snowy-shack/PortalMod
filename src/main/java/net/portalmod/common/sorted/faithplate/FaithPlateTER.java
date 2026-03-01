@@ -168,11 +168,14 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         lineBuffer.vertex(matrix4f, x, y, z).color(1, 1, 1, 1f).endVertex();
     }
 
-    private void renderTarget(MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, Vector3i pos, Direction face, int light, int overlay) {
+    private void renderTarget(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, Vector3i pos, Direction face, int light, int overlay) {
+        float distance = (float)Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().subtract(new Vec3(pos).add(be.getBlockPos()).to3d()).dot(new Vec3(face).to3d());
+        distance = (float)Math.min(0.0001 + Math.max(0.1 / 200 * (distance - 5), 0), 0.1);
+
         matrixStack.pushPose();
         matrixStack.translate(pos.getX(), pos.getY(), pos.getZ());
         renderBuffer.getBuffer(RenderType.cutout()).putBulkData(matrixStack.last(),
-                new FaithPlateTargetBakedModel().getQuads(null, face, new Random(), EmptyModelData.INSTANCE).get(0),
+                new FaithPlateTargetBakedModel().getQuad(face, distance),
                 1, 1, 1, light, overlay);
         matrixStack.popPose();
     }
@@ -199,7 +202,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         BlockPos plateBlockPos = be.getBlockPos();
         Vector3i renderTargetPos = absoluteTargetBlockPos.subtract(plateBlockPos);
         int targetBlockLight = getTargetLight(be.getLevel(), absoluteTargetBlockPos, targetFace);
-        renderTarget(matrixStack, renderBuffer, renderTargetPos, targetFace, targetBlockLight, overlay);
+        renderTarget(be, matrixStack, renderBuffer, renderTargetPos, targetFace, targetBlockLight, overlay);
     }
 
     private int getTargetLight(World level, BlockPos pos, Direction face) {
@@ -222,10 +225,10 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
             BlockPos pos = tr.getBlockPos();
 
             if ((selected == null || !selected.equals(be.getBlockPos()))) {
-                renderTarget(matrixStack, renderBuffer, pos, face, getTargetLight(be.getLevel(), pos.offset(be.getBlockPos()), face), overlay);
+                renderTarget(be, matrixStack, renderBuffer, pos, face, getTargetLight(be.getLevel(), pos.offset(be.getBlockPos()), face), overlay);
             }
         } else {
-            renderTarget(matrixStack, renderBuffer, be.getBlockPos(), be.getTargetFace(),
+            renderTarget(be, matrixStack, renderBuffer, be.getBlockPos(), be.getTargetFace(),
                     getTargetLight(be.getLevel(), be.getTargetPos().offset(be.getBlockPos()), be.getTargetFace()), overlay);
         }
 

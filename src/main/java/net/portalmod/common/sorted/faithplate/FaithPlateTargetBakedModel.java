@@ -91,9 +91,9 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
         return new Vector3d(x, y, z);
     }
 
-    private void addQuad(List<BakedQuad> quads, Direction side, TextureAtlasSprite texture) {
-        double l = -0.001;
-        double r = 1.001;
+    private void addQuad(List<BakedQuad> quads, Direction side, TextureAtlasSprite texture, float offset) {
+        double l = -offset;
+        double r = 1 + offset;
 
         switch(side) {
             case UP:    quads.add(createQuad(v(l, r, l), v(l, r, r), v(r, r, r), v(r, r, l), texture)); break;
@@ -108,13 +108,14 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
     @Nonnull
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-        if(side == null)
-            return Collections.emptyList();
+        return Collections.emptyList();
+    }
 
+    public BakedQuad getQuad(Direction side, float offset) {
         List<BakedQuad> quads = new ArrayList<>();
         addQuad(quads, side, Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS)
-                .apply(TextureInit.FAITHPLATE_TARGET));
-        return quads;
+                .apply(TextureInit.FAITHPLATE_TARGET), offset);
+        return quads.get(0);
     }
 
     @Override
