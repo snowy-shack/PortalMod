@@ -1,18 +1,23 @@
 package net.portalmod.common.sorted.goo;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MobEntity;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.item.ItemStack;
+import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemTagInit;
-import net.portalmod.core.util.ModUtil;
 import net.portalmod.mixins.accessors.EntityAccessor;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class GooBlock extends FlowingFluidBlock {
@@ -53,5 +58,11 @@ public class GooBlock extends FlowingFluidBlock {
 
     public static void handleGooDamage(LivingEntity entity, DamageSource damageSource) {
 //        entity.level.playSound(null, entity, entity.getHurtSound(damageSource), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
+    }
+
+    @Nullable
+    @Override
+    public PathNodeType getAiPathNodeType(BlockState state, IBlockReader world, BlockPos pos, @Nullable MobEntity entity) {
+        return PathNodeType.LAVA;
     }
 }
