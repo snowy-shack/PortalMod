@@ -1,6 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "group": "antline_converter",
+  "group": "antline_decoder",
   "ingredients": [
     {
       "item": "portalmod:antline_indicator"
@@ -10,6 +10,6 @@
     }
   ],
   "result": {
-    "item": "portalmod:antline_converter"
+    "item": "portalmod:antline_decoder"
   }
 }

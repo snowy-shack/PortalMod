@@ -2,6 +2,6 @@
   "parent": "portalmod:block/antline_indicator",
   "textures": {
     "back": "portalmod:block/antline_indicator_back",
-    "front": "portalmod:block/antline_converter_on"
+    "front": "portalmod:block/antline_decoder_off"
   }
 }

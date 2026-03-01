@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "antline_decoder",
+  "ingredients": [
+    {
+      "item": "portalmod:antline_encoder"
+    }
+  ],
+  "result": {
+    "item": "portalmod:antline_decoder"
+  }
+}

@@ -128,21 +128,21 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("has_item", HAS_INDICATOR)
                 .save(c);
 
-        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_CONVERTER.get())
+        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_DECODER.get())
                 .requires(ItemInit.ANTLINE_INDICATOR.get())
                 .requires(Items.REDSTONE)
                 .unlockedBy("has_item", HAS_INDICATOR)
-                .group("antline_converter")
-                .save(c, "portalmod:antline_converter_from_indicator");
+                .group("antline_decoder")
+                .save(c, "portalmod:antline_decoder_from_indicator");
 
-        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_CONVERTER.get())
-                .requires(ItemInit.ANTLINE_RECEIVER.get())
+        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_DECODER.get())
+                .requires(ItemInit.ANTLINE_ENCODER.get())
                 .unlockedBy("has_item", HAS_INDICATOR)
-                .group("antline_converter")
-                .save(c, "portalmod:antline_converter_from_receiver");
+                .group("antline_decoder")
+                .save(c, "portalmod:antline_decoder_from_encoder");
 
-        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_RECEIVER.get())
-                .requires(ItemInit.ANTLINE_CONVERTER.get())
+        ShapelessRecipeBuilder.shapeless(ItemInit.ANTLINE_ENCODER.get())
+                .requires(ItemInit.ANTLINE_DECODER.get())
                 .unlockedBy("has_item", HAS_INDICATOR)
                 .save(c);
 

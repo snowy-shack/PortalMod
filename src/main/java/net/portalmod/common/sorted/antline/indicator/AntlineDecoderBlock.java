@@ -18,10 +18,10 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class AntlineConverterBlock extends AntlineIcon implements AntlineActivated {
+public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated {
     public static final BooleanProperty ACTIVATED = BooleanProperty.create("activated");
 
-    public AntlineConverterBlock(Properties properties) {
+    public AntlineDecoderBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACE, AttachFace.FLOOR)
@@ -62,7 +62,7 @@ public class AntlineConverterBlock extends AntlineIcon implements AntlineActivat
 
     @Override
     public boolean ignoreActivationFromBlock(BlockState state) {
-        return state.getBlock() instanceof AntlineReceiverBlock;
+        return state.getBlock() instanceof AntlineEncoderBlock;
     }
 
     @Override
@@ -99,6 +99,6 @@ public class AntlineConverterBlock extends AntlineIcon implements AntlineActivat
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
-        ModUtil.addTooltip("antline_converter", list);
+        ModUtil.addTooltip("antline_decoder", list);
     }
 }

@@ -3,7 +3,7 @@
   "values": [
     "portalmod:antline_indicator",
     "portalmod:antline_timer",
-    "portalmod:antline_converter",
-    "portalmod:antline_receiver"
+    "portalmod:antline_decoder",
+    "portalmod:antline_encoder"
   ]
 }

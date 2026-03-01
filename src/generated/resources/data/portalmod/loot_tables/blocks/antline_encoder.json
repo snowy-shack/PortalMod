@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:antline_receiver"
+          "name": "portalmod:antline_encoder"
         }
       ],
       "conditions": [

@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "portalmod:antline_converter"
+          "name": "portalmod:antline_decoder"
         }
       ],
       "conditions": [

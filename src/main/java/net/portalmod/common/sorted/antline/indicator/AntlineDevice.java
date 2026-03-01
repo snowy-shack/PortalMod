@@ -98,11 +98,11 @@ Antline Device:
     Antline Icon:
         - Icon switching
 
-        Antline Converter:
+        Antline Decoder:
             - Activated by antline
             - Powers redstone
 
-        Antline Receiver:
+        Antline Encoder:
             - Activated by redstone
             - Powers antline
  */

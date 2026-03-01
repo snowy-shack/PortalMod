@@ -60,8 +60,8 @@ public class ItemInit {
 
     public static final RegistryObject<Item> ANTLINE_INDICATOR = registerBlockItem("antline_indicator", BlockInit.ANTLINE_INDICATOR);
     public static final RegistryObject<Item> ANTLINE_TIMER = registerBlockItem("antline_timer", BlockInit.ANTLINE_TIMER);
-    public static final RegistryObject<Item> ANTLINE_CONVERTER = registerBlockItem("antline_converter", BlockInit.ANTLINE_CONVERTER);
-    public static final RegistryObject<Item> ANTLINE_RECEIVER = registerBlockItem("antline_receiver", BlockInit.ANTLINE_RECEIVER);
+    public static final RegistryObject<Item> ANTLINE_DECODER = registerBlockItem("antline_decoder", BlockInit.ANTLINE_DECODER);
+    public static final RegistryObject<Item> ANTLINE_ENCODER = registerBlockItem("antline_encoder", BlockInit.ANTLINE_ENCODER);
 
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
     public static final RegistryObject<Item> PUSH_DOOR = registerBlockItem("push_door", BlockInit.PUSH_DOOR);

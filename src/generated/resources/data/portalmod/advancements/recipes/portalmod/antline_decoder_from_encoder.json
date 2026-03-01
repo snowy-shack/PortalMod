@@ -2,7 +2,7 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "portalmod:antline_receiver"
+      "portalmod:antline_decoder_from_encoder"
     ]
   },
   "criteria": {
@@ -19,7 +19,7 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "portalmod:antline_receiver"
+        "recipe": "portalmod:antline_decoder_from_encoder"
       }
     }
   },
