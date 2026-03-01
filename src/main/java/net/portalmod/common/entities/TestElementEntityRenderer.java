@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.LightType;
 
 public abstract class TestElementEntityRenderer<T extends TestElementEntity, M extends EntityModel<T>> extends LivingRenderer<T, M> {
     public TestElementEntityRenderer(EntityRendererManager manager, M model, float v) {
@@ -20,8 +21,10 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
         float f5 = (float)entity.getHurtTime() - p_225623_3_;
         float f6 = Math.max(0, entity.getDamage() - p_225623_3_);
 
-        int rawBrightness = entity.level.getLightEngine().getRawBrightness(entity.blockPosition(), 0);
-        light = LightTexture.pack(rawBrightness, rawBrightness); // Fixup the light to be that of the entity
+        light = LightTexture.pack(
+                entity.level.getBrightness(LightType.BLOCK, entity.blockPosition()),
+                entity.level.getBrightness(LightType.SKY, entity.blockPosition())
+        ); // Fixup the light to be that of the entity
 
         matrixStack.pushPose();
 
