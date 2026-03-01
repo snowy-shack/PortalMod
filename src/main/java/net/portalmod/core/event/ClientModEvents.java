@@ -157,8 +157,6 @@ public class ClientModEvents {
 //                event.addSprite(texture);
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
-            event.addSprite(WatermarkRenderer.WM_LEFT);
-            event.addSprite(WatermarkRenderer.WM_RIGHT);
         }
     }
 }
