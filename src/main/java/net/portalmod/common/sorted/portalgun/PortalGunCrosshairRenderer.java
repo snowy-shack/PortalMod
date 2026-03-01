@@ -58,7 +58,7 @@ public class PortalGunCrosshairRenderer {
             Vector3d to = from.add(rayPath);
 
             RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null);
-            BlockRayTraceResult rayTrace = level.clip(rayCtx);
+            BlockRayTraceResult rayTrace = PortalGun.customClip(level, rayCtx);
 
             boolean isPortalable = BlockTagInit.isPortalable(mc.level.getBlockState(rayTrace.getBlockPos()).getBlock());
             primaryFilled = isPortalable;

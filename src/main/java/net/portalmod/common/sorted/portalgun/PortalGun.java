@@ -147,7 +147,7 @@ public class PortalGun extends Item {
         return super.onDroppedByPlayer(item, player);
     }
 
-    private static BlockRayTraceResult customClip(World level, RayTraceContext context) {
+    public static BlockRayTraceResult customClip(World level, RayTraceContext context) {
         return IBlockReader.traverseBlocks(context, (ctx, pos) -> {
             BlockState blockstate = level.getBlockState(pos);
 
