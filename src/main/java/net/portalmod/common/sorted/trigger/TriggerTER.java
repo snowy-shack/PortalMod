@@ -159,63 +159,6 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         bb.vertex(matrixStack.last().pose(), negative ? x0 : x1, y1, z0).uv(u0, v0).endVertex();
     }
 
-    private void renderQuadXN(BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeY, float sizeZ, boolean inside) {
-        float x0 = (float)origin.x;
-        float y0 = (float)origin.y;
-        float z0 = (float)origin.z;
-        float y1 = y0 + sizeY;
-        float z1 = z0 + sizeZ;
-
-        float offset = this.getOffset();
-        float u0 = inside ? 1/2f : 0;
-        float v0 = offset + 0;
-        float u1 = inside ? 1 : 1/2f;
-        float v1 = offset + 1/8f;
-
-        bb.vertex(matrixStack.last().pose(), x0, y0, z1).uv(u0, v1).endVertex();
-        bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u1, v1).endVertex();
-        bb.vertex(matrixStack.last().pose(), x0, y1, z0).uv(u1, v0).endVertex();
-        bb.vertex(matrixStack.last().pose(), x0, y1, z1).uv(u0, v0).endVertex();
-    }
-
-    private void renderQuadYN(BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeX, float sizeZ, boolean inside) {
-        float x0 = (float)origin.x;
-        float y0 = (float)origin.y;
-        float z0 = (float)origin.z;
-        float x1 = x0 + sizeX;
-        float z1 = z0 + sizeZ;
-
-        float offset = this.getOffset();
-        float u0 = inside ? 1/2f : 0;
-        float v0 = offset + 0;
-        float u1 = inside ? 1 : 1/2f;
-        float v1 = offset + 1/8f;
-
-        bb.vertex(matrixStack.last().pose(), x0, y0, z1).uv(u0, v1).endVertex();
-        bb.vertex(matrixStack.last().pose(), x1, y0, z1).uv(u1, v1).endVertex();
-        bb.vertex(matrixStack.last().pose(), x1, y0, z0).uv(u1, v0).endVertex();
-        bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u0, v0).endVertex();
-    }
-
-    private void renderQuadZN(BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeX, float sizeY, boolean inside) {
-        float x0 = (float)origin.x;
-        float y0 = (float)origin.y;
-        float z0 = (float)origin.z;
-        float x1 = x0 + sizeX;
-        float y1 = y0 + sizeY;
-
-        float offset = this.getOffset();
-        float u0 = inside ? 1/2f : 0;
-        float v0 = offset + 0;
-        float u1 = inside ? 1 : 1/2f;
-        float v1 = offset + 1/8f;
-
-        bb.vertex(matrixStack.last().pose(), x0, y0, z0).uv(u0, v1).endVertex();
-        bb.vertex(matrixStack.last().pose(), x1, y0, z0).uv(u1, v1).endVertex();
-        bb.vertex(matrixStack.last().pose(), x1, y1, z0).uv(u1, v0).endVertex();
-        bb.vertex(matrixStack.last().pose(), x0, y1, z0).uv(u0, v0).endVertex();
-    }
-
     public static void renderAllTriggers() {
         if(triggerBuffer != null && triggerBuffer.building()) {
             triggerBuffer.sortQuads(0, 0, 0);
