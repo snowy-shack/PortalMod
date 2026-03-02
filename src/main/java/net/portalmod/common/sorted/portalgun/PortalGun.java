@@ -263,6 +263,7 @@ public class PortalGun extends Item {
         }
 
         if(portal == null) {
+            level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, 1f);
             PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                     new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
             return;

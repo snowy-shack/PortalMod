@@ -203,6 +203,10 @@
         "sounds": [ "portalmod:item/portalgun/fire_secondary" ],
         "subtitle": "subtitles.item.portalgun.fire"
     },
+    "item.portalgun.miss": {
+        "sounds": [ "portalmod:item/portalgun/miss" ],
+        "subtitle": "subtitles.item.portalgun.miss"
+    },
     "item.portalgun.lift": {
         "sounds": [ "portalmod:item/portalgun/lift" ]
     },

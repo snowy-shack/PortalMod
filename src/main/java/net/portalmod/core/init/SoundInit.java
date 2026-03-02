@@ -56,6 +56,7 @@ public class SoundInit {
     // ITEM
     public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_PRIMARY = register("item.portalgun.fire_primary");
     public static final RegistryObject<SoundEvent> PORTALGUN_FIRE_SECONDARY = register("item.portalgun.fire_secondary");
+    public static final RegistryObject<SoundEvent> PORTALGUN_MISS = register("item.portalgun.miss");
     public static final RegistryObject<SoundEvent> PORTALGUN_FIZZLE = register("item.portalgun.fizzle");
     public static final RegistryObject<SoundEvent> PORTALGUN_LIFT = register("item.portalgun.lift");
     public static final RegistryObject<SoundEvent> PORTALGUN_HOLD = register("item.portalgun.hold");
