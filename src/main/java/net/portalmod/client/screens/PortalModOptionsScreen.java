@@ -8,6 +8,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 import net.portalmod.PortalMod;
 import net.portalmod.client.screens.widgets.ToggleButton;
@@ -138,6 +139,26 @@ public class PortalModOptionsScreen extends Screen {
     private static class RecursionSlider extends Slider {
         public RecursionSlider(int x, int y, int width, int height, ITextComponent prefix, ITextComponent suf, double minVal, double maxVal, double currentVal, boolean showDec, boolean drawStr, IPressable handler) {
             super(x, y, width, height, prefix, suf, minVal, maxVal, currentVal, showDec, drawStr, handler);
+        }
+
+        @Override
+        protected void renderBg(MatrixStack matrixStack, Minecraft minecraft, int x, int y) {
+            if(this.visible) {
+                if(this.dragging) {
+                    this.sliderValue = (x - (this.x + 4)) / (float)(this.width - 8);
+                    updateSlider();
+                }
+
+                GuiUtils.drawContinuousTexturedBox(
+                        matrixStack,WIDGETS_LOCATION,
+                        this.x + (int)(this.sliderValue * (float)(this.width - 8)), this.y,
+                        0, 66 + (this.isHovered() ? 20 : 0),
+                        8, this.height,
+                        200, 20,
+                        2, 3, 2, 2,
+                        this.getBlitOffset()
+                );
+            }
         }
 
         @Override
