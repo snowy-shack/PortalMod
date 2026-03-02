@@ -164,7 +164,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(depth > 100 || (!entity.level.isClientSide && entity instanceof PlayerEntity))
             return delta;
 
-        if(!entity.isOnGround()) {
+        boolean inFluid = entity.isInWater() || entity.isInLava();
+
+        if(!inFluid && !entity.isOnGround()) {
             if(delta.y > 0 && delta.y * 0.98 - 0.08 < 0) {
                 delta = new Vector3d(delta.x, 0, delta.z);
                 Vector3d dm = entity.getDeltaMovement();
