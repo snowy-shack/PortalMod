@@ -286,6 +286,7 @@
   "subtitles.entity.chamber_sign.place": "Chamber Sign placed",
 
   "subtitles.item.portalgun.fire":     "Portal Gun fires",
+  "subtitles.item.portalgun.miss":     "Portal Gun misses shot",
   "subtitles.item.portalgun.fizzle":   "Portal Gun fizzles",
   "subtitles.item.portalgun.activate": "Portal Gun activates",
   "subtitles.item.portalgun.hold":     "Portal Gun buzzes",
