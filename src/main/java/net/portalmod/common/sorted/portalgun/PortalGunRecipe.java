@@ -29,20 +29,19 @@ public class PortalGunRecipe extends SpecialRecipe {
 
         // Whether another item besides the gun is present
         boolean hasModifier = false;
+        boolean hasChain = false;
 
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack item = inventory.getItem(i);
             if (!item.isEmpty() && i != 4) {
                 hasModifier = true;
 
-                // Check dyes
-                if ((i == 1 || i == 3 || i == 5) && item.getItem() instanceof DyeItem) {
-                    continue;
-                }
-
-                // Check chain
-                if (i == 7 && CHAIN_INGREDIENT.test(item)) {
-                    continue;
+                if ((i == 1 || i == 3 || i == 5)) {
+                    if (item.getItem() instanceof DyeItem) continue; // Check dyes
+                    if (CHAIN_INGREDIENT.test(item) && !hasChain) { // Check chain
+                        hasChain = true;
+                        continue;
+                    }
                 }
 
                 return false;
@@ -60,19 +59,20 @@ public class PortalGunRecipe extends SpecialRecipe {
         ItemStack accentDye = inventory.getItem(1);
         ItemStack leftDye = inventory.getItem(3);
         ItemStack rightDye = inventory.getItem(5);
-        ItemStack chain = inventory.getItem(7);
 
-        if (!accentDye.isEmpty()) {
-            newNBT.putString("AccentColor", ((DyeItem) accentDye.getItem()).getDyeColor().getName());
-        }
-        if (!leftDye.isEmpty()) {
-            newNBT.putString("LeftColor", ((DyeItem) leftDye.getItem()).getDyeColor().getName());
-        }
-        if (!rightDye.isEmpty()) {
-            newNBT.putString("RightColor", ((DyeItem) rightDye.getItem()).getDyeColor().getName());
-        }
+        if (!accentDye.isEmpty())
+                newNBT.putString("AccentColor", ((DyeItem) accentDye.getItem()).getDyeColor().getName());
 
-        newNBT.putBoolean("Locked", !chain.isEmpty());
+        if (!leftDye.isEmpty() && leftDye.getItem() instanceof DyeItem)
+                newNBT.putString("LeftColor", ((DyeItem) leftDye.getItem()).getDyeColor().getName());
+        if (!rightDye.isEmpty() && rightDye.getItem() instanceof DyeItem)
+                newNBT.putString("RightColor", ((DyeItem) rightDye.getItem()).getDyeColor().getName());
+
+        String lock = "None";
+        if (!leftDye.isEmpty() && CHAIN_INGREDIENT.test(leftDye)) lock = "Left";
+        if (!rightDye.isEmpty() && CHAIN_INGREDIENT.test(rightDye)) lock = "Right";
+
+        newNBT.putString("Locked", lock);
         newNBT.putInt("LastPortal", 0);
 
         return newGun;

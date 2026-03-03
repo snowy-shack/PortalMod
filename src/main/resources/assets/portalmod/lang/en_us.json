@@ -197,6 +197,7 @@
   "tooltip.portalmod.portalgun_6": "  - §aChain§7 below the §9Portal Gun§7 to make it single-portaled",
 
   "tooltip.portalmod.portalgun.colors":  "§7Portal colors:",
+  "tooltip.portalmod.colors.locked":     "§8<Locked>§r",
   "tooltip.portalmod.colors.black":      "§0Black§r",
   "tooltip.portalmod.colors.blue":       "§9Blue§r",
   "tooltip.portalmod.colors.green":      "§2Green§r",

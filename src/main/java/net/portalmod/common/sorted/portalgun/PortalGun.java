@@ -26,8 +26,10 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.Color;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
@@ -230,9 +232,16 @@ public class PortalGun extends Item {
         Vec3 position = new Vec3(ray.getLocation());
         Direction face = ray.getDirection();
         Direction up = face.getAxis().isHorizontal() ? Direction.UP : player.getDirection();
-
+        
         CompoundNBT nbt = gun.getOrCreateTag();
+
         boolean isPrimary = end == PortalEnd.PRIMARY;
+
+        if (nbt.contains("Locked") && nbt.getString("Locked").equals(isPrimary ? "Left" : "Right")) {
+            end = end.other();
+            isPrimary = !isPrimary;
+        }
+        
         String hue = "blue";
         if(nbt.contains(isPrimary ? "LeftColor" : "RightColor")) {
             hue = nbt.getString(isPrimary ? "LeftColor" : "RightColor");
@@ -291,30 +300,6 @@ public class PortalGun extends Item {
         byte color = nbt.getByte("color");
         return color == 1 || color == 2 ? 1 : 0;
     }
-
-//    public static int getGrabOverride(ItemStack itemStack, ClientWorld level, LivingEntity entity) {
-//        return 0;
-//    }
-//
-//    public static int getAccentOverride(ItemStack itemStack, ClientWorld level, LivingEntity entity) {
-//        return 0;
-//    }
-
-    // todo maybe change a bit
-//    @Override
-//    public void appendHoverText(ItemStack stack, World level, List<ITextComponent> tooltip, ITooltipFlag flag) {
-//        super.appendHoverText(stack, level, tooltip, flag);
-//
-//        if(hasPortal(stack, PortalEnd.PRIMARY, true)) {
-//            BlockPos pos = getPortalPosition(stack, PortalEnd.PRIMARY, true);
-//            tooltip.add(new StringTextComponent(TextFormatting.BLUE + "1st portal: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
-//        }
-//
-//        if(hasPortal(stack, PortalEnd.SECONDARY, true)) {
-//            BlockPos pos = getPortalPosition(stack, PortalEnd.SECONDARY, true);
-//            tooltip.add(new StringTextComponent(TextFormatting.GOLD + "2nd portal: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()));
-//        }
-//    }
     
     @Override
     public void inventoryTick(ItemStack itemStack, World level, Entity entity, int i, boolean b) {
@@ -351,7 +336,7 @@ public class PortalGun extends Item {
         if (!nbt.contains("RightColor"))  nbt.putString("RightColor", rightColor);
         if (!nbt.contains("LastPortal"))  nbt.putInt("LastPortal", 0);
         if (!nbt.contains("AccentColor")) nbt.putString("AccentColor", accentColor);
-        if (!nbt.contains("Locked"))      nbt.putBoolean("Locked", false);
+        if (!nbt.contains("Locked"))      nbt.putString("Locked", "None");
     }
 
     @Override
@@ -400,38 +385,38 @@ public class PortalGun extends Item {
     }
 
     public static Colour getLeftColour(CompoundNBT nbt) {
-        Color color = PortalColors.getColor("blue");
-        if(nbt.contains("LeftColor")) {
-            try {
-                color = PortalColors.getColor(nbt.getString("LeftColor"));
-            } catch(NullPointerException e) {}
-        }
-        return new Colour(color.getRed(), color.getGreen(), color.getBlue(), 255);
+        return PortalColors.getColour(getLeftDyeColour(nbt).getName());
     }
 
     public static DyeColor getLeftDyeColour(CompoundNBT nbt) {
-        DyeColor color = DyeColor.BLUE;
+        DyeColor color = DyeColor.BLUE; // Fallback
+
+        if (nbt.getString("Locked").equals("Left")) return getRightDyeColour(nbt);
+
         if (nbt.contains("LeftColor")) {
-            color = DyeColor.byName(nbt.getString("LeftColor"), color);
+            try {
+                color = DyeColor.byName(nbt.getString("LeftColor"), color);
+            } catch(NullPointerException ignored) {}
         }
+
         return color;
     }
 
     public static Colour getRightColour(CompoundNBT nbt) {
-        Color color = PortalColors.getColor("orange");
-        if(nbt.contains("RightColor")) {
-            try {
-                color = PortalColors.getColor(nbt.getString("RightColor"));
-            } catch(NullPointerException e) {}
-        }
-        return new Colour(color.getRed(), color.getGreen(), color.getBlue(), 255);
+        return PortalColors.getColour(getRightDyeColour(nbt).getName());
     }
 
     public static DyeColor getRightDyeColour(CompoundNBT nbt) {
-        DyeColor color = DyeColor.ORANGE;
+        DyeColor color = DyeColor.ORANGE; // Fallback
+
+        if (nbt.getString("Locked").equals("Right")) return getLeftDyeColour(nbt);
+
         if (nbt.contains("RightColor")) {
-            color = DyeColor.byName(nbt.getString("RightColor"), color);
+            try {
+                color = DyeColor.byName(nbt.getString("RightColor"), color);
+            } catch(NullPointerException ignored) {}
         }
+
         return color;
     }
 
@@ -496,15 +481,27 @@ public class PortalGun extends Item {
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag iTooltipFlag) {
-        String leftColor = getLeftDyeColour(itemStack.getOrCreateTag()).toString();
-        String rightColor = getRightDyeColour(itemStack.getOrCreateTag()).toString();
+        CompoundNBT nbt = itemStack.getOrCreateTag();
+        String lock = nbt.contains("Locked") ? nbt.getString("Locked") : "None";
+
+        String leftColor = lock.equals("Left") ? "locked" : getLeftDyeColour(nbt).toString();
+        String rightColor = lock.equals("Right") ? "locked" : getRightDyeColour(nbt).toString();
 
         list.add(new TranslationTextComponent("tooltip.portalmod.portalgun.colors"));
         list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColor)
-            .append("§7 & ")
-            .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColor)));
+                .append("§7 & ")
+                .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColor))
+        );
         if (Screen.hasControlDown()) list.add(new StringTextComponent(""));
 
         ModUtil.addTooltip("portalgun", list);
+    }
+
+    @Override
+    public ITextComponent getName(ItemStack item) {
+        CompoundNBT nbt = item.getOrCreateTag();
+        Style colorStyle = Style.EMPTY.withColor(Color.fromRgb( getAccentColour(nbt).getRGBValue() ));
+
+        return super.getName(item).copy().setStyle(colorStyle);
     }
 }

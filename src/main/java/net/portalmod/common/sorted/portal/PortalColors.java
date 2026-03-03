@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
+import net.portalmod.core.util.Colour;
+
 import java.awt.*;
 
 public enum PortalColors {
@@ -28,6 +30,10 @@ public enum PortalColors {
 
     public static Color getColor(String color) {
         return valueOf(color.toLowerCase()).color;
+    }
+
+    public static Colour getColour(String color) {
+        return new Colour(getColor(color).getRGB());
     }
 
     public static Color getColor(PortalEntity portal) {
