@@ -31,14 +31,8 @@ public class CTriggerAbortConfigPacket implements AbstractPacket<CTriggerAbortCo
     public boolean handle(Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
             ServerPlayerEntity sender = context.get().getSender();
-            if(sender == null)
-                return;
-
-            TriggerTileEntity blockEntity = (TriggerTileEntity)sender.level.getBlockEntity(pos);
-            if(blockEntity == null)
-                return;
-
-            blockEntity.endConfiguration();
+            if (sender != null)
+                TriggerSelectionServer.endConfiguration(sender);
         });
 
         context.get().setPacketHandled(true);

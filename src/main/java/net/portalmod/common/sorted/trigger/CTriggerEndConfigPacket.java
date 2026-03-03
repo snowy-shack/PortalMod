@@ -4,7 +4,6 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.packet.AbstractPacket;
 
@@ -50,7 +49,7 @@ public class CTriggerEndConfigPacket implements AbstractPacket<CTriggerEndConfig
             sender.level.sendBlockUpdated(pos, BlockInit.TRIGGER.get().defaultBlockState(),
                     BlockInit.TRIGGER.get().defaultBlockState(), 3);
 
-            blockEntity.endConfiguration();
+            TriggerSelectionServer.endConfiguration(sender);
         });
         
         context.get().setPacketHandled(true);
