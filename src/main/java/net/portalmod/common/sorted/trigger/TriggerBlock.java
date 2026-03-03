@@ -80,7 +80,7 @@ public class TriggerBlock extends Block {
             return ActionResultType.sidedSuccess(level.isClientSide);
         }
 
-        if (level.isClientSide || TriggerSelectionClient.isSelecting()) return ActionResultType.PASS;
+        if (level.isClientSide) return ActionResultType.PASS;
 
         TriggerTileEntity trigger = (TriggerTileEntity) tileEntity;
         if (!trigger.isBeingConfigured()) {
