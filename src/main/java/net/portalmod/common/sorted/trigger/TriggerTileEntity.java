@@ -78,6 +78,10 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         return this.configuringPlayer != null;
     }
 
+    public PlayerEntity getConfiguringPlayer() {
+        return this.configuringPlayer;
+    }
+
     public void setField(BlockPos start, BlockPos end) {
         this.fieldStart = start;
         this.fieldEnd = end;

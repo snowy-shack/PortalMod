@@ -86,7 +86,7 @@ public class TriggerBlock extends Block {
         if (!trigger.isBeingConfigured()) {
             TriggerSelectionServer.startConfiguration((ServerPlayerEntity) player, trigger);
             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-        } else {
+        } else if(trigger.getConfiguringPlayer() != player) {
             WrenchItem.playFailSound(level, rayTraceResult.getLocation());
         }
 
