@@ -1,8 +1,6 @@
 package net.portalmod.common.sorted.trigger;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -41,12 +39,8 @@ public class STriggerStartConfigPacket implements AbstractPacket<STriggerStartCo
                 return;
 
             TileEntity be = level.getBlockEntity(pos);
-            if(be == null)
-                return;
-
-            TriggerTileEntity.selected = (TriggerTileEntity)be;
-            TriggerTileEntity.selectingStart = null;
-            TriggerTileEntity.selectingEnd = null;
+            if(be instanceof TriggerTileEntity)
+                TriggerSelectionClient.startSelecting(((TriggerTileEntity) be));
         }));
 
         context.get().setPacketHandled(true);

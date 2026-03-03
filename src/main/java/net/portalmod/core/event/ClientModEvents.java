@@ -41,12 +41,12 @@ import net.portalmod.common.sorted.portal.PortalEntityRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
+import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
 import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientModEvents {
@@ -88,6 +88,7 @@ public class ClientModEvents {
         RenderTypeLookup.setRenderLayer(BlockInit.PROPULSION_GEL.get(),  RenderType.translucent()); // Test
         RenderTypeLookup.setRenderLayer(BlockInit.REPULSION_GEL.get(),   RenderType.translucent()); // Test
         RenderTypeLookup.setRenderLayer(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
+        RenderTypeLookup.setRenderLayer(BlockInit.TRIGGER.get(),         RenderType.cutout());
 
 //        RenderTypeLookup.setRenderLayer(BlockInit.GOO.get(),         RenderType.translucent());
 //        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLUID.get(),   RenderType.translucent());

@@ -63,11 +63,14 @@ import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.goo.GooBlock;
-import net.portalmod.common.sorted.portal.*;
+import net.portalmod.common.sorted.portal.CameraAnimator;
+import net.portalmod.common.sorted.portal.PortalEntity;
+import net.portalmod.common.sorted.portal.PortalEntityClient;
+import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.common.sorted.portalgun.*;
-import net.portalmod.common.sorted.trigger.CTriggerAbortConfigPacket;
+import net.portalmod.common.sorted.portalgun.skins.SkinManager;
+import net.portalmod.common.sorted.trigger.TriggerSelectionClient;
 import net.portalmod.common.sorted.trigger.TriggerTER;
-import net.portalmod.common.sorted.trigger.TriggerTileEntity;
 import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
@@ -78,9 +81,10 @@ import net.portalmod.core.util.ChangeDetector;
 import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.CLIENT)
 public class ClientEvents {
@@ -151,11 +155,8 @@ public class ClientEvents {
                     FaithPlateTER.selected = null;
                 }
 
-                if(TriggerTileEntity.selected != null) {
-                    PacketInit.INSTANCE.sendToServer(new CTriggerAbortConfigPacket(TriggerTileEntity.selected.getBlockPos()));
-                    TriggerTileEntity.selected = null;
-                    TriggerTileEntity.selectingStart = null;
-                    TriggerTileEntity.selectingEnd = null;
+                if(TriggerSelectionClient.isSelecting()) {
+                    TriggerSelectionClient.abort();
                 }
             }
         }
@@ -343,7 +344,7 @@ public class ClientEvents {
         World level = Minecraft.getInstance().level;
 
         if(player != null && level != null && Minecraft.getInstance().gameMode != null) {
-            if(TriggerTileEntity.selected != null) {
+            if(TriggerSelectionClient.isSelecting()) {
                 float rayLength = Minecraft.getInstance().gameMode.getPickRange();
                 Vector3d rayPath = player.getViewVector(0).scale(rayLength);
                 Vector3d from = player.getEyePosition(0);
@@ -358,11 +359,7 @@ public class ClientEvents {
                 if (state.isFaceSturdy(level, pos, rayHit.getDirection()))
                     pos = pos.relative(rayHit.getDirection());
 
-                if(TriggerTileEntity.selectingEnd == null) {
-                    TriggerTileEntity.selectingStart = pos.subtract(TriggerTileEntity.selected.getBlockPos());
-                } else {
-                    TriggerTileEntity.selectingEnd = pos.subtract(TriggerTileEntity.selected.getBlockPos());
-                }
+                TriggerSelectionClient.updateSelectedPos(pos);
             }
         }
 

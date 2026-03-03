@@ -1,0 +1,71 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"particle": "#base_side",
+		"base_bottom": "portalmod:block/trigger_base_bottom",
+		"tv": "portalmod:block/trigger_tv",
+		"antennas": "portalmod:block/trigger_tv_antennas"
+	},
+	"elements": [
+		{
+			"from": [1, 0, 1],
+			"to": [15, 5, 15],
+			"faces": {
+				"north": {"uv": [1, 7, 15, 12], "texture": "#base_side"},
+				"east": {"uv": [1, 1, 15, 6], "texture": "#base_side"},
+				"south": {"uv": [1, 7, 15, 12], "texture": "#base_side"},
+				"west": {"uv": [1, 1, 15, 6], "texture": "#base_side"},
+				"up": {"uv": [15, 15, 1, 1], "rotation": 90, "texture": "#base_top"},
+				"down": {"uv": [15, 1, 1, 15], "rotation": 270, "texture": "#base_bottom"}
+			}
+		},
+		{
+			"from": [6, 5, 2],
+			"to": [10, 14, 14],
+			"faces": {
+				"north": {"uv": [12, 4, 16, 13], "texture": "#tv"},
+				"east": {"uv": [0, 4, 12, 13], "texture": "#tv"},
+				"south": {"uv": [12, 4, 16, 13], "texture": "#tv"},
+				"west": {"uv": [0, 4, 12, 13], "texture": "#tv"},
+				"up": {"uv": [12, 4, 0, 0], "rotation": 90, "texture": "#tv"}
+			}
+		},
+		{
+			"from": [5.95, 5, 3],
+			"to": [10.05, 13, 13],
+			"faces": {
+				"east": {"uv": [1, 1, 11, 9], "texture": "#screen"},
+				"west": {"uv": [1, 1, 11, 9], "texture": "#screen"}
+			}
+		},
+		{
+			"from": [8, 14, 9],
+			"to": [8, 17, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"east": {"uv": [4, 8, 1, 11], "texture": "#antennas"},
+				"west": {"uv": [1, 8, 4, 11], "texture": "#antennas"}
+			}
+		},
+		{
+			"from": [7.5, 14, 4.5],
+			"to": [8.5, 18, 5.5],
+			"faces": {
+				"north": {"uv": [8, 1, 9, 5], "texture": "#antennas"},
+				"east": {"uv": [8, 1, 9, 5], "texture": "#antennas"},
+				"south": {"uv": [8, 1, 9, 5], "texture": "#antennas"},
+				"west": {"uv": [8, 1, 9, 5], "texture": "#antennas"},
+				"up": {"uv": [8, 1, 9, 2], "rotation": 90, "texture": "#antennas"}
+			}
+		},
+		{
+			"from": [5, 16.5, 2],
+			"to": [11, 16.5, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"up": {"uv": [1, 1, 7, 7], "rotation": 90, "texture": "#antennas"},
+				"down": {"uv": [1, 1, 7, 7], "rotation": 270, "texture": "#antennas"}
+			}
+		}
+	]
+}

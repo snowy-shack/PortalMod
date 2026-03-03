@@ -23,9 +23,9 @@ import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PartialPortalPair;
 import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.portal.SPortalPairPacket;
-import net.portalmod.common.sorted.trigger.TriggerTileEntity;
-import net.portalmod.core.init.PacketInit;
 import net.portalmod.common.sorted.portalgun.skins.SkinManager;
+import net.portalmod.common.sorted.trigger.TriggerSelectionServer;
+import net.portalmod.core.init.PacketInit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,14 +68,11 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onPlayerLeave(final EntityLeaveWorldEvent event) {
-        if(event.getWorld().isClientSide() || event.getWorld().getServer() == null)
-            return;
-
-        if(!(event.getEntity() instanceof PlayerEntity))
+        if(!(event.getEntity() instanceof ServerPlayerEntity))
             return;
 
         FaithPlateTileEntity.endConfigurationForPlayer((PlayerEntity)event.getEntity());
-        TriggerTileEntity.endConfigurationForPlayer((PlayerEntity)event.getEntity());
+        TriggerSelectionServer.endConfiguration((ServerPlayerEntity)event.getEntity());
     }
 
     @SubscribeEvent

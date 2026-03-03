@@ -1,6 +1,7 @@
 package net.portalmod.common.sorted.trigger;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -11,21 +12,17 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
-import java.util.HashMap;
+import java.util.List;
 
 public class TriggerTileEntity extends TileEntity implements ITickableTileEntity {
     private BlockPos fieldStart;
     private BlockPos fieldEnd;
 
-    private static final HashMap<PlayerEntity, TriggerTileEntity> TRIGGER_PER_PLAYER = new HashMap<>();
+    private int entityCount = 0;
+
     private PlayerEntity configuringPlayer;
-    public static TriggerTileEntity selected;
-    public static BlockPos selectingStart;
-    public static BlockPos selectingEnd;
 
     public TriggerTileEntity(TileEntityType<?> type) {
         super(type);
@@ -40,35 +37,41 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         if(this.level == null)
             return;
 
+        BlockState state = this.level.getBlockState(this.worldPosition);
+
+        if (!this.hasField()) {
+            if (state.getValue(TriggerBlock.STATE) != TriggerState.NULL) {
+                this.level.setBlockAndUpdate(this.worldPosition, state.setValue(TriggerBlock.STATE, TriggerState.NULL));
+            }
+            this.entityCount = 0;
+            return;
+        }
+
         // todo limit selection distance
 
-        if(this.hasField()) {
-            AxisAlignedBB aabb = this.getField();
-            aabb = aabb.move(this.worldPosition);
+        AxisAlignedBB aabb = this.getField();
+        aabb = aabb.move(this.worldPosition);
 
-            boolean shouldActivate = !this.isBeingConfigured() && !level.getEntitiesOfClass(PlayerEntity.class, aabb).isEmpty();
-            BlockState state = this.level.getBlockState(this.worldPosition);
+        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, aabb, state.getValue(TriggerBlock.TYPE).getPredicate());
 
-            if (state.getValue(TriggerBlock.ACTIVATED) != shouldActivate) {
-                this.level.setBlock(this.worldPosition, state.setValue(TriggerBlock.ACTIVATED, shouldActivate), 3);
-            }
+        if (this.entityCount != entities.size()) {
+            this.entityCount = entities.size();
+            this.level.updateNeighborsAt(this.worldPosition, state.getBlock());
+        }
+
+        boolean shouldActivate = !this.isBeingConfigured() && !entities.isEmpty();
+
+        if (!state.getValue(TriggerBlock.STATE).isActive(shouldActivate)) {
+            this.level.setBlockAndUpdate(this.worldPosition, state.setValue(TriggerBlock.STATE, TriggerState.fromActive(shouldActivate)));
         }
     }
 
     public void startConfiguration(ServerPlayerEntity player) {
         this.configuringPlayer = player;
-        TRIGGER_PER_PLAYER.put(player, this);
-        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new STriggerStartConfigPacket(this.getBlockPos()));
     }
 
     public void endConfiguration() {
-        endConfigurationForPlayer(this.configuringPlayer);
-    }
-
-    public static void endConfigurationForPlayer(PlayerEntity player) {
-        if(TRIGGER_PER_PLAYER.containsKey(player))
-            TRIGGER_PER_PLAYER.get(player).configuringPlayer = null;
-        TRIGGER_PER_PLAYER.remove(player);
+        this.configuringPlayer = null;
     }
 
     public boolean isBeingConfigured() {
@@ -162,5 +165,9 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
     @Override
     public double getViewDistance() {
         return 256.0D;
+    }
+
+    public int getEntityCount() {
+        return entityCount;
     }
 }

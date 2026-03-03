@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "type=player,state=null,axis=x":  {"model": "portalmod:block/trigger_player_null"},
+    "type=player,state=null,axis=z":  {"model": "portalmod:block/trigger_player_null", "y": 90},
+    "type=player,state=inactive,axis=x":  {"model": "portalmod:block/trigger_player_off"},
+    "type=player,state=inactive,axis=z":  {"model": "portalmod:block/trigger_player_off", "y": 90},
+    "type=player,state=active,axis=x":  {"model": "portalmod:block/trigger_player_on"},
+    "type=player,state=active,axis=z":  {"model": "portalmod:block/trigger_player_on", "y": 90},
+    "type=mob,state=null,axis=x":  {"model": "portalmod:block/trigger_mob_null"},
+    "type=mob,state=null,axis=z":  {"model": "portalmod:block/trigger_mob_null", "y": 90},
+    "type=mob,state=inactive,axis=x":  {"model": "portalmod:block/trigger_mob_off"},
+    "type=mob,state=inactive,axis=z":  {"model": "portalmod:block/trigger_mob_off", "y": 90},
+    "type=mob,state=active,axis=x":  {"model": "portalmod:block/trigger_mob_on"},
+    "type=mob,state=active,axis=z":  {"model": "portalmod:block/trigger_mob_on", "y": 90}
+  }
+}

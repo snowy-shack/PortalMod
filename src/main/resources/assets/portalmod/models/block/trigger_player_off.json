@@ -1,0 +1,8 @@
+{
+	"parent": "portalmod:block/template_trigger",
+	"textures": {
+		"base_side": "portalmod:block/trigger_base_side_off",
+		"base_top": "portalmod:block/trigger_base_top_off",
+		"screen": "portalmod:block/trigger_screen_player_off"
+	}
+}

@@ -3,7 +3,9 @@ package net.portalmod.common.sorted.trigger;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.WorldVertexBufferUploader;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -23,6 +25,8 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         super(terd);
     }
 
+    // todo texture atlas magic
+
     @Override
     public void render(TriggerTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
         if(triggerBuffer == null) {
@@ -32,24 +36,15 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         if(Minecraft.getInstance().player == null || !WrenchItem.holdingWrench(Minecraft.getInstance().player))
             return;
 
-        AxisAlignedBB aabb;
+        AxisAlignedBB aabb = null;
 
-        if(be == TriggerTileEntity.selected) {
-            if(TriggerTileEntity.selectingStart != null) {
-                if(TriggerTileEntity.selectingEnd != null) {
-                    aabb = new AxisAlignedBB(TriggerTileEntity.selectingStart, TriggerTileEntity.selectingEnd);
-                    aabb = aabb.expandTowards(1, 1, 1);
-                } else {
-                    aabb = new AxisAlignedBB(TriggerTileEntity.selectingStart);
-                }
-            } else {
-                return;
-            }
+        if (TriggerSelectionClient.isSelecting(be)) {
+            aabb = TriggerSelectionClient.getBox();
         } else if(be.hasField()) {
             aabb = be.getField();
-        } else {
-            return;
         }
+
+        if (aabb == null) return;
 
         if(!triggerBuffer.building()) {
             triggerBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
