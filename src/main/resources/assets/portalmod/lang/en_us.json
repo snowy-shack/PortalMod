@@ -149,7 +149,7 @@
 
   "tooltip.portalmod.antline_decoder_1": "Converts §bAntline power§7 to §cRedstone power§7",
   "tooltip.portalmod.antline_decoder_2": "- Allows incorporating §cRedstone§7 contraptions into test chambers without exposed §cRedstone§7",
-  "tooltip.portalmod.antline_decoder_4": "- §6Wrench§7: Changes the appearance",
+  "tooltip.portalmod.antline_decoder_3": "- §6Wrench§7: Changes the appearance",
 
   "tooltip.portalmod.antline_encoder_1": "Converts §cRedstone power§7 to §bAntline power§7",
   "tooltip.portalmod.antline_encoder_2": "- Can be used in combination with §bAntline Decoders§7 to power §aTesting Elements§7 without a direct connection",
