@@ -150,18 +150,11 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Override
     public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
+        if (!state.getValue(ACTIVE)) return;
+
         VoxelShape voxelshape = getFieldShape(state);
         VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
         VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
-
-//        if (entity instanceof TestElementEntity) {
-//            VoxelShape voxelshape = this.getFieldShape(state);
-//            VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
-//            VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
-//            if (VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
-//                ((TestElementEntity) entity).startFizzling();
-//            }
-//        }
 
         if (level.isClientSide) {
             return;
