@@ -15,6 +15,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.portalmod.core.math.Vec3;
@@ -22,6 +23,7 @@ import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -50,7 +52,7 @@ public class PanelBlock extends Block implements PortalHelper {
         PlayerEntity player = context.getPlayer();
 
         // Block is not this one or shift is down
-        if (!clickedBlock.getBlock().is(this) || Objects.requireNonNull(player).isShiftKeyDown()) {
+        if (!clickedBlock.getBlock().is(this) || !Objects.requireNonNull(player).isShiftKeyDown()) {
             return this.defaultBlockState();
         }
 
