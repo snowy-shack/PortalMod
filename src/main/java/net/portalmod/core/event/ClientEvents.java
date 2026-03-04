@@ -137,18 +137,6 @@ public class ClientEvents {
     public static void onPlayerTick(final PlayerTickEvent event) {
         PlayerEntity player = event.player;
 
-        if(!event.player.level.isClientSide) {
-            ServerWorld level = (ServerWorld)event.player.level;
-            Iterable<ChunkHolder> chunkList = ((ChunkManagerAccessor)level.getChunkSource().chunkMap).pmGetChunks();
-
-            if(level.getGameTime() % 20 == 0) {
-                ChunkViewer.getInstance().getChunkList().clear();
-                for(ChunkHolder chunk : chunkList)
-                    ChunkViewer.getInstance().getChunkList().add(new ChunkPos(chunk.getPos().x, chunk.getPos().z + 30));
-                ChunkViewer.getInstance().refresh();
-            }
-        }
-
         if(event.phase == Phase.START)
             if(player.abilities.flying)
                 ((Flingable)player).setFlinging(false);
@@ -237,10 +225,6 @@ public class ClientEvents {
     public static void screenOpen(final GuiOpenEvent event) {
         if(!(event.getGui() instanceof MainMenuScreen) || !MainMenuInjector.needsUpdate)
             return;
-
-        // todo dont actually have this
-        // im so done with this
-        ChunkViewer.getInstance().setVisible(false);
 
         event.setGui(MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading));
         MainMenuInjector.needsUpdate = false;
