@@ -84,6 +84,7 @@
   "block.portalmod.antline_decoder":   "Antline Decoder",
   "block.portalmod.antline_encoder":   "Antline Encoder",
   "block.portalmod.trigger":           "Trigger",
+  "block.portalmod.autoportal":        "Autoportal",
 
   "block.portalmod.faithplate":      "Aerial Faith Plate",
   "block.portalmod.super_button":    "Super Button",
