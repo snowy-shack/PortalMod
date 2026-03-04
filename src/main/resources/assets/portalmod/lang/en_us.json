@@ -124,7 +124,7 @@
   "tooltip.portalmod.cube_dropper_3": "- §6Wrench§7: Removes the current §aCube§7",
   "tooltip.portalmod.cube_dropper_4": "- Activated by adjacent §bAntline Indicators§7",
 
-  "tooltip.portalmod.standing_button_1": "Can be pressed by players",
+  "tooltip.portalmod.standing_button_1": "Can be pressed by close players",
   "tooltip.portalmod.standing_button_2": "- §6Wrench§7: Cycles through Button Modes:",
   "tooltip.portalmod.standing_button_3": "  - Normal",
   "tooltip.portalmod.standing_button_4": "  - Persistent",
@@ -164,6 +164,11 @@
   "tooltip.portalmod.trigger_3": "- §6Wrench§7: Choose the bounding box of the field",
   "tooltip.portalmod.trigger_4": "- §6Wrench + Crouch§7: Change entity type",
 
+  "tooltip.portalmod.autoportal_1": "Allows for portals to be automatically opened",
+  "tooltip.portalmod.autoportal_2": "- §6Wrench§7: Configure the §9Portal§7:",
+  "tooltip.portalmod.autoportal_3": "  - Normal: Change between primary & secondary §9Portal§7",
+  "tooltip.portalmod.autoportal_4": "  - Offhand §9Portal Gun§7: Link to this §9Portal Gun§7",
+
   "tooltip.portalmod.chamber_lights_1": "Lights up test chambers",
   "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by §cRedstone§7",
   "tooltip.portalmod.chamber_lights_3": "- Hold crouch to place horizontally",
@@ -201,9 +206,9 @@
   "tooltip.portalmod.portalgun_1": "Shoots §9Portals§7",
   "tooltip.portalmod.portalgun_2": "- Can pick up §aCubes§7 and §aTurrets§7",
   "tooltip.portalmod.portalgun_3": "- Crafting:",
-  "tooltip.portalmod.portalgun_4": "  - §aDye§7 above the §9Portal Gun§7 to change accent color",
-  "tooltip.portalmod.portalgun_5": "  - §aDyes§7 to the left or right to change §9Portal§7 colors",
-  "tooltip.portalmod.portalgun_6": "  - §aChain§7 below the §9Portal Gun§7 to make it single-portaled",
+  "tooltip.portalmod.portalgun_4": "  - §fDye§7 above the §9Portal Gun§7 to change accent color",
+  "tooltip.portalmod.portalgun_5": "  - §fDyes§7 to the left or right to change §9Portal§7 colors",
+  "tooltip.portalmod.portalgun_6": "  - §fChain§7 below the §9Portal Gun§7 to make it single-portaled",
 
   "tooltip.portalmod.portalgun.colors":  "§7Portal colors:",
   "tooltip.portalmod.colors.locked":     "<Locked>",

@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.autoportal;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,6 +19,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
@@ -33,6 +35,7 @@ import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -186,5 +189,10 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return TileEntityTypeInit.AUTOPORTAL.get().create();
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+        ModUtil.addTooltip("autoportal", list);
     }
 }
