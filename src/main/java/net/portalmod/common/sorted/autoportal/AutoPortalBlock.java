@@ -133,10 +133,25 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
                     if(uuid.isPresent() && itemStack.hasTag()) {
                         CompoundNBT nbt = itemStack.getTag();
 
-                        if(nbt != null && nbt.contains("RightColor")) {
-                            // todo locked ones
-                            int hue = PortalColors.getIndex(nbt.getString("RightColor"));
-                            autoPortal.link(uuid.get(), PortalEnd.SECONDARY, hue);
+                        if(nbt != null) {
+                            int hue;
+                            PortalEnd end;
+
+                            if(nbt.contains("Locked") && nbt.getString("Locked").equals("Left")) {
+                                if(!nbt.contains("LeftColor"))
+                                    return ActionResultType.PASS;
+
+                                hue = PortalColors.getIndex(nbt.getString("LeftColor"));
+                                end = PortalEnd.PRIMARY;
+                            } else {
+                                if(!nbt.contains("RightColor"))
+                                    return ActionResultType.PASS;
+
+                                hue = PortalColors.getIndex(nbt.getString("RightColor"));
+                                end = PortalEnd.SECONDARY;
+                            }
+
+                            autoPortal.link(uuid.get(), end, hue);
                             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
                             return ActionResultType.SUCCESS;
                         }
