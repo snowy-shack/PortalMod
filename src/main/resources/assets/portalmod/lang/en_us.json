@@ -204,11 +204,12 @@
   "tooltip.portalmod.bullets_4": "- Click with a §6Wrench§7 to take all §aBullets§7 from a §aTurret§7",
 
   "tooltip.portalmod.portalgun_1": "Shoots §9Portals§7",
-  "tooltip.portalmod.portalgun_2": "- Can pick up §aCubes§7 and §aTurrets§7",
-  "tooltip.portalmod.portalgun_3": "- Crafting:",
-  "tooltip.portalmod.portalgun_4": "  - §fDye§7 above the §9Portal Gun§7 to change accent color",
-  "tooltip.portalmod.portalgun_5": "  - §fDyes§7 to the left or right to change §9Portal§7 colors",
-  "tooltip.portalmod.portalgun_6": "  - §fChain§7 below the §9Portal Gun§7 to make it single-portaled",
+  "tooltip.portalmod.portalgun_2": "- §9Portals§7 are reset when passing through a §aFizzler§7",
+  "tooltip.portalmod.portalgun_3": "- Can pick up §aCubes§7 and §aTurrets§7",
+  "tooltip.portalmod.portalgun_4": "- Crafting:",
+  "tooltip.portalmod.portalgun_5": "  - §fDye§7 above the §9Portal Gun§7 to change accent color",
+  "tooltip.portalmod.portalgun_6": "  - §fDyes§7 to the left or right to change §9Portal§7 colors",
+  "tooltip.portalmod.portalgun_7": "  - §fChain§7 below the §9Portal Gun§7 to make it single-portaled",
 
   "tooltip.portalmod.portalgun.colors":  "§7Portal colors:",
   "tooltip.portalmod.colors.locked":     "<Locked>",
