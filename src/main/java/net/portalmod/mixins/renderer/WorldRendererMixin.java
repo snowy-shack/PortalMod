@@ -3,6 +3,7 @@ package net.portalmod.mixins.renderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.resources.IResourceManagerReloadListener;
@@ -21,11 +22,10 @@ public abstract class WorldRendererMixin implements IResourceManagerReloadListen
 
     @Inject(method = "renderHitOutline", at = @At("HEAD"), cancellable = true)
     private void render(MatrixStack p_228429_1_, IVertexBuilder p_228429_2_, Entity entity, double p_228429_4_, double p_228429_6_, double p_228429_8_, BlockPos p_228429_10_, BlockState p_228429_11_, CallbackInfo ci) {
-        entity.getHandSlots().forEach(itemStack -> {
-            if (itemStack.getItem() instanceof PortalGun) {
-                ci.cancel();
-            }
-        });
+        if (entity instanceof ClientPlayerEntity
+                && ((ClientPlayerEntity) entity).getMainHandItem().getItem() instanceof PortalGun) {
+            ci.cancel();
+        }
     }
 
     @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isAir(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z"), remap = false)
