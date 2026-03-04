@@ -23,6 +23,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -66,7 +67,8 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable {
 
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        if (isBeamItem(player.getItemInHand(hand).getItem()) || WrenchItem.usedWrench(player, hand)) {
+        boolean wrench = WrenchItem.usedWrench(player, hand);
+        if (isBeamItem(player.getItemInHand(hand).getItem()) || wrench) {
 
             if (hasBeamBelow(state, world, pos)) {
                 return ActionResultType.FAIL;
@@ -79,7 +81,11 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable {
 
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.platform." + (shouldHaveBeam ? "beam" : "normal")), true);
 
-            player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f);
+            if (wrench) {
+                WrenchItem.playUseSound(world, Vector3d.atCenterOf(pos));
+            } else {
+                player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f);
+            }
 
             return ActionResultType.SUCCESS;
         }
