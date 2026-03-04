@@ -484,16 +484,16 @@ public class PortalGun extends Item {
         CompoundNBT nbt = itemStack.getOrCreateTag();
         String lock = nbt.contains("Locked") ? nbt.getString("Locked") : "None";
 
-        String leftColor = lock.equals("Left") ? "locked" : getLeftDyeColour(nbt).toString();
-        String rightColor = lock.equals("Right") ? "locked" : getRightDyeColour(nbt).toString();
+        String leftColorName = lock.equals("Left") ? "locked" : getLeftDyeColour(nbt).toString();
+        String rightColorName = lock.equals("Right") ? "locked" : getRightDyeColour(nbt).toString();
 
-        Style leftStyle  = Style.EMPTY.withColor( Color.fromRgb(PortalColors.getColor(leftColor).getRGB()));
-        Style rightStyle = Style.EMPTY.withColor( Color.fromRgb(PortalColors.getColor(rightColor).getRGB()));
+        int leftColor = lock.equals("Left") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(leftColorName).getRGB();
+        int rightColor = lock.equals("Right") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(rightColorName).getRGB();
 
         list.add(new TranslationTextComponent("tooltip.portalmod.portalgun.colors"));
-        list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColor).setStyle(leftStyle)
+        list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(Color.fromRgb(leftColor)))
                 .append("§7 & ")
-                .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColor).setStyle(rightStyle))
+                .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColorName).setStyle(Style.EMPTY.withColor(Color.fromRgb(rightColor))))
         );
         if (Screen.hasControlDown()) list.add(new StringTextComponent(""));
 

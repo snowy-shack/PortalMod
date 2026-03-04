@@ -21,8 +21,7 @@ public enum PortalColors {
     purple     (0x8636c7),
     red        (0xd24e29),
     white      (0xe0dfd8),
-    yellow     (0xf1c734),
-    locked     (DyeColor.LIGHT_GRAY.getColorValue());
+    yellow     (0xf1c734);
 
     private final Color color;
 
