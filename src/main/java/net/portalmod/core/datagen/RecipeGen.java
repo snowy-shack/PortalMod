@@ -79,6 +79,17 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("kill_entity", CAKE_CRITERION)
                 .save(c);
 
+        ShapedRecipeBuilder.shaped(ItemInit.TRIGGER.get())
+                .pattern(" i ")
+                .pattern(" l ")
+                .pattern("rpr")
+                .define('i', Items.REDSTONE_TORCH)
+                .define('l', Items.REDSTONE_LAMP)
+                .define('r', Items.REDSTONE)
+                .define('p', ItemTags.PLANKS)
+                .unlockedBy("has_item", ROOT_CRITERION)
+                .save(c);
+
 
 
         // --- Cubes --- //

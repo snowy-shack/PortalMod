@@ -83,6 +83,7 @@
   "block.portalmod.antline_timer":     "Antline Timer",
   "block.portalmod.antline_decoder":   "Antline Decoder",
   "block.portalmod.antline_encoder":   "Antline Encoder",
+  "block.portalmod.trigger":           "Trigger",
 
   "block.portalmod.faithplate":      "Aerial Faith Plate",
   "block.portalmod.super_button":    "Super Button",
@@ -156,6 +157,11 @@
   "tooltip.portalmod.antline_encoder_1": "Converts §cRedstone power§7 to §bAntline power§7",
   "tooltip.portalmod.antline_encoder_2": "- Can be used in combination with §bAntline Decoders§7 to power §aTesting Elements§7 without a direct connection",
   "tooltip.portalmod.antline_encoder_3": "- §6Wrench§7: Changes the appearance",
+
+  "tooltip.portalmod.trigger_1": "Tracks entities inside of an invisible field",
+  "tooltip.portalmod.trigger_2": "- The amount of entities determines the §cRedstone§7 signal strength",
+  "tooltip.portalmod.trigger_3": "- §6Wrench§7: Choose the bounding box of the field",
+  "tooltip.portalmod.trigger_4": "- §6Wrench + Crouch§7: Change entity type",
 
   "tooltip.portalmod.chamber_lights_1": "Lights up test chambers",
   "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by §cRedstone§7",
@@ -241,6 +247,8 @@
   "actionbar.portalmod.button_mode.toggle":      "Set Button Mode to Toggle",
   "actionbar.portalmod.indicator_mode.normal":   "Set Indicator Mode to Normal",
   "actionbar.portalmod.indicator_mode.reversed": "Set Indicator Mode to Reversed",
+  "actionbar.portalmod.trigger_type.player":     "Set Trigger Type to Player",
+  "actionbar.portalmod.trigger_type.mob":        "Set Trigger Type to Mob",
   "actionbar.portalmod.antline_timer.duration":  "Set Duration to %s seconds",
   "actionbar.portalmod.platform.normal":         "Removed Beam from Platform",
   "actionbar.portalmod.platform.beam":           "Added Beam to Platform",

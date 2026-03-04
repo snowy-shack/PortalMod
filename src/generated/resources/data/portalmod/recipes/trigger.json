@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " i ",
+    " l ",
+    "rpr"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:redstone_torch"
+    },
+    "l": {
+      "item": "minecraft:redstone_lamp"
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    },
+    "p": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "portalmod:trigger"
+  }
+}

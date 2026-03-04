@@ -12,6 +12,7 @@ import net.portalmod.common.sorted.door.ChamberDoorTileEntity;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterTileEntity;
 import net.portalmod.common.sorted.radio.RadioBlockTileEntity;
+import net.portalmod.common.sorted.trigger.TriggerTileEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -51,6 +52,11 @@ public class TileEntityTypeInit {
                     getBlocks(TileEntityTypeInit::getFizzlerEmitterBlocks)).build(null));
 
 
+    public static final RegistryObject<TileEntityType<TriggerTileEntity>> TRIGGER = TILE_ENTITY_TYPES.register("trigger",
+            () -> TileEntityType.Builder.of(TriggerTileEntity::new,
+                    getBlocks(TileEntityTypeInit::getTriggerBlocks)).build(null));
+
+
 
     public static Block[] getBlocks(UnaryOperator<Set<Block>> function) {
         return function.apply(new HashSet<>()).toArray(new Block[]{});
@@ -83,6 +89,11 @@ public class TileEntityTypeInit {
 
     public static Set<Block> getFizzlerEmitterBlocks(Set<Block> blocks) {
         blocks.add(BlockInit.FIZZLER_EMITTER.get());
+        return blocks;
+    }
+
+    public static Set<Block> getTriggerBlocks(Set<Block> blocks) {
+        blocks.add(BlockInit.TRIGGER.get());
         return blocks;
     }
 }
