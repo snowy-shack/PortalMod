@@ -236,6 +236,8 @@ public class PanelBlock extends Block implements PortalHelper {
     @Override
     public boolean willHelpPortal(Direction face, BlockState state, World world) {
         // Only front face of 2x2 panel
+        if(face.getAxis().isVertical())
+            return false;
         PanelState panelState = state.getValue(STATE);
         return panelState.isQuadruple() && face.getClockWise().getAxis() == state.getValue(AXIS);
     }
