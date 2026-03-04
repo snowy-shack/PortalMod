@@ -82,7 +82,8 @@ public class PortalCommand {
                 uuid,
                 new Vec3(position),
                 wall ? direction : face == AttachFace.FLOOR ? Direction.UP : Direction.DOWN,
-                wall ? Direction.UP : direction
+                wall ? Direction.UP : direction,
+                false
         );
 
         if(result == null) {
