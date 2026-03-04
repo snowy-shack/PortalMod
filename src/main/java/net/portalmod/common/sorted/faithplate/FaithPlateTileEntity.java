@@ -102,8 +102,12 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
         BlockPos targetPos = getTargetPos();
 
+        double offset = getTargetFace().getAxis().isHorizontal() || getTargetFace() == Direction.DOWN
+                ? -0.5 - 0.5 * entity.getBbHeight()
+                : 0;
+
         Vec3 target = new Vec3(targetPos).add(.5).add(new Vec3(getTargetFace().getNormal()).mul(.5));
-        Vec3 relativeTarget = target.clone().add(getBlockPos()).sub(entity.position());
+        Vec3 relativeTarget = target.clone().add(getBlockPos()).sub(entity.position()).add(0, offset, 0);
 
         if(targetPos.getX() == 0 && targetPos.getZ() == 0)
             relativeTarget = new Vec3(getBlockPos()).add(.5, 1, .5).sub(entity.position());
