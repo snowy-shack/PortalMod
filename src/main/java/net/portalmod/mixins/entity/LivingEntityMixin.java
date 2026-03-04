@@ -77,6 +77,8 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Shadow public abstract void stopRiding();
 
+    @Shadow protected abstract void checkFallDamage(double p_184231_1_, boolean p_184231_3_, BlockState p_184231_4_, BlockPos p_184231_5_);
+
     @Inject(
             remap = false,
             method = "aiStep",
@@ -96,6 +98,40 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         this.yOld = currentLerpPos.getA().y;
         this.zOld = currentLerpPos.getA().z;
         this.lerpSteps = 0;
+    }
+
+    @Redirect(
+            remap = false,
+            method = "baseTick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/LivingEntity;isInWall()Z"
+            )
+    )
+    private boolean pmAvoidSuffocationInPortal(LivingEntity entity) {
+        return !this.pmHasNearbyPortals(entity) && entity.isInWall();
+    }
+
+    @Redirect(
+            remap = false,
+            method = "checkFallDamage",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/Entity;checkFallDamage(DZLnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;)V"
+            )
+    )
+    private void pmCheckPortalFallDamage(Entity entity, double heightDelta, boolean onGround, BlockState state, BlockPos pos) {
+        if(this.pmHasNearbyPortals(entity)) {
+            heightDelta = entity.position().y - entity.yo;
+        }
+
+        super.checkFallDamage(heightDelta, onGround, state, pos);
+    }
+
+    private boolean pmHasNearbyPortals(Entity entity) {
+        Vector3d delta = new Vector3d(entity.xo, entity.yo, entity.zo).subtract(entity.position());
+        AxisAlignedBB aabb = entity.getBoundingBox().expandTowards(delta).inflate(2);
+        return !PortalEntity.getPortals(entity.level, aabb, portal -> true).isEmpty();
     }
 
     // has to redirect setPos after lerping
