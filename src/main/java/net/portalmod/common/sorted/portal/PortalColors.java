@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.item.DyeColor;
 import net.portalmod.core.util.Colour;
 
 import java.awt.*;
@@ -20,7 +21,8 @@ public enum PortalColors {
     purple     (0x8636c7),
     red        (0xd24e29),
     white      (0xe0dfd8),
-    yellow     (0xf1c734);
+    yellow     (0xf1c734),
+    locked     (DyeColor.LIGHT_GRAY.getColorValue());
 
     private final Color color;
 

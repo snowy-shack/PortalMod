@@ -487,10 +487,13 @@ public class PortalGun extends Item {
         String leftColor = lock.equals("Left") ? "locked" : getLeftDyeColour(nbt).toString();
         String rightColor = lock.equals("Right") ? "locked" : getRightDyeColour(nbt).toString();
 
+        Style leftStyle  = Style.EMPTY.withColor( Color.fromRgb(PortalColors.getColor(leftColor).getRGB()));
+        Style rightStyle = Style.EMPTY.withColor( Color.fromRgb(PortalColors.getColor(rightColor).getRGB()));
+
         list.add(new TranslationTextComponent("tooltip.portalmod.portalgun.colors"));
-        list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColor)
+        list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColor).setStyle(leftStyle)
                 .append("§7 & ")
-                .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColor))
+                .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColor).setStyle(rightStyle))
         );
         if (Screen.hasControlDown()) list.add(new StringTextComponent(""));
 
