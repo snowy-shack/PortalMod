@@ -1,3 +1,6 @@
 {
-    "parent": "portalmod:block/trigger_player_off"
+    "parent": "minecraft:item/generated",
+    "textures": {
+        "layer0": "portalmod:item/trigger"
+    }
 }
