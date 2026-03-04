@@ -49,11 +49,8 @@ import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.awt.*;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 public class PortalGun extends Item {
 
@@ -450,7 +447,10 @@ public class PortalGun extends Item {
     public static void fizzleGun(World level, PlayerEntity entity) {
         boolean didFizzleAny = false;
 
-        for (ItemStack itemStack : entity.inventory.items) {
+        ArrayList<ItemStack> test = new ArrayList<>(entity.inventory.items);
+        test.add(entity.getOffhandItem());
+
+        for (ItemStack itemStack : test) {
             if (itemStack.getItem() instanceof PortalGun) {
                 didFizzleAny = fizzleGunItem(itemStack) || didFizzleAny;
             }
