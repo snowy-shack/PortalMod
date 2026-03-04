@@ -7,6 +7,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.antline.AntlineTileEntity;
+import net.portalmod.common.sorted.autoportal.AutoPortalTileEntity;
 import net.portalmod.common.sorted.cubedropper.CubeDropperTileEntity;
 import net.portalmod.common.sorted.door.ChamberDoorTileEntity;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
@@ -57,6 +58,11 @@ public class TileEntityTypeInit {
                     getBlocks(TileEntityTypeInit::getTriggerBlocks)).build(null));
 
 
+    public static final RegistryObject<TileEntityType<AutoPortalTileEntity>> AUTOPORTAL = TILE_ENTITY_TYPES.register("autoportal",
+            () -> TileEntityType.Builder.of(AutoPortalTileEntity::new,
+                    getBlocks(TileEntityTypeInit::getAutoPortalBlocks)).build(null));
+
+
 
     public static Block[] getBlocks(UnaryOperator<Set<Block>> function) {
         return function.apply(new HashSet<>()).toArray(new Block[]{});
@@ -94,6 +100,11 @@ public class TileEntityTypeInit {
 
     public static Set<Block> getTriggerBlocks(Set<Block> blocks) {
         blocks.add(BlockInit.TRIGGER.get());
+        return blocks;
+    }
+
+    public static Set<Block> getAutoPortalBlocks(Set<Block> blocks) {
+        blocks.add(BlockInit.AUTOPORTAL.get());
         return blocks;
     }
 }

@@ -271,7 +271,7 @@ public class PortalGun extends Item {
         PortalEntity portal = null;
 
         if(!inFizzler) {
-            portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up);
+            portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false);
         }
 
         if(portal == null) {

@@ -9,6 +9,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.sorted.autoportal.AutoPortalBlock;
 import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.init.PacketInit;
@@ -83,8 +84,9 @@ public class PortalGunClient {
     public boolean willBeHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face, World level) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
+        Block frontBlock = level.getBlockState(pos.relative(face)).getBlock();
 
-        if(this.nextHelp > 0) {
+        if(this.nextHelp > 0 && !(frontBlock instanceof AutoPortalBlock)) {
             if(this.lastHelpedGun != null && this.lastHelpedEnd != null && this.lastHelpedPos != null && this.lastHelpedFace != null) {
                 BlockState panelState = level.getBlockState(this.lastHelpedPos);
                 Block panelBlock = panelState.getBlock();

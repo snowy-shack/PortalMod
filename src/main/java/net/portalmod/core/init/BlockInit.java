@@ -16,6 +16,7 @@ import net.portalmod.common.sorted.antline.indicator.AntlineDecoderBlock;
 import net.portalmod.common.sorted.antline.indicator.AntlineEncoderBlock;
 import net.portalmod.common.sorted.antline.indicator.AntlineIndicatorBlock;
 import net.portalmod.common.sorted.antline.indicator.AntlineTimerBlock;
+import net.portalmod.common.sorted.autoportal.AutoPortalBlock;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.common.sorted.cubedropper.CubeDropperBlock;
@@ -160,6 +161,9 @@ public class BlockInit {
 
     public static final RegistryObject<Block> TRIGGER = BLOCKS.register("trigger",
             () -> new TriggerBlock(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_SLAB).lightLevel(i -> i.getValue(TriggerBlock.STATE) == TriggerState.ACTIVE ? 15 : 0)));
+
+    public static final RegistryObject<Block> AUTOPORTAL = BLOCKS.register("autoportal",
+            () -> new AutoPortalBlock(AbstractBlock.Properties.copy(Blocks.IRON_BLOCK)));
 
 
     // Making just Antlines emissive doesn't make sense as we can't make the indicators etc have emissive layers (not in 1.16 at least)

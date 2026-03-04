@@ -30,6 +30,7 @@ import net.portalmod.client.render.WatermarkRenderer;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
 import net.portalmod.common.sorted.antline.AntlineLoader;
+import net.portalmod.common.sorted.autoportal.AutoPortalTER;
 import net.portalmod.common.sorted.button.SuperButtonGeometry;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.cube.GabeRenderer;
@@ -96,6 +97,7 @@ public class ClientModEvents {
 
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.TRIGGER.get(), TriggerTER::new);
+        ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.AUTOPORTAL.get(), AutoPortalTER::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
@@ -160,6 +162,7 @@ public class ClientModEvents {
 //                event.addSprite(texture);
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
+            event.addSprite(AutoPortalTER.TEXTURE);
             event.addSprite(WatermarkRenderer.WM_LEFT);
             event.addSprite(WatermarkRenderer.WM_RIGHT);
             event.addSprite(TriggerTER.FIELD_TEXTURE);

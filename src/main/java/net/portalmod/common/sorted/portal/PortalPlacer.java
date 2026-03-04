@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 public class PortalPlacer {
     private static final BinaryOperator<Vec3> selectLeast = (o, n) -> n.magnitude() < o.magnitude() ? n : o;
 
-    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection) {
+    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override) {
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
@@ -58,13 +58,15 @@ public class PortalPlacer {
         VoxelShape collision = getCollision(level, face, position, toAbsolute, skipFrontBlock);
 
         Vec3 finalPosition = position;
-        List<AxisAlignedBB> bumpingPortals = PortalEntity.getPortals(level, portalAABB.inflate(2),
+        List<PortalEntity> portalsInTheWay = PortalEntity.getPortals(level, portalAABB.inflate(2),
                 portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
                         && new Vec3(portal.position()).choose(face.getAxis()) - finalPosition.choose(face.getAxis()) < 0.01
-                        && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end))
-                .stream().map(Entity::getBoundingBox).collect(Collectors.toList());
+                        && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end));
+        List<AxisAlignedBB> bumpingPortals = portalsInTheWay.stream().map(Entity::getBoundingBox).collect(Collectors.toList());
 
-        collision = AABBUtil.addBoxesToVoxelShape(collision, bumpingPortals);
+        if(!override) {
+            collision = AABBUtil.addBoxesToVoxelShape(collision, bumpingPortals);
+        }
 
         // get vertices on valid surface
         List<AABBVertex> vertices = Collider.getFaceCorners(face.getOpposite(), portalAABB);
@@ -139,6 +141,10 @@ public class PortalPlacer {
         // Check whether the new Portal position is still invalid
         if(stillCollides(face, portalAABB, collision))
             return null;
+
+        if(override) {
+            portalsInTheWay.forEach(portal -> PortalManager.getInstance().scheduleRemoval(portal));
+        }
 
         // Check if all blocks behind the portal are valid
         if(!canSurvive(level, face, portalAABB, skipFrontBlock))

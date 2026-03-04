@@ -67,6 +67,9 @@ public class ItemInit {
     public static final RegistryObject<Item> TRIGGER = ITEMS.register("trigger",
             () -> new BlockItem(BlockInit.TRIGGER.get(), properties()));
 
+    public static final RegistryObject<Item> AUTOPORTAL = ITEMS.register("autoportal",
+            () -> new BlockItem(BlockInit.AUTOPORTAL.get(), properties()));
+
     public static final RegistryObject<Item> CHAMBER_DOOR = registerBlockItem("chamber_door", BlockInit.CHAMBER_DOOR);
     public static final RegistryObject<Item> PUSH_DOOR = registerBlockItem("push_door", BlockInit.PUSH_DOOR);
     public static final RegistryObject<Item> FIZZLER_EMITTER = registerBlockItem("fizzler_emitter", BlockInit.FIZZLER_EMITTER);

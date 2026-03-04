@@ -29,6 +29,10 @@ public enum PortalColors {
         this.color = new Color(hex);
     }
 
+    public static int getIndex(String color) {
+        return valueOf(color.toLowerCase()).ordinal();
+    }
+
     public static Color getColor(String color) {
         return valueOf(color.toLowerCase()).color;
     }
