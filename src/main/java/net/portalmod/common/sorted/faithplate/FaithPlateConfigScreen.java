@@ -48,6 +48,7 @@ public class FaithPlateConfigScreen extends Screen {
 
     private RenderWidget panel;
     private ExtendedButton selector;
+    private ExtendedButton done;
     private NumberInputField heightField;
     private FaithplateCheckboxButton enable;
 
@@ -71,11 +72,16 @@ public class FaithPlateConfigScreen extends Screen {
     protected void init() {
         FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
 
+        int buttonWidth = 216 / 2 - 1;
+
         panel = addWidget(new RenderWidget(this, getX() + 10, getY() + 22, 210, 121, new StringTextComponent("Render Panel")));
-        selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, 216, 20, new TranslationTextComponent("container.faithplate.select"), button -> {
+        selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, buttonWidth, 20, new TranslationTextComponent("container.faithplate.select"), button -> {
             FaithPlateTER.selected = selected;
             this.onClose();
         }));
+        done = addButton(new ExtendedButton(getX() + 9 + buttonWidth, getY() + 150, buttonWidth, 20, new TranslationTextComponent("gui.done"), button ->
+                this.onClose()
+        ));
 
         enable = addButton(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, new TranslationTextComponent("container.faithplate.enabled"), be.isEnabled()));
         enable.setUnavailable(be.isIndicatorControlled());
@@ -200,6 +206,7 @@ public class FaithPlateConfigScreen extends Screen {
         renderBackground(matrixStack);
         panel.render(matrixStack, mouseX, mouseY, partialTicks);
         selector.render(matrixStack, mouseX, mouseY, partialTicks);
+        done.render(matrixStack, mouseX, mouseY, partialTicks);
         enable.render(matrixStack, mouseX, mouseY, partialTicks);
         heightField.render(matrixStack, mouseX, mouseY, partialTicks);
         
