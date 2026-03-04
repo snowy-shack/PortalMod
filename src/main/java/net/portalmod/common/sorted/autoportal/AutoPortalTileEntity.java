@@ -25,7 +25,8 @@ import java.util.*;
 public class AutoPortalTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
     public UUID gunUUID;
     public PortalEnd end;
-    public Integer hue;
+    public Integer primaryColor;
+    public Integer secondaryColor;
 
     public AutoPortalTileEntity(TileEntityType<?> type) {
         super(type);
@@ -35,10 +36,19 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         this(TileEntityTypeInit.AUTOPORTAL.get());
     }
 
-    public void link(UUID gunUUID, PortalEnd end, int hue) {
+    public void link(UUID gunUUID, PortalEnd end, int primaryColor, int secondaryColor) {
         this.gunUUID = gunUUID;
         this.end = end;
-        this.hue = hue;
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+
+        if(this.level != null) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
+        }
+    }
+
+    public void swapEnd() {
+        this.end = this.end.other();
 
         if(this.level != null) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
@@ -77,9 +87,12 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
                             .add(new Vec3(up).mul(.5))
                             .add(new Vec3(facing.getOpposite()).mul(.5));
 
-                    if(this.gunUUID != null && this.end != null && this.hue != null) {
-                        PortalPlacer.placePortal(this.level, this.end, PortalColors.values()[this.hue].name(),
-                                this.gunUUID, position, facing, up, true);
+                    if(this.gunUUID != null && this.end != null && this.primaryColor != null && this.secondaryColor != null) {
+                        Optional<Integer> colorIndex = this.getCurrentColorIndex();
+                        if(colorIndex.isPresent()) {
+                            String color = PortalColors.values()[colorIndex.get()].name();
+                            PortalPlacer.placePortal(this.level, this.end, color, this.gunUUID, position, facing, up, true);
+                        }
                     }
                 }
             }
@@ -112,13 +125,18 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         positions.add(pos.relative(right).relative(down));
         return positions;
     }
+
+    public Optional<Integer> getCurrentColorIndex() {
+        return Optional.ofNullable(this.end == PortalEnd.PRIMARY ? this.primaryColor : this.secondaryColor);
+    }
     
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
-        if(this.gunUUID != null && this.end != null && this.hue != null) {
+        if(this.gunUUID != null && this.end != null && this.primaryColor != null && this.secondaryColor != null) {
             nbt.putUUID("gunUUID", this.gunUUID);
             nbt.putString("end", this.end.toString().toLowerCase());
-            nbt.putString("hue", PortalColors.values()[this.hue].toString().toLowerCase());
+            nbt.putString("primaryColor", PortalColors.values()[this.primaryColor].toString().toLowerCase());
+            nbt.putString("secondaryColor", PortalColors.values()[this.secondaryColor].toString().toLowerCase());
         }
         return super.save(nbt);
     }
@@ -130,10 +148,11 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     }
     
     public void load(CompoundNBT nbt) {
-        if(nbt.contains("gunUUID") && nbt.contains("end") && nbt.contains("hue")) {
+        if(nbt.contains("gunUUID") && nbt.contains("end") && nbt.contains("primaryColor") && nbt.contains("secondaryColor")) {
             this.gunUUID = nbt.getUUID("gunUUID");
             this.end = PortalEnd.valueOf(nbt.getString("end").toUpperCase());
-            this.hue = PortalColors.getIndex(nbt.getString("hue"));
+            this.primaryColor = PortalColors.getIndex(nbt.getString("primaryColor"));
+            this.secondaryColor = PortalColors.getIndex(nbt.getString("secondaryColor"));
         }
     }
 

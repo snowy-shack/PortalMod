@@ -20,6 +20,8 @@ import net.portalmod.common.sorted.portal.OrthonormalBasis;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
+import java.util.Optional;
+
 public class AutoPortalTER extends TileEntityRenderer<AutoPortalTileEntity> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "entity/autoportal");
     public static RenderMaterial MATERIAL;
@@ -61,9 +63,11 @@ public class AutoPortalTER extends TileEntityRenderer<AutoPortalTileEntity> {
 
             model.frame.render(matrixStack, dtvb, light, overlay, 1, 1, 1, 1);
 
-            if(be.hue != null) {
-                float u = (be.hue % 4) * 11 / 64f;
-                float v = (float) (be.hue / 4) * 16 / 64f;
+            Optional<Integer> colorIndex = be.getCurrentColorIndex();
+            if(colorIndex.isPresent()) {
+                int color = colorIndex.get();
+                float u = (color % 4) * 11 / 64f;
+                float v = (float) (color / 4) * 16 / 64f;
                 dtvb.setOffset(u, v);
                 model.wawas.render(matrixStack, dtvb, LightTexture.pack(15, 15), overlay, 1, 1, 1, 1);
             }

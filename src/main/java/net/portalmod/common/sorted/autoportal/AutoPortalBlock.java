@@ -118,45 +118,44 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
             return ActionResultType.PASS;
 
         Block block = state.getBlock();
+        if(!(block instanceof AutoPortalBlock))
+            return ActionResultType.PASS;
 
-        if(block instanceof AutoPortalBlock) {
-            BlockPos tePos = ((AutoPortalBlock)block).getOtherBlock(pos, state.getValue(CORNER), QuadBlockCorner.DOWN_LEFT, state.getValue(FACING), state.getValue(DIRECTION));
-            TileEntity te = level.getBlockEntity(tePos);
+        BlockPos tePos = ((AutoPortalBlock)block).getOtherBlock(pos, state.getValue(CORNER), QuadBlockCorner.DOWN_LEFT,
+                state.getValue(FACING), state.getValue(DIRECTION));
 
-            if(te instanceof AutoPortalTileEntity) {
-                AutoPortalTileEntity autoPortal = (AutoPortalTileEntity)te;
+        TileEntity te = level.getBlockEntity(tePos);
+        if(!(te instanceof AutoPortalTileEntity))
+            return ActionResultType.PASS;
 
-                if(WrenchItem.hitWithWrench(player) && player.getOffhandItem().getItem() instanceof PortalGun) {
-                    ItemStack itemStack = player.getOffhandItem();
-                    Optional<UUID> uuid = PortalGun.getUUID(itemStack);
+        AutoPortalTileEntity autoPortal = (AutoPortalTileEntity)te;
 
-                    if(uuid.isPresent() && itemStack.hasTag()) {
-                        CompoundNBT nbt = itemStack.getTag();
+        if(WrenchItem.usedWrench(player, hand)) {
+            if(player.getOffhandItem().getItem() instanceof PortalGun) {
+                ItemStack itemStack = player.getOffhandItem();
+                Optional<UUID> uuid = PortalGun.getUUID(itemStack);
 
-                        if(nbt != null) {
-                            int hue;
-                            PortalEnd end;
+                if(uuid.isPresent() && itemStack.hasTag()) {
+                    CompoundNBT nbt = itemStack.getTag();
 
-                            if(nbt.contains("Locked") && nbt.getString("Locked").equals("Left")) {
-                                if(!nbt.contains("LeftColor"))
-                                    return ActionResultType.PASS;
+                    if(nbt != null) {
+                        if(!nbt.contains("LeftColor") || !nbt.contains("RightColor"))
+                            return ActionResultType.PASS;
 
-                                hue = PortalColors.getIndex(nbt.getString("LeftColor"));
-                                end = PortalEnd.PRIMARY;
-                            } else {
-                                if(!nbt.contains("RightColor"))
-                                    return ActionResultType.PASS;
+                        int primaryColor = PortalColors.getIndex(nbt.getString("LeftColor"));
+                        int secondaryColor = PortalColors.getIndex(nbt.getString("RightColor"));
+                        PortalEnd end = nbt.contains("Locked") && nbt.getString("Locked").equals("Left")
+                                ? PortalEnd.PRIMARY : PortalEnd.SECONDARY;
 
-                                hue = PortalColors.getIndex(nbt.getString("RightColor"));
-                                end = PortalEnd.SECONDARY;
-                            }
-
-                            autoPortal.link(uuid.get(), end, hue);
-                            WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-                            return ActionResultType.SUCCESS;
-                        }
+                        autoPortal.link(uuid.get(), end, primaryColor, secondaryColor);
+                        WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+                        return ActionResultType.SUCCESS;
                     }
                 }
+            } else {
+                autoPortal.swapEnd();
+                WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+                return ActionResultType.SUCCESS;
             }
         }
 
