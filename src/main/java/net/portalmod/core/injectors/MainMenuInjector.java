@@ -18,47 +18,14 @@ import net.portalmod.mixins.accessors.MinecraftAccessor;
 import net.portalmod.mixins.accessors.SplashesAccessor;
 
 public class MainMenuInjector {
+    private static final int NO_PANORAMAS = 2;
     private static final ResourceLocation EDITION = new ResourceLocation(PortalMod.MODID, "textures/gui/title/edition.png");
-    private static final RenderSkyboxCube CUBEMAP = new RenderSkyboxCube(new ResourceLocation(PortalMod.MODID, "textures/gui/title/background/panorama"));
     private static final ResourceLocation SPLASHES = new ResourceLocation(PortalMod.MODID, "texts/splashes.txt");
     private static ResourceLocation prevEdition;
     private static RenderSkyboxCube prevCubeMap;
     private static ResourceLocation prevSplashes;
     public static boolean fading = true;
     public static boolean needsUpdate = true;
-    
-    public static void changeMainMenuResources(boolean custom) {
-        if(prevEdition == null)
-            prevEdition = MainMenuScreenAccessor.pmGetEdition();
-        if(prevCubeMap == null)
-            prevCubeMap = MainMenuScreenAccessor.pmGetCubeMap();
-        if(prevSplashes == null)
-            prevSplashes = SplashesAccessor.pmGetLocation();
-
-        MainMenuScreenAccessor.pmSetEdition(custom ? EDITION : prevEdition);
-        MainMenuScreenAccessor.pmSetCubeMap(custom ? CUBEMAP : prevCubeMap);
-        SplashesAccessor.pmSetLocation(custom ? SPLASHES : prevSplashes);
-
-        try {
-            Minecraft minecraft = Minecraft.getInstance();
-            Splashes splashes = new Splashes(Minecraft.getInstance().getUser());
-            
-            Method prepare = ObfuscationReflectionHelper.findMethod(Splashes.class, "prepare", IResourceManager.class, IProfiler.class);
-            Method apply = ObfuscationReflectionHelper.findMethod(Splashes.class, "apply", List.class, IResourceManager.class, IProfiler.class);
-            prepare.setAccessible(true);
-            apply.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            List<String> splashList = (List<String>)prepare.invoke(splashes, minecraft.getResourceManager(), minecraft.getProfiler());
-            apply.invoke(splashes, splashList, minecraft.getResourceManager(), minecraft.getProfiler());
-
-
-            Field splashManager = ObfuscationReflectionHelper.findField(Minecraft.class, "splashManager");
-            splashManager.setAccessible(true);
-            splashManager.set(Minecraft.getInstance(), splashes);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
     
     public static MainMenuScreen getInjectedMenu(boolean custom, boolean fadeIn) {
         if(prevEdition == null)
@@ -68,8 +35,14 @@ public class MainMenuInjector {
         if(prevSplashes == null)
             prevSplashes = SplashesAccessor.pmGetLocation();
 
-        MainMenuScreenAccessor.pmSetEdition(custom ? EDITION : prevEdition);
+        RenderSkyboxCube CUBEMAP = new RenderSkyboxCube(new ResourceLocation(PortalMod.MODID,
+                "textures/gui/title/background/panorama" + (long)(Math.random() * NO_PANORAMAS)));
+
         MainMenuScreenAccessor.pmSetCubeMap(custom ? CUBEMAP : prevCubeMap);
+
+        if(!needsUpdate) return new MainMenuScreen(false);
+
+        MainMenuScreenAccessor.pmSetEdition(custom ? EDITION : prevEdition);
         SplashesAccessor.pmSetLocation(custom ? SPLASHES : prevSplashes);
 
         try {

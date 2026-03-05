@@ -234,8 +234,7 @@ public class ClientEvents {
     
     @SubscribeEvent
     public static void screenOpen(final GuiOpenEvent event) {
-        if(!(event.getGui() instanceof MainMenuScreen) || !MainMenuInjector.needsUpdate)
-            return;
+        if(!(event.getGui() instanceof MainMenuScreen)) return;
 
         event.setGui(MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading));
         MainMenuInjector.needsUpdate = false;
