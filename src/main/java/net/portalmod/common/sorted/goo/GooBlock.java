@@ -15,6 +15,8 @@ import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemTagInit;
+import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.mixins.accessors.EntityAccessor;
 
 import javax.annotation.Nullable;
@@ -57,7 +59,7 @@ public class GooBlock extends FlowingFluidBlock {
     }
 
     public static void handleGooDamage(LivingEntity entity, DamageSource damageSource) {
-//        entity.level.playSound(null, entity, entity.getHurtSound(damageSource), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
+        entity.level.playSound(null, entity, SoundInit.GOO_DAMAGE.get(), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
     }
 
     @Nullable
