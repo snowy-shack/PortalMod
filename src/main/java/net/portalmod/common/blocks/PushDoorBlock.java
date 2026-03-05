@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -34,10 +35,15 @@ public class PushDoorBlock extends DoorBlock {
 
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        if (blockRayTraceResult.getDirection() == blockState.getValue(FACING).getOpposite() && !blockState.getValue(OPEN)) {
-            blockState = blockState.cycle(OPEN);
-            world.setBlock(blockPos, blockState, 10);
-            this.playOpenSound(world, blockPos);
+        Direction clickedFace = blockRayTraceResult.getDirection();
+        Direction doorFront = blockState.getValue(OPEN)
+                ? blockState.getValue(FACING).getOpposite().getClockWise()
+                : blockState.getValue(FACING).getOpposite();
+
+        if (clickedFace == doorFront) {
+
+            if (!blockState.getValue(OPEN)) open(blockState, world, blockPos);
+            if (blockState.getValue(OPEN)) close(blockState, world, blockPos);
 
             world.getBlockTicks().scheduleTick(blockPos, this, 20);
 
@@ -58,10 +64,10 @@ public class PushDoorBlock extends DoorBlock {
 
     @Override
     public void tick(BlockState blockState, ServerWorld world, BlockPos blockPos, Random random) {
-        // Get whether there is a player within 3 blocks
+        // Get whether there is a player within 1 block
         boolean playerNearby = !world.getEntitiesOfClass(
                 PlayerEntity.class,
-                new AxisAlignedBB(blockPos).inflate(3),
+                new AxisAlignedBB(blockPos).inflate(1),
                 player -> !player.isSpectator()
         ).isEmpty();
 
@@ -69,13 +75,20 @@ public class PushDoorBlock extends DoorBlock {
             world.getBlockTicks().scheduleTick(blockPos, this, 5);
             return;
         }
-
         // Close
-        if (blockState.getValue(OPEN)) {
-            blockState = blockState.cycle(OPEN); // Close the door
-            world.setBlock(blockPos, blockState, 10);
-            this.playCloseSound(world, blockPos);
-        }
+        if (blockState.getValue(OPEN)) close(blockState, world, blockPos);
+    }
+
+    private void open(BlockState blockState, World world, BlockPos blockPos) {
+        blockState = blockState.cycle(OPEN);
+        world.setBlock(blockPos, blockState, 10);
+        this.playOpenSound(world, blockPos);
+    }
+
+    private void close(BlockState blockState, World world, BlockPos blockPos) {
+        blockState = blockState.cycle(OPEN); // Close the door
+        world.setBlock(blockPos, blockState, 10);
+        this.playCloseSound(world, blockPos);
     }
 
     @Override
