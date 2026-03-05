@@ -81,7 +81,10 @@ public class PortalGun extends Item {
     // by using nbt instead of having 100 different things triggering the
     // pick and drop animation all over the place
     public static void updateHolding(ItemStack itemStack, PlayerEntity player) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        if(!itemStack.hasTag())
+            return;
+
+        CompoundNBT nbt = itemStack.getTag();
 
         boolean isInMainHand = player.getItemInHand(Hand.MAIN_HAND) == itemStack;
         boolean isInOffHand = player.getItemInHand(Hand.OFF_HAND) == itemStack;
@@ -367,7 +370,12 @@ public class PortalGun extends Item {
     }
 
     public static Optional<UUID> getUUID(ItemStack itemStack) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        if(!itemStack.hasTag())
+            return Optional.empty();
+
+        CompoundNBT nbt = itemStack.getTag();
+        if(nbt == null)
+            return Optional.empty();
 
         // Return optional to make it clear that the UUID is not always present
         if (nbt.contains("gunUUID") && itemStack.getItem() instanceof PortalGun) {
