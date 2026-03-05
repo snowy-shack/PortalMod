@@ -287,11 +287,13 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         eyeVec.transform(changeOfBasisMatrix);
 
-        if(portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()) {
-            CameraAnimator.getInstance().startPosAnimation(oldTeleportedCenter.clone().add(eyeVec), new Vec3(entity.getEyePosition(1)), 500);
-        }
+        if(entity.level.isClientSide && entity.isControlledByLocalInstance()) {
+            if(portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()) {
+                CameraAnimator.getInstance().startPosAnimation(oldTeleportedCenter.clone().add(eyeVec), new Vec3(entity.getEyePosition(1)), 500);
+            }
 
-        CameraRotator.rotate(entity, portal, targetPortal);
+            CameraRotator.rotate(entity, portal, targetPortal);
+        }
 
         boolean shouldDisableFlying = portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()
                 || (portal.getDirection().getAxis() == Direction.Axis.Y
