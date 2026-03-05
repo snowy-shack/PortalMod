@@ -248,7 +248,16 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
     @Override
     public void rotate(Rotation rotation) {
-//        this.targetPos = this.targetPos.rotate(rotation); // TODO!!!
+        Vector3d newTarget = this.targetPos;
+        switch(rotation) {
+            case CLOCKWISE_90:
+                newTarget = new Vector3d(-this.targetPos.z, this.targetPos.y, this.targetPos.x); break;
+            case CLOCKWISE_180:
+                newTarget = new Vector3d(-this.targetPos.x, this.targetPos.y, -this.targetPos.z); break;
+            case COUNTERCLOCKWISE_90:
+                newTarget = new Vector3d(this.targetPos.z, this.targetPos.y, -this.targetPos.x); break;
+        }
+        this.targetPos = newTarget;
         this.targetFace = rotation.rotate(this.targetFace);
     }
 
