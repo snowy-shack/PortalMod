@@ -1,10 +1,7 @@
 {
   "replace": true,
   "values": [
-    "portalmod:blackplate_platform",
-    "portalmod:eroded_blackplate_platform",
-    "portalmod:arbored_blackplate_platform",
-    "portalmod:vintage_blackplate_platform",
-    "portalmod:fractured_blackplate_platform"
+    "#portalmod:lunecast_platforms",
+    "#portalmod:blackplate_platforms"
   ]
 }

@@ -20,10 +20,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.portalmod.PortalMod;
+import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.config.PortalModConfigManager;
-import net.portalmod.core.init.BlockTagInit;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -60,7 +60,7 @@ public class PortalGunCrosshairRenderer {
             RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null);
             BlockRayTraceResult rayTrace = PortalGun.customClip(level, rayCtx);
 
-            boolean isPortalable = BlockTagInit.isPortalable(mc.level.getBlockState(rayTrace.getBlockPos()).getBlock());
+            boolean isPortalable = PortalableBlock.isPortalable(mc.level.getBlockState(rayTrace.getBlockPos()), rayTrace.getDirection());
             primaryFilled = isPortalable;
             secondaryFilled = isPortalable;
             // todo actually figure out whether the portal is placeable there

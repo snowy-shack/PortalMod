@@ -30,6 +30,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -39,7 +40,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PlatformBlock extends BreakableBlock implements IWaterLoggable {
+public class PlatformBlock extends BreakableBlock implements IWaterLoggable, PortalableBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
@@ -207,5 +208,10 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
         ModUtil.addTooltip("platform", list);
+    }
+
+    @Override
+    public boolean isPortalableOnFace(BlockState state, Direction face) {
+        return state.getValue(FACING) == face;
     }
 }

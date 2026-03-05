@@ -16,7 +16,9 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -31,6 +33,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
+import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.*;
@@ -40,12 +43,10 @@ import net.portalmod.core.math.AABBUtil;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
-import net.portalmod.core.util.BlockIterator;
 import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.EntityAccessor;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -680,10 +681,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         BlockState frontBlock = level.getBlockState(attachedBlockPos.relative(normal));
         BlockState behindBlock = level.getBlockState(attachedBlockPos.relative(normal.getOpposite()));
 
-        boolean portalable = attachedBlock.is(BlockTagInit.PORTALABLE);
+        boolean portalable = PortalableBlock.isPortalable(attachedBlock, normal);
         boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
-        boolean behindPortalable = behindBlock.is(BlockTagInit.PORTALABLE);
-        boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING); // TODO - multiple sides definitions
+        boolean behindPortalable = PortalableBlock.isPortalable(behindBlock, normal);
+        boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING); // TODO - analyzing voxelshapes as well
 
         if(frontBlock.getBlock() instanceof AbstractGelBlock) {
             frontNonBlocking = !frontBlock.getValue(AbstractGelBlock.STATES.get(normal.getOpposite()));

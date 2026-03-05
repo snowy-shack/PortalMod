@@ -22,9 +22,4 @@ public class BlockTagInit {
     public static Tags.IOptionalNamedTag<Block> blockTag(String name) {
         return BlockTags.createOptional(new ResourceLocation(PortalMod.MODID, name));
     }
-
-    public static boolean isPortalable(Block block) {
-        boolean whitelist = true; // placeholder for config option
-        return whitelist ? block.is(PORTALABLE) : !block.is(UNPORTALABLE);
-    }
 }
