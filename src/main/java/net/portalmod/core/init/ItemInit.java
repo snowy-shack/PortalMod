@@ -100,23 +100,10 @@ public class ItemInit {
     public static final RegistryObject<Item> FOREST_CAKE = ITEMS.register("forest_cake",
             () -> new BlockItem(BlockInit.FOREST_CAKE.get(), properties().stacksTo(1)));
 
-    // Potential Future Items
-//    public static final RegistryObject<Item> CONVERSION_GEL = ITEMS.register("conversion_gel",
-//            () -> new GelContainer(BlockInit.CONVERSION_GEL.get(), GEL_BASE, 0xF7F7F8));
-
-//    public static final RegistryObject<BlockItem> ADHESION_GEL = ITEMS.register("adhesion_gel",
-//            () -> new GelContainer(BlockInit.ADHESION_GEL.get(), GEL_BASE, 0x954CC0));
-
-//    public static final RegistryObject<BlockItem> LASER_EMITTER = ITEMS.register("laser_emitter",
-//            () -> new BlockItem(BlockInit.LASER_EMITTER.get(), properties()));
-//
-//    public static final RegistryObject<BlockItem> LASER_CATCHER = ITEMS.register("laser_catcher",
-//            () -> new BlockItem(BlockInit.LASER_CATCHER.get(), properties()));
-//
-//    public static final RegistryObject<BlockItem> LASER_RELAY = ITEMS.register("laser_relay",
-//            () -> new BlockItem(BlockInit.LASER_RELAY.get(), properties()));
-
-//    public static final RegistryObject<Item> PELLET_LAUNCHER = registerBlockItem("pellet_launcher", BlockInit.PELLET_LAUNCHER);
+    public static final RegistryObject<Item> PLATFORM_BEAM = ITEMS.register("platform_beam", () ->
+            new BlockItem(BlockInit.PLATFORM_BEAM.get(), properties()));
+    public static final RegistryObject<Item> RUSTY_PLATFORM_BEAM = ITEMS.register("rusty_platform_beam", () ->
+            new BlockItem(BlockInit.RUSTY_PLATFORM_BEAM.get(), properties()));
 
     // Blocks
     public static final RegistryObject<Item> LUNECAST = registerPanelBlockItem("lunecast", BlockInit.LUNECAST);
@@ -170,11 +157,6 @@ public class ItemInit {
     public static final RegistryObject<Item> VINTAGE_BLACKPLATE_PLATFORM = registerBlockItem("vintage_blackplate_platform", BlockInit.VINTAGE_BLACKPLATE_PLATFORM);
 
     // Decoration blocks
-    public static final RegistryObject<Item> PLATFORM_BEAM = ITEMS.register("platform_beam", () ->
-            new BlockItem(BlockInit.PLATFORM_BEAM.get(), properties()));
-    public static final RegistryObject<Item> RUSTY_PLATFORM_BEAM = ITEMS.register("rusty_platform_beam", () ->
-            new BlockItem(BlockInit.RUSTY_PLATFORM_BEAM.get(), properties()));
-
     public static final RegistryObject<Item> WIRE_MESH_BLOCK = registerBlockItem("wire_mesh_block", BlockInit.WIRE_MESH_BLOCK);
     public static final RegistryObject<Item> WIRE_MESH = registerBlockItem("wire_mesh", BlockInit.WIRE_MESH);
     public static final RegistryObject<Item> IRON_FRAME = registerBlockItem("iron_frame", BlockInit.IRON_FRAME);
