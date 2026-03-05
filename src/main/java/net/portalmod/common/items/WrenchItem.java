@@ -83,7 +83,10 @@ public class WrenchItem extends Item {
             boolean enabled = false;
             // Set the default height to dist / n
             if (be.getTargetPos() == null) {
-                be.setHeight((float) (new BlockPos(clickPos).distManhattan(selected) / 4.0));
+                be.setHeight(Math.max(
+                        1,
+                        (float) (new BlockPos(clickPos).distManhattan(selected) / 4.0)
+                ));
                 enabled = true;
             }
 

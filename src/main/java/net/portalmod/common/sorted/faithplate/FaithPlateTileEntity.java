@@ -43,7 +43,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private boolean override = false;
     private Vector3d targetPos;
     private Direction targetFace;
-    private float height;
+    private float height = 1;
     private int cooldown = 0;
     public static int COOLDOWN_DURATION = 10;
 
