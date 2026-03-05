@@ -20,6 +20,7 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
@@ -149,12 +150,17 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
 
                         autoPortal.link(uuid.get(), end, primaryColor, secondaryColor);
                         WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+                        player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal.set"), true);
                         return ActionResultType.SUCCESS;
                     }
                 }
             } else {
                 autoPortal.swapEnd();
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal."
+                        + (autoPortal.end == PortalEnd.PRIMARY ? "primary" : "secondary")), true);
+
                 return ActionResultType.SUCCESS;
             }
         }

@@ -262,6 +262,9 @@
   "actionbar.portalmod.turret.full":             "This turret is filled to the brim!",
   "actionbar.portalmod.turret.infinite_ammo":    "This turret has infinite ammo",
   "actionbar.portalmod.turret.empty":            "This turret is already empty",
+  "actionbar.portalmod.autoportal.set":          "Linked Autoportal",
+  "actionbar.portalmod.autoportal.primary":      "Set Portal Mode to Primary",
+  "actionbar.portalmod.autoportal.secondary":    "Set Portal Mode to Secondary",
 
   "subtitles.block.radio.loop":                   "Radio plays",
   "subtitles.block.radio.transmission":           "Radio transmitting",
