@@ -1,3 +1,34 @@
 {
-    "parent": "portalmod:block/arbored_blackplate"
+    "parent": "portalmod:block/arbored_blackplate",
+    "textures": {
+        "foliage_side": "portalmod:block/arbored_blackplate_foliage",
+        "foliage_top": "portalmod:block/arbored_blackplate_top_foliage",
+        "foliage_bottom": "portalmod:block/arbored_blackplate_bottom_foliage",
+        "side": "portalmod:block/arbored_blackplate",
+        "top": "portalmod:block/arbored_blackplate_top",
+        "bottom": "portalmod:block/arbored_blackplate_bottom",
+        "particle": "#foliage_side"
+    },
+    "elements": [
+        {   "from": [ -0.005, -0.005, -0.005 ], "to": [ 16.005, 16.005, 16.005 ],
+            "faces": {
+                "down":  { "texture": "#foliage_bottom", "tintindex": 0 },
+                "up":    { "texture": "#foliage_top",    "tintindex": 0 },
+                "north": { "texture": "#foliage_side",   "tintindex": 0 },
+                "south": { "texture": "#foliage_side",   "tintindex": 0 },
+                "west":  { "texture": "#foliage_side",   "tintindex": 0 },
+                "east":  { "texture": "#foliage_side",   "tintindex": 0 }
+            }
+        },
+        {   "from": [ 0, 0, 0 ], "to": [ 16, 16, 16 ],
+            "faces": {
+                "down":  { "texture": "#bottom" },
+                "up":    { "texture": "#top" },
+                "north": { "texture": "#side" },
+                "south": { "texture": "#side" },
+                "west":  { "texture": "#side" },
+                "east":  { "texture": "#side" }
+            }
+        }
+    ]
 }

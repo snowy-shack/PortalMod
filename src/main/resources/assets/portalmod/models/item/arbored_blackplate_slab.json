@@ -1,3 +1,34 @@
 {
-    "parent": "portalmod:block/arbored_blackplate_slab"
+    "parent": "portalmod:block/arbored_blackplate_slab",
+    "textures": {
+        "foliage_side": "portalmod:block/arbored_blackplate_foliage",
+        "foliage_top": "portalmod:block/arbored_blackplate_top_foliage",
+        "foliage_bottom": "portalmod:block/arbored_blackplate_bottom_foliage",
+        "side": "portalmod:block/arbored_blackplate",
+        "top": "portalmod:block/arbored_blackplate_top",
+        "bottom": "portalmod:block/arbored_blackplate_bottom",
+        "particle": "#foliage_side"
+    },
+    "elements": [
+        {   "from": [ -0.005, -0.005, -0.005 ], "to": [ 16.005, 8.005, 16.005 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "tintindex": 0, "texture": "#foliage_bottom", "cullface": "down" },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "tintindex": 0, "texture": "#foliage_top" },
+                "north": { "uv": [ 0, 8, 16, 16 ], "tintindex": 0, "texture": "#foliage_side", "cullface": "north" },
+                "south": { "uv": [ 0, 8, 16, 16 ], "tintindex": 0, "texture": "#foliage_side", "cullface": "south" },
+                "west":  { "uv": [ 0, 8, 16, 16 ], "tintindex": 0, "texture": "#foliage_side", "cullface": "west" },
+                "east":  { "uv": [ 0, 8, 16, 16 ], "tintindex": 0, "texture": "#foliage_side", "cullface": "east" }
+            }
+        },
+        {   "from": [ 0, 0, 0 ], "to": [ 16, 8, 16 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0, 16, 16 ], "texture": "#bottom", "cullface": "down" },
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#top" },
+                "north": { "uv": [ 0, 8, 16, 16 ], "texture": "#side", "cullface": "north" },
+                "south": { "uv": [ 0, 8, 16, 16 ], "texture": "#side", "cullface": "south" },
+                "west":  { "uv": [ 0, 8, 16, 16 ], "texture": "#side", "cullface": "west" },
+                "east":  { "uv": [ 0, 8, 16, 16 ], "texture": "#side", "cullface": "east" }
+            }
+        }
+    ]
 }
