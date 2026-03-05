@@ -123,12 +123,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             if(targetPartialPortal == null)
                 return point;
 
-            Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalMatrix(this, targetPartialPortal);
+            Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalMatrix(this, targetPartialPortal);
             return point.clone().transform(portalToPortalMatrix);
         }
 
         PortalEntity targetPortal = targetPortalOptional.get();
-        Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalMatrix(this, targetPortal);
+        Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalMatrix(this, targetPortal);
         return point.clone().transform(portalToPortalMatrix);
     }
 
@@ -142,12 +142,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             if(targetPartialPortal == null)
                 return vector;
 
-            Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalRotationMatrix(this, targetPartialPortal);
+            Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalRotationMatrix(this, targetPartialPortal);
             return vector.clone().transform(portalToPortalMatrix);
         }
 
         PortalEntity targetPortal = targetPortalOptional.get();
-        Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalRotationMatrix(this, targetPortal);
+        Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalRotationMatrix(this, targetPortal);
         return vector.clone().transform(portalToPortalMatrix);
     }
 
@@ -593,6 +593,38 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     public OrthonormalBasis getDestinationBasis() {
         return new OrthonormalBasis(new Vec3(this.getUpVector()).cross(new Vec3(this.getDirection().getOpposite())), new Vec3(this.getUpVector()));
+    }
+
+    public static Mat4 getPortalToPortalRotationMatrix(PortalEntity portal, PortalEntity otherPortal) {
+        OrthonormalBasis srcBasis = portal.getSourceBasis();
+        OrthonormalBasis dstBasis = otherPortal.getDestinationBasis();
+        return srcBasis.getChangeOfBasisMatrix(dstBasis);
+    }
+
+    public static Mat4 getPortalToPortalRotationMatrix(PortalEntity portal, PartialPortal otherPortal) {
+        OrthonormalBasis srcBasis = portal.getSourceBasis();
+        OrthonormalBasis dstBasis = otherPortal.getDestinationBasis();
+        return srcBasis.getChangeOfBasisMatrix(dstBasis);
+    }
+
+    public static Mat4 getPortalToPortalMatrix(PortalEntity portal, PortalEntity otherPortal) {
+        Vec3 thisPos = new Vec3(portal.position());
+        Vec3 otherPos = new Vec3(otherPortal.position());
+
+        return Mat4.identity()
+                .mul(Mat4.createTranslation(otherPos.x, otherPos.y, otherPos.z))
+                .mul(getPortalToPortalRotationMatrix(portal, otherPortal))
+                .mul(Mat4.createTranslation(-thisPos.x, -thisPos.y, -thisPos.z));
+    }
+
+    public static Mat4 getPortalToPortalMatrix(PortalEntity portal, PartialPortal otherPortal) {
+        Vec3 thisPos = new Vec3(portal.position());
+        Vec3 otherPos = new Vec3(otherPortal.getPosition());
+
+        return Mat4.identity()
+                .mul(Mat4.createTranslation(otherPos.x, otherPos.y, otherPos.z))
+                .mul(getPortalToPortalRotationMatrix(portal, otherPortal))
+                .mul(Mat4.createTranslation(-thisPos.x, -thisPos.y, -thisPos.z));
     }
 
     public void onReplaced() {

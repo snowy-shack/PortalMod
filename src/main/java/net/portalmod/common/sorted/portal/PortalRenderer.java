@@ -220,38 +220,6 @@ public class PortalRenderer {
         ShaderInit.PORTAL_FRAME.get().unbind();
     }
 
-    public static Mat4 getPortalToPortalRotationMatrix(PortalEntity portal, PortalEntity otherPortal) {
-        OrthonormalBasis srcBasis = portal.getSourceBasis();
-        OrthonormalBasis dstBasis = otherPortal.getDestinationBasis();
-        return srcBasis.getChangeOfBasisMatrix(dstBasis);
-    }
-
-    public static Mat4 getPortalToPortalRotationMatrix(PortalEntity portal, PartialPortal otherPortal) {
-        OrthonormalBasis srcBasis = portal.getSourceBasis();
-        OrthonormalBasis dstBasis = otherPortal.getDestinationBasis();
-        return srcBasis.getChangeOfBasisMatrix(dstBasis);
-    }
-
-    public static Mat4 getPortalToPortalMatrix(PortalEntity portal, PortalEntity otherPortal) {
-        Vec3 thisPos = new Vec3(portal.position());
-        Vec3 otherPos = new Vec3(otherPortal.position());
-
-        return Mat4.identity()
-                .mul(Mat4.createTranslation(otherPos.x, otherPos.y, otherPos.z))
-                .mul(getPortalToPortalRotationMatrix(portal, otherPortal))
-                .mul(Mat4.createTranslation(-thisPos.x, -thisPos.y, -thisPos.z));
-    }
-
-    public static Mat4 getPortalToPortalMatrix(PortalEntity portal, PartialPortal otherPortal) {
-        Vec3 thisPos = new Vec3(portal.position());
-        Vec3 otherPos = new Vec3(otherPortal.getPosition());
-
-        return Mat4.identity()
-                .mul(Mat4.createTranslation(otherPos.x, otherPos.y, otherPos.z))
-                .mul(getPortalToPortalRotationMatrix(portal, otherPortal))
-                .mul(Mat4.createTranslation(-thisPos.x, -thisPos.y, -thisPos.z));
-    }
-
     public void renderPortals(ClientWorld level, ActiveRenderInfo camera, ClippingHelper clippingHelper, Matrix4f projectionMatrix, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
         Framebuffer mainFBO = mc.getMainRenderTarget();
@@ -343,8 +311,8 @@ public class PortalRenderer {
         if(!portal.getOtherPortal().isPresent())
             return camera;
 
-        Mat4 portalToPortalRotationMatrix = getPortalToPortalRotationMatrix(portal, portal.getOtherPortal().get());
-        Mat4 portalToPortalMatrix = getPortalToPortalMatrix(portal, portal.getOtherPortal().get());
+        Mat4 portalToPortalRotationMatrix = PortalEntity.getPortalToPortalRotationMatrix(portal, portal.getOtherPortal().get());
+        Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalMatrix(portal, portal.getOtherPortal().get());
         Vec3 newCameraPos = new Vec3(camera.getPosition()).transform(portalToPortalMatrix);
 
         float xRot = camera.getXRot();
@@ -446,7 +414,7 @@ public class PortalRenderer {
 
                 Vec3 oldCameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf;
                 PMState.cameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf == null ? null
-                        : PMState.cameraPosOverrideForRenderingSelf.clone().transform(getPortalToPortalMatrix(portal, otherPortal));
+                        : PMState.cameraPosOverrideForRenderingSelf.clone().transform(PortalEntity.getPortalToPortalMatrix(portal, otherPortal));
 
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);

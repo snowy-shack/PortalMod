@@ -124,8 +124,8 @@ public class DuplicateEntityRenderer {
             ActiveRenderInfo camera = PortalRenderer.getInstance().getCurrentCamera();
             EntityRendererManager erm = Minecraft.getInstance().levelRenderer.entityRenderDispatcher;
 
-            Mat4 changeOfBasisMatrix = PortalRenderer.getPortalToPortalRotationMatrix(portal, otherPortal);
-            Mat4 portalToPortalMatrix = PortalRenderer.getPortalToPortalMatrix(portal, otherPortal);
+            Mat4 changeOfBasisMatrix = PortalEntity.getPortalToPortalRotationMatrix(portal, otherPortal);
+            Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalMatrix(portal, otherPortal);
 
             Vec3 cameraPos = new Vec3(camera.getPosition()).transform(portalToPortalMatrix);
             boolean shouldRender = shouldRenderEntity(entity, clippingHelper, cameraPos, portalToPortalMatrix)
