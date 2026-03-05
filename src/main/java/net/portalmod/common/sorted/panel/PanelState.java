@@ -22,15 +22,15 @@ public enum PanelState implements IStringSerializable {
         this.name = name;
     }
 
-    public static PanelState getDoubleState(boolean bottom) {
+    public static PanelState doubleState(boolean bottom) {
         return bottom ? BOTTOM : TOP;
     }
 
-    public static PanelState getWallState(boolean bottom, boolean left) {
+    public static PanelState wallState(boolean bottom, boolean left) {
         return bottom ? left ? BOTTOM_LEFT : BOTTOM_RIGHT : left ? TOP_LEFT : TOP_RIGHT;
     }
 
-    public static PanelState getFloorState(boolean bottom, boolean left) {
+    public static PanelState floorState(boolean bottom, boolean left) {
         return bottom ? left ? FLOOR_BOTTOM_LEFT : FLOOR_BOTTOM_RIGHT : left ? FLOOR_TOP_LEFT : FLOOR_TOP_RIGHT;
     }
 
