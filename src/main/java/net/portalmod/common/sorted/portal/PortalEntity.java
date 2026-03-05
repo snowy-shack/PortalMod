@@ -287,7 +287,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         eyeVec.transform(changeOfBasisMatrix);
 
-        if(entity.level.isClientSide && entity.isControlledByLocalInstance()) {
+        if(entity instanceof PlayerEntity && ((PlayerEntity)entity).isLocalPlayer()) {
             if(portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()) {
                 CameraAnimator.getInstance().startPosAnimation(oldTeleportedCenter.clone().add(eyeVec), new Vec3(entity.getEyePosition(1)), 500);
             }
