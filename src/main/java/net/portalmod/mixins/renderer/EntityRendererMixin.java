@@ -28,7 +28,11 @@ public abstract class EntityRendererMixin {
             cancellable = true
     )
     private void pmDeceiveLightEngine(Entity entity, float partialTicks, CallbackInfoReturnable<Integer> info) {
-        BlockPos pos = Minecraft.getInstance().gameRenderer.getMainCamera().getBlockPosition();
+        Minecraft mc = Minecraft.getInstance();
+        if(entity != mc.cameraEntity)
+            return;
+
+        BlockPos pos = mc.gameRenderer.getMainCamera().getBlockPosition();
         info.setReturnValue(LightTexture.pack(
                 this.getBlockLightLevel(entity, pos),
                 this.getSkyLightLevel(entity, pos)
