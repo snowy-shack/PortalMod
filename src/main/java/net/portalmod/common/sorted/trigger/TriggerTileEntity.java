@@ -52,7 +52,8 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         AxisAlignedBB aabb = this.getField();
         aabb = aabb.move(this.worldPosition);
 
-        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, aabb, state.getValue(TriggerBlock.TYPE).getPredicate());
+        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, aabb,
+                state.getValue(TriggerBlock.TYPE).getPredicate().and(entity -> !entity.isSpectator()));
 
         if (this.entityCount != entities.size()) {
             this.entityCount = entities.size();
