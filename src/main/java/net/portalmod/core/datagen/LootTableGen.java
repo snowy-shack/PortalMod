@@ -17,9 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
 import net.portalmod.common.blocks.ForestCakeBlock;
 import net.portalmod.common.blocks.MultiBlock;
-import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
-import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.core.init.BlockInit;
 
 import java.util.HashMap;
@@ -53,8 +51,12 @@ public class LootTableGen extends LootTableProvider {
             }
         }
 
+        public static boolean skipLootTable(Block block) {
+            return block.asItem() == Items.AIR || block instanceof AbstractGelBlock;
+        }
+
         public void setLootTable(Block block) {
-            if (noDrops(block) || block.asItem() == Items.AIR) {
+            if (skipLootTable(block)) {
                 return;
             }
 
@@ -73,12 +75,6 @@ public class LootTableGen extends LootTableProvider {
             else {
                 this.dropSelf(block);
             }
-        }
-
-        public static boolean noDrops(Block block) {
-            return block instanceof FizzlerFieldBlock
-                    || block instanceof GooBlock
-                    || block instanceof AbstractGelBlock;
         }
 
         public LootTable.Builder multiBlockCondition(MultiBlock block) {
@@ -102,7 +98,7 @@ public class LootTableGen extends LootTableProvider {
         protected Iterable<Block> getKnownBlocks() {
             return BlockInit.BLOCKS.getEntries().stream()
                     .map(RegistryObject::get)
-                    .filter(block -> !noDrops(block))
+                    .filter(block -> !skipLootTable(block))
                     .collect(Collectors.toList());
         }
     }
