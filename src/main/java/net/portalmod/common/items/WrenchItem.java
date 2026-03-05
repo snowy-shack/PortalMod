@@ -8,10 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
@@ -27,6 +24,7 @@ import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -65,60 +63,77 @@ public class WrenchItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
-        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, level, 64);
-        Direction face = rayHit.getDirection();
-        BlockPos pos = rayHit.getBlockPos();
+    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
+        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, world, 64);
+        Direction clickFace = rayHit.getDirection();
+        Vector3d clickPos = rayHit.getLocation();
         ItemStack itemStack = player.getItemInHand(hand);
 
-        if(level.isClientSide) {
-            if(FaithPlateTER.selected != null) {
-                BlockPos selected = FaithPlateTER.selected;
-                TileEntity blockEntity = level.getBlockEntity(selected);
+        if(!world.isClientSide) return super.use(world, player, hand);
 
-                if (!(blockEntity instanceof FaithPlateTileEntity)) {
-                    return ActionResult.fail(itemStack);
-                }
-                FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
+        if(FaithPlateTER.selected != null) {
+            BlockPos selected = FaithPlateTER.selected;
+            TileEntity blockEntity = world.getBlockEntity(selected);
 
-                // i have no idea why on earth this is needed but i wont touch it
-                boolean enabled = false;
-                // Set the default height to dist / n
-                if (be.getTargetPos() == null) {
-                    be.setHeight((float) (pos.distManhattan(selected) / 4.0));
-                    enabled = true;
-                }
+            if (!(blockEntity instanceof FaithPlateTileEntity)) {
+                return ActionResult.fail(itemStack);
+            }
+            FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
-                CompoundNBT nbt = new CompoundNBT();
-                CompoundNBT target = new CompoundNBT();
-                target.putFloat("height", be.getHeight());
-                nbt.putBoolean("enabled", enabled || be.isEnabled());
-
-                target.putByte("side", (byte) face.get3DDataValue());
-                target.putInt("x", pos.getX() - selected.getX());
-                target.putInt("y", pos.getY() - selected.getY());
-                target.putInt("z", pos.getZ() - selected.getZ());
-
-                nbt.put("target", target);
-                be.load(nbt);
-
-                PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
-                PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(selected));
-                FaithPlateTER.selected = null;
-
-                return ActionResult.success(itemStack);
+            boolean enabled = false;
+            // Set the default height to dist / n
+            if (be.getTargetPos() == null) {
+                be.setHeight((float) (new BlockPos(clickPos).distManhattan(selected) / 4.0));
+                enabled = true;
             }
 
-            if (TriggerSelectionClient.isSelecting()) {
-                WrenchItem.playUseSound(player, level, player.position());
+            // Round the target pos to half blocks
+            clickPos = getTargetPos(clickFace, clickPos);
 
-                TriggerSelectionClient.confirmSelection();
+            CompoundNBT nbt = new CompoundNBT();
+            CompoundNBT target = new CompoundNBT();
+            target.putFloat("height", be.getHeight());
+            nbt.putBoolean("enabled", enabled || be.isEnabled());
 
-                return ActionResult.success(itemStack);
-            }
+            target.putByte("side", (byte) clickFace.get3DDataValue());
+            target.putDouble("x", clickPos.x() - selected.getX());
+            target.putDouble("y", clickPos.y() - selected.getY());
+            target.putDouble("z", clickPos.z() - selected.getZ());
+
+            nbt.put("target", target);
+            be.load(nbt);
+
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(selected, nbt));
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(selected));
+            FaithPlateTER.selected = null;
+
+            WrenchItem.playUseSound(world, player.position());
+            return ActionResult.success(itemStack);
         }
 
-        return super.use(level, player, hand);
+        if (TriggerSelectionClient.isSelecting()) {
+            WrenchItem.playUseSound(player, world, player.position());
+
+            TriggerSelectionClient.confirmSelection();
+
+            return ActionResult.success(itemStack);
+        }
+
+        return ActionResult.fail(itemStack);
+    }
+
+    @Nonnull
+    public static Vector3d getTargetPos(Direction clickFace, Vector3d clickPos) {
+        clickPos = new Vector3d(
+                Math.round(clickPos.x() * 2) / 2.0,
+                Math.round(clickPos.y() * 2) / 2.0,
+                Math.round(clickPos.z() * 2) / 2.0
+        ).subtract(
+                0.5 + clickFace.getStepX() * 0.5,
+                0.5 + clickFace.getStepY() * 0.5,
+                0.5 + clickFace.getStepZ() * 0.5
+        );
+        return clickPos;
     }
 
     @Override

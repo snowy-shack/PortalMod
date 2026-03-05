@@ -17,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector2f;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -124,15 +125,15 @@ public class FaithPlateConfigScreen extends Screen {
     @Override
     public void onClose() {
         FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
-        BlockPos pos = be.getTargetPos();
+        Vector3d pos = be.getTargetPos();
         Direction face = be.getTargetFace();
         CompoundNBT nbt = new CompoundNBT();
         
         if(pos != null && face != null) {
             CompoundNBT target = new CompoundNBT();
-            target.putInt("x", pos.getX());
-            target.putInt("y", pos.getY());
-            target.putInt("z", pos.getZ());
+            target.putDouble("x", pos.x());
+            target.putDouble("y", pos.y());
+            target.putDouble("z", pos.z());
             target.putByte("side", (byte)face.get3DDataValue());
             target.putFloat("height", (float)parabola.getHeight());
             nbt.put("target", target);

@@ -41,7 +41,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private boolean enabled = false;
     private boolean indicatorControlled = false;
     private boolean override = false;
-    private BlockPos targetPos;
+    private Vector3d targetPos;
     private Direction targetFace;
     private float height;
     private int cooldown = 0;
@@ -100,16 +100,16 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         if(this.level == null)
             return;
 
-        BlockPos targetPos = getTargetPos();
+        Vector3d targetPos = getTargetPos();
 
         double offset = getTargetFace().getAxis().isHorizontal() || getTargetFace() == Direction.DOWN
-                ? -0.5 - 0.5 * entity.getBbHeight()
+                ? -0.25 - 0.5 * entity.getBbHeight()
                 : 0;
 
         Vec3 target = new Vec3(targetPos).add(.5).add(new Vec3(getTargetFace().getNormal()).mul(.5));
         Vec3 relativeTarget = target.clone().add(getBlockPos()).sub(entity.position()).add(0, offset, 0);
 
-        if(targetPos.getX() == 0 && targetPos.getZ() == 0)
+        if(targetPos.x() == 0 && targetPos.z() == 0)
             relativeTarget = new Vec3(getBlockPos()).add(.5, 1, .5).sub(entity.position());
 
         FaithPlateParabola parabola = new FaithPlateParabola(relativeTarget.to3d(), height);
@@ -184,9 +184,9 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     public CompoundNBT save(CompoundNBT nbt) {
         if(targetPos != null && targetFace != null) {
             CompoundNBT target = new CompoundNBT();
-            target.putInt("x", targetPos.getX());
-            target.putInt("y", targetPos.getY());
-            target.putInt("z", targetPos.getZ());
+            target.putDouble("x", targetPos.x());
+            target.putDouble("y", targetPos.y());
+            target.putDouble("z", targetPos.z());
             target.putByte("side", (byte) targetFace.get3DDataValue());
             target.putFloat("height", height);
             nbt.put("target", target);
@@ -216,10 +216,10 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
                     && target.contains("side")
                     && target.contains("height")) {
                 
-                int x = target.getInt("x");
-                int y = target.getInt("y");
-                int z = target.getInt("z");
-                targetPos = new BlockPos(x, y, z);
+                double x = target.getDouble("x");
+                double y = target.getDouble("y");
+                double z = target.getDouble("z");
+                targetPos = new Vector3d(x, y, z);
                 targetFace = Direction.from3DDataValue(target.getByte("side"));
                 height = target.getFloat("height");
             }
@@ -230,7 +230,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         return override;
     }
     
-    public BlockPos getTargetPos() {
+    public Vector3d getTargetPos() {
         return targetPos;
     }
     
@@ -248,13 +248,13 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
     @Override
     public void rotate(Rotation rotation) {
-        this.targetPos = this.targetPos.rotate(rotation);
+//        this.targetPos = this.targetPos.rotate(rotation); // TODO!!!
         this.targetFace = rotation.rotate(this.targetFace);
     }
 
     @Override
     public void mirror(Mirror mirror) {
-        this.targetPos = new Vec3(this.targetPos).mul(mirror == Mirror.FRONT_BACK ? -1 : 1, 1, mirror == Mirror.LEFT_RIGHT ? -1 : 1).toBlockPos();
+        this.targetPos = new Vec3(this.targetPos).mul(mirror == Mirror.FRONT_BACK ? -1 : 1, 1, mirror == Mirror.LEFT_RIGHT ? -1 : 1).to3d();
         this.targetFace = mirror.mirror(this.targetFace);
     }
 
