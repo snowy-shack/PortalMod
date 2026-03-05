@@ -209,7 +209,7 @@
   "tooltip.portalmod.portalgun_4": "- Crafting:",
   "tooltip.portalmod.portalgun_5": "  - §fDye§7 above the §9Portal Gun§7 to change accent color",
   "tooltip.portalmod.portalgun_6": "  - §fDyes§7 to the left or right to change §9Portal§7 colors",
-  "tooltip.portalmod.portalgun_7": "  - §fChain§7 below the §9Portal Gun§7 to make it single-portaled",
+  "tooltip.portalmod.portalgun_7": "  - §fChain§7 instead of a dye to make it single-portaled",
 
   "tooltip.portalmod.portalgun.colors":  "§7Portal colors:",
   "tooltip.portalmod.colors.locked":     "<Locked>",
