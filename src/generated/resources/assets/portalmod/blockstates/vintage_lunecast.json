@@ -44,6 +44,42 @@
       "model": "portalmod:block/vintage_lunecast_panel_corner_top",
       "y": 180,
       "uvlock": true
+    },
+    "axis=x,state=floor_bottom_left": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_x_bottom_left",
+      "y": 90,
+      "uvlock": true
+    },
+    "axis=z,state=floor_bottom_left": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_z_bottom_left",
+      "y": 180,
+      "uvlock": true
+    },
+    "axis=x,state=floor_bottom_right": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_x_bottom_right"
+    },
+    "axis=z,state=floor_bottom_right": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_z_bottom_right",
+      "y": 90,
+      "uvlock": true
+    },
+    "axis=x,state=floor_top_left": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_x_top_left",
+      "y": 180,
+      "uvlock": true
+    },
+    "axis=z,state=floor_top_left": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_z_top_left",
+      "y": 270,
+      "uvlock": true
+    },
+    "axis=x,state=floor_top_right": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_x_top_right",
+      "y": 270,
+      "uvlock": true
+    },
+    "axis=z,state=floor_top_right": {
+      "model": "portalmod:block/vintage_lunecast_panel_floor_z_top_right"
     }
   }
 }
