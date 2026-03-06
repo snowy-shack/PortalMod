@@ -62,6 +62,10 @@ public class PortalPlacer {
                 portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
                         && new Vec3(portal.position()).choose(face.getAxis()) - finalPosition.choose(face.getAxis()) < 0.01
                         && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end));
+        List<PortalEntity> portalsInTheWay2 = PortalEntity.getPortals(level, portalAABB,
+                portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
+                        && new Vec3(portal.position()).choose(face.getAxis()) - finalPosition.choose(face.getAxis()) < 0.01
+                        && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end));
         List<AxisAlignedBB> bumpingPortals = portalsInTheWay.stream().map(Entity::getBoundingBox).collect(Collectors.toList());
 
         if(!override) {
@@ -143,7 +147,7 @@ public class PortalPlacer {
             return null;
 
         if(override) {
-            portalsInTheWay.forEach(portal -> PortalManager.getInstance().scheduleRemoval(portal));
+            portalsInTheWay2.forEach(portal -> PortalManager.getInstance().scheduleRemoval(portal));
         }
 
         // Check if all blocks behind the portal are valid
