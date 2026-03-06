@@ -80,6 +80,8 @@ public class TurretEntity extends TestElementEntity {
     @Override
     public void tick() {
         super.tick();
+
+        this.yHeadRot = this.yRot;
         this.yBodyRot = this.yRot;
         if (this.isFizzling()) return;
 
