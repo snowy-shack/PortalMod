@@ -1,0 +1,8 @@
+{
+  "parent": "portalmod:block/cube_corner_floor",
+  "textures": {
+    "top": "portalmod:block/fractured_blackplate_panel_floor_top_right",
+    "bottom": "portalmod:block/fractured_blackplate_panel_ceiling_top_left",
+    "side": "portalmod:block/fractured_blackplate"
+  }
+}
