@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.panel;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -23,7 +24,9 @@ import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class PanelBlock extends Block implements PortalHelper {
@@ -301,34 +304,50 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public boolean willHelpPortal(Direction face, BlockState state, World world) {
+    public boolean willHelpPortal(Direction face, Direction horizontalDirection, BlockState state, World world) {
         // Only front face of 2x2 panel
-        if(face.getAxis().isVertical())
-            return false;
         PanelState panelState = state.getValue(STATE);
-        return panelState.isWall() && face.getClockWise().getAxis() == state.getValue(AXIS);
+
+        if(panelState.isFloor()) {
+            return face.getAxis().isVertical();
+        } else if(panelState.isWall()) {
+            return !face.getAxis().isVertical() && face.getClockWise().getAxis() == state.getValue(AXIS);
+        }
+
+        return false;
     }
 
     @Override
-    public Vec3 helpPortal(Vec3 hitPos, Direction face, BlockState state, World world) {
-        if(!this.willHelpPortal(face, state, world))
-            return hitPos;
+    public Pair<Vec3, Direction> helpPortal(Vec3 hitPos, Direction face, Direction horizontalDirection, Direction[] lookingDirections, BlockState state, World world) {
+        if(!this.willHelpPortal(face, horizontalDirection, state, world))
+            return new Pair<>(hitPos, horizontalDirection);
 
         PanelState panelState = state.getValue(STATE);
         double yPos = panelState.isBottom() ? Math.ceil(hitPos.y) : Math.floor(hitPos.y);
 
-        if (face.getAxis() == Direction.Axis.X) {
-            return new Vec3(
-                    hitPos.x,
+        boolean isUp = face == Direction.UP;
+        boolean xAxis = (face.getAxis().isVertical() && state.getValue(AXIS) == Direction.Axis.X)
+                || (face.getAxis().isHorizontal() && face.getAxis() == Direction.Axis.X);
+
+        Optional<Direction> upDirection = Arrays.stream(lookingDirections)
+                .filter(direction -> direction.getAxis() == state.getValue(AXIS))
+                .findFirst();
+
+        if(!upDirection.isPresent())
+            return new Pair<>(hitPos, lookingDirections[0]);
+
+        if(xAxis) {
+            return new Pair<>(new Vec3(
+                    panelState.isBottom() ^ isUp ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
                     yPos,
-                    panelState.isLeft() ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
-            );
+                    panelState.isLeft() ^ isUp ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+            ), face.getAxis().isVertical() ? upDirection.get() : horizontalDirection);
         }
 
-        return new Vec3(
-                !panelState.isLeft() ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
+        return new Pair<>(new Vec3(
+                !panelState.isLeft() ^ isUp ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
                 yPos,
-                hitPos.z
-        );
+                !panelState.isBottom() ^ isUp ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+        ), face.getAxis().isVertical() ? upDirection.get() : horizontalDirection);
     }
 }

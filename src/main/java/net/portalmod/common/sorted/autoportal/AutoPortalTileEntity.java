@@ -98,7 +98,7 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
                         Optional<Integer> colorIndex = this.getCurrentColorIndex();
                         if(colorIndex.isPresent()) {
                             String color = PortalColors.values()[colorIndex.get()].name();
-                            PortalPlacer.placePortal(this.level, this.end, color, this.gunUUID, position, facing, up, true);
+                            PortalPlacer.placePortal(this.level, this.end, color, this.gunUUID, position, facing, up, true, null);
 
                             this.lastOpenedUUID = this.gunUUID;
                             this.lastOpenedEnd = this.end;
