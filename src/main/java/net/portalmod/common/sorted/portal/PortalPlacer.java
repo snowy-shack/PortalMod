@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -20,6 +21,7 @@ import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.*;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
@@ -28,7 +30,7 @@ import java.util.stream.Stream;
 public class PortalPlacer {
     private static final BinaryOperator<Vec3> selectLeast = (o, n) -> n.magnitude() < o.magnitude() ? n : o;
 
-    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override) {
+    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections) {
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
@@ -42,9 +44,11 @@ public class PortalPlacer {
                 || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face)))
             return null;
 
-        if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, level)) {
+        if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, upDirection, level) && lookingDirections != null) {
             PortalGunClient.getInstance().setHelped(gunUUID, end, shotBlockPos, face);
-            position = ((PortalHelper)shotBlock).helpPortal(position, face, shotBlockState, level);
+            Pair<Vec3, Direction> helpment = ((PortalHelper)shotBlock).helpPortal(position, face, upDirection, lookingDirections, shotBlockState, level);
+            position = helpment.getFirst();
+            up = new Vec3(helpment.getSecond());
         }
 
         AxisAlignedBB portalAABB = new AxisAlignedBB(-.5, -1, 0,  .5,  1, 1/16f);

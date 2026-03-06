@@ -81,7 +81,7 @@ public class PortalGunClient {
         return this.nextShot <= 0;
     }
 
-    public boolean willBeHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face, World level) {
+    public boolean willBeHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face, Direction horizontalDirection, World level) {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         Block frontBlock = level.getBlockState(pos.relative(face)).getBlock();
@@ -95,7 +95,7 @@ public class PortalGunClient {
                     PortalHelper newHelper = (PortalHelper)block;
                     PortalHelper oldHelper = (PortalHelper)panelBlock;
 
-                    if(newHelper.willHelpPortal(face, state, level)) {
+                    if(newHelper.willHelpPortal(face, horizontalDirection, state, level)) {
                         boolean sameGun = gun.equals(this.lastHelpedGun);
                         boolean sameEnd = end.equals(this.lastHelpedEnd);
                         boolean samePanel = oldHelper.containsBlock(panelState, this.lastHelpedPos, pos, level);
@@ -109,7 +109,7 @@ public class PortalGunClient {
             }
         }
 
-        return block instanceof PortalHelper && ((PortalHelper)block).willHelpPortal(face, state, level);
+        return block instanceof PortalHelper && ((PortalHelper)block).willHelpPortal(face, horizontalDirection, state, level);
     }
 
     public void setHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face) {
