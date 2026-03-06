@@ -18,7 +18,7 @@ import net.portalmod.mixins.accessors.MinecraftAccessor;
 import net.portalmod.mixins.accessors.SplashesAccessor;
 
 public class MainMenuInjector {
-    private static final int NO_PANORAMAS = 2;
+    private static final int NO_PANORAMAS = 1;
     private static final ResourceLocation EDITION = new ResourceLocation(PortalMod.MODID, "textures/gui/title/edition.png");
     private static final ResourceLocation SPLASHES = new ResourceLocation(PortalMod.MODID, "texts/splashes.txt");
     private static ResourceLocation prevEdition;
