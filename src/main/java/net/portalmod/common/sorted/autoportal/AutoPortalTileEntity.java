@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.autoportal;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -16,6 +17,7 @@ import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.common.sorted.portal.PortalColors;
 import net.portalmod.common.sorted.portal.PortalEnd;
+import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalPlacer;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
@@ -27,6 +29,9 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     public PortalEnd end;
     public Integer primaryColor;
     public Integer secondaryColor;
+
+    public UUID lastOpenedUUID;
+    public PortalEnd lastOpenedEnd;
 
     public AutoPortalTileEntity(TileEntityType<?> type) {
         super(type);
@@ -41,15 +46,15 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         this.end = end;
         this.primaryColor = primaryColor;
         this.secondaryColor = secondaryColor;
-
-        if(this.level != null) {
-            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
-        }
+        this.sendUpdate();
     }
 
     public void swapEnd() {
         this.end = this.end.other();
+        this.sendUpdate();
+    }
 
+    public void sendUpdate() {
         if(this.level != null) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
         }
@@ -63,6 +68,8 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         BlockState blockState = this.getBlockState();
         if(!(blockState.getBlock() instanceof AutoPortalBlock))
             return;
+
+        this.checkLastOpened();
 
         IndicatorInfo indicatorInfo = this.checkIndicators(blockState, this.level, this.getBlockPos());
         boolean isPowered = blockState.getValue(AutoPortalBlock.POWERED);
@@ -92,10 +99,43 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
                         if(colorIndex.isPresent()) {
                             String color = PortalColors.values()[colorIndex.get()].name();
                             PortalPlacer.placePortal(this.level, this.end, color, this.gunUUID, position, facing, up, true);
+
+                            this.lastOpenedUUID = this.gunUUID;
+                            this.lastOpenedEnd = this.end;
+                            this.sendUpdate();
                         }
                     }
                 }
             }
+        }
+    }
+
+    private void checkLastOpened() {
+        if(this.lastOpenedUUID == null || this.lastOpenedEnd == null)
+            return;
+
+        BlockState state = this.getBlockState();
+        Direction facing = state.getValue(AutoPortalBlock.FACING);
+        Direction direction = state.getValue(AutoPortalBlock.DIRECTION);
+
+        Block block = state.getBlock();
+        if(!(block instanceof AutoPortalBlock))
+            return;
+
+        Tuple<Direction, Direction> directions = ((AutoPortalBlock)block).placementDirectionsFromFacingAndDirection(facing, direction);
+        Vec3 right = new Vec3(directions.getA()).mul(.5);
+        Vec3 up = new Vec3(directions.getB()).mul(.5);
+        Vec3 antiNormal = new Vec3(facing).mul(-.5);
+
+        Vec3 pos = new Vec3(this.worldPosition).add(.5).add(right).add(up).add(antiNormal);
+        boolean stillThere = PortalEntity.getPortals(this.level, pos.to3d(), 0.001f, portal -> true).stream()
+                .anyMatch(portal ->
+                        this.lastOpenedUUID.equals(portal.getGunUUID()) && this.lastOpenedEnd.equals(portal.getEnd()));
+
+        if(!stillThere) {
+            this.lastOpenedUUID = null;
+            this.lastOpenedEnd = null;
+            this.sendUpdate();
         }
     }
 
@@ -137,6 +177,13 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
             nbt.putString("end", this.end.toString().toLowerCase());
             nbt.putString("primaryColor", PortalColors.values()[this.primaryColor].toString().toLowerCase());
             nbt.putString("secondaryColor", PortalColors.values()[this.secondaryColor].toString().toLowerCase());
+
+            if(this.lastOpenedUUID != null && this.lastOpenedEnd != null) {
+                CompoundNBT lastOpened = new CompoundNBT();
+                lastOpened.putUUID("gunUUID", this.lastOpenedUUID);
+                lastOpened.putString("end", this.lastOpenedEnd.toString().toLowerCase());
+                nbt.put("lastOpened", lastOpened);
+            }
         }
         return super.save(nbt);
     }
@@ -153,6 +200,18 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
             this.end = PortalEnd.valueOf(nbt.getString("end").toUpperCase());
             this.primaryColor = PortalColors.getIndex(nbt.getString("primaryColor"));
             this.secondaryColor = PortalColors.getIndex(nbt.getString("secondaryColor"));
+
+            this.lastOpenedUUID = null;
+            this.lastOpenedEnd = null;
+
+            if(nbt.contains("lastOpened")) {
+                CompoundNBT lastOpened = nbt.getCompound("lastOpened");
+
+                if(lastOpened.contains("gunUUID") && lastOpened.contains("end")) {
+                    this.lastOpenedUUID = lastOpened.getUUID("gunUUID");
+                    this.lastOpenedEnd = PortalEnd.valueOf(nbt.getString("end").toUpperCase());
+                }
+            }
         }
     }
 
@@ -169,7 +228,7 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     }
     
     // block update
-    
+
     @Override
     public SUpdateTileEntityPacket getUpdatePacket() {
         return new SUpdateTileEntityPacket(this.getBlockPos(), -1, save(new CompoundNBT()));

@@ -61,12 +61,14 @@ public class AutoPortalTER extends TileEntityRenderer<AutoPortalTileEntity> {
             IVertexBuilder vertexBuilder = MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);
             DynamicTextureVertexBuilder dtvb = new DynamicTextureVertexBuilder(vertexBuilder);
 
+            int closedOffset = be.lastOpenedUUID != null && be.lastOpenedEnd != null ? 0 : 2;
+
             model.frame.render(matrixStack, dtvb, light, overlay, 1, 1, 1, 1);
 
             Optional<Integer> colorIndex = be.getCurrentColorIndex();
             if(colorIndex.isPresent()) {
                 int color = colorIndex.get();
-                float u = (color % 4) * 11 / 64f;
+                float u = ((color % 4) * 11 + closedOffset) / 64f;
                 float v = (float) (color / 4) * 16 / 64f;
                 dtvb.setOffset(u, v);
                 model.wawas.render(matrixStack, dtvb, LightTexture.pack(15, 15), overlay, 1, 1, 1, 1);
