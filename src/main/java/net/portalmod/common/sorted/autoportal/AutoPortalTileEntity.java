@@ -127,6 +127,9 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         Vec3 up = new Vec3(directions.getB()).mul(.5);
         Vec3 antiNormal = new Vec3(facing).mul(-.5);
 
+        if(facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE)
+            right = right.negate();
+
         Vec3 pos = new Vec3(this.worldPosition).add(.5).add(right).add(up).add(antiNormal);
         boolean stillThere = PortalEntity.getPortals(this.level, pos.to3d(), 0.001f, portal -> true).stream()
                 .anyMatch(portal ->
