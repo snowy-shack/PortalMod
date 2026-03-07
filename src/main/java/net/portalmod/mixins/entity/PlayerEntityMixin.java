@@ -17,6 +17,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
 import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
@@ -83,6 +84,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
                 ((TestElementEntity)passenger).onHolderTeleportPacket();
             }
         }
+    }
+
+    @Inject(
+            remap = false,
+            method = "isSecondaryUseActive",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void pmUseWrenchSneaking(CallbackInfoReturnable<Boolean> info) {
+        PlayerEntity player = (PlayerEntity)(Object)this;
+        if(player.getMainHandItem().getItem() instanceof WrenchItem)
+            info.setReturnValue(false);
     }
 
     @Redirect(
