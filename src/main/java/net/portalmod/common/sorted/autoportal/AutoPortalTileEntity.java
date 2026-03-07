@@ -135,6 +135,8 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
                 .anyMatch(portal ->
                         this.lastOpenedUUID.equals(portal.getGunUUID()) && this.lastOpenedEnd.equals(portal.getEnd()));
 
+        stillThere &= this.lastOpenedUUID == this.gunUUID && this.lastOpenedEnd == this.end;
+
         if(!stillThere) {
             this.lastOpenedUUID = null;
             this.lastOpenedEnd = null;
