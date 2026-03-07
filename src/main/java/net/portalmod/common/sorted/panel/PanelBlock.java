@@ -262,36 +262,57 @@ public class PanelBlock extends Block implements PortalHelper {
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        if (!state.getValue(STATE).isWall()) {
+        PanelState panelState = state.getValue(STATE);
+
+        if (panelState.isFloor()) {
+            if (ModUtil.getRotationAmount(rotation) % 2 == 1) {
+                state = state.cycle(AXIS);
+            }
+
+            for (int i = 0; i < ModUtil.getRotationAmount(rotation); i++) {
+                state = state.setValue(STATE, state.getValue(STATE).rotate());
+            }
+
             return state;
         }
 
-        if (ModUtil.getRotationAmount(rotation) % 2 == 1) {
-            state = state.cycle(AXIS);
-        }
+        if (panelState.isWall()) {
+            if (ModUtil.getRotationAmount(rotation) % 2 == 1) {
+                state = state.cycle(AXIS);
+            }
 
-        Direction.Axis axis = state.getValue(AXIS);
-        if (axis == Direction.Axis.Z && rotation == Rotation.CLOCKWISE_90
-                || axis == Direction.Axis.X && rotation == Rotation.COUNTERCLOCKWISE_90
-                || rotation == Rotation.CLOCKWISE_180) {
-            return state.setValue(STATE, state.getValue(STATE).mirrorLeftRight());
+            Direction.Axis axis = state.getValue(AXIS);
+            if (axis == Direction.Axis.Z && rotation == Rotation.CLOCKWISE_90
+                    || axis == Direction.Axis.X && rotation == Rotation.COUNTERCLOCKWISE_90
+                    || rotation == Rotation.CLOCKWISE_180) {
+                return state.setValue(STATE, panelState.mirrorLeftRight());
+            }
         }
 
         return state;
+
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        if (!state.getValue(STATE).isWall()) {
+        if (mirror == Mirror.NONE) {
             return state;
         }
 
-        Direction.Axis axis = state.getValue(AXIS);
-        if (axis == Direction.Axis.X && mirror == Mirror.FRONT_BACK || axis == Direction.Axis.Z && mirror == Mirror.LEFT_RIGHT) {
-            return state.setValue(STATE, state.getValue(STATE).mirrorLeftRight());
+        PanelState panelState = state.getValue(STATE);
+        if (panelState.isFloor()) {
+            return state.setValue(STATE, mirror == Mirror.FRONT_BACK ? panelState.mirrorLeftRight() : panelState.mirrorUpDown());
+        }
+
+        if (panelState.isWall()) {
+            Direction.Axis axis = state.getValue(AXIS);
+            if (axis == Direction.Axis.X && mirror == Mirror.FRONT_BACK || axis == Direction.Axis.Z && mirror == Mirror.LEFT_RIGHT) {
+                return state.setValue(STATE, panelState.mirrorLeftRight());
+            }
         }
 
         return state;
+
     }
 
     @Override

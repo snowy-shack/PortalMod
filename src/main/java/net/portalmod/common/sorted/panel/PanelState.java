@@ -120,6 +120,28 @@ public enum PanelState implements IStringSerializable {
         throw new IllegalStateException(this.name + " state has no vertical direction");
     }
 
+    public PanelState rotate() {
+        switch (this) {
+            case BOTTOM_LEFT:
+                return TOP_LEFT;
+            case TOP_LEFT:
+                return TOP_RIGHT;
+            case TOP_RIGHT:
+                return BOTTOM_RIGHT;
+            case BOTTOM_RIGHT:
+                return BOTTOM_LEFT;
+            case FLOOR_BOTTOM_LEFT:
+                return FLOOR_TOP_LEFT;
+            case FLOOR_TOP_LEFT:
+                return FLOOR_TOP_RIGHT;
+            case FLOOR_TOP_RIGHT:
+                return FLOOR_BOTTOM_RIGHT;
+            case FLOOR_BOTTOM_RIGHT:
+                return FLOOR_BOTTOM_LEFT;
+        }
+        throw new IllegalStateException(this.name + " state is not floor or wall");
+    }
+
     @Override
     public String getSerializedName() {
         return name;
