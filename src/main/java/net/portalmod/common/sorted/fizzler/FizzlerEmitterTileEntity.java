@@ -22,6 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
+
+    public static final int MAX_DISTANCE = 16;
+
     public FizzlerEmitterTileEntity() {
         super(TileEntityTypeInit.FIZZLER_EMITTER.get());
     }
@@ -40,11 +43,8 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
         Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
         int distance = this.distanceToOtherSide(facing);
 
-        // Redstone powered
-        if (blockState.getValue(FizzlerEmitterBlock.POWERED)) {
-            if (activated) {
-                this.setActive(false, distance, facing);
-            }
+        // No other side or path is blocked
+        if (distance == 0) {
             return;
         }
 
@@ -83,6 +83,9 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
             ((FizzlerEmitterBlock) oppositeEmitterState.getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, oppositeEmitterState, this.level, oppositeEmitterPos);
 
             ((FizzlerEmitterBlock) this.getBlockState().getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, this.getBlockState(), this.level, this.getBlockPos());
+
+            ((FizzlerEmitterBlock) oppositeEmitterState.getBlock()).updateAllNeighbors(this.level, oppositeEmitterPos, oppositeEmitterState);
+            ((FizzlerEmitterBlock) this.getBlockState().getBlock()).updateAllNeighbors(this.level, this.getBlockPos(), this.getBlockState());
         }
     }
 
@@ -100,19 +103,42 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
     }
 
     public int distanceToOtherSide(Direction direction) {
-        for (int i = 1; i <= 16; i++) {
-            for (int j = 0; j <= 1; j++) {
-                BlockState state = this.level.getBlockState(this.getBlockPos().relative(direction, i).above(j));
-                if (state.getBlock().is(Blocks.AIR) || state.getBlock() instanceof FizzlerFieldBlock) {
-                    continue;
-                }
-                if (j == 0 && state.getBlock() instanceof FizzlerEmitterBlock && state.getValue(FizzlerEmitterBlock.HALF) == DoubleBlockHalf.LOWER && state.getValue(FizzlerEmitterBlock.FACING) == direction.getOpposite()) {
-                    return i;
-                }
+        for (int i = 1; i <= MAX_DISTANCE; i++) {
+            BlockState lowerState = this.level.getBlockState(this.getBlockPos().relative(direction, i));
+            BlockState upperState = this.level.getBlockState(this.getBlockPos().relative(direction, i).above());
+
+            if (this.isBlocking(lowerState, direction, false) || this.isBlocking(upperState, direction, true)) {
                 return 0;
             }
+
+            if (this.isOtherSide(lowerState, direction, false) && this.isOtherSide(upperState, direction, true)) {
+                return i;
+            }
         }
+
         return 0;
+    }
+
+    public boolean isBlocking(BlockState state, Direction direction, boolean upper) {
+        if (state.getBlock().is(Blocks.AIR) || state.getBlock() instanceof FizzlerEmitterBlock) {
+            return false;
+        }
+
+        if (state.getBlock() instanceof FizzlerFieldBlock) {
+            return state.getValue(FizzlerFieldBlock.AXIS) != direction.getAxis()
+                    || upper != (state.getValue(FizzlerFieldBlock.HALF) == DoubleBlockHalf.UPPER);
+        }
+
+        return true;
+    }
+
+    public boolean isOtherSide(BlockState state, Direction direction, boolean upper) {
+        if (state.getBlock() instanceof FizzlerEmitterBlock) {
+            return state.getValue(FizzlerEmitterBlock.FACING) == direction.getOpposite()
+                    && upper == (state.getValue(FizzlerEmitterBlock.HALF) == DoubleBlockHalf.UPPER);
+        }
+
+        return false;
     }
 
     @Override

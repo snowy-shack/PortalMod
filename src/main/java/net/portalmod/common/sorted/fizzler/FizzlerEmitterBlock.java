@@ -26,8 +26,6 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.sorted.portalgun.PortalGun;
@@ -43,21 +41,19 @@ import java.util.List;
 
 public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     public FizzlerEmitterBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false)
                 .setValue(ACTIVE, false)
                 .setValue(HALF, DoubleBlockHalf.LOWER));
         this.initAABBs();
     }
 
-    private static final BiHashMap<Direction, DoubleBlockHalf, VoxelShapeGroup> SHAPE = new BiHashMap<>();
-    private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
+    private static final BiHashMap<Direction, DoubleBlockHalf, VoxelShapeGroup> SHAPES = new BiHashMap<>();
+    private static final VoxelShapeGroup SHAPE_GROUP = new VoxelShapeGroup.Builder()
             .add(0, 0, 3, 1, 16, 13)
             .addPart("active", VoxelShapes.or(
                     Block.box(1, 0, 5, 3, 16, 11),
@@ -77,18 +73,18 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
                 matrix.translate(new Vec3(-.5));
 
-                SHAPE.put(facing, half, shape.clone().transform(matrix));
+                SHAPES.put(facing, half, SHAPE_GROUP.clone().transform(matrix));
             }
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(ACTIVE) ? "active" : "");
+        return SHAPES.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(ACTIVE) ? "active" : "");
     }
 
     public VoxelShape getFieldShape(BlockState state) {
-        return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant("field");
+        return SHAPES.get(state.getValue(FACING), state.getValue(HALF)).getVariant("field");
     }
 
     @Override
@@ -101,51 +97,31 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
         return state.getValue(FizzlerEmitterBlock.ACTIVE) && this.getFieldShape(state).bounds().move(pos).intersects(box);
     }
 
-//    @Override
-//    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-//        return SHAPE.get(state.getValue(FACING)).getVariant(state.getValue(ACTIVE) ? "activeCollision" : "");
-//    }
-
     @Override
-    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
-        super.neighborChanged(blockState, world, pos, block, neighborPos, b);
-
-        Direction direction = blockState.getValue(FACING);
-        if (blockState.getValue(ACTIVE)) {
-            Block adjacent = world.getBlockState(pos.relative(direction)).getBlock();
-            if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
-                this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        if (state.getValue(ACTIVE)) {
+            Direction direction = state.getValue(FACING);
+            BlockState neighbor = world.getBlockState(pos.relative(direction));
+            if (!this.validHorizontalConnection(state, neighbor)) {
+                this.setBlockStateValue(ACTIVE, false, state, world, pos);
+                this.updateAllNeighbors(world, pos, state);
             }
-        }
-
-//        BlockState supporting = world.getBlockState(neighborPos);
-//        if (!supporting.isFaceSturdy(world, pos, direction.getOpposite())) {
-//            world.destroyBlock(pos, true);
-//        }
-
-        if (world.isClientSide) return;
-
-        boolean wasPowered = blockState.getValue(POWERED);
-        boolean isPowered = false;
-        for (BlockPos checkingPos : getAllPositions(blockState, pos)) {
-            if (world.hasNeighborSignal(checkingPos)) {
-                isPowered = true;
-            }
-        }
-
-        if (wasPowered != isPowered) {
-            this.setBlockStateValue(POWERED, isPowered, blockState, world, pos);
         }
     }
 
-    @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
-        Block adjacent = world.getBlockState(pos.relative(state.getValue(FACING))).getBlock();
-        if (!(adjacent instanceof FizzlerFieldBlock) && !(adjacent instanceof FizzlerEmitterBlock)) {
-            state = state.setValue(ACTIVE, false);
+    public boolean validHorizontalConnection(BlockState state, BlockState neighbor) {
+        if (neighbor.getBlock() instanceof FizzlerFieldBlock) {
+            return neighbor.getValue(FizzlerFieldBlock.AXIS) == state.getValue(FACING).getAxis()
+                    && neighbor.getValue(FizzlerFieldBlock.HALF) == state.getValue(HALF);
         }
 
-        return super.updateShape(state, direction, neighborState, world, pos, neighborPos);
+        if (neighbor.getBlock() instanceof FizzlerEmitterBlock) {
+            return neighbor.getValue(FACING) == state.getValue(FACING).getOpposite()
+                    && neighbor.getValue(HALF) == state.getValue(HALF)
+                    && neighbor.getValue(ACTIVE);
+        }
+
+        return false;
     }
 
     @Override
@@ -183,23 +159,19 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED, ACTIVE, HALF);
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, IWorldReader worldReader, BlockPos pos) {
-        return super.canSurvive(state, worldReader, pos);
+        builder.add(FACING, ACTIVE, HALF);
     }
 
     @Override
     public boolean hasTileEntity(BlockState state) {
+        // Tile entity exists only on one side of the fizzler, handling both sides
         return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE;
     }
 
     @Nullable
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
+        return this.hasTileEntity(state) ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
     }
 
     @Override
