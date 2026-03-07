@@ -168,7 +168,9 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
                 break;
 
             case GUI:
-                skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(null);
+                if(SkinManager.getClientInstance().hasUUID()) {
+                    skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(null);
+                }
                 actualRenderingPortalGunOwner = null;
                 break;
         }

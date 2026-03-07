@@ -472,6 +472,10 @@ public class SkinManager {
         return Colour.fromHSV((float)hsv.x, (float)hsv.y, (float)hsv.z).getRGBValue();
     }
 
+    public boolean hasUUID() {
+        return !Minecraft.getInstance().getUser().getUuid().isEmpty();
+    }
+
     public Optional<UUID> getOwnUUID() {
         String playerUUIDString = Minecraft.getInstance().getUser().getUuid();
 
