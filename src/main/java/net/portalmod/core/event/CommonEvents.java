@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -25,7 +26,9 @@ import net.portalmod.common.sorted.portal.PortalManager;
 import net.portalmod.common.sorted.portal.SPortalPairPacket;
 import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 import net.portalmod.common.sorted.trigger.TriggerSelectionServer;
+import net.portalmod.core.init.GameRuleInit;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.packet.SUpdateFunnelingGameRulePacket;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +40,21 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onRegisterCommands(final RegisterCommandsEvent event) {
         PortalCommand.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onCommand(final CommandEvent event) {
+        if(event.getParseResults().getContext().getNodes().get(0).getNode().getName().equals("gamerule")) {
+            if(event.getParseResults().getContext().getNodes().size() != 3)
+                return;
+
+            String name = event.getParseResults().getContext().getNodes().get(1).getNode().getName();
+            Boolean value = (Boolean)event.getParseResults().getContext().getArguments().get("value").getResult();
+
+            if(name.equals(GameRuleInit.DO_FUNNELING.getId())) {
+                PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SUpdateFunnelingGameRulePacket(name, value));
+            }
+        }
     }
 
     @SubscribeEvent
@@ -64,6 +82,10 @@ public class CommonEvents {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(
                     () -> (ServerPlayerEntity)event.getEntity()), new SPortalPairPacket(k, new PartialPortalPair(v)));
         });
+
+        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)event.getEntity()),
+                new SUpdateFunnelingGameRulePacket(GameRuleInit.DO_FUNNELING.getId(),
+                        event.getWorld().getGameRules().getBoolean(GameRuleInit.DO_FUNNELING)));
     }
 
     @SubscribeEvent

@@ -51,7 +51,7 @@ public class PortalMod {
 
     private void setup(final FMLCommonSetupEvent event) {
         CriteriaTriggerInit.REGISTRY.registerAll();
-
+        GameRuleInit.registerAll();
         ItemInit.registerFluidDispenserBehavior();
     }
 

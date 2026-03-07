@@ -13,6 +13,7 @@
         "accessors.ChunkManagerAccessor",
         "accessors.ChunkManagerAccessor2",
         "accessors.EntityAccessor",
+        "accessors.BooleanValueAccessor",
         "accessors.LivingEntityAccessor",
         "accessors.ServerLevelAccessor",
         "entity.AbstractMinecartMixin",
