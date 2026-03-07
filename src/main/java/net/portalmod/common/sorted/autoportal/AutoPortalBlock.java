@@ -63,11 +63,11 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
 
     private void initAABBs() {
         VoxelShapeGroup leftShape = new VoxelShapeGroup.Builder()
-                .add(3, 0, 0, 6, 16, 1)
+                .add(3, 0, 0, 6, 16, 1.01)
                 .build();
 
         VoxelShapeGroup rightShape = new VoxelShapeGroup.Builder()
-                .add(10, 0, 0, 13, 16, 1)
+                .add(10, 0, 0, 13, 16, 1.01)
                 .build();
 
         for(Direction direction : Direction.values()) {
