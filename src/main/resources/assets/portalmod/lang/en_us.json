@@ -130,13 +130,15 @@
   "tooltip.portalmod.standing_button_4": "  - Persistent",
   "tooltip.portalmod.standing_button_5": "  - Toggle",
   "tooltip.portalmod.standing_button_6": "- Activates §bAntlines§7",
+  "tooltip.portalmod.standing_button_7": "- Can be reset by powering with §cRedstone§7 from below",
 
   "tooltip.portalmod.super_button_1": "Can be pressed by heavy entities",
   "tooltip.portalmod.super_button_2": "- §6Wrench§7: Cycles through Button Modes:",
   "tooltip.portalmod.super_button_3": "  - Normal",
   "tooltip.portalmod.super_button_4": "  - Persistent",
   "tooltip.portalmod.super_button_5": "  - Toggle",
-  "tooltip.portalmod.super_button_6": "- Activates §bAntlines§7 when pressed",
+  "tooltip.portalmod.super_button_6": "- Activates §bAntlines§7",
+  "tooltip.portalmod.super_button_7": "- Can be reset by powering with §cRedstone§7 from below",
 
   "tooltip.portalmod.antline_1": "Connects §aButtons§7 to §bAntline Indicators§7",
   "tooltip.portalmod.antline_2": "- Cannot power §aTesting Elements§7 without §bAntline Indicator§7",
@@ -165,9 +167,10 @@
   "tooltip.portalmod.trigger_4": "- §6Wrench + Crouch§7: Change entity type",
 
   "tooltip.portalmod.autoportal_1": "Allows for portals to be automatically opened",
-  "tooltip.portalmod.autoportal_2": "- §6Wrench§7: Configure the §9Portal§7:",
-  "tooltip.portalmod.autoportal_3": "  - Normal: Change between primary & secondary §9Portal§7",
-  "tooltip.portalmod.autoportal_4": "  - Offhand §9Portal Gun§7: Link to this §9Portal Gun§7",
+  "tooltip.portalmod.autoportal_2": "- Activated by adjacent §bAntline Indicators§7",
+  "tooltip.portalmod.autoportal_3": "- §6Wrench§7: Configure the §9Portal§7:",
+  "tooltip.portalmod.autoportal_4": "  - Normal: Change between primary & secondary §9Portal§7",
+  "tooltip.portalmod.autoportal_5": "  - Offhand §9Portal Gun§7: Link to this §9Portal Gun§7",
 
   "tooltip.portalmod.chamber_lights_1": "Lights up test chambers",
   "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by §cRedstone§7",
@@ -183,9 +186,11 @@
   "tooltip.portalmod.fizzler_emitter_1": "Removes unwanted §aTesting Elements§7",
   "tooltip.portalmod.fizzler_emitter_2": "- Fizzles §aCubes§7 and §aTurrets§7",
   "tooltip.portalmod.fizzler_emitter_3": "- Closes §9Portals§7 from all §9Portal Guns§7 in inventory",
+  "tooltip.portalmod.fizzler_emitter_4": "- Can be controlled by adjacent §bAntline Indicators§7",
 
   "tooltip.portalmod.faithplate_1": "Launches entities to a specified location",
   "tooltip.portalmod.faithplate_2": "- §6Wrench§7: Configure the fling target",
+  "tooltip.portalmod.faithplate_3": "- Can be controlled by adjacent §bAntline Indicators§7",
 
   "tooltip.portalmod.chamber_sign_1": "Displays chamber information",
   "tooltip.portalmod.chamber_sign_2": "- §6Wrench§7: Modify individual elements of the display",
