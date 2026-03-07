@@ -392,7 +392,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(!isInCone)
             return delta;
 
-        Vec3 funnelAcceleration = portalPos.clone().sub(entityPos).mul(1, 0, 1).mul(.8).div(relativeEntityPos.y);
+        float speed = (float)delta.length();
+        Vec3 funnelAcceleration = portalPos.clone().sub(entityPos)
+                .mul(1, 0, 1)
+                .mul(.8)
+                .div(Math.sqrt(relativeEntityPos.y / speed));
+
         return delta.add(funnelAcceleration.to3d());
     }
 
