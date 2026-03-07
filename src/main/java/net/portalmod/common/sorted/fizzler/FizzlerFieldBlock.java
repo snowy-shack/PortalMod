@@ -47,8 +47,8 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
 
-    private static final Map<Direction.Axis, VoxelShapeGroup> SHAPE = new HashMap<>();
-    private static final VoxelShapeGroup shape = new VoxelShapeGroup.Builder()
+    private static final Map<Direction.Axis, VoxelShapeGroup> SHAPES = new HashMap<>();
+    private static final VoxelShapeGroup SHAPE_GROUP = new VoxelShapeGroup.Builder()
             .add(0,0,7,16,16,9)
             .build();
 
@@ -60,18 +60,17 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
             matrix.rotateDeg(Vector3f.YP, (axis == Direction.Axis.X) ? 0 : 90);
             matrix.translate(new Vec3(-.5));
 
-            SHAPE.put(axis, shape.clone().transform(matrix));
+            SHAPES.put(axis, SHAPE_GROUP.clone().transform(matrix));
         }
     }
 
     @Override
     public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         return VoxelShapes.empty();
-//        return getFieldShape(state);
     }
 
     public VoxelShape getFieldShape(BlockState state) {
-        return SHAPE.get(state.getValue(AXIS)).getShape();
+        return SHAPES.get(state.getValue(AXIS)).getShape();
     }
 
     @Override
@@ -85,24 +84,29 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return VoxelShapes.empty();
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+        Direction facing = Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
+        BlockState leftBlock = world.getBlockState(pos.relative(facing));
+        BlockState rightBlock = world.getBlockState(pos.relative(facing.getOpposite()));
+
+        if (!this.validHorizontalConnection(state, leftBlock, facing) || !(this.validHorizontalConnection(state, rightBlock, facing.getOpposite()))) {
+            world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+        }
     }
 
-    @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos pos1, boolean b) {
-        super.neighborChanged(state, world, pos, block, pos1, b);
-
-        Direction facing = Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
-        Block leftBlock = world.getBlockState(pos.relative(facing)).getBlock();
-        Block rightBlock = world.getBlockState(pos.relative(facing.getOpposite())).getBlock();
-
-        if ((leftBlock instanceof FizzlerFieldBlock || leftBlock instanceof FizzlerEmitterBlock) && (rightBlock instanceof FizzlerFieldBlock || rightBlock instanceof FizzlerEmitterBlock)) {
-            return;
+    public boolean validHorizontalConnection(BlockState state, BlockState neighbor, Direction direction) {
+        if (neighbor.getBlock() instanceof FizzlerFieldBlock) {
+            return neighbor.getValue(AXIS) == state.getValue(AXIS)
+                    && neighbor.getValue(HALF) == state.getValue(HALF);
         }
 
-        world.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
-        world.updateNeighborsAt(pos, this);
+        if (neighbor.getBlock() instanceof FizzlerEmitterBlock) {
+            return neighbor.getValue(FizzlerEmitterBlock.FACING) == direction.getOpposite()
+                    && neighbor.getValue(FizzlerEmitterBlock.HALF) == state.getValue(HALF)
+                    && neighbor.getValue(FizzlerEmitterBlock.ACTIVE);
+        }
+
+        return false;
     }
 
     @Override
