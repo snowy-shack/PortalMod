@@ -116,7 +116,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     @Override
     public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
         if(level.isClientSide)
-            return ActionResultType.PASS;
+            return ActionResultType.CONSUME;
 
         Block block = state.getBlock();
         if(!(block instanceof AutoPortalBlock))
@@ -131,43 +131,45 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
 
         AutoPortalTileEntity autoPortal = (AutoPortalTileEntity)te;
 
-        if(WrenchItem.usedWrench(player, hand)) {
-            if(player.getOffhandItem().getItem() instanceof PortalGun) {
-                ItemStack itemStack = player.getOffhandItem();
-                Optional<UUID> uuid = PortalGun.getUUID(itemStack);
+        if(!WrenchItem.usedWrench(player, hand))
+            return ActionResultType.PASS;
 
-                if(uuid.isPresent() && itemStack.hasTag()) {
-                    CompoundNBT nbt = itemStack.getTag();
+        if(player.getOffhandItem().getItem() instanceof PortalGun) {
+            ItemStack itemStack = player.getOffhandItem();
+            Optional<UUID> uuid = PortalGun.getUUID(itemStack);
 
-                    if(nbt != null) {
-                        if(!nbt.contains("LeftColor") || !nbt.contains("RightColor"))
-                            return ActionResultType.PASS;
+            if(!uuid.isPresent() || !itemStack.hasTag())
+                return ActionResultType.PASS;
 
-                        int primaryColor = PortalColors.getIndex(nbt.getString("LeftColor"));
-                        int secondaryColor = PortalColors.getIndex(nbt.getString("RightColor"));
-                        PortalEnd end = nbt.contains("Locked") && nbt.getString("Locked").equals("Left")
-                                ? PortalEnd.PRIMARY : PortalEnd.SECONDARY;
+            CompoundNBT nbt = itemStack.getTag();
 
-                        autoPortal.link(uuid.get(), end, primaryColor, secondaryColor);
-                        WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-                        player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal.set"), true);
-                        return ActionResultType.SUCCESS;
-                    }
-                }
-            } else {
-                if(autoPortal.end == null) {
-                    WrenchItem.playFailSound(level, rayTraceResult.getLocation());
-                    return ActionResultType.SUCCESS;
-                }
+            if(nbt != null) {
+                if(!nbt.contains("LeftColor") || !nbt.contains("RightColor"))
+                    return ActionResultType.PASS;
 
-                autoPortal.swapEnd();
+                int primaryColor = PortalColors.getIndex(nbt.getString("LeftColor"));
+                int secondaryColor = PortalColors.getIndex(nbt.getString("RightColor"));
+                PortalEnd end = nbt.contains("Locked") && nbt.getString("Locked").equals("Left")
+                        ? PortalEnd.PRIMARY : PortalEnd.SECONDARY;
+
+                autoPortal.link(uuid.get(), end, primaryColor, secondaryColor);
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-
-                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal."
-                        + (autoPortal.end == PortalEnd.PRIMARY ? "primary" : "secondary")), true);
-
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal.set"), true);
                 return ActionResultType.SUCCESS;
             }
+        } else {
+            if(autoPortal.end == null) {
+                WrenchItem.playFailSound(level, rayTraceResult.getLocation());
+                return ActionResultType.SUCCESS;
+            }
+
+            autoPortal.swapEnd();
+            WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+
+            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal."
+                    + (autoPortal.end == PortalEnd.PRIMARY ? "primary" : "secondary")), true);
+
+            return ActionResultType.SUCCESS;
         }
 
         return ActionResultType.PASS;
