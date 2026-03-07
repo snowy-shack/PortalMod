@@ -342,10 +342,6 @@ public class PanelBlock extends Block implements PortalHelper {
         PanelState panelState = state.getValue(STATE);
         double yPos = panelState.isBottom() ? Math.ceil(hitPos.y) : Math.floor(hitPos.y);
 
-        boolean isUp = face == Direction.UP;
-        boolean xAxis = (face.getAxis().isVertical() && state.getValue(AXIS) == Direction.Axis.X)
-                || (face.getAxis().isHorizontal() && face.getAxis() == Direction.Axis.X);
-
         Optional<Direction> upDirection = Arrays.stream(lookingDirections)
                 .filter(direction -> direction.getAxis() == state.getValue(AXIS))
                 .findFirst();
@@ -353,18 +349,35 @@ public class PanelBlock extends Block implements PortalHelper {
         if(!upDirection.isPresent())
             return new Pair<>(hitPos, lookingDirections[0]);
 
-        if(xAxis) {
-            return new Pair<>(new Vec3(
-                    panelState.isBottom() ^ isUp ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
-                    yPos,
-                    panelState.isLeft() ^ isUp ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
-            ), face.getAxis().isVertical() ? upDirection.get() : horizontalDirection);
-        }
+        if(face.getAxis().isVertical()) {
+            if(state.getValue(AXIS) == Direction.Axis.X) {
+                return new Pair<>(new Vec3(
+                        !panelState.isLeft() ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
+                        yPos,
+                        panelState.isBottom() ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+                ), upDirection.get());
+            }
 
-        return new Pair<>(new Vec3(
-                !panelState.isLeft() ^ isUp ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
-                yPos,
-                !panelState.isBottom() ^ isUp ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
-        ), face.getAxis().isVertical() ? upDirection.get() : horizontalDirection);
+            return new Pair<>(new Vec3(
+                    !panelState.isLeft() ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
+                    yPos,
+                    panelState.isBottom() ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+            ), upDirection.get());
+
+        } else {
+            if(face.getAxis() == Direction.Axis.X) {
+                return new Pair<>(new Vec3(
+                        panelState.isBottom() ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
+                        yPos,
+                        panelState.isLeft() ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+                ), horizontalDirection);
+            }
+
+            return new Pair<>(new Vec3(
+                    !panelState.isLeft() ? Math.floor(hitPos.x) : Math.ceil(hitPos.x),
+                    yPos,
+                    !panelState.isBottom() ? Math.floor(hitPos.z) : Math.ceil(hitPos.z)
+            ), horizontalDirection);
+        }
     }
 }
