@@ -342,13 +342,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public static Vector3d doFunneling(Entity entity, Vector3d delta) {
-        if(true)
+        float downDot = (float)entity.getViewVector(1).dot(new Vec3(Direction.DOWN.getNormal()).to3d());
+
+        if(!(entity instanceof PlayerEntity) || delta.y > -.5 || downDot < .5)
             return delta;
 
-        if(!(entity instanceof PlayerEntity) || delta.y > -.5
-                || entity.getViewVector(1).dot(new Vec3(Direction.DOWN.getNormal()).to3d()) < .9)
-            return delta;
-
+        Vec3 entityPos = new Vec3(entity.position());
         AxisAlignedBB travelAABB = entity.getBoundingBox()
                 .expandTowards(delta)
                 .expandTowards(0, -10, 0)
@@ -356,67 +355,42 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 .expandTowards(-3, 0, -3);
 
         List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB,
-                portal -> portal.getDirection() == Direction.UP);
+                portal -> portal.getDirection() == Direction.UP && portal.position().y < entityPos.y);
 
         if(portals.isEmpty())
             return delta;
 
-        Vec3 entityPos = new Vec3(entity.position());
-        PortalEntity portal = portals.get(0);
+        PortalEntity portal = portals.stream().reduce((portal1, portal2) -> {
+            Vec3 portal1Pos = new Vec3(portal1.position());
+            Vec3 portal2Pos = new Vec3(portal2.position());
 
-        if(portals.size() > 1) {
-            portal = portals.stream().reduce((portal1, portal2) -> {
-                Vec3 portal1Pos = new Vec3(portal1.position());
-                Vec3 portal2Pos = new Vec3(portal2.position());
+            Vec3 flatEntityPos = entityPos.clone().mul(1, 0, 1);
+            Vec3 flatPortal1Pos = portal1Pos.clone().mul(1, 0, 1);
+            Vec3 flatPortal2Pos = portal2Pos.clone().mul(1, 0, 1);
 
-                Vec3 flatEntityPos = entityPos.clone().mul(1, 0, 1);
-                Vec3 flatPortal1Pos = portal1Pos.clone().mul(1, 0, 1);
-                Vec3 flatPortal2Pos = portal2Pos.clone().mul(1, 0, 1);
+            double hDistance1 = flatPortal1Pos.clone().sub(flatEntityPos).magnitude();
+            double hDistance2 = flatPortal2Pos.clone().sub(flatEntityPos).magnitude();
+            double vDistance1 = portal1Pos.y - entityPos.y;
+            double vDistance2 = portal2Pos.y - entityPos.y;
 
-                double hDistance1 = flatPortal1Pos.clone().sub(flatEntityPos).magnitude();
-                double hDistance2 = flatPortal2Pos.clone().sub(flatEntityPos).magnitude();
+            if(hDistance2 == hDistance1)
+                return vDistance2 < vDistance1 ? portal2 : portal1;
+            return hDistance2 < hDistance1 ? portal2 : portal1;
+        }).get();
 
-                if(hDistance2 < hDistance1)
-                    return portal2;
-
-                double vDistance1 = portal1Pos.y - entityPos.y;
-                double vDistance2 = portal2Pos.y - entityPos.y;
-
-                if(hDistance2 == hDistance1 && vDistance2 < vDistance1)
-                    return portal2;
-                return portal1;
-            }).get();
-        }
-
-        Vec3 portalPos = new Vec3(portal.getBoundingBox().getCenter());
+        Vec3 portalPos = new Vec3(portal.position());
         Vec3 relativeEntityPos = entityPos.clone().sub(portalPos.clone());
         Vec3 flatRelativeEntityPos = relativeEntityPos.clone().mul(1, 0, 1);
         float coneRadius = (float)relativeEntityPos.y * .2f;
-        float posRadius = (float)flatRelativeEntityPos.magnitude();
 
-        boolean isInCone = relativeEntityPos.y < 8 && relativeEntityPos.y > 0
+        boolean isInCone = relativeEntityPos.y < 16 && relativeEntityPos.y > 0
                 && flatRelativeEntityPos.magnitude() < coneRadius;
 
         if(!isInCone)
             return delta;
 
-//        float ratio = posRadius / coneRadius;
-        double angle = Math.atan2(flatRelativeEntityPos.z, flatRelativeEntityPos.x);
-
-        Vec3 nextEntityPos = entityPos.clone().add(delta);
-//        Vec3 nextRelativeEntityPos = nextEntityPos.clone().sub(portalPos.clone().add(portal.getNormal()));
-//        float nextConeRadius = (float)nextRelativeEntityPos.y;
-//        float nextPosRadius = nextConeRadius * ratio;
-
-        float nextPosRadius = posRadius / 2;
-
-        Vec3 idealNextPos = new Vec3(
-                portalPos.x + Math.cos(angle) * nextPosRadius,
-                nextEntityPos.y,
-                portalPos.z + Math.sin(angle) * nextPosRadius
-        );
-
-        return delta.add(idealNextPos.clone().sub(nextEntityPos).mul(.5).to3d());
+        Vec3 funnelAcceleration = portalPos.clone().sub(entityPos).mul(1, 0, 1).mul(.8).div(relativeEntityPos.y);
+        return delta.add(funnelAcceleration.to3d());
     }
 
     public Vec3 projectPointOnPortalSurface(Vec3 point) {
