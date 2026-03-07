@@ -127,14 +127,14 @@ public class BlockStateGen extends BlockStateProvider {
             if (!genBlockStateFile) return;
 
             this.getVariantBuilder(block)
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_LEFT).addModels(new ConfiguredModel(floorBottomLeftModel, 0, 90, true))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_RIGHT).addModels(new ConfiguredModel(floorBottomRightModel))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_LEFT).addModels(new ConfiguredModel(floorTopLeftModel, 0, 180, true))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorTopRightModel, 0, 270, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_LEFT).addModels(new ConfiguredModel(floorBottomLeftModel, 0, 180, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_RIGHT).addModels(new ConfiguredModel(floorBottomRightModel, 0, 90, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_LEFT).addModels(new ConfiguredModel(floorTopLeftModel, 0, 270, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorTopRightModel, 0, 0, true))
                     .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_LEFT).addModels(new ConfiguredModel(floorBottomLeftModel, 0, 180, true))
                     .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_RIGHT).addModels(new ConfiguredModel(floorBottomRightModel, 0, 90, true))
                     .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_TOP_LEFT).addModels(new ConfiguredModel(floorTopLeftModel, 0, 270, true))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorTopRightModel));
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorTopRightModel, 0, 0, true));
         }
 
         if (!blackplateYouBe) {
@@ -181,14 +181,14 @@ public class BlockStateGen extends BlockStateProvider {
             if (!genBlockStateFile) return;
 
             this.getVariantBuilder(block)
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_LEFT).addModels(new ConfiguredModel(floorXBottomLeftModel, 0, 90, true))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_RIGHT).addModels(new ConfiguredModel(floorXBottomRightModel))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_LEFT).addModels(new ConfiguredModel(floorXTopLeftModel, 0, 180, true))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorXTopRightModel, 0, 270, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_LEFT).addModels(new ConfiguredModel(floorXBottomLeftModel, 0, 180, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_RIGHT).addModels(new ConfiguredModel(floorXBottomRightModel, 0, 90, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_LEFT).addModels(new ConfiguredModel(floorXTopLeftModel, 0, 270, true))
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.X).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorXTopRightModel, 0, 0, true))
                     .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_LEFT).addModels(new ConfiguredModel(floorZBottomLeftModel, 0, 180, true))
                     .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_BOTTOM_RIGHT).addModels(new ConfiguredModel(floorZBottomRightModel, 0, 90, true))
                     .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_TOP_LEFT).addModels(new ConfiguredModel(floorZTopLeftModel, 0, 270, true))
-                    .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorZTopRightModel));
+                    .partialState().with(PanelBlock.AXIS, Direction.Axis.Z).with(PanelBlock.STATE, PanelState.FLOOR_TOP_RIGHT).addModels(new ConfiguredModel(floorZTopRightModel, 0, 0, true));
         }
 
         this.getVariantBuilder(block)
