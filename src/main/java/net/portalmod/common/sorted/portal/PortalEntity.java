@@ -750,7 +750,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(this.level.isClientSide)
             return;
 
-        if(!PortalManager.getInstance().unloadingChunk) {
+        boolean isPortalStillUsed = PortalManager.getInstance().get(this.gunUUID, this.end) == this;
+
+        if(!PortalManager.getInstance().unloadingChunk && isPortalStillUsed) {
             PortalManager.getInstance().remove(this.gunUUID, this);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SForgetPortalPacket(this.gunUUID, this.end));
 
