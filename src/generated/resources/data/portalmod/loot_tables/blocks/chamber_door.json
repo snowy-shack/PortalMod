@@ -11,8 +11,8 @@
               "condition": "minecraft:block_state_property",
               "block": "portalmod:chamber_door",
               "properties": {
-                "side": "left",
-                "half": "lower"
+                "half": "lower",
+                "side": "left"
               }
             }
           ],

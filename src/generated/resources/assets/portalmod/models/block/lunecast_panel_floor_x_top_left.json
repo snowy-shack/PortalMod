@@ -2,7 +2,7 @@
   "parent": "portalmod:block/cube_corner_floor",
   "textures": {
     "top": "portalmod:block/lunecast_panel_floor_x_top_left",
-    "bottom": "portalmod:block/lunecast_panel_ceiling_x_top_right",
+    "bottom": "portalmod:block/lunecast_panel_ceiling_x_bottom_left",
     "side": "portalmod:block/lunecast"
   }
 }

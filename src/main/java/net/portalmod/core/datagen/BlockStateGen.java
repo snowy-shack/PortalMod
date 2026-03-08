@@ -140,7 +140,7 @@ public class BlockStateGen extends BlockStateProvider {
         if (!blackplateYouBe) {
             ModelFile floorXBottomLeftModel = this.models().withExistingParent(name + "_panel_floor_x_bottom_left" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
                     .texture("top", blockPath(name + "_panel_floor_x_bottom_left" + suffix))
-                    .texture("bottom", blockPath(name + "_panel_ceiling_x_bottom_right" + suffix))
+                    .texture("bottom", blockPath(name + "_panel_ceiling_x_top_left" + suffix))
                     .texture("side", blockPath(name + suffix));
 
             ModelFile floorZBottomLeftModel = this.models().withExistingParent(name + "_panel_floor_z_bottom_left" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
@@ -150,7 +150,7 @@ public class BlockStateGen extends BlockStateProvider {
 
             ModelFile floorXBottomRightModel = this.models().withExistingParent(name + "_panel_floor_x_bottom_right" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
                     .texture("top", blockPath(name + "_panel_floor_x_bottom_right" + suffix))
-                    .texture("bottom", blockPath(name + "_panel_ceiling_x_bottom_left" + suffix))
+                    .texture("bottom", blockPath(name + "_panel_ceiling_x_top_right" + suffix))
                     .texture("side", blockPath(name + suffix));
 
             ModelFile floorZBottomRightModel = this.models().withExistingParent(name + "_panel_floor_z_bottom_right" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
@@ -160,7 +160,7 @@ public class BlockStateGen extends BlockStateProvider {
 
             ModelFile floorXTopLeftModel = this.models().withExistingParent(name + "_panel_floor_x_top_left" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
                     .texture("top", blockPath(name + "_panel_floor_x_top_left" + suffix))
-                    .texture("bottom", blockPath(name + "_panel_ceiling_x_top_right" + suffix))
+                    .texture("bottom", blockPath(name + "_panel_ceiling_x_bottom_left" + suffix))
                     .texture("side", blockPath(name + suffix));
 
             ModelFile floorZTopLeftModel = this.models().withExistingParent(name + "_panel_floor_z_top_left" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
@@ -170,7 +170,7 @@ public class BlockStateGen extends BlockStateProvider {
 
             ModelFile floorXTopRightModel = this.models().withExistingParent(name + "_panel_floor_x_top_right" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
                     .texture("top", blockPath(name + "_panel_floor_x_top_right" + suffix))
-                    .texture("bottom", blockPath(name + "_panel_ceiling_x_top_left" + suffix))
+                    .texture("bottom", blockPath(name + "_panel_ceiling_x_bottom_right" + suffix))
                     .texture("side", blockPath(name + suffix));
 
             ModelFile floorZTopRightModel = this.models().withExistingParent(name + "_panel_floor_z_top_right" + suffix, "portalmod:block/cube_corner_floor" + parentSuffix)
