@@ -91,7 +91,7 @@
   "block.portalmod.standing_button": "Standing Button",
   "block.portalmod.chamber_door":    "Test Chamber Door",
   "block.portalmod.push_door":       "Push Door",
-  "block.portalmod.fizzler_emitter": "Fizzler Emitter",
+  "block.portalmod.fizzler_emitter": "Fizzler",
 
   "entity.portalmod.storage_cube":   "Storage Cube",
   "entity.portalmod.companion_cube": "Companion Cube",
