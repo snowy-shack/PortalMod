@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
@@ -760,6 +761,21 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void push(double x, double y, double z) {}
 
     public boolean hurt(DamageSource source, float amount) {
+        if(this.level.isClientSide || !this.isAlive())
+            return false;
+
+        Entity attacker = source.getEntity();
+
+        if(source instanceof EntityDamageSource && attacker instanceof LivingEntity) {
+            boolean holdingWrench = WrenchItem.hitWithWrench((LivingEntity)source.getEntity());
+            boolean isCreative = attacker instanceof PlayerEntity && ((PlayerEntity)attacker).isCreative();
+
+            if(holdingWrench || isCreative) {
+                this.remove();
+                return true;
+            }
+        }
+
         return source == DamageSource.OUT_OF_WORLD && super.hurt(source, amount);
     }
 
