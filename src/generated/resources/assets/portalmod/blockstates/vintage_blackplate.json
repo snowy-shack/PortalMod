@@ -44,6 +44,44 @@
       "model": "portalmod:block/vintage_blackplate_panel_corner_top",
       "y": 180,
       "uvlock": true
+    },
+    "axis=x,state=floor_bottom_left": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_bottom_left",
+      "y": 180,
+      "uvlock": true
+    },
+    "axis=z,state=floor_bottom_left": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_bottom_left",
+      "y": 180,
+      "uvlock": true
+    },
+    "axis=x,state=floor_bottom_right": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_bottom_right",
+      "y": 90,
+      "uvlock": true
+    },
+    "axis=z,state=floor_bottom_right": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_bottom_right",
+      "y": 90,
+      "uvlock": true
+    },
+    "axis=x,state=floor_top_left": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_top_left",
+      "y": 270,
+      "uvlock": true
+    },
+    "axis=z,state=floor_top_left": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_top_left",
+      "y": 270,
+      "uvlock": true
+    },
+    "axis=x,state=floor_top_right": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_top_right",
+      "uvlock": true
+    },
+    "axis=z,state=floor_top_right": {
+      "model": "portalmod:block/vintage_blackplate_panel_floor_top_right",
+      "uvlock": true
     }
   }
 }

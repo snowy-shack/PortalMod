@@ -9,13 +9,13 @@
           "conditions": [
             {
               "condition": "minecraft:block_state_property",
-              "block": "portalmod:pellet_launcher",
+              "block": "portalmod:autoportal",
               "properties": {
                 "corner": "up_left"
               }
             }
           ],
-          "name": "portalmod:pellet_launcher"
+          "name": "portalmod:autoportal"
         }
       ],
       "conditions": [

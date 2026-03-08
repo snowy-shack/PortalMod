@@ -2,7 +2,7 @@
   "parent": "minecraft:block/slab_top",
   "textures": {
     "side": "portalmod:block/eroded_lunecast_tiles",
-    "bottom": "portalmod:block/eroded_lunecast_bottom",
-    "top": "portalmod:block/eroded_lunecast_top"
+    "bottom": "portalmod:block/eroded_lunecast_slab_bottom",
+    "top": "portalmod:block/eroded_lunecast_slab_top"
   }
 }

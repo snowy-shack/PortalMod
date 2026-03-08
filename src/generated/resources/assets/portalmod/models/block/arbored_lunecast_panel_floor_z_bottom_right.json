@@ -1,0 +1,8 @@
+{
+  "parent": "portalmod:block/cube_corner_floor",
+  "textures": {
+    "top": "portalmod:block/arbored_lunecast_panel_floor_z_bottom_right",
+    "bottom": "portalmod:block/arbored_lunecast_panel_ceiling_z_top_right",
+    "side": "portalmod:block/arbored_lunecast"
+  }
+}

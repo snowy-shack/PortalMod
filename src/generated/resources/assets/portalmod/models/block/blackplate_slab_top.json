@@ -2,7 +2,7 @@
   "parent": "minecraft:block/slab_top",
   "textures": {
     "side": "portalmod:block/blackplate_tiles",
-    "bottom": "portalmod:block/blackplate_bottom",
-    "top": "portalmod:block/blackplate_top"
+    "bottom": "portalmod:block/blackplate_slab_bottom",
+    "top": "portalmod:block/blackplate_slab_top"
   }
 }
