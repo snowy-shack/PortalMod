@@ -118,18 +118,23 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     public void press(BlockState blockState, World world, BlockPos pos) {
         ButtonMode mode = blockState.getValue(MODE);
         Boolean wasActive = blockState.getValue(ACTIVE);
+
         this.setBlockStateValue(PRESSED, true, blockState, world, pos);
         world.getBlockTicks().scheduleTick(pos, this, BUTTON_DELAY);
-        world.updateNeighborsAt(pos, this);
-        this.playSound(world, pos, true);
 
         if (mode == ButtonMode.NORMAL || mode == ButtonMode.PERSISTENT && !wasActive) {
-            this.setBlockStateValue(ACTIVE, true, blockState, world, pos);
+            this.setActivated(true, blockState, world, pos);
         }
         else if (mode == ButtonMode.TOGGLE) {
-            this.setBlockStateValue(ACTIVE, !wasActive, blockState, world, pos);
+            this.setActivated(!wasActive, blockState, world, pos);
         }
+
         this.updateAllNeighbors(world, pos, blockState);
+    }
+
+    private void setActivated(boolean activated, BlockState blockState, World world, BlockPos pos) {
+        this.setBlockStateValue(ACTIVE, activated, blockState, world, pos);
+        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
     }
 
     @Override
@@ -137,16 +142,11 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         if (blockState.getValue(PRESSED)) {
             this.setBlockStateValue(PRESSED, false, blockState, world, pos);
             world.updateNeighborsAt(pos, this);
-            this.playSound(world, pos, false);
             if (blockState.getValue(MODE) == ButtonMode.NORMAL) {
-                this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
+                this.setActivated(false, blockState, world, pos);
             }
             this.updateAllNeighbors(world, pos, world.getBlockState(pos));
         }
-    }
-
-    public void playSound(World world, BlockPos pos, boolean activated) {
-        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
     }
 
     @Override
@@ -171,7 +171,12 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
         double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
         double reach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
-        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canPress(blockState) && rayLength < reach) {
+        if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canPress(blockState)) {
+            if (rayLength > reach) {
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.standing_button.too_far_away"), true);
+                return ActionResultType.CONSUME;
+            }
+
             this.press(blockState, world, pos);
             return ActionResultType.sidedSuccess(world.isClientSide);
         }
@@ -197,9 +202,8 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
                 && state.getValue(HALF) == DoubleBlockHalf.LOWER
                 && level.hasSignal(pos.relative(facing.getOpposite()), facing)
         ) {
-            this.setBlockStateValue(ACTIVE, false, state, level, pos);
+            this.setActivated(false, state, level, pos);
             this.updateAllNeighbors(level, pos, level.getBlockState(pos));
-            this.playSound(level, pos, false);
         }
     }
 

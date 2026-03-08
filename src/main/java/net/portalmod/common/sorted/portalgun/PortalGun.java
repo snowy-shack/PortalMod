@@ -18,16 +18,15 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.Color;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.text.*;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -45,9 +44,7 @@ import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class PortalGun extends Item {
 
@@ -495,7 +492,7 @@ public class PortalGun extends Item {
         int leftColor = lock.equals("Left") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(leftColorName).getRGB();
         int rightColor = lock.equals("Right") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(rightColorName).getRGB();
 
-        list.add(new TranslationTextComponent("tooltip.portalmod.portalgun.colors"));
+        list.add(ModUtil.tooltipComponent("tooltip.portalmod.portalgun.colors"));
         list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(Color.fromRgb(leftColor)))
                 .append("§7 & ")
                 .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColorName).setStyle(Style.EMPTY.withColor(Color.fromRgb(rightColor))))

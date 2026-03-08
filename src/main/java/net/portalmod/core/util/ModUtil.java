@@ -15,7 +15,6 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.*;
 import net.minecraft.world.World;
@@ -107,13 +106,13 @@ public class ModUtil {
         }
 
         if (!Screen.hasControlDown()) {
-            list.add(new TranslationTextComponent("tooltip.portalmod.hold_control").setStyle(TOOLTIP_STYLE));
+            list.add(tooltipComponent("tooltip.portalmod.hold_control"));
             return;
         }
 
         // Single line
         if (I18n.exists("tooltip.portalmod." + name)) {
-            list.add(new TranslationTextComponent("tooltip.portalmod." + name).setStyle(TOOLTIP_STYLE));
+            list.add(tooltipComponent("tooltip.portalmod." + name));
             return;
         }
 
@@ -124,9 +123,13 @@ public class ModUtil {
             if (!I18n.exists(key)) {
                 break;
             }
-            list.add(new TranslationTextComponent(key).setStyle(TOOLTIP_STYLE));
+            list.add(tooltipComponent(key));
             i++;
         }
+    }
+
+    public static IFormattableTextComponent tooltipComponent(String string) {
+        return new TranslationTextComponent(string).setStyle(TOOLTIP_STYLE);
     }
 
     public static float symmetricRandom(float width) {

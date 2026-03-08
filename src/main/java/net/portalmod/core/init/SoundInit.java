@@ -36,13 +36,10 @@ public class SoundInit {
 
     public static final RegistryObject<SoundEvent> BUTTON_ACTIVATE = register("block.button.activate");
     public static final RegistryObject<SoundEvent> BUTTON_DEACTIVATE = register("block.button.deactivate");
-    public static final RegistryObject<SoundEvent> STANDING_BUTTON_PRESS = register("block.standing_button.press");
-    public static final RegistryObject<SoundEvent> STANDING_BUTTON_RELEASE = register("block.standing_button.release");
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_PRESS = register("block.super_button.press");
     public static final RegistryObject<SoundEvent> SUPER_BUTTON_RELEASE = register("block.super_button.release");
 
     public static final RegistryObject<SoundEvent> FAITHPLATE_LAUNCH = register("block.faithplate.launch");
-    public static final RegistryObject<SoundEvent> FAITHPLATE_RESET = register("block.faithplate.reset");
 
     public static final RegistryObject<SoundEvent> FIZZLER_ACTIVATE = register("block.fizzler_emitter.activate");
     public static final RegistryObject<SoundEvent> FIZZLER_DEACTIVATE = register("block.fizzler_emitter.deactivate");
@@ -61,9 +58,6 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> PORTALGUN_LIFT = register("item.portalgun.lift");
     public static final RegistryObject<SoundEvent> PORTALGUN_HOLD = register("item.portalgun.hold");
     public static final RegistryObject<SoundEvent> PORTALGUN_DROP = register("item.portalgun.drop");
-
-    public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
-    public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
 
     public static final RegistryObject<SoundEvent> WRENCH_USE = register("item.wrench.use");
     public static final RegistryObject<SoundEvent> WRENCH_FAIL = register("item.wrench.fail");
