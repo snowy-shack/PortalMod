@@ -163,6 +163,12 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
                 return ActionResultType.SUCCESS;
             }
 
+            if(autoPortal.lastOpenedUUID != null) {
+                autoPortal.closePortal();
+                WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+                return ActionResultType.SUCCESS;
+            }
+
             autoPortal.swapEnd();
             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
 

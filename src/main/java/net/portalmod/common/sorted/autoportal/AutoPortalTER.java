@@ -61,7 +61,7 @@ public class AutoPortalTER extends TileEntityRenderer<AutoPortalTileEntity> {
             IVertexBuilder vertexBuilder = MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);
             DynamicTextureVertexBuilder dtvb = new DynamicTextureVertexBuilder(vertexBuilder);
 
-            int closedOffset = be.lastOpenedUUID != null && be.lastOpenedEnd != null ? 0 : 2;
+            int closedOffset = be.lastOpenedUUID != null ? 0 : 2;
 
             model.frame.render(matrixStack, dtvb, light, overlay, 1, 1, 1, 1);
 
