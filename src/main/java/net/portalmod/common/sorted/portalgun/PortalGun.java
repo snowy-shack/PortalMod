@@ -433,7 +433,7 @@ public class PortalGun extends Item {
         if (nbt.contains("AccentColor")) {
             String accentColor = nbt.getString("AccentColor");
             if (!accentColor.equals("none")) {
-                colour = new Colour(DyeColor.byName(accentColor, DyeColor.RED).getTextureDiffuseColors());
+                colour = new Colour(PortalColors.getColor(accentColor).getRGB());
             }
         }
         return colour;
