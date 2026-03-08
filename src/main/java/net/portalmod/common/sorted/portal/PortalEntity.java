@@ -438,8 +438,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         }
 
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
+        AxisAlignedBB actualAABB = entity.level.isClientSide ? travelAABB : travelAABB.inflate(3);
 
-        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB.inflate(3), portal -> {
+        List<PortalEntity> portals = getOpenPortals(entity.level, actualAABB, portal -> {
             boolean blockBehind = (float)new Vec3(Vector3d.atCenterOf(pos)).sub(portal.position()).dot(portal.getNormal()) < 0;
             boolean entityAligned = portal.isEntityAlignedToPortal(entity);
             boolean velocityAffine = entity.getDeltaMovement().dot(new Vector3d(portal.getNormal())) <= 0;
