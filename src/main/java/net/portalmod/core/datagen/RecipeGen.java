@@ -87,7 +87,16 @@ public class RecipeGen extends RecipeProvider {
                 .define('l', Items.REDSTONE_LAMP)
                 .define('r', Items.REDSTONE)
                 .define('p', ItemTags.PLANKS)
-                .unlockedBy("has_item", ROOT_CRITERION)
+                .unlockedBy("has_item", HAS_ELEMENT)
+                .save(c);
+
+        ShapedRecipeBuilder.shaped(ItemInit.AUTOPORTAL.get())
+                .pattern("i i")
+                .pattern("e e")
+                .pattern("i i")
+                .define('i', Items.IRON_INGOT)
+                .define('e', Items.ENDER_PEARL)
+                .unlockedBy("has_item", HAS_ELEMENT)
                 .save(c);
 
 
