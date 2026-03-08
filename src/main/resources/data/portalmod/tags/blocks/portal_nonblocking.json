@@ -14,9 +14,6 @@
     "minecraft:powered_rail",
 
     "portalmod:antline",
-    "portalmod:repulsion_gel",
-    "portalmod:propulsion_gel",
-    "portalmod:autoportal",
     "minecraft:redstone_wire",
     "minecraft:redstone_torch",
     "minecraft:comparator",

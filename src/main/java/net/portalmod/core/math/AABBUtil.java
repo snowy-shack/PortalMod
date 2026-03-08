@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
@@ -66,7 +67,7 @@ public class AABBUtil {
 
     public static VoxelShape addBoxesToVoxelShape(VoxelShape voxelShape, List<AxisAlignedBB> boxes) {
         for(AxisAlignedBB aabb : boxes)
-            voxelShape = VoxelShapes.or(voxelShape, VoxelShapes.create(aabb));
+            voxelShape = VoxelShapes.joinUnoptimized(voxelShape, VoxelShapes.create(aabb), IBooleanFunction.OR);
         return voxelShape;
     }
 

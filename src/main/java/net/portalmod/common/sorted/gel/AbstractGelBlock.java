@@ -43,7 +43,7 @@ public class AbstractGelBlock extends BreakableBlock {
     public static final BooleanProperty DOWN =  BlockStateProperties.DOWN;
     
     public static final HashMap<Direction, BooleanProperty> STATES = new HashMap<>();
-    private static final HashMap<Direction, VoxelShapeGroup> SHAPES = new HashMap<>();
+    public static final HashMap<Direction, VoxelShapeGroup> SHAPES = new HashMap<>();
     
     static {
         STATES.put(Direction.NORTH, NORTH);
@@ -142,11 +142,6 @@ public class AbstractGelBlock extends BreakableBlock {
             return match;
         }
         return super.skipRendering(self, other, direction);
-    }
-
-    @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return this.getShape(state, level, pos, context);
     }
 
     @Override

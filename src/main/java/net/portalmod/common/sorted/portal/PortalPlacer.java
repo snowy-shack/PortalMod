@@ -14,6 +14,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.blocks.PortalableBlock;
+import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.common.sorted.portalgun.PortalGunClient;
 import net.portalmod.core.init.BlockTagInit;
@@ -23,6 +24,7 @@ import net.portalmod.core.math.*;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,15 +53,9 @@ public class PortalPlacer {
             up = new Vec3(helpment.getSecond());
         }
 
-        AxisAlignedBB portalAABB = new AxisAlignedBB(-.5, -1, 0,  .5,  1, 1/16f);
-        portalAABB = AABBUtil.transform(portalAABB, toAbsolute);
-        portalAABB = AABBUtil.translate(portalAABB, position);
-
-        boolean skipFrontBlock = position.clone()
-                .add(new Vec3(face.getNormal()).mul(1/16f - .001))
-                .to3i().equals(position.clone().sub(new Vec3(face.getNormal()).mul(.001)).to3i());
-
-        VoxelShape collision = getCollision(level, face, position, toAbsolute, skipFrontBlock);
+        AxisAlignedBB portalAABB = new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f);
+        portalAABB = AABBUtil.transform(portalAABB, toAbsolute).move(position.to3d());
+        VoxelShape collision = getCollision(level, face, position, toAbsolute);
 
         Vec3 finalPosition = position;
         List<PortalEntity> portalsInTheWay = PortalEntity.getPortals(level, portalAABB.inflate(2),
@@ -73,7 +69,7 @@ public class PortalPlacer {
         List<AxisAlignedBB> bumpingPortals = portalsInTheWay.stream().map(Entity::getBoundingBox).collect(Collectors.toList());
 
         if(!override) {
-            collision = AABBUtil.addBoxesToVoxelShape(collision, bumpingPortals);
+            collision = AABBUtil.addBoxesToVoxelShape(collision, bumpingPortals).optimize();
         }
 
         // get vertices on valid surface
@@ -126,7 +122,7 @@ public class PortalPlacer {
 
                 finalReaction = Stream.concat(Stream.concat(normals12, normals23), normals13)
                         .map(direction -> new Vec3(direction).mul(largestReactionByDirection.get(direction)))
-                        .reduce(Vec3.origin(), selectLeast);
+                        .reduce(new Vec3(1e128), selectLeast);
                 break;
             }
 
@@ -147,16 +143,12 @@ public class PortalPlacer {
         portalAABB = portalAABB.deflate(.001);
 
         // Check whether the new Portal position is still invalid
-        if(stillCollides(face, portalAABB, collision))
+        if(portalCollides(face, portalAABB, collision))
             return null;
 
         if(override) {
             portalsInTheWay2.forEach(portal -> PortalManager.getInstance().scheduleRemoval(portal));
         }
-
-        // Check if all blocks behind the portal are valid
-        if(!canSurvive(level, face, portalAABB, skipFrontBlock))
-            return null;
 
         // Spawn the portal
         PortalEntity portal = new PortalEntity(level);
@@ -182,45 +174,64 @@ public class PortalPlacer {
         return portal;
     }
 
-    private static VoxelShape extrudeVoxelShape(VoxelShape shape, Vec3 normal) {
-        return AABBUtil.boxesToVoxelShape(shape.toAabbs().stream()
-                .map(aabb -> aabb
-                        .expandTowards(normal.to3d())
-                        .expandTowards(normal.negate().to3d()))
-                .collect(Collectors.toList()));
-    }
+    public static VoxelShape getCollision(World level, Direction face, Vec3 position, Mat4 toAbsolute) {
+        AxisAlignedBB portalWideAABB =
+                new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f)
+                        .expandTowards(-2, -2, 0)
+                        .expandTowards(2, 2, 0)
+                        .deflate(0.002);
 
-    private static VoxelShape getCollision(World level, Direction face, Vec3 position, Mat4 toAbsolute, boolean skipFrontBlock) {
-        AxisAlignedBB surfaceAABB = new AxisAlignedBB(-2.5, -3, -(1/16f - .001),  2.5,  3, -.001);
-        surfaceAABB = AABBUtil.transform(surfaceAABB, toAbsolute);
-        surfaceAABB = AABBUtil.translate(surfaceAABB, position);
+        AxisAlignedBB behind = portalWideAABB.move(0, 0, -1/16f);
+        behind = AABBUtil.transform(behind, toAbsolute).move(position.to3d());
+        AxisAlignedBB front = AABBUtil.transform(portalWideAABB, toAbsolute).move(position.to3d());
 
-        AxisAlignedBB overSurfaceAABB = new AxisAlignedBB(-2.5, -3, (1/16f - .001),  2.5,  3, .001);
-        overSurfaceAABB = AABBUtil.transform(overSurfaceAABB, toAbsolute);
-        overSurfaceAABB = AABBUtil.translate(overSurfaceAABB, position);
+        List<BlockPos> backBlocks = AABBUtil.getBlocksWithin(behind);
+        List<BlockPos> frontBlocks = AABBUtil.getBlocksWithin(front);
+        VoxelShape backCollision = VoxelShapes.empty();
+        VoxelShape frontCollision = VoxelShapes.empty();
 
-        List<BlockPos> blocks = AABBUtil.getBlocksWithin(surfaceAABB);
-        VoxelShape collision = VoxelShapes.empty();
-        VoxelShape bumps = VoxelShapes.empty();
-        VoxelShape insets = VoxelShapes.create(surfaceAABB);
+        for(BlockPos block : backBlocks) {
+            BlockState attachedBlock = level.getBlockState(block);
+            BlockState behindBlock = level.getBlockState(block.relative(face.getOpposite()));
 
-        // Slicing blocks to get bumps and insets
-        for(BlockPos block : blocks) {
-            if(!PortalEntity.canSurviveOn(level, block, face, skipFrontBlock))
-                collision = VoxelShapes.or(collision, VoxelShapes.create(new AxisAlignedBB(block)));
+            boolean portalable = PortalableBlock.isPortalable(attachedBlock, face);
+            boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
+            boolean behindPortalable = PortalableBlock.isPortalable(behindBlock, face);
+            boolean valid = portalable || (inheriting && behindPortalable);
 
             VoxelShape blockShape = level.getBlockState(block)
-                    .getCollisionShape(level, block)
+                    .getShape(level, block)
                     .move(block.getX(), block.getY(), block.getZ());
 
-            bumps = VoxelShapes.or(bumps, VoxelShapes.join(VoxelShapes.create(overSurfaceAABB), blockShape, IBooleanFunction.AND));
-            insets = VoxelShapes.join(insets, blockShape, IBooleanFunction.ONLY_FIRST);
+            VoxelShape fullBlockShape = VoxelShapes.block().move(block.getX(), block.getY(), block.getZ());
+            VoxelShape airAround = VoxelShapes.joinUnoptimized(fullBlockShape, blockShape, IBooleanFunction.ONLY_FIRST);
+
+            backCollision = VoxelShapes.joinUnoptimized(backCollision, valid ? airAround : fullBlockShape, IBooleanFunction.OR);
         }
 
-        collision = VoxelShapes.or(collision, bumps);
-        collision = VoxelShapes.or(collision, insets);
-        collision = extrudeVoxelShape(collision, new Vec3(face.getNormal()).mul(10));
-        return collision;
+        for(BlockPos block : frontBlocks) {
+            BlockState frontBlock = level.getBlockState(block);
+
+            boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING);
+
+            VoxelShape blockShape = level.getBlockState(block)
+                    .getShape(level, block)
+                    .move(block.getX(), block.getY(), block.getZ());
+
+            if(frontBlock.getBlock() instanceof AbstractGelBlock) {
+                if(frontBlock.getValue(AbstractGelBlock.STATES.get(face.getOpposite()))) {
+                    blockShape = AbstractGelBlock.SHAPES.get(face.getOpposite()).getShape()
+                            .move(block.getX(), block.getY(), block.getZ());
+                }
+            }
+
+            if(!frontNonBlocking)
+                frontCollision = VoxelShapes.joinUnoptimized(frontCollision, blockShape, IBooleanFunction.OR);
+        }
+
+        backCollision = VoxelShapes.joinUnoptimized(backCollision, VoxelShapes.create(behind), IBooleanFunction.AND);
+        frontCollision = VoxelShapes.joinUnoptimized(frontCollision, VoxelShapes.create(front), IBooleanFunction.AND);
+        return VoxelShapes.or(backCollision, frontCollision);
     }
 
     // reaction := movement of the portal to move out of invalid surfaces
@@ -228,6 +239,9 @@ public class PortalPlacer {
         Map<Direction, Double> largestReactionByDirection = new HashMap<>();
 
         for(AxisAlignedBB box : collision.toAabbs()) {
+            if(!Collider.intersectExceptAxis(face.getAxis(), box, portalAABB))
+                continue;
+
             Optional<List<Vec3>> reactionsOptional = Collider.collideExceptAxis(face.getAxis(), box, portalAABB);
             if(!reactionsOptional.isPresent())
                 continue;
@@ -267,16 +281,8 @@ public class PortalPlacer {
         return largestReactionByDirection;
     }
 
-    private static boolean stillCollides(Direction face, AxisAlignedBB portalAABB, VoxelShape collision) {
+    public static boolean portalCollides(Direction face, AxisAlignedBB portalAABB, VoxelShape collision) {
         return collision.toAabbs().stream().anyMatch(box ->
                 Collider.collideExceptAxis(face.getAxis(), box, portalAABB).isPresent());
-    }
-
-    private static boolean canSurvive(World level, Direction face, AxisAlignedBB portalAABB, boolean skipFrontBlock) {
-        return AABBUtil.checkBlocksWithin(
-                level,
-                portalAABB.move(new Vec3(face.getNormal()).mul(-1/16f).to3d()),
-                (pos, state) -> PortalEntity.canSurviveOn(level, pos, face, skipFrontBlock)
-        );
     }
 }

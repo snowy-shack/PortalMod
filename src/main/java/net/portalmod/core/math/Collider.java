@@ -44,6 +44,21 @@ public class Collider {
         return Optional.of(reactions);
     }
 
+    public static boolean intersect(Direction.Axis axis, AxisAlignedBB collider, AxisAlignedBB colliding) {
+        return collider.min(axis) < colliding.max(axis) && collider.max(axis) > colliding.min(axis);
+    }
+
+    public static boolean intersectExceptAxis(@Nullable Direction.Axis axis, AxisAlignedBB collider, AxisAlignedBB colliding) {
+        for(Direction.Axis a : Direction.Axis.values()) {
+            if(a == axis)
+                continue;
+
+            if(!intersect(a, collider, colliding))
+                return false;
+        }
+        return true;
+    }
+
     public static boolean pointInBox(Direction.Axis axis, AxisAlignedBB collider, Vec3 point) {
         return point.choose(axis) > collider.min(axis) && point.choose(axis) < collider.max(axis);
     }

@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.portal;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.*;
@@ -33,9 +32,7 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
-import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.common.sorted.faithplate.Flingable;
-import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -683,46 +680,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public boolean survives() {
-        List<PortalEntity> portalsInside = getPortals(
-                this.level,
-                this.position().add(new Vec3(up.getNormal()).mul(.5f).to3d()),
-                .1f,
-                portal -> portal != this
-                        && portal.isAlive()
-                        && portal.direction == this.direction
-        );
+        if(this.level.isClientSide)
+            return true;
 
-        if(!portalsInside.isEmpty())
-            return false;
-
-        boolean skipFrontBlock = new Vec3(this.position())
-                .add(new Vec3(this.getNormal()).mul(1/16f - .002))
-                .to3i().equals(new Vec3(this.position()).sub(new Vec3(this.getNormal()).mul(.002)).to3i());
-
-        return AABBUtil.checkBlocksWithin(
-                this.level,
-                this.getBoundingBox()
-                        .move(new Vec3(this.direction.getNormal()).mul(-1/16f).to3d())
-                        .deflate(.002),
-                (pos, state) -> PortalEntity.canSurviveOn(this.level, pos, this.direction, skipFrontBlock)
-        );
-    }
-
-    public static boolean canSurviveOn(World level, BlockPos attachedBlockPos, Direction normal, boolean skipFrontBlock) {
-        BlockState attachedBlock = level.getBlockState(attachedBlockPos);
-        BlockState frontBlock = level.getBlockState(attachedBlockPos.relative(normal));
-        BlockState behindBlock = level.getBlockState(attachedBlockPos.relative(normal.getOpposite()));
-
-        boolean portalable = PortalableBlock.isPortalable(attachedBlock, normal);
-        boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
-        boolean behindPortalable = PortalableBlock.isPortalable(behindBlock, normal);
-        boolean frontNonBlocking = frontBlock.is(BlockTagInit.PORTAL_NONBLOCKING); // TODO - analyzing voxelshapes as well
-
-        if(frontBlock.getBlock() instanceof AbstractGelBlock) {
-            frontNonBlocking = !frontBlock.getValue(AbstractGelBlock.STATES.get(normal.getOpposite()));
-        }
-
-        return (portalable || (inheriting && behindPortalable)) && (skipFrontBlock || frontNonBlocking);
+        Mat4 toAbsolute = this.getSourceBasis().getChangeOfBasisFromCanonicalMatrix();
+        VoxelShape collision = PortalPlacer.getCollision(this.level, this.direction, new Vec3(this.position()), toAbsolute);
+        return !PortalPlacer.portalCollides(this.direction, this.getBoundingBox().deflate(0.001), collision);
     }
 
     @Override

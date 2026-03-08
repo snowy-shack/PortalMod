@@ -23,6 +23,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
@@ -153,7 +154,7 @@ public class PortalGun extends Item {
 
             Vector3d vector3d = ctx.getFrom();
             Vector3d vector3d1 = ctx.getTo();
-            VoxelShape voxelshape = ctx.getBlockShape(blockstate, level, pos);
+            VoxelShape voxelshape = blockstate.getBlock().getShape(blockstate, level, pos, ISelectionContext.empty());
 
             Block block = blockstate.getBlock();
             if(block == BlockInit.FIZZLER_EMITTER.get()) {
