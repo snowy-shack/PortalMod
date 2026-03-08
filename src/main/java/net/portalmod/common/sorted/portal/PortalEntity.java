@@ -435,18 +435,25 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
 
-        boolean ret = !getOpenPortals(entity.level, travelAABB, portal ->
-            new Vec3(Vector3d.atCenterOf(pos)).sub(portal.position()).dot(portal.getNormal()) < 0
-            && portal.isEntityAlignedToPortal(entity)
-            && !(entity.getDeltaMovement().dot(new Vector3d(portal.getNormal())) > 0
-                && !entity.getBoundingBox().intersects(portal.getBoundingBox()))
-            && (!((ITeleportable2)entity).hasJustUsedPortal() ||
-                    (new Vec3(portal.position())
-                    .sub(entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal()).position())
-                    .dot(((PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal())).getNormal()) > 0)
-                )
-        ).isEmpty();
-        return ret;
+        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB.inflate(3), portal -> {
+            boolean blockBehind = (float)new Vec3(Vector3d.atCenterOf(pos)).sub(portal.position()).dot(portal.getNormal()) < 0;
+            boolean entityAligned = portal.isEntityAlignedToPortal(entity);
+            boolean velocityAffine = entity.getDeltaMovement().dot(new Vector3d(portal.getNormal())) <= 0;
+            boolean intersect = entity.getBoundingBox().intersects(portal.getBoundingBox());
+            boolean hasJustUsedPortal = ((ITeleportable2)entity).hasJustUsedPortal();
+            boolean justUsedPortalInFront = false;
+
+            if(hasJustUsedPortal) {
+                PortalEntity justUsedPortal = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
+                if(justUsedPortal != null) {
+                    justUsedPortalInFront = new Vec3(portal.position()).sub(justUsedPortal.position()).dot(justUsedPortal.getNormal()) > 0;
+                }
+            }
+
+            return blockBehind && entityAligned && (velocityAffine || intersect) && (!hasJustUsedPortal || justUsedPortalInFront);
+        });
+
+        return !portals.isEmpty();
     }
 
     public static VoxelShape getCollisionShape(Entity entity) {
