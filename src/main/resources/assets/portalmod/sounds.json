@@ -13,41 +13,6 @@
         ],
         "subtitle": "subtitles.block.radio.transmission"
     },
-    "entity.turret.fire": {
-        "sounds": [ "portalmod:entity/turret/fire" ],
-        "subtitle": "subtitles.entity.turret.fire"
-    },
-    "entity.turret.fire_fail": {
-        "sounds": [ "portalmod:entity/turret/fire_fail" ],
-        "subtitle": "subtitles.entity.turret.fire_fail"
-    },
-    "entity.turret.stock": {
-        "sounds": [ "item/armor/equip_chain1" ],
-        "subtitle": "subtitles.entity.turret.stock"
-    },
-    "entity.turret.open": {
-        "sounds": [ "portalmod:entity/turret/open" ],
-        "subtitle": "subtitles.entity.turret.open"
-    },
-    "entity.turret.close": {
-        "sounds": [ "portalmod:entity/turret/close" ],
-        "subtitle": "subtitles.entity.turret.close"
-    },
-    "entity.chamber_sign.place": {
-        "sounds": [
-            "portalmod:entity/chamber_sign/place1",
-            "portalmod:entity/chamber_sign/place2"
-        ],
-        "subtitle": "subtitles.entity.chamber_sign.place"
-    },
-    "entity.player.hurt_goo": {
-        "sounds": [
-            "portalmod:entity/player/hurt/goo_hurt1",
-            "portalmod:entity/player/hurt/goo_hurt2",
-            "portalmod:entity/player/hurt/goo_hurt3"
-        ],
-        "subtitle": "subtitles.entity.player.hurt"
-    },
     "item.bucket.empty_goo": {
       "sounds": [
         "portalmod:block/goo/place1",
@@ -102,9 +67,11 @@
         "sounds": [ "portalmod:block/super_button/deactivate" ],
         "subtitle": "subtitles.block.button.deactivate" },
     "block.super_button.press": {
-        "sounds": [ "portalmod:block/super_button/press" ]},
+        "sounds": [ "portalmod:block/super_button/press" ],
+        "subtitle": "subtitles.block.super_button.deactivate" },
     "block.super_button.release": {
-        "sounds": [ "portalmod:block/super_button/release" ]},
+        "sounds": [ "portalmod:block/super_button/release" ],
+        "subtitle": "subtitles.block.super_button.deactivate" },
 
     "block.fizzler_emitter.activate": {
         "sounds": [ "portalmod:block/fizzler_emitter/activate" ],
@@ -156,10 +123,11 @@
     },
     "block.cube_dropper.open": {
         "sounds": [ "portalmod:block/cube_dropper/open" ],
-        "subtitle": "subtitles.block.cube_dropper.activate"
+        "subtitle": "subtitles.block.cube_dropper.open"
     },
     "block.cube_dropper.close": {
-        "sounds": [ "portalmod:block/cube_dropper/close" ]
+        "sounds": [ "portalmod:block/cube_dropper/close" ],
+        "subtitle": "subtitles.block.cube_dropper.close"
     },
     "block.forest_cake.eat_candle": {
         "sounds": [
@@ -170,6 +138,41 @@
         "subtitle": "subtitles.block.forest_cake.eat_candle"
     },
 
+    "entity.turret.fire": {
+        "sounds": [ "portalmod:entity/turret/fire" ],
+        "subtitle": "subtitles.entity.turret.fire"
+    },
+    "entity.turret.fire_fail": {
+        "sounds": [ "portalmod:entity/turret/fire_fail" ],
+        "subtitle": "subtitles.entity.turret.fire_fail"
+    },
+    "entity.turret.stock": {
+        "sounds": [ "item/armor/equip_chain1" ],
+        "subtitle": "subtitles.entity.turret.stock"
+    },
+    "entity.turret.open": {
+        "sounds": [ "portalmod:entity/turret/open" ],
+        "subtitle": "subtitles.entity.turret.open"
+    },
+    "entity.turret.close": {
+        "sounds": [ "portalmod:entity/turret/close" ],
+        "subtitle": "subtitles.entity.turret.close"
+    },
+    "entity.chamber_sign.place": {
+        "sounds": [
+            "portalmod:entity/chamber_sign/place1",
+            "portalmod:entity/chamber_sign/place2"
+        ],
+        "subtitle": "subtitles.entity.chamber_sign.place"
+    },
+    "entity.player.hurt_goo": {
+        "sounds": [
+            "portalmod:entity/player/hurt/goo_hurt1",
+            "portalmod:entity/player/hurt/goo_hurt2",
+            "portalmod:entity/player/hurt/goo_hurt3"
+        ],
+        "subtitle": "subtitles.entity.player.hurt"
+    },
     "entity.fizzle": {
         "sounds": [ "portalmod:entity/fizzle" ],
         "subtitle": "subtitles.entity.fizzle" },
@@ -194,7 +197,7 @@
         "subtitle": "subtitles.entity.portal.close" },
     "entity.portal.teleport": {
         "sounds": [ "portalmod:entity/portal/teleport" ],
-        "subtitle": "subtitles.entity.portal.teleports" },
+        "subtitle": "subtitles.entity.portal.teleport" },
     "item.portalgun.fire_primary": {
         "sounds": [ "portalmod:item/portalgun/fire_primary" ],
         "subtitle": "subtitles.item.portalgun.fire"
