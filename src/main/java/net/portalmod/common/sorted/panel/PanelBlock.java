@@ -98,7 +98,7 @@ public class PanelBlock extends Block implements PortalHelper {
 
                 removeBlockFromInventory(player, this);
                 return this.defaultBlockState()
-                        .setValue(AXIS, axis)
+                        .setValue(AXIS, left.getAxis())
                         .setValue(STATE, PanelState.floorState(getsBottomState, getsLeftState));
             }
         }
