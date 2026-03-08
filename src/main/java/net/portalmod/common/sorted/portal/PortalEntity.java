@@ -461,7 +461,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public static VoxelShape getCollisionShape(Entity entity) {
-        AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
+        Vector3d delta = entity.getDeltaMovement();
+        if(entity.isOnGround())
+            delta = delta.multiply(1, 0, 1);
+
+        AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(delta);
 
         List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> true);
 
