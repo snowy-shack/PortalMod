@@ -18,10 +18,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -268,7 +265,7 @@ public class PortalGun extends Item {
         PortalEntity portal = null;
 
         if(!inFizzler) {
-            portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false);
+            portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player));
         }
 
         if(portal == null) {
