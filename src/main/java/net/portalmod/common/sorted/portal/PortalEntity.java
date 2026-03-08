@@ -229,8 +229,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             ((Flingable)entity).setFlinging(doFling);
         }
 
-        if(entity instanceof IDragCancelable
-                && portal.getDirection() == Direction.UP && targetPortal.getDirection() == Direction.UP) {
+        boolean doMathTrickery = entity instanceof IDragCancelable
+                && portal.getDirection() == Direction.UP && targetPortal.getDirection() == Direction.UP
+                && (!(entity instanceof Flingable) || !((Flingable)entity).isFlinging());
+
+        if(doMathTrickery) {
 
             if(!((IDragCancelable)entity).pmIsCancelDrag()) {
                 double yDelta = -Math.log(1 - (-delta.y) / (gravity / 0.02)) / 0.02;
