@@ -50,10 +50,10 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
             triggerBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         }
 
-        this.renderTriggerField(aabb.deflate(0.0005), matrixStack);
+        this.renderTriggerField(be, aabb.deflate(0.0005), matrixStack);
     }
 
-    private void renderTriggerField(AxisAlignedBB aabb, MatrixStack matrixStack) {
+    private void renderTriggerField(TriggerTileEntity be, AxisAlignedBB aabb, MatrixStack matrixStack) {
         float x0 = (float)aabb.minX;
         float y0 = (float)aabb.minY;
         float z0 = (float)aabb.minZ;
@@ -67,48 +67,53 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
 
         for(float y = y0; y < y1; y++) {
             for(float z = z0; z < z1; z++) {
-                this.renderQuadX(triggerBuffer, matrixStack, new Vec3(x0, y, z), sizeY, sizeZ, false, false);
-                this.renderQuadX(triggerBuffer, matrixStack, new Vec3(x0, y, z), sizeY, sizeZ, true, true);
-                this.renderQuadX(triggerBuffer, matrixStack, new Vec3(x1, y, z), sizeY, sizeZ, true, false);
-                this.renderQuadX(triggerBuffer, matrixStack, new Vec3(x1, y, z), sizeY, sizeZ, false, true);
+                this.renderQuadX(be, triggerBuffer, matrixStack, new Vec3(x0, y, z), sizeY, sizeZ, false, false);
+                this.renderQuadX(be, triggerBuffer, matrixStack, new Vec3(x0, y, z), sizeY, sizeZ, true, true);
+                this.renderQuadX(be, triggerBuffer, matrixStack, new Vec3(x1, y, z), sizeY, sizeZ, true, false);
+                this.renderQuadX(be, triggerBuffer, matrixStack, new Vec3(x1, y, z), sizeY, sizeZ, false, true);
             }
         }
 
         for(float z = z0; z < z1; z++) {
             for(float x = x0; x < x1; x++) {
-                this.renderQuadY(triggerBuffer, matrixStack, new Vec3(x, y0, z), sizeX, sizeZ, false, false);
-                this.renderQuadY(triggerBuffer, matrixStack, new Vec3(x, y0, z), sizeX, sizeZ, true, true);
-                this.renderQuadY(triggerBuffer, matrixStack, new Vec3(x, y1, z), sizeX, sizeZ, true, false);
-                this.renderQuadY(triggerBuffer, matrixStack, new Vec3(x, y1, z), sizeX, sizeZ, false, true);
+                this.renderQuadY(be, triggerBuffer, matrixStack, new Vec3(x, y0, z), sizeX, sizeZ, false, false);
+                this.renderQuadY(be, triggerBuffer, matrixStack, new Vec3(x, y0, z), sizeX, sizeZ, true, true);
+                this.renderQuadY(be, triggerBuffer, matrixStack, new Vec3(x, y1, z), sizeX, sizeZ, true, false);
+                this.renderQuadY(be, triggerBuffer, matrixStack, new Vec3(x, y1, z), sizeX, sizeZ, false, true);
             }
         }
 
         for(float y = y0; y < y1; y++) {
             for(float x = x0; x < x1; x++) {
-                this.renderQuadZ(triggerBuffer, matrixStack, new Vec3(x, y, z0), sizeX, sizeY, false, false);
-                this.renderQuadZ(triggerBuffer, matrixStack, new Vec3(x, y, z0), sizeX, sizeY, true, true);
-                this.renderQuadZ(triggerBuffer, matrixStack, new Vec3(x, y, z1), sizeX, sizeY, true, false);
-                this.renderQuadZ(triggerBuffer, matrixStack, new Vec3(x, y, z1), sizeX, sizeY, false, true);
+                this.renderQuadZ(be, triggerBuffer, matrixStack, new Vec3(x, y, z0), sizeX, sizeY, false, false);
+                this.renderQuadZ(be, triggerBuffer, matrixStack, new Vec3(x, y, z0), sizeX, sizeY, true, true);
+                this.renderQuadZ(be, triggerBuffer, matrixStack, new Vec3(x, y, z1), sizeX, sizeY, true, false);
+                this.renderQuadZ(be, triggerBuffer, matrixStack, new Vec3(x, y, z1), sizeX, sizeY, false, true);
             }
         }
     }
 
-    private float getOffset() {
+    private float getAnimationOffsetV() {
         return (int)((System.currentTimeMillis() - START_TIME) / 100) / 8.0f % 1.0f;
     }
 
-    private void renderQuadX(BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeY, float sizeZ, boolean negative, boolean inside) {
+    private float getTypeOffsetU(TriggerTileEntity be) {
+        return be.getTriggerType() == TriggerType.PLAYER ? 0 : 1/2f;
+    }
+
+    private void renderQuadX(TriggerTileEntity be, BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeY, float sizeZ, boolean negative, boolean inside) {
         float x0 = (float)origin.x;
         float y0 = (float)origin.y;
         float z0 = (float)origin.z;
         float y1 = y0 + sizeY;
         float z1 = z0 + sizeZ;
 
-        float offset = this.getOffset();
-        float u0 = inside ? 1/2f : 0;
-        float v0 = offset + 0;
-        float u1 = inside ? 1 : 1/2f;
-        float v1 = offset + 1/8f;
+        float animationOffset = this.getAnimationOffsetV();
+        float typeOffset = this.getTypeOffsetU(be);
+        float u0 = typeOffset + (inside ? 3/4f : 0);
+        float v0 = animationOffset + 0;
+        float u1 = typeOffset + (inside ? 1 : 1/4f);
+        float v1 = animationOffset + 1/8f;
 
         bb.vertex(matrixStack.last().pose(), x0, y0, negative ? z1 : z0).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), x0, y0, negative ? z0 : z1).uv(u1, v1).endVertex();
@@ -116,18 +121,19 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         bb.vertex(matrixStack.last().pose(), x0, y1, negative ? z1 : z0).uv(u0, v0).endVertex();
     }
 
-    private void renderQuadY(BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeX, float sizeZ, boolean negative, boolean inside) {
+    private void renderQuadY(TriggerTileEntity be, BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeX, float sizeZ, boolean negative, boolean inside) {
         float x0 = (float)origin.x;
         float y0 = (float)origin.y;
         float z0 = (float)origin.z;
         float x1 = x0 + sizeX;
         float z1 = z0 + sizeZ;
 
-        float offset = this.getOffset();
-        float u0 = inside ? 1/2f : 0;
-        float v0 = offset + 0;
-        float u1 = inside ? 1 : 1/2f;
-        float v1 = offset + 1/8f;
+        float animationOffset = this.getAnimationOffsetV();
+        float typeOffset = this.getTypeOffsetU(be);
+        float u0 = typeOffset + (inside ? 3/4f : 0);
+        float v0 = animationOffset + 0;
+        float u1 = typeOffset + (inside ? 1 : 1/4f);
+        float v1 = animationOffset + 1/8f;
 
         bb.vertex(matrixStack.last().pose(), negative ? x0 : x1, y0, z1).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), negative ? x1 : x0, y0, z1).uv(u1, v1).endVertex();
@@ -135,18 +141,19 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         bb.vertex(matrixStack.last().pose(), negative ? x0 : x1, y0, z0).uv(u0, v0).endVertex();
     }
 
-    private void renderQuadZ(BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeX, float sizeY, boolean negative, boolean inside) {
+    private void renderQuadZ(TriggerTileEntity be, BufferBuilder bb, MatrixStack matrixStack, Vec3 origin, float sizeX, float sizeY, boolean negative, boolean inside) {
         float x0 = (float)origin.x;
         float y0 = (float)origin.y;
         float z0 = (float)origin.z;
         float x1 = x0 + sizeX;
         float y1 = y0 + sizeY;
 
-        float offset = this.getOffset();
-        float u0 = inside ? 1/2f : 0;
-        float v0 = offset + 0;
-        float u1 = inside ? 1 : 1/2f;
-        float v1 = offset + 1/8f;
+        float animationOffset = this.getAnimationOffsetV();
+        float typeOffset = this.getTypeOffsetU(be);
+        float u0 = typeOffset + (inside ? 3/4f : 0);
+        float v0 = animationOffset + 0;
+        float u1 = typeOffset + (inside ? 1 : 1/4f);
+        float v1 = animationOffset + 1/8f;
 
         bb.vertex(matrixStack.last().pose(), negative ? x0 : x1, y0, z0).uv(u0, v1).endVertex();
         bb.vertex(matrixStack.last().pose(), negative ? x1 : x0, y0, z0).uv(u1, v1).endVertex();

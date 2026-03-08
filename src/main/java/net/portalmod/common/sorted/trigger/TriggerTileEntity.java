@@ -19,6 +19,7 @@ import java.util.List;
 public class TriggerTileEntity extends TileEntity implements ITickableTileEntity {
     private BlockPos fieldStart;
     private BlockPos fieldEnd;
+    private TriggerType type = TriggerType.PLAYER;
 
     private int entityCount = 0;
 
@@ -97,7 +98,16 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
             return null;
         return new AxisAlignedBB(this.fieldStart, this.fieldEnd).expandTowards(1, 1, 1);
     }
-    
+
+    public TriggerType getTriggerType() {
+        return this.type;
+    }
+
+    public void updateTriggerType() {
+        if (this.level == null) return;
+        this.type = this.level.getBlockState(this.getBlockPos()).getValue(TriggerBlock.TYPE);
+    }
+
     @Override
     public CompoundNBT save(CompoundNBT nbt) {
         if(this.fieldStart != null && this.fieldEnd != null) {
@@ -121,6 +131,8 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
     public void load(BlockState state, CompoundNBT nbt) {
         super.load(state, nbt);
         load(nbt);
+
+        updateTriggerType();
     }
     
     public void load(CompoundNBT nbt) {

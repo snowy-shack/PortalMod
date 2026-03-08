@@ -77,6 +77,8 @@ public class TriggerBlock extends Block {
             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
             player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.trigger_type." + cycled.getValue(TYPE).getSerializedName()), true);
 
+            if (tileEntity instanceof TriggerTileEntity) ((TriggerTileEntity) tileEntity).updateTriggerType();
+
             return ActionResultType.sidedSuccess(level.isClientSide);
         }
 
