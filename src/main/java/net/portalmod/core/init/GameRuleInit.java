@@ -14,7 +14,7 @@ public class GameRuleInit {
     public static GameRules.RuleKey<GameRules.BooleanValue> DO_FUNNELING;
 
     public static void registerAll() {
-        DO_FUNNELING = GameRules.register("doFunneling", GameRules.Category.PLAYER, BooleanValueAccessor.pmCreate(true));
+        DO_FUNNELING = GameRules.register("portalFunneling", GameRules.Category.PLAYER, BooleanValueAccessor.pmCreate(true));
 
         REGISTRY.add(DO_FUNNELING);
     }
