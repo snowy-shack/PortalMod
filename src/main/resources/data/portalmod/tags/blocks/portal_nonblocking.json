@@ -16,12 +16,8 @@
     "portalmod:antline",
     "minecraft:redstone_wire",
     "minecraft:redstone_torch",
-    "minecraft:comparator",
-    "minecraft:repeater",
-    "minecraft:tripwire",
 
     "#minecraft:carpets",
-    "#minecraft:pressure_plates",
 
     "minecraft:cobweb",
     "minecraft:grass",
