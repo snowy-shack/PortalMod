@@ -283,6 +283,6 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
 
     @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, remap = false)
     public void pmAddFlowingGooPhysics(CallbackInfoReturnable<Boolean> cir, double d0, boolean flag) {
-        cir.setReturnValue(this.isInWater() || flag || this.updateFluidHeightAndDoFluidPushing(FluidTagInit.GOO, GooBlock.MOVEMENT_FRICTION));
+        cir.setReturnValue(this.isInWater() || flag || this.updateFluidHeightAndDoFluidPushing(FluidTagInit.GOO, GooBlock.FLOW_PUSH_STRENGTH));
     }
 }
