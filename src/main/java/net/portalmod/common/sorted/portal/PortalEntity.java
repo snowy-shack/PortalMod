@@ -403,6 +403,21 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return delta.add(funnelAcceleration.to3d());
     }
 
+    public void pushEntities() {
+        AxisAlignedBB aabb = this.getBoundingBox();
+        List<Entity> entities = this.level.getEntities((Entity)null, aabb,
+                entity -> !entity.isSpectator() && !(entity instanceof PortalEntity));
+
+        if(this.level.isClientSide) {
+            entities = entities.stream()
+                    .filter(entity -> entity instanceof PlayerEntity && ((PlayerEntity)entity).isLocalPlayer())
+                    .collect(Collectors.toList());
+        }
+
+        entities.forEach(entity -> entity.setDeltaMovement(entity.getDeltaMovement()
+                .add(new Vec3(this.getDirection()).mul(.2).to3d())));
+    }
+
     public Vec3 projectPointOnPortalSurface(Vec3 point) {
         Vec3 portalToPoint = point.sub(this.getBoundingBox().getCenter());
         Vec3 n = new Vec3(this.getDirection().getNormal());
@@ -624,8 +639,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public void onReplaced() {
-        if(!this.level.isClientSide)
-            ((ServerWorld)this.level).removeEntity(this, false);
+        if(this.level.isClientSide)
+            return;
+
+        ((ServerWorld)this.level).removeEntity(this, false);
+        this.getOtherPortal().ifPresent(PortalEntity::pushEntities);
     }
 
     public boolean isOpen() {

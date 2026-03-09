@@ -43,6 +43,10 @@ public class SForgetPortalPacket implements AbstractPacket<SForgetPortalPacket> 
 
                 if(oldPortal != null)
                     PortalPhotonParticle.createClosingParticles(oldPortal);
+
+                PortalEntity otherPortal = ClientPortalManager.getInstance().get(this.uuid, this.end.other());
+                if(otherPortal != null)
+                    otherPortal.pushEntities();
             });
         });
 
