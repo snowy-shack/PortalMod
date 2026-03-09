@@ -12,6 +12,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.init.ItemTagInit;
@@ -46,6 +47,9 @@ public class GooBlock extends FlowingFluidBlock {
 
     public static void addGooDamage(Entity entity) {
         entity.fallDistance = 0;
+
+        if(entity instanceof LivingEntity && WrenchItem.hitWithWrench((LivingEntity)entity))
+            return;
 
         float damage = 4;
         for (ItemStack itemStack : entity.getArmorSlots()) {
