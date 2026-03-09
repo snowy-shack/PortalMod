@@ -22,6 +22,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.gel.IGelAffected;
@@ -542,6 +543,13 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
             GooBlock.handleGooDamage((LivingEntity) entity, damageSource);
         } else {
             this.level.broadcastEntityEvent(this, b);
+        }
+    }
+
+    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getFluidJumpThreshold()D"))
+    public void pmJumpInGoo(CallbackInfo ci) {
+        if (GooBlock.isInGoo(this) && WrenchItem.holdingWrench(this)) {
+            GooBlock.applyVerticalSwimSpeed((LivingEntity)(Object)this);
         }
     }
 

@@ -21,7 +21,6 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -32,9 +31,8 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -71,7 +69,6 @@ import net.portalmod.common.sorted.portalgun.*;
 import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 import net.portalmod.common.sorted.trigger.TriggerSelectionClient;
 import net.portalmod.common.sorted.trigger.TriggerTER;
-import net.portalmod.core.chunkviewer.ChunkViewer;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.injectors.LivingEntityInjector;
@@ -80,7 +77,6 @@ import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ChangeDetector;
 import net.portalmod.core.util.DebugRenderer;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
-import net.portalmod.mixins.accessors.ChunkManagerAccessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -288,17 +284,21 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void fogDensity(final EntityViewRenderEvent.FogDensity event) {
-        if (event.getInfo().getFluidInCamera().is(FluidTagInit.GOO)) {
-            event.setDensity(GooBlock.FOG_DENSITY);
+        ActiveRenderInfo info = event.getInfo();
+        if (info.getFluidInCamera().is(FluidTagInit.GOO)) {
+            event.setDensity(GooBlock.getFogDensity(info.getEntity()));
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
     public static void fogColor(final EntityViewRenderEvent.FogColors event) {
-        FluidState fluidInCamera = event.getInfo().getFluidInCamera();
-        if (fluidInCamera.is(FluidTagInit.GOO)) {
-            GooBlock.setFogColor(event);
+        ActiveRenderInfo info = event.getInfo();
+        if (info.getFluidInCamera().is(FluidTagInit.GOO)) {
+            Vector3f color = GooBlock.getFogColor().to3f();
+            event.setRed(color.x());
+            event.setGreen(color.y());
+            event.setBlue(color.z());
         }
     }
     

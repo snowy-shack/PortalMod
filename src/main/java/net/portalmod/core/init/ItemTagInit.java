@@ -12,7 +12,6 @@ public class ItemTagInit {
 
     public static final Tags.IOptionalNamedTag<Item> LUNECAST = itemTag("lunecast");
     public static final Tags.IOptionalNamedTag<Item> BLACKPLATE = itemTag("blackplate");
-    public static final Tags.IOptionalNamedTag<Item> GOO_PROTECTION = itemTag("goo_protection");
     public static final Tags.IOptionalNamedTag<Item> CUBES = itemTag("cubes");
     public static final Tags.IOptionalNamedTag<Item> INDICATORS = itemTag("indicators");
     public static final Tags.IOptionalNamedTag<Item> TESTING_ELEMENTS = itemTag("testing_elements");
