@@ -11,6 +11,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
@@ -107,11 +108,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             )
     )
     private boolean pmMaybeBackOffFromEdgeCube(World level, Entity entity, AxisAlignedBB bb) {
-        return level.noCollision(entity, bb) && level.getEntities(entity, bb.inflate(1.0E-7D), cube ->
+        boolean noCollision = level.noCollision(entity, bb);
+
+        boolean noCubeCollision = level.getEntities(entity, bb.inflate(1.0E-7D), cube ->
                 cube instanceof Cube &&
                 cube.getBoundingBox().intersects(bb) &&
                 !entity.isPassengerOfSameVehicle(cube)
         ).stream().map(Entity::getBoundingBox).map(VoxelShapes::create).allMatch(VoxelShape::isEmpty);
+
+        boolean noPortalCollision = !VoxelShapes.joinIsNotEmpty(PortalEntity.getCollisionShape(entity),
+                VoxelShapes.create(bb), IBooleanFunction.AND);
+
+        return noCollision && noCubeCollision && noPortalCollision;
     }
 
     @Unique

@@ -502,6 +502,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                         .sub(up.clone().mul(2))
                         .to3d(),
                 origin.clone()
+                        .sub(normal.clone().mul(0.002))
                         .add(right.clone().mul(1.5))
                         .add(up.clone().mul(2))
                         .to3d()
@@ -514,6 +515,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                         .sub(up.clone().mul(1))
                         .to3d(),
                 origin.clone()
+                        .sub(normal.clone().mul(0.002))
                         .add(right.clone().mul(.5))
                         .add(up.clone().mul(1))
                         .to3d()
