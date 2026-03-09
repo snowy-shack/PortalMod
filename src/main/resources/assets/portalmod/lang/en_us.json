@@ -111,7 +111,7 @@
 
   "tooltip.portalmod.wrench": "Configures §aTesting Elements§7",
 
-  "tooltip.portalmod.panel_1": "Hold crouch when placing to create larger panels",
+  "tooltip.portalmod.panel_1": "§6Crouch§7 while placing to create larger panels",
 
   "tooltip.portalmod.longfall_boots_1": "Saves you from accidents",
 
@@ -142,7 +142,7 @@
 
   "tooltip.portalmod.antline_1": "Connects §aButtons§7 to §bAntline Indicators§7",
   "tooltip.portalmod.antline_2": "- Needs §bAntline Indicators§7 to power §aTesting Elements§7",
-  "tooltip.portalmod.antline_3": "- Hold crouch to create branching connections",
+  "tooltip.portalmod.antline_3": "- §6Crouch§7 to create branching connections",
 
   "tooltip.portalmod.antline_indicator_1": "Can activate adjacent §aTesting Elements§7",
   "tooltip.portalmod.antline_indicator_2": "- §6Wrench§7: Reverses the output",
@@ -166,15 +166,14 @@
   "tooltip.portalmod.trigger_3": "- §6Wrench§7: Choose the bounding box of the field",
   "tooltip.portalmod.trigger_4": "- §6Wrench + Crouch§7: Change entity type",
 
-  "tooltip.portalmod.autoportal_1": "Allows for §9Portals§7 to be automatically opened",
+  "tooltip.portalmod.autoportal_1": "Can automatically open §9Portals§7, when linked to a §9Portal Gun§7",
   "tooltip.portalmod.autoportal_2": "- Activated by adjacent §bAntline Indicators§7",
-  "tooltip.portalmod.autoportal_3": "- §6Wrench§7: Configure the §9Portal§7:",
-  "tooltip.portalmod.autoportal_4": "  - Normal: Change between primary & secondary §9Portal§7",
-  "tooltip.portalmod.autoportal_5": "  - Offhand §9Portal Gun§7: Link to this §9Portal Gun§7",
+  "tooltip.portalmod.autoportal_3": "- §6Wrench§7: Change between primary & secondary §9Portal§7",
+  "tooltip.portalmod.autoportal_4": "- §6Wrench + Offhand Portal Gun§7: Link to this §9Portal Gun§7",
 
   "tooltip.portalmod.chamber_lights_1": "Lights up test chambers",
   "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by §cRedstone§7",
-  "tooltip.portalmod.chamber_lights_3": "- Hold crouch to place horizontally",
+  "tooltip.portalmod.chamber_lights_3": "- §6Crouch§7 to place horizontally",
 
   "tooltip.portalmod.chamber_door_1": "Entrance and exit to test chambers",
   "tooltip.portalmod.chamber_door_2": "- Opens when activated by all adjacent §bAntline Indicators§7",
@@ -199,13 +198,13 @@
   "tooltip.portalmod.turret_1": "Shoots visible players and mobs",
   "tooltip.portalmod.turret_2": "- Right click to stock with §aBullets§7",
   "tooltip.portalmod.turret_3": "- Has infinite ammo when placed in creative",
-  "tooltip.portalmod.turret_4": "- Crouch while placing for finer control over the rotation of the turret",
+  "tooltip.portalmod.turret_4": "- §6Crouch§7 while placing for finer control over the rotation of the turret",
   "tooltip.portalmod.turret_5": "- Can be broken with a §6Wrench§7",
   "tooltip.portalmod.turret_6": "- Does not target you if you're holding a §6Wrench§7",
 
   "tooltip.portalmod.bullets_1": "Provides a §aTurret§7 with ammo",
   "tooltip.portalmod.bullets_2": "- Allows a §aTurret§7 to shoot 20 times",
-  "tooltip.portalmod.bullets_3": "- Hold crouch to add a whole stack",
+  "tooltip.portalmod.bullets_3": "- §6Crouch§7 to add an entire stack",
   "tooltip.portalmod.bullets_4": "- Click with a §6Wrench§7 to take all §aBullets§7 from a §aTurret§7",
 
   "tooltip.portalmod.portalgun_1": "Shoots §9Portals§7",
@@ -235,7 +234,7 @@
   "tooltip.portalmod.colors.white":      "White",
 
   "tooltip.portalmod.platform_1": "Connects to Platform Beams",
-  "tooltip.portalmod.platform_2": "- Crouch while placing to lower the Platform — useful for creating stairs",
+  "tooltip.portalmod.platform_2": "- §6Crouch§7 while placing to lower the Platform — useful for creating stairs",
   "tooltip.portalmod.platform_3": "  - Power with §cRedstone§7 to force the upper variant",
   "tooltip.portalmod.platform_4": "- Click with a §6Wrench§7 or Platform Beam to manually add a beam to the Platform",
 
