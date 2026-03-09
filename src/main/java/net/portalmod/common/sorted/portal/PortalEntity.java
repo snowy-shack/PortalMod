@@ -776,10 +776,6 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return false;
     }
 
-    public boolean isPickable() {
-        return !this.removed;
-    }
-
     public void push(double x, double y, double z) {}
 
     public boolean hurt(DamageSource source, float amount) {
@@ -789,10 +785,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Entity attacker = source.getEntity();
 
         if(source instanceof EntityDamageSource && attacker instanceof LivingEntity) {
-            boolean holdingWrench = WrenchItem.hitWithWrench((LivingEntity)source.getEntity());
+            boolean hitWithWrench = WrenchItem.hitWithWrench((LivingEntity)attacker);
             boolean isCreative = attacker instanceof PlayerEntity && ((PlayerEntity)attacker).isCreative();
 
-            if(holdingWrench || isCreative) {
+            if(hitWithWrench || (isCreative && !this.isOpen())) {
                 this.remove();
                 return true;
             }

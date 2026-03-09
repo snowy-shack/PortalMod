@@ -6,23 +6,26 @@ import net.minecraft.tags.ITag;
 import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.goo.GooBlock;
-import net.portalmod.common.sorted.portal.DiscontinuousLerpPos;
-import net.portalmod.common.sorted.portal.ITeleportable;
-import net.portalmod.common.sorted.portal.ITeleportable2;
-import net.portalmod.common.sorted.portal.PortalEntity;
+import net.portalmod.common.sorted.portal.*;
+import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.FluidTagInit;
 import net.portalmod.core.interfaces.IDiscontinuouslyLerpable;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
+import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
+import net.portalmod.core.util.RayTraceContextWrapper;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,6 +41,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Mixin(Entity.class)
@@ -269,6 +273,58 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
 
         return new ReuseableStream<>(Stream.concat(Stream.concat(reuseablestream.getStream(), stream2),
                 Stream.of(PortalEntity.getCollisionShape(thiss))));
+    }
+
+    @Redirect(
+            remap = false,
+            method = "pick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/World;clip(Lnet/minecraft/util/math/RayTraceContext;)Lnet/minecraft/util/math/BlockRayTraceResult;"
+            )
+    )
+    private BlockRayTraceResult pmPickThroughPortal(World level, RayTraceContext context) {
+        List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(level,
+                new Vec3(context.getFrom()), new Vec3(context.getTo()), portal -> true);
+
+        Entity thiss = (Entity)(Object)this;
+        boolean holdingSpecialItem = thiss instanceof LivingEntity
+                && (WrenchItem.hitWithWrench((LivingEntity)thiss) || ((LivingEntity)thiss).getMainHandItem().getItem() instanceof PortalGun);
+        PortalRenderer.getInstance().outlineRenderingPortalChain = null;
+
+        if(!portalChain.isEmpty() && !holdingSpecialItem) {
+            PortalRenderer.getInstance().outlineRenderingPortalChain = portalChain;
+            Mat4 portalMatrix = Mat4.identity();
+
+            for(PortalEntity portal : portalChain) {
+                if(!portal.getOtherPortal().isPresent())
+                    break;
+
+                Mat4 matrix = portal.getSourceBasis().getChangeOfBasisMatrix(portal.getOtherPortal().get().getDestinationBasis());
+
+                portalMatrix = Mat4.identity()
+                        .translate(new Vec3(portal.getOtherPortal().get().position()))
+                        .mul(matrix)
+                        .translate(new Vec3(portal.position()).negate())
+                        .mul(portalMatrix);
+            }
+
+            Vector3d to = new Vec3(context.getTo()).transform(portalMatrix).to3d();
+            Vector3d from = new Vec3(context.getFrom()).transform(portalMatrix).to3d();
+
+            PortalEntity last = portalChain.get(portalChain.size() - 1);
+
+            Optional<Vector3d> intersection = last.getOtherPortal().get().getBoundingBox().clip(from, to);
+
+            if(intersection.isPresent())
+                from = intersection.get();
+
+            context = new RayTraceContextWrapper(context);
+            ((RayTraceContextWrapper)context).setTo(to);
+            ((RayTraceContextWrapper)context).setFrom(from);
+        }
+
+        return level.clip(context);
     }
 
     // Replaced
