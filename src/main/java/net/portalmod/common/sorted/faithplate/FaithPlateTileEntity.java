@@ -43,7 +43,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private boolean override = false;
     private Vector3d targetPos;
     private Direction targetFace;
-    private float height = 1;
+    private Float height;
     private int cooldown = 0;
     public static int COOLDOWN_DURATION = 10;
 
@@ -240,6 +240,11 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     
     public float getHeight() {
         return height;
+    }
+
+    public float getPredictedHeight(Vector3d absoluteTargetPos) {
+        if (height != null) return height;
+        return Math.max(1, (float) (new BlockPos(absoluteTargetPos).distManhattan(this.getBlockPos()) / 4.0));
     }
 
     public int getCooldown() {

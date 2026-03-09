@@ -111,7 +111,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         Vec3 platePos = new Vec3(plateBlockPos).add(relativeStartPoint);
         Vec3 relativeTargetPos = absoluteTargetPos.clone().sub(platePos);
 
-        FaithPlateParabola parabola = new FaithPlateParabola(relativeTargetPos.to3d(), be.getHeight());
+        FaithPlateParabola parabola = new FaithPlateParabola(relativeTargetPos.to3d(), be.getPredictedHeight(absoluteTargetBlockPos));
         IVertexBuilder lineBuffer = renderBuffer.getBuffer(RenderType.lines());
 
         matrixStack.pushPose();
@@ -120,7 +120,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
 
         if(parabola.isVertical()) {
             vertex(lineBuffer, matrix4f, 0, 0, 0);
-            vertex(lineBuffer, matrix4f, 0, be.getHeight(), 0);
+            vertex(lineBuffer, matrix4f, 0, be.getPredictedHeight(absoluteTargetBlockPos), 0);
             matrixStack.popPose();
             return;
         }

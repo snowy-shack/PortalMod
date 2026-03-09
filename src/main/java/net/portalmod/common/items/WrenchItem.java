@@ -80,18 +80,15 @@ public class WrenchItem extends Item {
             }
             FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
+            // Round the target pos to half blocks
+            clickPos = getTargetPos(clickFace, clickPos);
+
             boolean enabled = false;
             // Set the default height to dist / n
             if (be.getTargetPos() == null) {
-                be.setHeight(Math.max(
-                        1,
-                        (float) (new BlockPos(clickPos).distManhattan(selected) / 4.0)
-                ));
+                be.setHeight(be.getPredictedHeight(clickPos));
                 enabled = true;
             }
-
-            // Round the target pos to half blocks
-            clickPos = getTargetPos(clickFace, clickPos);
 
             CompoundNBT nbt = new CompoundNBT();
             CompoundNBT target = new CompoundNBT();
