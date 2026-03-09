@@ -1,9 +1,6 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.Pose;
+import net.minecraft.entity.*;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.tags.ITag;
 import net.minecraft.util.ReuseableStream;
@@ -14,6 +11,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.DiscontinuousLerpPos;
 import net.portalmod.common.sorted.portal.ITeleportable;
@@ -164,6 +162,45 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         if(this.onGround && this instanceof IDragCancelable) {
             ((IDragCancelable)this).pmSetCancelDrag(false);
         }
+    }
+
+    @Unique
+    Vector3d capturedDelta;
+
+    @Inject(
+            remap = false,
+            method = "collide",
+            at = @At("HEAD")
+    )
+    private void pmCaptureCollideDelta(Vector3d delta, CallbackInfoReturnable<Vector3d> info) {
+        this.capturedDelta = delta;
+    }
+
+    @Redirect(
+            remap = false,
+            method = "collide",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/Entity;getBoundingBox()Lnet/minecraft/util/math/AxisAlignedBB;"
+            )
+    )
+    private AxisAlignedBB pmGetSquashedHitbox(Entity entity) {
+        AxisAlignedBB hitbox = entity.getBoundingBox();
+        if(!(entity instanceof LivingEntity))
+            return hitbox;
+
+        AxisAlignedBB travelAABB = hitbox.expandTowards(capturedDelta);
+        boolean tall = hitbox.getYsize() > hitbox.getXsize();
+        boolean flinging = ((Flingable)entity).isFlinging();
+        List<PortalEntity> portalsInside = PortalEntity.getPortals(entity.level, travelAABB,
+                portal -> portal.getDirection().getAxis().isHorizontal());
+
+        if(tall && flinging && !portalsInside.isEmpty()) {
+            double shrink = hitbox.getYsize() / 2 - hitbox.getXsize() / 2;
+            return hitbox.inflate(0, -shrink, 0);
+        }
+
+        return hitbox;
     }
 
     private AxisAlignedBB getBBForPoseAndPos(Pose pose, Vec3 pos) {
