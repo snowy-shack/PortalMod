@@ -34,8 +34,10 @@ import net.portalmod.core.util.VertexRenderer;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL43;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
@@ -66,6 +68,9 @@ public class PortalRenderer {
     public MatrixStack clipMatrix = new MatrixStack();
     private final float[] projectionBuffer = new float[16];
     public Vec3 clearColor = new Vec3(0);
+
+    public List<PortalEntity> outlineRenderingPortalChain;
+    private final Deque<PortalEntity> portalChain = new ArrayDeque<>();
 
     static {
         portalMesh.reset();
@@ -373,6 +378,7 @@ public class PortalRenderer {
 
     private void renderPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper, Matrix4f projectionMatrix, float partialTicks, boolean fabulousGraphics) {
         recursion++;
+        this.portalChain.addLast(portal);
 
         if(PortalMod.DEBUG) {
             glEnable(GL43.GL_DEBUG_OUTPUT);
@@ -416,7 +422,8 @@ public class PortalRenderer {
                 PMState.cameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf == null ? null
                         : PMState.cameraPosOverrideForRenderingSelf.clone().transform(PortalEntity.getPortalToPortalMatrix(portal, otherPortal));
 
-                mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), false, portalCamera,
+                boolean renderOutline = this.shouldRenderOutline(portalChain);
+                mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), renderOutline, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
                 TriggerTER.renderAllTriggers();
 
@@ -484,7 +491,23 @@ public class PortalRenderer {
         if(PortalMod.DEBUG)
             GL43.glPopDebugGroup();
 
+        this.portalChain.removeLast();
         recursion--;
+    }
+
+    public boolean shouldRenderOutline(@Nullable Deque<PortalEntity> portalChain) {
+        if(portalChain == null || this.outlineRenderingPortalChain == null)
+            return (portalChain == null || portalChain.isEmpty())
+                    && (this.outlineRenderingPortalChain == null || this.outlineRenderingPortalChain.isEmpty());
+
+        if(portalChain.size() != this.outlineRenderingPortalChain.size())
+            return false;
+
+        Iterator<PortalEntity> iterator = this.outlineRenderingPortalChain.iterator();
+        for(PortalEntity portal : portalChain)
+            if(portal != iterator.next())
+                return false;
+        return true;
     }
 
     private boolean isDeepest() {
