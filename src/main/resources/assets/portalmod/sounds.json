@@ -68,10 +68,10 @@
         "subtitle": "subtitles.block.button.deactivate" },
     "block.super_button.press": {
         "sounds": [ "portalmod:block/super_button/press" ],
-        "subtitle": "subtitles.block.super_button.deactivate" },
+        "subtitle": "subtitles.block.super_button.press" },
     "block.super_button.release": {
         "sounds": [ "portalmod:block/super_button/release" ],
-        "subtitle": "subtitles.block.super_button.deactivate" },
+        "subtitle": "subtitles.block.super_button.release" },
 
     "block.fizzler_emitter.activate": {
         "sounds": [ "portalmod:block/fizzler_emitter/activate" ],
