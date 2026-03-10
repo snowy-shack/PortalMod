@@ -103,7 +103,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void updateEntities() {
-        if (this.entityUUIDs.isEmpty()) {
+        if (this.entityUUIDs.isEmpty() && this.openTicks == 0) {
             addEntity();
         }
         if (this.level instanceof ServerWorld) {
