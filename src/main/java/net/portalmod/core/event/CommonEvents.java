@@ -29,6 +29,7 @@ import net.portalmod.common.sorted.trigger.TriggerSelectionServer;
 import net.portalmod.core.init.GameRuleInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.packet.SUpdateFunnelingGameRulePacket;
+import net.portalmod.core.packet.SUpdatePortalableGameRulePacket;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,6 +87,9 @@ public class CommonEvents {
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)event.getEntity()),
                 new SUpdateFunnelingGameRulePacket(GameRuleInit.DO_FUNNELING.getId(),
                         event.getWorld().getGameRules().getBoolean(GameRuleInit.DO_FUNNELING)));
+
+        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity)event.getEntity()),
+                new SUpdatePortalableGameRulePacket(event.getWorld().getGameRules().getBoolean(GameRuleInit.DO_FUNNELING)));
     }
 
     @SubscribeEvent

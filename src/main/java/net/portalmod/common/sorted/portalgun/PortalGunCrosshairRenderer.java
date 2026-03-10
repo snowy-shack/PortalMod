@@ -60,7 +60,7 @@ public class PortalGunCrosshairRenderer {
             RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null);
             BlockRayTraceResult rayTrace = PortalGun.customClip(level, rayCtx);
 
-            boolean isPortalable = PortalableBlock.isPortalable(mc.level.getBlockState(rayTrace.getBlockPos()), rayTrace.getDirection());
+            boolean isPortalable = PortalableBlock.isPortalable(mc.level.getBlockState(rayTrace.getBlockPos()), rayTrace.getDirection(), level);
             primaryFilled = isPortalable;
             secondaryFilled = isPortalable;
             // todo actually figure out whether the portal is placeable there

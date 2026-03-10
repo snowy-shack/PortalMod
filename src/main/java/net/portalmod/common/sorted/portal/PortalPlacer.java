@@ -24,7 +24,6 @@ import net.portalmod.core.math.*;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,8 +41,8 @@ public class PortalPlacer {
         BlockState behindBlockState = level.getBlockState(shotBlockPos.relative(face.getOpposite()));
         Block shotBlock = shotBlockState.getBlock();
 
-        if(!(PortalableBlock.isPortalable(shotBlockState, face)
-                || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face)))
+        if(!(PortalableBlock.isPortalable(shotBlockState, face, level)
+                || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face, level)))
             return null;
 
         if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, upDirection, level) && lookingDirections != null) {
@@ -194,9 +193,9 @@ public class PortalPlacer {
             BlockState attachedBlock = level.getBlockState(block);
             BlockState behindBlock = level.getBlockState(block.relative(face.getOpposite()));
 
-            boolean portalable = PortalableBlock.isPortalable(attachedBlock, face);
+            boolean portalable = PortalableBlock.isPortalable(attachedBlock, face, level);
             boolean inheriting = attachedBlock.is(BlockTagInit.PORTAL_INHERITING);
-            boolean behindPortalable = PortalableBlock.isPortalable(behindBlock, face);
+            boolean behindPortalable = PortalableBlock.isPortalable(behindBlock, face, level);
             boolean valid = portalable || (inheriting && behindPortalable);
 
             VoxelShape blockShape = level.getBlockState(block)

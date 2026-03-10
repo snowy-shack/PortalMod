@@ -23,6 +23,11 @@
     "portalmod:eroded_blackplate_platform",
     "portalmod:arbored_blackplate_platform",
     "portalmod:fractured_blackplate_platform",
-    "portalmod:vintage_blackplate_platform"
+    "portalmod:vintage_blackplate_platform",
+
+    "portalmod:chamber_lights",
+    "portalmod:chamber_door",
+    "portalmod:faith_plate",
+    "portalmod:cube_dropper"
   ]
 }
