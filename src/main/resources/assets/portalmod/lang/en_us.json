@@ -123,6 +123,7 @@
   "tooltip.portalmod.cube_dropper_2": "- Interact while holding a §aCube item§7 to add it to the Dropper",
   "tooltip.portalmod.cube_dropper_3": "- §6Wrench§7: Removes the current §aCube§7",
   "tooltip.portalmod.cube_dropper_4": "- Activated by adjacent §bAntline Indicators§7",
+  "tooltip.portalmod.cube_dropper_5": "- Remove lingering §aCubes§7 by powering with §cRedstone§7 from above",
 
   "tooltip.portalmod.standing_button_1": "Can be pressed by players",
   "tooltip.portalmod.standing_button_2": "- Activates §bAntlines§7",
