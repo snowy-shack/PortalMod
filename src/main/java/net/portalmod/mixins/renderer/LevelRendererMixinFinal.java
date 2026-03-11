@@ -48,9 +48,12 @@ public class LevelRendererMixinFinal {
             )
     )
     private void pmSetupColor(ActiveRenderInfo camera, float partialTicks, ClientWorld level, int renderDistance, float darken) {
-        if(PortalRenderer.getInstance().currentlyRenderingPortals && Minecraft.getInstance().player != null) {
-            camera = new PortalCamera(camera, partialTicks);
-            camera.setPosition(Minecraft.getInstance().player.position());
+        if(PortalRenderer.getInstance().currentlyRenderingPortals) {
+            PortalEntity currentPortal = PortalRenderer.getInstance().portalChain.peekLast();
+            if(currentPortal != null && currentPortal.getOtherPortal().isPresent()) {
+                camera = new PortalCamera(camera, partialTicks);
+                camera.setPosition(currentPortal.getOtherPortal().get().position());
+            }
         }
 
         FogRenderer.setupColor(camera, partialTicks, level, renderDistance, darken);
@@ -65,9 +68,12 @@ public class LevelRendererMixinFinal {
             )
     )
     private void pmSetupFog(ActiveRenderInfo camera, FogRenderer.FogType type, float renderDistance, boolean b, float partialTicks) {
-        if(PortalRenderer.getInstance().currentlyRenderingPortals && Minecraft.getInstance().player != null) {
-            camera = new PortalCamera(camera, partialTicks);
-            camera.setPosition(Minecraft.getInstance().player.position());
+        if(PortalRenderer.getInstance().currentlyRenderingPortals) {
+            PortalEntity currentPortal = PortalRenderer.getInstance().portalChain.peekLast();
+            if(currentPortal != null && currentPortal.getOtherPortal().isPresent()) {
+                camera = new PortalCamera(camera, partialTicks);
+                camera.setPosition(currentPortal.getOtherPortal().get().position());
+            }
         }
 
         FogRenderer.setupFog(camera, type, renderDistance, b, partialTicks);

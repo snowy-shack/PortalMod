@@ -70,7 +70,7 @@ public class PortalRenderer {
     public Vec3 clearColor = new Vec3(0);
 
     public List<PortalEntity> outlineRenderingPortalChain;
-    private final Deque<PortalEntity> portalChain = new ArrayDeque<>();
+    public final Deque<PortalEntity> portalChain = new ArrayDeque<>();
 
     static {
         portalMesh.reset();
@@ -399,6 +399,15 @@ public class PortalRenderer {
             setupMatrixStack(matrixStack, portalCamera);
             setupSkyAndFog(portalCamera, partialTicks);
 
+            ActiveRenderInfo fogCamera = portalCamera;
+            if(portal.getOtherPortal().isPresent()) {
+                fogCamera = new PortalCamera(portalCamera, partialTicks);
+                fogCamera.setPosition(portal.getOtherPortal().get().position());
+            }
+
+            FogRenderer.setupColor(fogCamera, partialTicks, mc.level, mc.options.renderDistance,
+                    mc.gameRenderer.getDarkenWorldAmount(partialTicks));
+
             RenderSystem.stencilMask(0x7F);
             RenderSystem.stencilFunc(GL_EQUAL, recursion - 1, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INCR);
@@ -486,7 +495,13 @@ public class PortalRenderer {
             glDisable(GL_CLIP_PLANE0);
         }
 
-        setupSkyAndFog(camera, partialTicks);
+        ActiveRenderInfo fogCamera = camera;
+        if(portal.getOtherPortal().isPresent()) {
+            fogCamera = new PortalCamera(camera, partialTicks);
+            fogCamera.setPosition(portal.getOtherPortal().get().position());
+        }
+
+        setupSkyAndFog(fogCamera, partialTicks);
 
         if(PortalMod.DEBUG)
             GL43.glPopDebugGroup();
