@@ -44,7 +44,8 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -98,9 +99,18 @@ public abstract class TestElementEntity extends LivingEntity {
         }
     }
 
+    public AxisAlignedBB boundingBoxFromPos(Vector3d position) {
+        double h = this.getBbHeight();
+        double w = 0.5 * this.getBbWidth();
+        return new AxisAlignedBB(position.add(-w, 0, -w), position.add(w, h, w));
+    }
+
     public void checkTraversedBlocks() {
-        AxisAlignedBB movementBox = new AxisAlignedBB(ModUtil.getOldPos(this), this.position());
+        AxisAlignedBB oldBox = this.boundingBoxFromPos(ModUtil.getOldPos(this));
+
+        AxisAlignedBB movementBox = this.getBoundingBox().minmax(oldBox);
         Stream<BlockPos> collidedPositions = BlockPos.betweenClosedStream(movementBox);
+
         collidedPositions.forEach(pos -> {
             BlockState state = this.level.getBlockState(pos);
             if (this.isInsideFizzler(pos, state, movementBox)) {
