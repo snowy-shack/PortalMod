@@ -162,7 +162,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         BlockState state = this.getBlockState();
         VoxelShapeGroup triggerTransformed = TRIGGER.clone();
 
-        if(state.getValue(FACE) == FaithPlateBlock.Face.WALL) {
+        if(state.getValue(FACE) == Face.WALL) {
             Mat4 matrix = Mat4.identity()
             .translate(new Vec3(.5))
             .rotateDeg(Vector3f.YP, -state.getValue(FACING).toYRot())
@@ -174,9 +174,12 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
 
         AxisAlignedBB aabb = triggerTransformed.getShape().bounds();
 
+        FaithPlateBlock block = (FaithPlateBlock) state.getBlock();
+        BlockPos mainPosition = block.getMainPosition(state, this.getBlockPos());
+
         return VoxelShapes.or(
-                VoxelShapes.create(aabb.move(getBlockPos())),
-                VoxelShapes.create(aabb.move(getBlockPos().relative(FaithPlateBlock.getOtherBlockDirection(state))))
+                VoxelShapes.create(aabb.move(mainPosition)),
+                VoxelShapes.create(aabb.move(mainPosition.relative(block.getUpperDirection(state))))
         ).bounds();
     }
     
@@ -313,7 +316,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         Direction up = Direction.UP;
         Direction feet = facing;
         Direction side = facing.getClockWise();
-        boolean vertical = blockState.getValue(FACE) == FaithPlateBlock.Face.WALL;
+        boolean vertical = blockState.getValue(FACE) == Face.WALL;
         boolean topHalf  = blockState.getValue(HALF) == DoubleBlockHalf.UPPER;
 
         if (vertical) {

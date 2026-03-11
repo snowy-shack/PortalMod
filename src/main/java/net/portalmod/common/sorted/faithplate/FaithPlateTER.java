@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.faithplate;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -82,11 +83,14 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
     private void renderTrigger(FaithPlateTileEntity be, MatrixStack matrixStack) {
         BlockPos pos = be.getBlockPos();
         BlockState state = be.getBlockState();
+        Block block = state.getBlock();
 
         IRenderTypeBuffer renderTypeBuffer = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
         IVertexBuilder vertexBuilder = renderTypeBuffer.getBuffer(RenderType.lines());
 
-        Vec3 normal = new Vec3(FaithPlateBlock.getNormal(state).getNormal()).mul(.001);
+        if (!(block instanceof FaithPlateBlock)) return;
+
+        Vec3 normal = new Vec3(((FaithPlateBlock) block).getNormal(state).getNormal()).mul(.001);
 
         matrixStack.pushPose();
         matrixStack.translate(-pos.getX(), -pos.getY(), -pos.getZ());

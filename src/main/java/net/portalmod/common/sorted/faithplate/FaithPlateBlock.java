@@ -4,7 +4,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
@@ -12,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
@@ -21,19 +19,16 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
-import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-//todo turn into MultiBlock
-// I don't know if it should be, everything works fine rn. Let's make it a MultiBlock in the rewrite
-public class FaithPlateBlock extends Block {
+public class FaithPlateBlock extends DoubleBlock {
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
-    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Face> FACE = EnumProperty.create("face", Face.class);
     
     public FaithPlateBlock(Properties properties) {
@@ -43,7 +38,12 @@ public class FaithPlateBlock extends Block {
                 .setValue(HALF, DoubleBlockHalf.UPPER)
                 .setValue(FACE, Face.FLOOR));
     }
-    
+
+    @Override
+    public Direction getUpperDirection(BlockState state) {
+        return state.getValue(FACE) == Face.FLOOR ? state.getValue(FACING).getOpposite() : Direction.UP;
+    }
+
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, HALF, FACE);
@@ -52,65 +52,42 @@ public class FaithPlateBlock extends Block {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
-        Direction face = context.getClickedFace();
+        Direction face = context.getNearestLookingDirection().getOpposite();
         BlockPos pos = context.getClickedPos();
 
         if(face == Direction.DOWN)
             return null;
 
+        // Floor faithplate
         if(face.getAxis() == Direction.Axis.Y) {
-            Direction direction = context.getHorizontalDirection();
+            Direction facing = context.getHorizontalDirection();
 
-            if(!context.getLevel().getBlockState(pos.relative(direction)).canBeReplaced(context))
+            if (!ModUtil.canPlaceAt(context, pos.relative(facing)))
                 return null;
 
             return this.defaultBlockState()
-                    .setValue(FACING, direction)
+                    .setValue(FACING, facing)
                     .setValue(FACE, Face.FLOOR);
+
         }
 
-        if(!context.getLevel().getBlockState(pos.relative(Direction.UP)).canBeReplaced(context))
+        if(!ModUtil.canPlaceAt(context, pos.relative(Direction.UP))) {
             return null;
+        }
 
+        // Wall faithplate
         return this.defaultBlockState()
                 .setValue(FACING, face)
                 .setValue(FACE, Face.WALL)
                 .setValue(HALF, DoubleBlockHalf.LOWER);
     }
 
-    public void setPlacedBy(World level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack itemStack) {
-        if(level.isClientSide)
-            return;
-
-        DoubleBlockHalf half = state.getValue(HALF) == DoubleBlockHalf.LOWER ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER;
-        BlockPos blockpos = pos.relative(FaithPlateBlock.getOtherBlockDirection(state));
-        level.setBlock(blockpos, state.setValue(HALF, half), 3);
-    }
-
-    @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
-        if(level.isClientSide)
-            return;
-
-        if(getOtherBlock(state, level, pos).getBlock() != BlockInit.FAITHPLATE.get())
-            level.destroyBlock(pos, false, null, 0);
-    }
-
-    public static Direction getOtherBlockDirection(BlockState state) {
-        Direction direction = state.getValue(FACE) == Face.FLOOR ? state.getValue(FACING) : Direction.UP;
-
-        if(state.getValue(HALF) == DoubleBlockHalf.UPPER && state.getValue(FACE) == Face.WALL
-        || state.getValue(HALF) == DoubleBlockHalf.LOWER && state.getValue(FACE) == Face.FLOOR)
-            return direction.getOpposite();
-        return direction;
-    }
-
-    public static Direction getNormal(BlockState state) {
+    public Direction getNormal(BlockState state) {
         return state.getValue(FACE) == Face.FLOOR ? Direction.UP : state.getValue(FACING);
     }
 
-    private BlockState getOtherBlock(BlockState state, World level, BlockPos pos) {
-        return level.getBlockState(pos.relative(getOtherBlockDirection(state)));
+    public BlockPos getUpperPos(BlockState state, BlockPos pos) {
+        return this.getMainPosition(state, pos).relative(this.getUpperDirection(state));
     }
 
     @Override
@@ -126,26 +103,24 @@ public class FaithPlateBlock extends Block {
     
     @Override
     public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
-        if(!level.isClientSide) {
-            if(!state.hasTileEntity())
-                pos = pos.relative(FaithPlateBlock.getOtherBlockDirection(state));
+        if (level.isClientSide)
+            return ActionResultType.PASS;
 
-            TileEntity tileEntity = level.getBlockEntity(pos);
+        TileEntity tileEntity = level.getBlockEntity(this.getUpperPos(state, pos));
 
-            if(tileEntity instanceof FaithPlateTileEntity) {
-                FaithPlateTileEntity faithPlate = (FaithPlateTileEntity)tileEntity;
+        if (!(tileEntity instanceof FaithPlateTileEntity)) return ActionResultType.PASS;
 
-                if(WrenchItem.usedWrench(player, hand)) {
-                    if(!faithPlate.isBeingConfigured()) {
-                        faithPlate.startConfiguration((ServerPlayerEntity)player);
-                        WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-                        return ActionResultType.SUCCESS;
-                    } else {
-                        WrenchItem.playFailSound(level, rayTraceResult.getLocation());
-                        return ActionResultType.SUCCESS;
-                    }
-                }
+        FaithPlateTileEntity faithPlate = (FaithPlateTileEntity)tileEntity;
+
+        if(WrenchItem.usedWrench(player, hand)) {
+            if(!faithPlate.isBeingConfigured()) {
+                faithPlate.startConfiguration((ServerPlayerEntity)player);
+                WrenchItem.playUseSound(level, rayTraceResult.getLocation());
+            } else {
+                WrenchItem.playFailSound(level, rayTraceResult.getLocation());
             }
+
+            return ActionResultType.SUCCESS;
         }
 
         return ActionResultType.PASS;
