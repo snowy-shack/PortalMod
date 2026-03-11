@@ -90,7 +90,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             speedBounceBonusAmount = (deltaMovement.multiply(parallel).length() < maxSpeedBoostAmount) ? speedBounceBonusAmount : 1.0F;
 
             entity.setDeltaMovement(bounceDir.scale(horizontalBounceAmount)
-                    .add(0, verticalBounceAmount, 0)
+                    .add(0, Math.max(verticalBounceAmount, entity.getDeltaMovement().y), 0)
                     .add(deltaMovement.multiply(parallel).scale(speedBounceBonusAmount))
             );
 
@@ -167,9 +167,11 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         BlockState state = level.getBlockState(pos);
         BlockState stateAbove = level.getBlockState(pos.above());
 
-        if (!((IGelAffected) entity).getBounced()) {
-            if (state.getBlock() == BlockInit.REPULSION_GEL.get())      calculateBounce(level, state, pos, entity);
-            if (stateAbove.getBlock() == BlockInit.REPULSION_GEL.get()) calculateBounce(level, stateAbove, pos.above(), entity);
+        if (state.getBlock() == BlockInit.REPULSION_GEL.get()) {
+            calculateBounce(level, state, pos, entity);
+        }
+        if (stateAbove.getBlock() == BlockInit.REPULSION_GEL.get()) {
+            calculateBounce(level, stateAbove, pos.above(), entity);
         }
     }
 }
