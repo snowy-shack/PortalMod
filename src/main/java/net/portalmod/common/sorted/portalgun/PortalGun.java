@@ -180,8 +180,12 @@ public class PortalGun extends Item {
         double timeOfDay = level.getTimeOfDay(0) + .25f;
         double angle = (timeOfDay - (int)timeOfDay) * 2f * Math.PI;
         Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
-        if(player.getLookAngle().dot(moonVector) <= -0.997)
+        boolean lookingUp = player.getLookAngle().dot(new Vector3d(0, 1, 0)) > 0;
+        boolean lookingAtTheMoon = player.getLookAngle().dot(moonVector) <= -0.997;
+
+        if(lookingUp && lookingAtTheMoon) {
             CriteriaTriggerInit.SHOOT_MOON.get().trigger(player);
+        }
     }
 
     private static void triggerPortalAdvancements(World level, ServerPlayerEntity player, PortalEntity portal, double distance) {
