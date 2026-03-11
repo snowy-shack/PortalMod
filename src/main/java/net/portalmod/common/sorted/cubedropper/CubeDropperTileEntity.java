@@ -29,7 +29,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     public List<UUID> entityUUIDs = new ArrayList<>();
     public int openTicks = 0;
-    public boolean wasAntlinePowered = false;
+    public boolean wasActive = false;
     public CompoundNBT entityNBT = null;
 
     public CubeDropperTileEntity() {
@@ -43,19 +43,19 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
         CubeDropperBlock dropperBlock = (CubeDropperBlock) blockState.getBlock();
         IndicatorInfo indicatorInfo = this.checkIndicators(blockState, this.level, pos);
-        boolean antlinePowered = indicatorInfo.hasIndicators && indicatorInfo.allIndicatorsActivated;
+        boolean active = !indicatorInfo.hasIndicators || indicatorInfo.allIndicatorsActivated;
 
         if (this.openTicks > 0) this.openTicks++;
 
         if (blockState.getBlock() instanceof CubeDropperBlock && this.entityNBT != null) {
             this.updateEntities();
 
-            if (antlinePowered && this.openTicks == 0 && (this.entityUUIDs.size() == 1 || !this.wasAntlinePowered)) {
+            if (active && this.openTicks == 0 && (this.entityUUIDs.size() == 1 || !this.wasActive)) {
                 openDropper(dropperBlock);
             }
         }
 
-        this.wasAntlinePowered = antlinePowered;
+        this.wasActive = active;
 
         if (this.openTicks > 20) {
             closeDropper(dropperBlock);
@@ -264,7 +264,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         if (this.entityUUIDs.size() >= 2) {
             nbt.putUUID("UUID2", this.entityUUIDs.get(1));
         }
-        nbt.putBoolean("Powered", this.wasAntlinePowered);
+        nbt.putBoolean("Powered", this.wasActive);
         nbt.putInt("OpenTicks", this.openTicks);
 
         if (this.entityNBT != null) {
@@ -284,7 +284,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         if (nbt.hasUUID("UUID2")) {
             this.entityUUIDs.add(nbt.getUUID("UUID2"));
         }
-        this.wasAntlinePowered = nbt.getBoolean("Powered");
+        this.wasActive = nbt.getBoolean("Powered");
         this.openTicks = nbt.getInt("OpenTicks");
 
         this.entityNBT = null;
