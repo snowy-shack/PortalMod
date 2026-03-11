@@ -1,5 +1,6 @@
 package net.portalmod.core.util;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
@@ -94,6 +95,47 @@ public class ModUtil {
         }
 
         return portalChain;
+    }
+
+    public static Mat4 getMatrixFromPortalChain(List<PortalEntity> portalChain) {
+        Mat4 portalMatrix = Mat4.identity();
+
+        for(PortalEntity portal : portalChain) {
+            if(!portal.getOtherPortal().isPresent())
+                break;
+
+            Mat4 matrix = portal.getSourceBasis().getChangeOfBasisMatrix(portal.getOtherPortal().get().getDestinationBasis());
+
+            portalMatrix = Mat4.identity()
+                    .translate(new Vec3(portal.getOtherPortal().get().position()))
+                    .mul(matrix)
+                    .translate(new Vec3(portal.position()).negate())
+                    .mul(portalMatrix);
+        }
+
+        return portalMatrix;
+    }
+
+    public static Pair<Vector3d, Vector3d> teleportRay(List<PortalEntity> portalChain, Vector3d from, Vector3d to) {
+        if(portalChain.isEmpty())
+            return new Pair<>(from, to);
+
+        // teleport ray
+        Mat4 portalMatrix = getMatrixFromPortalChain(portalChain);
+        from = new Vec3(from).transform(portalMatrix).to3d();
+        to = new Vec3(to).transform(portalMatrix).to3d();
+
+        // get last portal
+        PortalEntity last = portalChain.get(portalChain.size() - 1);
+        if(!last.getOtherPortal().isPresent())
+            return new Pair<>(from, to);
+
+        // snip ray
+        Optional<Vector3d> intersection = last.getOtherPortal().get().getBoundingBox().clip(from, to);
+        if(intersection.isPresent())
+            from = intersection.get();
+
+        return new Pair<>(from, to);
     }
 
     public static Vector3d getOldPos(Entity entity) {

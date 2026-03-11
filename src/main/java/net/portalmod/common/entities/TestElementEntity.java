@@ -245,6 +245,7 @@ public abstract class TestElementEntity extends LivingEntity {
         } else {
             Vec3 eyePos = new Vec3(player.getEyePosition(1).add(0, -0.4, 0));
             Vec3 eyeOldPos = new Vec3(player.getEyePosition(0).add(0, -0.4, 0));
+            Vec3 originalEyeOldPos = eyePos.clone();
             Vec3 originalEyePos = eyePos.clone();
 
             // account for eye height
@@ -305,7 +306,21 @@ public abstract class TestElementEntity extends LivingEntity {
             }
 
             // old position
-            Vec3 oldRidingVec = Optional.ofNullable(this.oldRidingVec).orElse(new Vec3(this.position()).sub(eyeOldPos)).clone();
+            Vec3 oldRidingVec = this.oldRidingVec;
+            if(oldRidingVec == null) {
+                Vec3 unteleportedOldRidingVec = new Vec3(this.position());
+                for(int i = portalChain.size() - 1; i >= 0; i--) {
+                    PortalEntity portal = portalChain.get(i);
+                    if(!portal.getOtherPortal().isPresent())
+                        break;
+
+                    Mat4 matrix = portal.getOtherPortal().get().getSourceBasis().getChangeOfBasisMatrix(portal.getDestinationBasis());
+                    unteleportedOldRidingVec = unteleportedOldRidingVec.sub(portal.getOtherPortal().get().position()).transform(matrix).add(portal.position());
+                }
+
+                oldRidingVec = unteleportedOldRidingVec.clone().sub(originalEyeOldPos);
+            }
+
             oldRidingVec = oldRidingVec.transform(portalRotationMatrix);
             oldRidingVec = holderJustTeleported ? ridingVersor.clone().mul(oldRidingVec.magnitude()) : oldRidingVec;
             holderJustTeleported = false;

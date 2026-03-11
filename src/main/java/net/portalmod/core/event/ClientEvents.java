@@ -2,6 +2,7 @@ package net.portalmod.core.event;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
@@ -73,9 +74,12 @@ import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.injectors.MainMenuInjector;
+import net.portalmod.core.math.AABBUtil;
+import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ChangeDetector;
 import net.portalmod.core.util.DebugRenderer;
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 
 import java.util.ArrayList;
@@ -301,7 +305,7 @@ public class ClientEvents {
             event.setBlue(color.z());
         }
     }
-    
+
     @SubscribeEvent
     public static void entitySize(final EntityEvent.Size event) {
         if(!CreerRenderer.isCreer(event.getEntity()))
@@ -422,7 +426,13 @@ public class ClientEvents {
 //            RayTraceContext collisionRayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
 //            BlockRayTraceResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
 
-            EntityRayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), TestElementEntity::isHoldable, rayLength * rayLength);
+            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(player.level, new Vec3(from), new Vec3(to), portal -> true);
+            Mat4 portalMatrix = ModUtil.getMatrixFromPortalChain(portalChain);
+            Pair<Vector3d, Vector3d> ray = ModUtil.teleportRay(portalChain, from, to);
+            AxisAlignedBB aabb = player.getBoundingBox().expandTowards(rayPath);
+            aabb = AABBUtil.transform(aabb, portalMatrix);
+
+            EntityRayTraceResult entityRayTraceResult = ProjectileHelper.getEntityHitResult(player, ray.getFirst(), ray.getSecond(), aabb, TestElementEntity::isHoldable, rayLength * rayLength);
 
             if (entityRayTraceResult == null) return;
 
@@ -430,10 +440,10 @@ public class ClientEvents {
 
             // Set reach origin to feet so it is possible to pick things up from above further than from below
             Vector3d reachPosition = player.position().add(0, 0.2, 0);
-
             double grabReach = player.getAttributeValue(AttributeInit.GRAB_REACH.get());
+            Vec3 distance = new Vec3(entity.position()).sub(new Vec3(reachPosition).transform(portalMatrix));
 
-            if (entity instanceof TestElementEntity && entity.position().subtract(reachPosition).length() < grabReach + entity.getBbWidth() / 2) {
+            if (entity instanceof TestElementEntity && distance.magnitude() < grabReach + entity.getBbWidth() / 2) {
                 ((TestElementEntity) entity).pickUp(player);
 
                 consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
