@@ -19,7 +19,7 @@ import net.portalmod.core.util.ModUtil;
 import static net.portalmod.common.sorted.faithplate.FaithPlateParabola.GRAVITY;
 
 public class RepulsionGelBlock extends AbstractGelBlock {
-    public static float minBounceHeight = 5; // blocks
+    public static float minBounceHeight = 4; // blocks
 
     @Override
     public void fallOn(World world, BlockPos blockPos, Entity entity, float fallDistance) {
