@@ -654,9 +654,9 @@ public class ClientEvents {
                 PMState.cameraPosOverrideForRenderingSelf = new Vec3(event.getInfo().getPosition());
                 ((ActiveRenderInfoAccessor)event.getInfo()).pmSetPosition(event.getInfo().getPosition().add(pos.to3d()));
             });
-
-            PortalEntityClient.teleportCameraAndApply(event);
         }
+
+        PortalEntityClient.teleportCameraAndApply(event);
 
         PMState.cameraRoll = event.getRoll();
     }

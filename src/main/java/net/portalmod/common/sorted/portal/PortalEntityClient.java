@@ -14,6 +14,7 @@ import net.portalmod.PMState;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 
 import java.util.List;
@@ -126,16 +127,67 @@ public class PortalEntityClient {
         return newCamera;
     }
 
+    private static PortalCamera teleportThirdPersonCamera(EntityViewRenderEvent.CameraSetup event) {
+        ActiveRenderInfo camera = event.getInfo();
+        Minecraft minecraft = Minecraft.getInstance();
+        PlayerEntity player = minecraft.player;
+        World level = minecraft.level;
+
+        if(player == null || level == null)
+            return null;
+
+        PortalCamera newCamera = new PortalCamera(camera, (float)event.getRenderPartialTicks());
+        newCamera.setPitch(event.getPitch());
+        newCamera.setYaw(event.getYaw());
+        newCamera.setRoll(event.getRoll());
+
+        Vec3 from = new Vec3(event.getInfo().getEntity().getEyePosition((float)event.getRenderPartialTicks()));
+        Vec3 to = new Vec3(newCamera.getPosition());
+        List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(Minecraft.getInstance().level, from, to, portal -> true);
+
+        Mat4 matrix = ModUtil.getMatrixFromPortalChain(portalChain);
+        Mat4 rotationMatrix = ModUtil.getRotationMatrixFromPortalChain(portalChain);
+
+        Vec3 eyePos = new Vec3(camera.getEntity().getEyePosition((float)event.getRenderPartialTicks()));
+        Vec3 newEyePos = eyePos.clone().transform(matrix);
+
+        Vec3 newCameraPos = new Vec3(camera.getPosition())
+                .sub(eyePos)
+                .transform(rotationMatrix)
+                .add(newEyePos);
+        ((ActiveRenderInfoAccessor)newCamera).pmSetPosition(newCameraPos.to3d());
+
+        float xRot = newCamera.getXRot();
+        float yRot = newCamera.getYRot();
+        float roll = newCamera.getRoll();
+
+        OrthonormalBasis cameraBasis = EulerConverter.toVectors(xRot, yRot, roll).transform(rotationMatrix);
+        EulerConverter.EulerAngles angles = EulerConverter.toEulerAngles(cameraBasis);
+        ((ActiveRenderInfoAccessor)newCamera).pmSetRotation(angles.getYaw(), angles.getPitch());
+        newCamera.setRoll(angles.getRoll());
+
+        return newCamera;
+    }
+
     public static void teleportCameraAndApply(EntityViewRenderEvent.CameraSetup event) {
         ActiveRenderInfo camera = event.getInfo();
-        PortalCamera newCamera = teleportCamera(event, true);
-        PortalCamera cameraForLight = teleportCamera(event, false);
+        boolean thirdPerson = camera.isDetached();
+        PortalCamera newCamera = thirdPerson ? teleportThirdPersonCamera(event) : teleportCamera(event, true);
 
-        if(cameraForLight != null) {
-            // todo or just dont teleport the block position at all to prevent flickering
+        if(!thirdPerson) {
+            PortalCamera cameraForLight = teleportCamera(event, false);
 
-            BlockPos lightPos = new BlockPos(new Vec3(cameraForLight.getPosition()).to3i());
-            ((ActiveRenderInfoAccessor)camera).pmGetBlockPosition().set(lightPos);
+            if(cameraForLight != null) {
+                // todo or just dont teleport the block position at all to prevent flickering
+
+                BlockPos lightPos = new BlockPos(new Vec3(cameraForLight.getPosition()).to3i());
+                ((ActiveRenderInfoAccessor) camera).pmGetBlockPosition().set(lightPos);
+            }
+        } else {
+            if(newCamera != null) {
+                BlockPos lightPos = new BlockPos(new Vec3(newCamera.getPosition()).to3i());
+                ((ActiveRenderInfoAccessor) camera).pmGetBlockPosition().set(lightPos);
+            }
         }
 
         if(newCamera != null) {

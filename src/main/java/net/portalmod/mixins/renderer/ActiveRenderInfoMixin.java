@@ -1,75 +1,59 @@
 package net.portalmod.mixins.renderer;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockReader;
+import net.portalmod.common.sorted.portal.PortalEntity;
+import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
-import net.portalmod.core.interfaces.PMActiveRenderInfo;
-import org.spongepowered.asm.mixin.Final;
+import net.portalmod.core.util.ModUtil;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.List;
 
 @Mixin(ActiveRenderInfo.class)
-public abstract class ActiveRenderInfoMixin implements PMActiveRenderInfo {
-    @Shadow private boolean initialized;
+public abstract class ActiveRenderInfoMixin {
 
-    @Shadow private IBlockReader level;
+    @Inject(
+            remap = false,
+            method = "getMaxZoom",
+            at = @At(value = "HEAD"),
+            cancellable = true
+    )
+    private void pmTeleportCameraRay(double zoom, CallbackInfoReturnable<Double> info) {
+        ActiveRenderInfo thiss = (ActiveRenderInfo)(Object)this;
+        Entity entity = thiss.getEntity();
+        Vec3 from = new Vec3(thiss.getPosition());
+        Vec3 to = from.clone().sub(new Vec3(thiss.getLookVector()).mul(zoom));
 
-    @Shadow private Entity entity;
+        List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(entity.level, from, to, portal -> true);
+        if(portalChain.isEmpty()) {
+            List<PortalEntity> portals = PortalEntity.getOpenPortals(entity.level, entity.getBoundingBox(), portal -> true);
+            if(portals.isEmpty())
+                return;
 
-    @Shadow private boolean detached;
+            Vec3 from2 = from.clone().sub(new Vec3(thiss.getLookVector()).mul(0.2));
+            RayTraceContext context = new RayTraceContext(from2.to3d(), to.to3d(), RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, thiss.getEntity());
+            RayTraceResult result = entity.level.clip(context);
+            double maxZoom = Math.min(zoom, result.getLocation().distanceTo(from.to3d()) - 0.1);
+            info.setReturnValue(maxZoom);
 
-    @Shadow private boolean mirror;
-
-    @Shadow protected abstract void setRotation(float yRot, float xRot);
-
-    @Shadow public abstract void setPosition(Vector3d position);
-
-    @Shadow protected abstract void move(double x, double y, double z);
-
-    @Shadow protected abstract double getMaxZoom(double zoom);
-
-    @Shadow private Vector3d position;
-
-    @Shadow @Final private Vector3f forwards;
-
-    // BEWARE: PORTAL RENDERING
-    @Override
-    public void pmSetupForOrtho(IBlockReader level, Vec3 position, float yRot, float xRot, float zoom) {
-        this.initialized = true;
-        this.level = level;
-        this.entity = null;
-        this.detached = true;
-        this.mirror = false;
-        this.setRotation(yRot, xRot);
-        this.setPosition(position.to3d());
-        this.move(-this.pmGetMaxZoom(zoom), 0.0D, 0.0D);
-    }
-
-    // BEWARE: PORTAL RENDERING
-    private double pmGetMaxZoom(double zoom) {
-        for(int i = 0; i < 8; ++i) {
-            float f = (float)((i & 1) * 2 - 1);
-            float f1 = (float)((i >> 1 & 1) * 2 - 1);
-            float f2 = (float)((i >> 2 & 1) * 2 - 1);
-            f = f * 0.1F;
-            f1 = f1 * 0.1F;
-            f2 = f2 * 0.1F;
-            Vector3d vector3d = this.position.add(f, f1, f2);
-            Vector3d vector3d1 = new Vector3d(this.position.x - (double)this.forwards.x() * zoom + (double)f + (double)f2, this.position.y - (double)this.forwards.y() * zoom + (double)f1, this.position.z - (double)this.forwards.z() * zoom + (double)f2);
-            RayTraceResult raytraceresult = this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, this.entity));
-            if(raytraceresult.getType() != RayTraceResult.Type.MISS) {
-                double d0 = raytraceresult.getLocation().distanceTo(this.position);
-                if(d0 < zoom) {
-                    zoom = d0;
-                }
-            }
+            return;
         }
 
-        return zoom;
+        Mat4 portalMatrix = ModUtil.getMatrixFromPortalChain(portalChain);
+        Vec3 teleportedEyePos = from.clone().transform(portalMatrix);
+        Pair<Vector3d, Vector3d> ray = ModUtil.teleportRay(portalChain, from.to3d(), to.to3d());
+
+        RayTraceContext context = new RayTraceContext(ray.getFirst(), ray.getSecond(), RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, thiss.getEntity());
+        RayTraceResult result = entity.level.clip(context);
+        double maxZoom = Math.min(zoom, result.getLocation().distanceTo(teleportedEyePos.to3d()) - 0.1);
+        info.setReturnValue(maxZoom);
     }
 }

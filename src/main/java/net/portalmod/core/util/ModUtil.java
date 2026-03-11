@@ -116,6 +116,20 @@ public class ModUtil {
         return portalMatrix;
     }
 
+    public static Mat4 getRotationMatrixFromPortalChain(List<PortalEntity> portalChain) {
+        Mat4 portalMatrix = Mat4.identity();
+
+        for(PortalEntity portal : portalChain) {
+            if(!portal.getOtherPortal().isPresent())
+                break;
+
+            Mat4 matrix = portal.getSourceBasis().getChangeOfBasisMatrix(portal.getOtherPortal().get().getDestinationBasis());
+            portalMatrix = Mat4.identity().mul(matrix).mul(portalMatrix);
+        }
+
+        return portalMatrix;
+    }
+
     public static Pair<Vector3d, Vector3d> teleportRay(List<PortalEntity> portalChain, Vector3d from, Vector3d to) {
         if(portalChain.isEmpty())
             return new Pair<>(from, to);
