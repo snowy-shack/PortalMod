@@ -6,6 +6,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "portalmod:faithplate",
+              "properties": {
+                "half": "lower"
+              }
+            }
+          ],
           "name": "portalmod:faithplate"
         }
       ],
