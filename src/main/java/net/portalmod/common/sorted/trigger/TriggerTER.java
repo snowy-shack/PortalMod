@@ -25,8 +25,6 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         super(terd);
     }
 
-    // todo texture atlas magic
-
     @Override
     public void render(TriggerTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
         if(triggerBuffer == null) {
@@ -50,7 +48,7 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
             triggerBuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         }
 
-        this.renderTriggerField(be, aabb.deflate(0.0005), matrixStack);
+        this.renderTriggerField(be, aabb.deflate(be.getTriggerType() == TriggerType.PLAYER ? 0.0005 : 0.0006), matrixStack);
     }
 
     private void renderTriggerField(TriggerTileEntity be, AxisAlignedBB aabb, MatrixStack matrixStack) {
@@ -110,9 +108,9 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
 
         float animationOffset = this.getAnimationOffsetV();
         float typeOffset = this.getTypeOffsetU(be);
-        float u0 = typeOffset + (inside ? 3/4f : 0);
+        float u0 = typeOffset + (inside ? 1/4f : 0);
         float v0 = animationOffset + 0;
-        float u1 = typeOffset + (inside ? 1 : 1/4f);
+        float u1 = typeOffset + (inside ? 1/2f : 1/4f);
         float v1 = animationOffset + 1/8f;
 
         bb.vertex(matrixStack.last().pose(), x0, y0, negative ? z1 : z0).uv(u0, v1).endVertex();
@@ -130,9 +128,9 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
 
         float animationOffset = this.getAnimationOffsetV();
         float typeOffset = this.getTypeOffsetU(be);
-        float u0 = typeOffset + (inside ? 3/4f : 0);
+        float u0 = typeOffset + (inside ? 1/4f : 0);
         float v0 = animationOffset + 0;
-        float u1 = typeOffset + (inside ? 1 : 1/4f);
+        float u1 = typeOffset + (inside ? 1/2f : 1/4f);
         float v1 = animationOffset + 1/8f;
 
         bb.vertex(matrixStack.last().pose(), negative ? x0 : x1, y0, z1).uv(u0, v1).endVertex();
@@ -150,9 +148,9 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
 
         float animationOffset = this.getAnimationOffsetV();
         float typeOffset = this.getTypeOffsetU(be);
-        float u0 = typeOffset + (inside ? 3/4f : 0);
+        float u0 = typeOffset + (inside ? 1/4f : 0);
         float v0 = animationOffset + 0;
-        float u1 = typeOffset + (inside ? 1 : 1/4f);
+        float u1 = typeOffset + (inside ? 1/2f : 1/4f);
         float v1 = animationOffset + 1/8f;
 
         bb.vertex(matrixStack.last().pose(), negative ? x0 : x1, y0, z0).uv(u0, v1).endVertex();
