@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneDiodeBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.item.BoatEntity;
 import net.minecraft.entity.item.HangingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -25,6 +26,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.portalmod.common.items.WrenchItem;
+import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.PacketInit;
@@ -231,6 +233,11 @@ public class ChamberSignEntity extends HangingEntity {
         }
 
         return true;
+    }
+
+    @Override
+    public boolean canCollideWith(Entity entity) {
+        return !(entity instanceof Cube || entity instanceof BoatEntity) && super.canCollideWith(entity);
     }
 
     public boolean isValidWall(BlockPos pos) {
