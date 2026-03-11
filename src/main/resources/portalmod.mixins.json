@@ -32,12 +32,14 @@
         "level.chunk.ChunkMixin",
         "level.chunk.ChunkPrimerMixin",
         "level.chunk.ChunkSerializerMixin",
+        "network.PlayerInteractionManagerMixin",
         "network.ServerPlayNetHandlerMixin",
         "screen.ContainerMixin"
     ],
     "client": [
         "KeyboardListenerMixin",
         "MinecraftMixin",
+        "PlayerControllerMixin",
         "accessors.ActiveRenderInfoAccessor",
         "accessors.ChunkRenderDispatcherAccessor",
         "accessors.CompiledChunkAccessor",

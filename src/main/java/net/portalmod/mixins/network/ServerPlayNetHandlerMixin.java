@@ -1,8 +1,12 @@
 package net.portalmod.mixins.network;
 
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.ServerPlayNetHandler;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
+import net.portalmod.common.sorted.portal.PortalServerProofManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -10,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ServerPlayNetHandler.class)
 public class ServerPlayNetHandlerMixin {
+    private BlockPos pmCapturedBlockPos;
+
     @ModifyVariable(
             remap = false,
             method = "handleMovePlayer",
@@ -36,5 +42,34 @@ public class ServerPlayNetHandlerMixin {
     )
     private boolean pmAllowPortalTeleportation(ServerPlayerEntity player) {
         return true; // todo actual logic to check tp validity here
+    }
+
+    @Redirect(
+            remap = false,
+            method = "handleUseItemOn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/math/BlockRayTraceResult;getBlockPos()Lnet/minecraft/util/math/BlockPos;"
+            )
+    )
+    private BlockPos pmCaptureBlockPos(BlockRayTraceResult instance) {
+        this.pmCapturedBlockPos = instance.getBlockPos();
+        return this.pmCapturedBlockPos;
+    }
+
+    @Redirect(
+            remap = false,
+            method = "handleUseItemOn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/ai/attributes/ModifiableAttributeInstance;getValue()D"
+            )
+    )
+    private double pmAllowThroughPortalBreakReach(ModifiableAttributeInstance attribute) {
+        ServerPlayNetHandler thiss = (ServerPlayNetHandler)(Object)this;
+        if(PortalServerProofManager.getInstance().hasBelievableProof(thiss.player, this.pmCapturedBlockPos, false))
+            return Double.POSITIVE_INFINITY;
+
+        return attribute.getValue();
     }
 }

@@ -9,6 +9,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.common.entities.CTestElementHoldingPacket;
 import net.portalmod.common.sorted.antline.SAntlineUpdatePacket;
 import net.portalmod.common.sorted.faithplate.*;
+import net.portalmod.common.sorted.portal.CThroughPortalProofPacket;
 import net.portalmod.common.sorted.portal.SForgetPortalPacket;
 import net.portalmod.common.sorted.portal.SPortalPairPacket;
 import net.portalmod.common.sorted.portal.SPortalShotPacket;
@@ -61,6 +62,7 @@ public class PacketInit {
         register(new CFaithPlateEndConfigPacket(),      NetworkDirection.PLAY_TO_SERVER);
         register(new CTriggerEndConfigPacket(),         NetworkDirection.PLAY_TO_SERVER);
         register(new CTriggerAbortConfigPacket(),       NetworkDirection.PLAY_TO_SERVER);
+        register(new CThroughPortalProofPacket(),       NetworkDirection.PLAY_TO_SERVER);
 
         // TODO use this below too
         
