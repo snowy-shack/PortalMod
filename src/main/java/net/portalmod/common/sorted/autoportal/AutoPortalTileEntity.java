@@ -1,6 +1,5 @@
 package net.portalmod.common.sorted.autoportal;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
@@ -22,6 +21,8 @@ import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalPlacer;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ChangeDetector;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 
@@ -33,6 +34,8 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
 
     public UUID lastOpenedUUID;
     public PortalEnd lastOpenedEnd;
+
+    private final ChangeDetector powerChangeDetector = new ChangeDetector();
 
     public AutoPortalTileEntity(TileEntityType<?> type) {
         super(type);
@@ -53,6 +56,10 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     public void swapEnd() {
         this.end = this.end.other();
         this.sendUpdate();
+    }
+
+    public void setPowered(boolean value) {
+        powerChangeDetector.set(value);
     }
 
     public void closePortal() {
@@ -88,40 +95,50 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         boolean isPowered = blockState.getValue(AutoPortalBlock.POWERED);
 
         // Powered by indicators
-        if (indicatorInfo.hasIndicators) {
-            if (isPowered != indicatorInfo.allIndicatorsActivated) {
-                ((AutoPortalBlock)blockState.getBlock()).setPowered(indicatorInfo.allIndicatorsActivated, blockState, this.level, this.getBlockPos());
+        if(indicatorInfo.hasIndicators) {
+            if(isPowered != indicatorInfo.allIndicatorsActivated) {
+                ((AutoPortalBlock)blockState.getBlock()).setAntlinePowered(indicatorInfo.allIndicatorsActivated, blockState, this.level, this.getBlockPos());
 
                 if(indicatorInfo.allIndicatorsActivated) {
-                    Direction facing = this.getBlockState().getValue(AutoPortalBlock.FACING);
-                    Direction direction = this.getBlockState().getValue(AutoPortalBlock.DIRECTION);
-                    Tuple<Direction, Direction> directions = ((AutoPortalBlock)blockState.getBlock()).placementDirectionsFromFacingAndDirection(facing, direction);
-                    Direction left = directions.getA();
-                    Direction up = directions.getB();
-
-                    if(facing.getAxisDirection() == Direction.AxisDirection.POSITIVE)
-                        left = left.getOpposite();
-
-                    Vec3 position = new Vec3(this.getBlockPos()).add(.5)
-                            .add(new Vec3(left.getOpposite()).mul(.5))
-                            .add(new Vec3(up).mul(.5))
-                            .add(new Vec3(facing.getOpposite()).mul(.5));
-
-                    if(this.gunUUID != null && this.end != null && this.primaryColor != null && this.secondaryColor != null) {
-                        Optional<Integer> colorIndex = this.getCurrentColorIndex();
-                        if(colorIndex.isPresent()) {
-                            String color = PortalColors.values()[colorIndex.get()].name();
-                            PortalEntity portal = PortalPlacer.placePortal(this.level, this.end, color, this.gunUUID,
-                                    position, facing, up, true, null);
-
-                            if(portal != null) {
-                                this.lastOpenedUUID = portal.getUUID();
-                            }
-
-                            this.sendUpdate();
-                        }
-                    }
+                    openPortal(blockState);
+                    return;
                 }
+            }
+        }
+
+        if(powerChangeDetector.isRising()) openPortal(blockState);
+//        if(powerChangeDetector.isFalling()) closePortal();
+
+        powerChangeDetector.shift();
+    }
+
+    private void openPortal(BlockState blockState) {
+        Direction facing = this.getBlockState().getValue(AutoPortalBlock.FACING);
+        Direction direction = this.getBlockState().getValue(AutoPortalBlock.DIRECTION);
+        Tuple<Direction, Direction> directions = ((AutoPortalBlock) blockState.getBlock()).placementDirectionsFromFacingAndDirection(facing, direction);
+        Direction left = directions.getA();
+        Direction up = directions.getB();
+
+        if(facing.getAxisDirection() == Direction.AxisDirection.POSITIVE)
+            left = left.getOpposite();
+
+        Vec3 position = new Vec3(this.getBlockPos()).add(.5)
+                .add(new Vec3(left.getOpposite()).mul(.5))
+                .add(new Vec3(up).mul(.5))
+                .add(new Vec3(facing.getOpposite()).mul(.5));
+
+        if(this.gunUUID != null && this.end != null && this.primaryColor != null && this.secondaryColor != null) {
+            Optional<Integer> colorIndex = this.getCurrentColorIndex();
+            if(colorIndex.isPresent()) {
+                String color = PortalColors.values()[colorIndex.get()].name();
+                PortalEntity portal = PortalPlacer.placePortal(this.level, this.end, color, this.gunUUID,
+                        position, facing, up, true, null);
+
+                if(portal != null) {
+                    this.lastOpenedUUID = portal.getUUID();
+                }
+
+                this.sendUpdate();
             }
         }
     }

@@ -105,7 +105,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
         }
     }
 
-    public void setPowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
+    public void setAntlinePowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(POWERED, powered, blockState, world, pos);
         this.updateAllNeighbors(world, pos, blockState);
     }
@@ -197,6 +197,19 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         if(level.isClientSide)
             return;
+
+        Direction facing = state.getValue(FACING);
+
+        // Reset when powered from behind
+        boolean isPowered = getAllPositions(state, pos).stream()
+                .filter(blockPos -> level.getBlockState(blockPos).getBlock() instanceof AutoPortalBlock)
+                .anyMatch(checkingPos -> level.hasSignal(checkingPos.relative(facing.getOpposite()), facing));
+
+        TileEntity te = level.getBlockEntity(getOtherBlock(pos, state.getValue(CORNER), QuadBlockCorner.DOWN_LEFT, facing, state.getValue(DIRECTION)));
+
+        if(te instanceof AutoPortalTileEntity) {
+            ((AutoPortalTileEntity) te).setPowered(isPowered);
+        }
 
         if(!state.canSurvive(level, pos)) {
             level.destroyBlock(pos, true, null, 0);
