@@ -145,8 +145,8 @@ public class AntlineBakedModel implements IDynamicBakedModel {
     private void addQuad(List<BakedQuad> quads, Direction side, Direction offset, ResourceLocation texture) {
 //        double w = 4;
 //        double h = 4;
-        double d = .001;
-        double u = .999;
+        double d = .0001;
+        double u = .9999;
 //        double ux = (1f - w / 16f) / 2f + offsetX / 16f;
 //        double dx = 1f - ((1f - w / 16f) / 2f) + offsetX / 16f;
 //        double uy = (1f - h / 16f) / 2f + offsetY / 16f;
