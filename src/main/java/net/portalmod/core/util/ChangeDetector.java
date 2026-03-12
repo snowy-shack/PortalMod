@@ -6,12 +6,17 @@ public class ChangeDetector {
     
     public ChangeDetector() {}
     
-    private void shift() {
+    public void shift() {
         this.previous = this.current;
     }
     
     public ChangeDetector trigger(boolean value) {
         this.shift();
+        this.current = value;
+        return this;
+    }
+
+    public ChangeDetector set(boolean value) {
         this.current = value;
         return this;
     }
@@ -22,5 +27,13 @@ public class ChangeDetector {
     
     public boolean get() {
         return this.previous != this.current;
+    }
+
+    public boolean isRising() {
+        return !this.previous && this.current;
+    }
+
+    public boolean isFalling() {
+        return this.previous && !this.current;
     }
 }
