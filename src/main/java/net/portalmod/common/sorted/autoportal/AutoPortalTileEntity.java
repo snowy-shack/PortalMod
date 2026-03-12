@@ -131,10 +131,8 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
             return;
 
         PortalEntity portal = (PortalEntity)((ServerWorld)this.level).getEntity(this.lastOpenedUUID);
-        if(portal == null)
-            return;
 
-        if(!portal.isAlive()) {
+        if(portal == null || !portal.isAlive()) {
             this.lastOpenedUUID = null;
             this.sendUpdate();
         }
