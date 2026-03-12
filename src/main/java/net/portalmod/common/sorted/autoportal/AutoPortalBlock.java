@@ -22,7 +22,6 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.OmnidirectionalQuadBlock;
 import net.portalmod.common.items.WrenchItem;
@@ -39,7 +38,9 @@ import net.portalmod.core.math.VoxelShapeGroup;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -115,6 +116,9 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
 
     @Override
     public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
+        if(!WrenchItem.usedWrench(player, hand))
+            return ActionResultType.PASS;
+
         if(level.isClientSide)
             return ActionResultType.CONSUME;
 
@@ -130,9 +134,6 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
             return ActionResultType.PASS;
 
         AutoPortalTileEntity autoPortal = (AutoPortalTileEntity)te;
-
-        if(!WrenchItem.usedWrench(player, hand))
-            return ActionResultType.PASS;
 
         if(player.getOffhandItem().getItem() instanceof PortalGun) {
             ItemStack itemStack = player.getOffhandItem();
@@ -179,17 +180,6 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
         }
 
         return ActionResultType.PASS;
-    }
-
-    @Override
-    public boolean canSurvive(BlockState state, IWorldReader level, BlockPos pos) {
-        QuadBlockCorner corner = state.getValue(CORNER);
-        Direction facing = state.getValue(FACING);
-        Direction direction = state.getValue(DIRECTION);
-
-        return this.getAllBlocks(pos, corner, facing, direction).stream()
-                .allMatch(otherPos -> level.getBlockState(otherPos.relative(facing.getOpposite()))
-                        .isFaceSturdy(level, otherPos, facing));
     }
 
     @Override
