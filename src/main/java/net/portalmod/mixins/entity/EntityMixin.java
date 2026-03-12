@@ -293,6 +293,14 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         PortalRenderer.getInstance().outlineRenderingPortalChain = null;
 
         if(!portalChain.isEmpty() && !holdingSpecialItem) {
+            BlockRayTraceResult normalRay = level.clip(context);
+            Vector3d positionBeforePortal = normalRay.getLocation();
+            Optional<Vector3d> optionalPositionOnPortal = portalChain.get(0).getBoundingBox().clip(context.getFrom(), context.getTo());
+
+            if(optionalPositionOnPortal.isPresent() && positionBeforePortal.length() < optionalPositionOnPortal.get().length()) {
+                return normalRay;
+            }
+
             PortalRenderer.getInstance().outlineRenderingPortalChain = portalChain;
             Mat4 portalMatrix = Mat4.identity();
 
