@@ -1,6 +1,5 @@
 {
   "values": [
-    "minecraft:arrow",
     "minecraft:bat",
     "minecraft:bee",
     "minecraft:cat",
@@ -8,21 +7,9 @@
     "minecraft:cod",
     "minecraft:endermite",
     "minecraft:ghast",
-    "minecraft:item",
-    "minecraft:item_frame",
-    "minecraft:leash_knot",
-    "minecraft:lightning_bolt",
-    "minecraft:llama_spit",
-    "minecraft:painting",
     "minecraft:parrot",
-    "minecraft:potion",
-    "minecraft:shulker_bullet",
-    "minecraft:small_fireball",
-    "minecraft:snowball",
-    "minecraft:spectral_arrow",
-    "minecraft:tnt",
     "minecraft:vex",
-    "minecraft:wither_skull",
+
     "portalmod:turret"
   ]
 }

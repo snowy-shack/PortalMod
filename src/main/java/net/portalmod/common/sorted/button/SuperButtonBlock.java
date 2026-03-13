@@ -4,17 +4,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.EnumProperty;
 import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.util.*;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -226,19 +224,13 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
     
     private boolean isBeingPressed(World level, BlockPos pos) {
-        AxisAlignedBB trigger = getTrigger(level.getBlockState(pos), pos);
+        AxisAlignedBB trigger = this.getTrigger(level.getBlockState(pos), pos);
 
-        List<? extends Entity> entities;
-        entities = level.getEntities(null, trigger);
+        List<? extends Entity> entities = level.getEntitiesOfClass(LivingEntity.class, trigger,
+                EntityPredicates.NO_SPECTATORS.and(entity -> !entity.getType().is(EntityTagInit.BUTTON_NO_PRESS)));
 
-        entities.removeIf(entity -> entity.getType().is(EntityTagInit.BUTTON_NO_PRESS));
         return !entities.isEmpty();
     }
-
-//    private boolean isMultiblockComplete(World level, BlockPos pos, BlockState state) {
-//        return checkEachBlock(level, pos, state.getValue(CORNER), state.getValue(FACING),
-//                s -> s.getBlock() != BlockInit.SUPER_BUTTON.get());
-//    }
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
