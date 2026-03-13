@@ -188,7 +188,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
         boolean wasActive = state.getValue(ACTIVE);
         ButtonMode mode = state.getValue(MODE);
 
-        boolean pressed = blocks.stream().anyMatch(pos1 -> isBeingPressed(state, level, pos1));
+        boolean pressed = blocks.stream().anyMatch(cornerPos -> this.isBeingPressed(level, cornerPos));
 
         if (pressed) level.getBlockTicks().scheduleTick(pos, this, 10);
         
@@ -225,9 +225,9 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
         return this.getShapeGroup(state).getPart("trigger").bounds().move(pos);
     }
     
-    private boolean isBeingPressed(BlockState state, World level, BlockPos pos) {
-        AxisAlignedBB trigger = getTrigger(state, pos);
-        
+    private boolean isBeingPressed(World level, BlockPos pos) {
+        AxisAlignedBB trigger = getTrigger(level.getBlockState(pos), pos);
+
         List<? extends Entity> entities;
         entities = level.getEntities(null, trigger);
 
