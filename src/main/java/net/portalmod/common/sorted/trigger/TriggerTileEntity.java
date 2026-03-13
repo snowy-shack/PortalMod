@@ -10,6 +10,8 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -148,6 +150,20 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
             this.fieldStart = new BlockPos(start.getInt("x"), start.getInt("y"), start.getInt("z"));
             this.fieldEnd = new BlockPos(end.getInt("x"), end.getInt("y"), end.getInt("z"));
         }
+    }
+
+    @Override
+    public void rotate(Rotation rotation) {
+        this.fieldStart = this.fieldStart.rotate(rotation);
+        this.fieldEnd = this.fieldEnd.rotate(rotation);
+    }
+
+    @Override
+    public void mirror(Mirror mirror) {
+        int flipX = mirror == Mirror.FRONT_BACK ? -1 : 1;
+        int flipZ = mirror == Mirror.LEFT_RIGHT ? -1 : 1;
+        this.fieldStart = new BlockPos(this.fieldStart.getX() * flipX, this.fieldStart.getY(), this.fieldStart.getZ() * flipZ);
+        this.fieldEnd = new BlockPos(this.fieldEnd.getX() * flipX, this.fieldEnd.getY(), this.fieldEnd.getZ() * flipZ);
     }
 
     // chunk update
