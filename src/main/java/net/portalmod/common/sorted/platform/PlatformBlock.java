@@ -46,7 +46,6 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
     public static final EnumProperty<Half> ORIGINAL_HALF = EnumProperty.create("original_half", Half.class);
     public static final BooleanProperty BEAM = BooleanProperty.create("beam");
-    public static final BooleanProperty FORCED_BEAM = BooleanProperty.create("forced_beam");
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public PlatformBlock(Properties properties) {
@@ -56,42 +55,39 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
                 .setValue(HALF, Half.BOTTOM)
                 .setValue(ORIGINAL_HALF, Half.BOTTOM)
                 .setValue(BEAM, false)
-                .setValue(FORCED_BEAM, false)
                 .setValue(WATERLOGGED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, BEAM, ORIGINAL_HALF, FORCED_BEAM, WATERLOGGED);
+        builder.add(FACING, HALF, BEAM, ORIGINAL_HALF, WATERLOGGED);
     }
 
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        boolean wrench = WrenchItem.usedWrench(player, hand);
-        if (isBeamItem(player.getItemInHand(hand).getItem()) || wrench) {
-
-            if (hasBeamBelow(state, world, pos)) {
-                return ActionResultType.FAIL;
-            }
-
-            BlockState cycled = state.cycle(FORCED_BEAM);
-
-            boolean shouldHaveBeam = shouldHaveBeam(cycled, world, pos);
-            world.setBlockAndUpdate(pos, cycled.setValue(BEAM, shouldHaveBeam));
-
-            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.platform." + (shouldHaveBeam ? "beam" : "normal")), true);
-
-            if (wrench) {
-                WrenchItem.playUseSound(world, Vector3d.atCenterOf(pos));
-            } else {
-                player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f);
-            }
-
-            return ActionResultType.SUCCESS;
+        boolean usedWrench = WrenchItem.usedWrench(player, hand);
+        if (!usedWrench && !isBeamItem(player.getItemInHand(hand).getItem())) {
+            return ActionResultType.PASS;
         }
 
-        return super.use(state, world, pos, player, hand, blockRayTraceResult);
+        if (hasBeamBelow(state, world, pos)) {
+            return ActionResultType.FAIL;
+        }
+
+        BlockState cycled = state.cycle(BEAM);
+        world.setBlockAndUpdate(pos, cycled);
+
+        player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.platform." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
+
+        if (usedWrench) {
+            WrenchItem.playUseSound(world, Vector3d.atCenterOf(pos));
+        } else {
+            player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f);
+        }
+
+        return ActionResultType.SUCCESS;
+
     }
 
     @Override
@@ -151,20 +147,20 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
-    public BlockState updateShape(BlockState blockState, Direction direction, BlockState state, IWorld world, BlockPos pos, BlockPos pos2) {
-        if (blockState.getValue(WATERLOGGED)) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
             world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
-        BlockState newState = blockState.setValue(BEAM, shouldHaveBeam(blockState, world, pos));
+        if (direction == state.getValue(FACING).getOpposite() && hasBeamBelow(state, world, pos)) {
+            return state.setValue(BEAM, true);
+        }
 
-        return newState;
+        return state;
     }
 
     @Override
     public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
-        super.neighborChanged(state, level, pos, block, neighborPos, b);
-
         boolean power = level.hasNeighborSignal(pos);
 
         Half oldHalf = state.getValue(HALF);
@@ -178,10 +174,6 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     @Override
     public FluidState getFluidState(BlockState blockState) {
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
-    }
-
-    public static boolean shouldHaveBeam(BlockState blockState, IWorld world, BlockPos pos) {
-        return blockState.getValue(FORCED_BEAM) || hasBeamBelow(blockState, world, pos);
     }
 
     public static boolean hasBeamBelow(BlockState blockState, IWorld world, BlockPos pos) {
