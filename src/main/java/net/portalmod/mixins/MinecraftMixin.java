@@ -1,14 +1,14 @@
 package net.portalmod.mixins;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.Minecraft;
-import net.portalmod.core.init.ItemInit;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -20,5 +20,22 @@ public class MinecraftMixin {
             this.missTime = 0;
             info.cancel();
         }
+    }
+
+    @Redirect(
+            remap = false,
+            method = "handleKeybinds",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V",
+                    ordinal = 1
+            )
+    )
+    private void pmCancelInventoryOpen(Minecraft minecraft, Screen screen) {
+        if (minecraft.player != null && minecraft.player.getMainHandItem().getItem() instanceof PortalGun) {
+            return;
+        }
+
+        minecraft.setScreen(screen);
     }
 }
