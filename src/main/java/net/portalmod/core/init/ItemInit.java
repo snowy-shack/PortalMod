@@ -50,6 +50,8 @@ public class ItemInit {
     public static final RegistryObject<Item> COMPANION_CUBE = registerSpawnEgg("companion_cube", EntityInit.COMPANION_CUBE, "cube");
     public static final RegistryObject<Item> STORAGE_CUBE = registerSpawnEgg("storage_cube", EntityInit.STORAGE_CUBE, "cube");
     public static final RegistryObject<Item> VINTAGE_CUBE = registerSpawnEgg("vintage_cube", EntityInit.VINTAGE_CUBE, "cube");
+    public static final RegistryObject<Item> GABE = ITEMS.register("gabe", () -> new ModSpawnEggItem(EntityInit.GABE,new Item.Properties().stacksTo(1), "cube"));
+
     public static final RegistryObject<Item> CUBE_DROPPER = registerBlockItem("cube_dropper", BlockInit.CUBE_DROPPER);
 
     // Test Elements
