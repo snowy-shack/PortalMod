@@ -305,7 +305,7 @@ public class AntlineBlock extends Block {
 
         // Break if no supporting block
         if (!sideMap.get(neighborDir).isEmpty()) {
-            if (!neighborState.isFaceSturdy(level, pos, neighborDir)) {
+            if (!neighborState.isFaceSturdy(level, pos, neighborDir.getOpposite())) {
                 breakDot(blockState, level, pos, null, neighborDir);
                 return;
             }
