@@ -12,7 +12,9 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.autoportal.AutoPortalBlock;
 import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.common.sorted.portal.PortalEnd;
+import net.portalmod.common.sorted.portal.VolatilePortalHelper;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.math.Vec3;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.UUID;
@@ -33,6 +35,7 @@ public class PortalGunClient {
     private PortalEnd lastHelpedEnd;
     private BlockPos lastHelpedPos;
     private Direction lastHelpedFace;
+    private VolatilePortalHelper lastHelpedHelper;
 
     private PortalGunClient() {}
 
@@ -112,11 +115,34 @@ public class PortalGunClient {
         return block instanceof PortalHelper && ((PortalHelper)block).willHelpPortal(face, horizontalDirection, state, level);
     }
 
+    public boolean willBeHelped(UUID gun, PortalEnd end, Vec3 position, Direction face, VolatilePortalHelper helper) {
+        if(this.nextHelp > 0) {
+            if(this.lastHelpedGun != null && this.lastHelpedEnd != null && this.lastHelpedHelper != null) {
+                boolean sameGun = gun.equals(this.lastHelpedGun);
+                boolean sameEnd = end.equals(this.lastHelpedEnd);
+                boolean sameHelper = this.lastHelpedHelper.equals(helper);
+
+                if(sameGun && sameEnd && sameHelper) {
+                    return false;
+                }
+            }
+        }
+
+        return helper.willHelpPortal(position, face);
+    }
+
     public void setHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face) {
         this.lastHelpedGun = gun;
         this.lastHelpedEnd = end;
         this.lastHelpedPos = pos;
         this.lastHelpedFace = face;
+        this.nextHelp = HELPER_DELAY;
+    }
+
+    public void setHelped(UUID gun, PortalEnd end, VolatilePortalHelper helper) {
+        this.lastHelpedGun = gun;
+        this.lastHelpedEnd = end;
+        this.lastHelpedHelper = helper;
         this.nextHelp = HELPER_DELAY;
     }
 

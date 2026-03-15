@@ -24,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
+import net.portalmod.common.sorted.portal.VolatilePortalHelperManager;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
@@ -64,6 +65,15 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     
     @Override
     public void tick() {
+        if(this.level == null)
+            return;
+
+        // Add target portal helper
+        if(!this.level.isClientSide && targetPos != null) {
+            Vec3 helperPosition = new Vec3(targetPos).add(this.worldPosition).add(.5).add(new Vec3(this.targetFace).mul(.5));
+            VolatilePortalHelperManager.getInstance().addVolatilePortalHelper(this.level, helperPosition, this.targetFace, 1);
+        }
+
         // Check for indicators
         IndicatorInfo indicatorInfo = this.checkIndicators(this.getBlockState(), this.getLevel(), this.getBlockPos());
 
@@ -78,9 +88,6 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         if (cooldown > 0) cooldown--;
         if (targetPos == null || targetFace == null || !override) return;
         if (cooldown > 0) return;
-
-        if(this.level == null)
-            return;
 
         for(Entity entity : level.getEntitiesOfClass(LivingEntity.class, this.getTrigger())) {
             if(entity.isPassenger())

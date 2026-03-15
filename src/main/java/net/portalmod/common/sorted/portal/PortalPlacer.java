@@ -45,7 +45,13 @@ public class PortalPlacer {
                 || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face, level)))
             return null;
 
-        if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, upDirection, level) && lookingDirections != null) {
+        Optional<VolatilePortalHelper> optionalHelper = VolatilePortalHelperManager.getInstance().findHelperThatWillHelp(gunUUID, end, level, position, face);
+        if(optionalHelper.isPresent()) {
+            VolatilePortalHelper helper = optionalHelper.get();
+            PortalGunClient.getInstance().setHelped(gunUUID, end, helper);
+            position = helper.helpPortal(position, face);
+
+        } else if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, upDirection, level) && lookingDirections != null) {
             PortalGunClient.getInstance().setHelped(gunUUID, end, shotBlockPos, face);
             Pair<Vec3, Direction> helpment = ((PortalHelper)shotBlock).helpPortal(position, face, upDirection, lookingDirections, shotBlockState, level);
             position = helpment.getFirst();

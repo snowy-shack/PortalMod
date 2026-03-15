@@ -20,10 +20,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.common.commands.PortalCommand;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
-import net.portalmod.common.sorted.portal.ClientPortalManager;
-import net.portalmod.common.sorted.portal.PartialPortalPair;
-import net.portalmod.common.sorted.portal.PortalManager;
-import net.portalmod.common.sorted.portal.SPortalPairPacket;
+import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 import net.portalmod.common.sorted.trigger.TriggerSelectionServer;
 import net.portalmod.core.init.GameRuleInit;
@@ -63,6 +60,7 @@ public class CommonEvents {
         if(event.phase == TickEvent.Phase.START) {
             SkinManager.getServerInstance().tick();
             PortalManager.getInstance().tick();
+            VolatilePortalHelperManager.getInstance().clearVolatilePortalHelpers();
         }
     }
 

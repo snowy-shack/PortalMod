@@ -74,7 +74,7 @@ public class Vec3 {
         }
     }
 
-    // choose
+    // axes
 
     public double choose(Direction.Axis axis) {
         switch(axis) {
@@ -82,6 +82,14 @@ public class Vec3 {
             case Y: return this.y;
             case Z: return this.z;
             default: return 0;
+        }
+    }
+
+    public void set(Direction.Axis axis, double value) {
+        switch(axis) {
+            case X: this.x = value; break;
+            case Y: this.y = value; break;
+            case Z: this.z = value; break;
         }
     }
 
