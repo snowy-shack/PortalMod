@@ -21,6 +21,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
@@ -124,25 +125,33 @@ public class FaithPlateConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-        FaithPlateTileEntity be = (FaithPlateTileEntity)Minecraft.getInstance().level.getBlockEntity(selected);
-        Vector3d pos = be.getTargetPos();
-        Direction face = be.getTargetFace();
-        CompoundNBT nbt = new CompoundNBT();
-        
-        if(pos != null && face != null) {
-            CompoundNBT target = new CompoundNBT();
-            target.putDouble("x", pos.x());
-            target.putDouble("y", pos.y());
-            target.putDouble("z", pos.z());
-            target.putByte("side", (byte)face.get3DDataValue());
-            target.putFloat("height", (float)parabola.getHeight());
-            nbt.put("target", target);
+        World level = Minecraft.getInstance().level;
+        if(level == null)
+            return;
+
+        FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(selected);
+
+        if(be != null) {
+            Vector3d pos = be.getTargetPos();
+            Direction face = be.getTargetFace();
+            CompoundNBT nbt = new CompoundNBT();
+
+            if(pos != null && face != null) {
+                CompoundNBT target = new CompoundNBT();
+                target.putDouble("x", pos.x());
+                target.putDouble("y", pos.y());
+                target.putDouble("z", pos.z());
+                target.putByte("side", (byte) face.get3DDataValue());
+                target.putFloat("height", (float) parabola.getHeight());
+                nbt.put("target", target);
+            }
+
+            nbt.putBoolean("enabled", enable.selected());
+            PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(be.getBlockPos(), nbt));
+            if(FaithPlateTER.selected == null)
+                PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(be.getBlockPos()));
         }
 
-        nbt.putBoolean("enabled", enable.selected());
-        PacketInit.INSTANCE.sendToServer(new CFaithPlateUpdatedPacket(be.getBlockPos(), nbt));
-        if(FaithPlateTER.selected == null)
-            PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(be.getBlockPos()));
         Minecraft.getInstance().setScreen(null);
         this.setCursor(0);
     }
