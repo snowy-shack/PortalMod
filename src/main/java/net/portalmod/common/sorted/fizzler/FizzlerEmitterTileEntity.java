@@ -9,6 +9,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.World;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
@@ -141,18 +142,22 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
-        Direction facing = blockState.getValue(FizzlerEmitterBlock.FACING);
+    public List<BlockPos> getIndicatorPositions(BlockState state, World world, BlockPos pos) {
+        Direction up = ((FizzlerEmitterBlock) state.getBlock()).getUpperDirection(state);
+        Direction backwards = state.getValue(FizzlerEmitterBlock.FACING).getOpposite();
+
+        Vector3i perpendicular = up.getNormal().cross(backwards.getNormal());
+        Direction side = Direction.fromNormal(perpendicular.getX(), perpendicular.getY(), perpendicular.getZ());
 
         return new ArrayList<>(Arrays.asList(
-//                pos.relative(facing.getClockWise()),
-//                pos.relative(facing.getClockWise()).relative(facing.getOpposite()),
-//                pos.relative(facing.getCounterClockWise()),
-//                pos.relative(facing.getCounterClockWise()).relative(facing.getOpposite()),
-//                pos.above().relative(facing.getClockWise()),
-//                pos.above().relative(facing.getClockWise()).relative(facing.getOpposite()),
-//                pos.above().relative(facing.getCounterClockWise()),
-//                pos.above().relative(facing.getCounterClockWise()).relative(facing.getOpposite())
+                pos.relative(side),
+                pos.relative(side).relative(up),
+                pos.relative(side.getOpposite()),
+                pos.relative(side.getOpposite()).relative(up),
+                pos.relative(backwards).relative(side),
+                pos.relative(backwards).relative(side).relative(up),
+                pos.relative(backwards).relative(side.getOpposite()),
+                pos.relative(backwards).relative(side.getOpposite()).relative(up)
         ));
     }
 }
