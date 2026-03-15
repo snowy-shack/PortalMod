@@ -84,7 +84,7 @@ public class FaithPlateParabola {
     public double getVelocity() {
         if(isVertical())
             return Math.sqrt(2 * GRAVITY * height);
-        return Math.sqrt(-(GRAVITY / (2d * getA()))) / Math.cos(getAngle());
+        return Math.sqrt(-(GRAVITY / (2d * getA()))) / Math.cos(getAngle()) * 0.996; // Magic scalar to combat overshooting
     }
     
     public double getRotation() {
