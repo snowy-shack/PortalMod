@@ -255,7 +255,6 @@ public abstract class TestElementEntity extends LivingEntity {
         } else {
             Vec3 eyePos = new Vec3(player.getEyePosition(1).add(0, -0.4, 0));
             Vec3 eyeOldPos = new Vec3(player.getEyePosition(0).add(0, -0.4, 0));
-            Vec3 originalEyeOldPos = eyePos.clone();
             Vec3 originalEyePos = eyePos.clone();
 
             // account for eye height
@@ -264,6 +263,7 @@ public abstract class TestElementEntity extends LivingEntity {
                 eyeOldPos.add(0, eyeHeightOld, 0);
             }
             eyeHeightOld = player.getEyeHeight();
+            Vec3 originalEyeOldPos = eyeOldPos.clone();
 
             Vec3 ridingVersor = new Vec3(0, 0, 1)
                     .transform(new Mat4(Vector3f.XP.rotationDegrees(player.getViewXRot(1))))
