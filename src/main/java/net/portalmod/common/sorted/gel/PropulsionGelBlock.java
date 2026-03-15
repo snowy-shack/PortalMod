@@ -89,10 +89,10 @@ public class PropulsionGelBlock extends AbstractGelBlock {
             }
         }
 
-        if (gelAffected.getPropulsionTicks() >= 0) {
-            removeGelSpeedBoost(entity);
-            applyGelSpeedBoost(entity, gelAffected.getPropulsionTicks());
+        removeGelSpeedBoost(entity);
+        applyGelSpeedBoost(entity, gelAffected.getPropulsionTicks());
 
+        if (gelAffected.getPropulsionTicks() > 0) {
             if (gelAffected.getBounced()) {
                 applyBounceSpeedBoost(entity);
             } else {
