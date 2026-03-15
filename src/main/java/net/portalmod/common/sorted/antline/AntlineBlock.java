@@ -336,6 +336,9 @@ public class AntlineBlock extends Block {
     }
 
     public void breakDot(BlockState state, World level, BlockPos pos, PlayerEntity player, Direction direction) {
+        if(level.isClientSide)
+            return;
+
         AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
 
         // Break like normal
