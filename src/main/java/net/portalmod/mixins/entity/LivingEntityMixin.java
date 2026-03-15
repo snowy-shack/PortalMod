@@ -402,6 +402,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     private boolean bounced = false;
     private boolean horizontalBounced = false;
     private boolean wasOnGround = true;
+    private boolean leftGround = false;
     private Vector3d lastDeltaMovement = Vector3d.ZERO;
     private int propulsionTicks = 0;
 
@@ -411,17 +412,19 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     @Override
+    public void setPropulsionTicks(int ticks) {
+        this.propulsionTicks = ticks;
+    }
+
+    @Override
     public void incrementPropulsionTicks() {
-        if (this.propulsionTicks < MAX_PROPULSION_TICKS) {
-            this.propulsionTicks++;
-        }
+        this.propulsionTicks = Math.min(MAX_PROPULSION_TICKS, this.propulsionTicks + 1);
     }
 
     @Override
     public void decrementPropulsionTicks() {
-        if (this.propulsionTicks > 0) {
-            this.propulsionTicks--;
-        }
+        // Decrement at double speed
+        this.propulsionTicks = Math.max(0, this.propulsionTicks - 2);
     }
 
     @Override
@@ -474,9 +477,14 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         return lastDeltaMovement;
     }
 
+    @Override
+    public boolean getLeftGround() {
+        return leftGround;
+    }
 
-    boolean isGelBlock(BlockState state) {
-        return state.getBlock() == BlockInit.REPULSION_GEL.get() || state.getBlock() == BlockInit.PROPULSION_GEL.get(); // TODO remove
+    @Override
+    public void setLeftGround(boolean leftGround) {
+        this.leftGround = leftGround;
     }
 
     @Override

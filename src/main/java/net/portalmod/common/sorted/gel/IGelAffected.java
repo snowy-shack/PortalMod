@@ -19,7 +19,12 @@ public interface IGelAffected {
     void setWasOnGround(boolean wasOnGround);
     boolean getWasOnGround();
 
+    // Only for propulsion gel for now
+    void setLeftGround(boolean leftGround);
+    boolean getLeftGround();
+
     int getPropulsionTicks();
+    void setPropulsionTicks(int ticks);
     void incrementPropulsionTicks();
     void decrementPropulsionTicks();
 
