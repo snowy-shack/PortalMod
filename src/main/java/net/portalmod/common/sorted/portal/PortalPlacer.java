@@ -221,6 +221,8 @@ public class PortalPlacer {
                 if(frontBlock.getValue(AbstractGelBlock.STATES.get(face.getOpposite()))) {
                     blockShape = AbstractGelBlock.SHAPES.get(face.getOpposite()).getShape()
                             .move(block.getX(), block.getY(), block.getZ());
+                } else {
+                    blockShape = VoxelShapes.empty();
                 }
             }
 
