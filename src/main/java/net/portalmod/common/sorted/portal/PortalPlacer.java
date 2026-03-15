@@ -54,7 +54,7 @@ public class PortalPlacer {
 
         AxisAlignedBB portalAABB = new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f);
         portalAABB = AABBUtil.transform(portalAABB, toAbsolute).move(position.to3d());
-        VoxelShape collision = getCollision(level, face, position, toAbsolute);
+        VoxelShape collision = getCollision(level, face, position, toAbsolute, true);
 
         Vec3 finalPosition = position;
         List<PortalEntity> portalsInTheWay = PortalEntity.getPortals(level, portalAABB.inflate(2),
@@ -173,12 +173,15 @@ public class PortalPlacer {
         return portal;
     }
 
-    public static VoxelShape getCollision(World level, Direction face, Vec3 position, Mat4 toAbsolute) {
-        AxisAlignedBB portalWideAABB =
-                new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f)
-                        .expandTowards(-2, -2, 0)
-                        .expandTowards(2, 2, 0)
+    public static VoxelShape getCollision(World level, Direction face, Vec3 position, Mat4 toAbsolute, boolean large) {
+        AxisAlignedBB portalWideAABB = new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f)
                         .deflate(0.002);
+
+        if(large) {
+            portalWideAABB = portalWideAABB
+                    .expandTowards(-2, -2, 0)
+                    .expandTowards(2, 2, 0);
+        }
 
         AxisAlignedBB behind = portalWideAABB.move(0, 0, -1/16f);
         behind = AABBUtil.transform(behind, toAbsolute).move(position.to3d());

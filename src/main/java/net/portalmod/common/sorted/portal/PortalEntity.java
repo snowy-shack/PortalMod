@@ -711,7 +711,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             return true;
 
         Mat4 toAbsolute = this.getSourceBasis().getChangeOfBasisFromCanonicalMatrix();
-        VoxelShape collision = PortalPlacer.getCollision(this.level, this.direction, new Vec3(this.position()), toAbsolute);
+        VoxelShape collision = PortalPlacer.getCollision(this.level, this.direction, new Vec3(this.position()), toAbsolute, false);
         return !PortalPlacer.portalCollides(this.direction, this.getBoundingBox().deflate(0.001), collision);
     }
 
