@@ -12,7 +12,6 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.World;
-import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 
 import java.util.UUID;
@@ -41,7 +40,7 @@ public class PropulsionGelBlock extends AbstractGelBlock {
         super.entityInside(state, level, pos, entity);
     }
 
-    public static boolean shouldGetGelBoost(BlockPos pos, BlockState state, Entity entity) {
+    public static boolean isOnGel(BlockPos pos, BlockState state, Entity entity) {
         VoxelShape shapeEntity = state.getShape(entity.level, pos, ISelectionContext.of(entity));
         VoxelShape alignedShapeEntity = shapeEntity.move(pos.getX(), pos.getY(), pos.getZ());
 
@@ -49,49 +48,68 @@ public class PropulsionGelBlock extends AbstractGelBlock {
                 VoxelShapes.create(entity.getBoundingBox().inflate(.001f)), IBooleanFunction.AND);
     }
 
-    public static void applyGelSpeedBoost(LivingEntity entity, boolean bounced) {
+    public static void applyPropulsionSpeedBoost(LivingEntity entity, int propulsionTicks) {
         ModifiableAttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speedAttribute == null) return;
 
-        if (speedAttribute.getModifier(SPEED_MODIFIER_GEL) == null) speedAttribute.addTransientModifier(gelSpeedBoost);
-        if (speedAttribute.getModifier(SPEED_MODIFIER_GEL_BOUNCE) == null && bounced) speedAttribute.addTransientModifier(gelSpeedBounceBoost);
+        double speedBoost = .1F * (1 + Math.cos(Math.PI + Math.PI * propulsionTicks / IGelAffected.MAX_PROPULSION_TICKS)) / 2;
+
+        AttributeModifier propulsionGelBoost = new AttributeModifier(SPEED_MODIFIER_GEL,
+                "Propulsion Gel Boost", speedBoost, AttributeModifier.Operation.ADDITION);
+
+        if (speedAttribute.getModifier(SPEED_MODIFIER_GEL) == null) speedAttribute.addTransientModifier(propulsionGelBoost);
     }
 
-    public static void removeGelSpeedBoost(LivingEntity entity, Boolean onlyBounceBoost) {
+    public static void applyPropulsionBounceBoost(LivingEntity entity) {
         ModifiableAttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speedAttribute == null) return;
 
-        speedAttribute.removeModifier(gelSpeedBounceBoost);
-        if (onlyBounceBoost) return;
+        AttributeModifier gelSpeedBounceBoost = new AttributeModifier(SPEED_MODIFIER_GEL_BOUNCE,
+                "Propulsion Gel Bounce Boost", .6F, AttributeModifier.Operation.ADDITION);
 
-        speedAttribute.removeModifier(gelSpeedBoost);
+        if (speedAttribute.getModifier(SPEED_MODIFIER_GEL_BOUNCE) == null) speedAttribute.addTransientModifier(gelSpeedBounceBoost);
+    }
+
+    public static void removePropulsionSpeedBoost(LivingEntity entity) {
+        ModifiableAttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speedAttribute == null) return;
+
+        speedAttribute.removeModifier(SPEED_MODIFIER_GEL);
+    }
+
+    public static void removePropulsionBounceBoost(LivingEntity entity) {
+        ModifiableAttributeInstance speedAttribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speedAttribute == null) return;
+
+        speedAttribute.removeModifier(SPEED_MODIFIER_GEL_BOUNCE);
     }
 
     public static void onPreTick(LivingEntity entity) {
         BlockPos pos = entity.blockPosition();
         BlockState state = entity.level.getBlockState(pos);
+        boolean isPropulsionGel = state.getBlock() instanceof PropulsionGelBlock;
 
         IGelAffected gelAffected = ((IGelAffected) entity);
 
-        if (LivingEntityInjector.effectsShouldBeReset(entity, true)
-                && state.getBlock() != BlockInit.REPULSION_GEL.get()) removeGelSpeedBoost(entity, true);
-
-        if (state.getBlock() == BlockInit.PROPULSION_GEL.get() && (shouldGetGelBoost(pos, state, entity))) {
-            gelAffected.setTicksSinceSpeedGel(0);
-            gelAffected.setAffectedBySpeedGel(true);
-
-        } else if (LivingEntityInjector.effectsShouldBeReset(entity, true)
-                && !(state.getBlock() == BlockInit.REPULSION_GEL.get() && !entity.isShiftKeyDown())) {
-            gelAffected.setTicksSinceSpeedGel(Math.min(gelAffected.getTicksSinceSpeedGel() + 1, 20));
+        if (!isPropulsionGel && LivingEntityInjector.effectsShouldBeReset(entity, true)) {
+            removePropulsionBounceBoost(entity);
         }
 
-        if (gelAffected.getTicksSinceSpeedGel() < 2 && !entity.isOnGround()) gelAffected.setTicksSinceSpeedGel(2); // So that you can't keep the boost by bhopping
-        if (gelAffected.getTicksSinceSpeedGel() > 2) gelAffected.setAffectedBySpeedGel(false);
-
-        if (gelAffected.getAffectedBySpeedGel()) {
-            applyGelSpeedBoost(entity, gelAffected.getBounced());
+        if (isPropulsionGel && isOnGel(pos, state, entity)) {
+            gelAffected.incrementPropulsionTicks();
         } else {
-            removeGelSpeedBoost(entity, false);
+            gelAffected.decrementPropulsionTicks();
+        }
+
+        if (gelAffected.getPropulsionTicks() > 0) {
+            removePropulsionSpeedBoost(entity);
+            applyPropulsionSpeedBoost(entity, gelAffected.getPropulsionTicks());
+
+            if (gelAffected.getBounced()) {
+                applyPropulsionBounceBoost(entity);
+            }
+        } else {
+            removePropulsionSpeedBoost(entity);
         }
     }
 

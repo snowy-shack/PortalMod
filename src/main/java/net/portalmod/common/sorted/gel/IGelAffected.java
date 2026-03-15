@@ -3,6 +3,8 @@ package net.portalmod.common.sorted.gel;
 import net.minecraft.util.math.vector.Vector3d;
 
 public interface IGelAffected {
+    int MAX_PROPULSION_TICKS = 15;
+
     void setLastNeurtalHeight(float distance);
     float getLastNeutralHeight();
 
@@ -17,11 +19,9 @@ public interface IGelAffected {
     void setWasOnGround(boolean wasOnGround);
     boolean getWasOnGround();
 
-    void setAffectedBySpeedGel(boolean affectedBySpeedGel);
-    boolean getAffectedBySpeedGel();
-
-    void setTicksSinceSpeedGel(int ticksSinceSpeedGel);
-    int getTicksSinceSpeedGel();
+    int getPropulsionTicks();
+    void incrementPropulsionTicks();
+    void decrementPropulsionTicks();
 
     void setLastDeltaMovement(Vector3d lastDeltaMovement);
     Vector3d getLastDeltaMovement();
