@@ -224,8 +224,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Vector3d dm = entity.getDeltaMovement();
 
         if(entity instanceof Flingable) {
-            boolean doFling = portal.getDirection().getAxis().isVertical() && targetPortal.getDirection().getAxis().isHorizontal();
-            ((Flingable)entity).setFlinging(doFling);
+            if(portal.getDirection().getAxis().isVertical() && targetPortal.getDirection().getAxis().isHorizontal()) {
+                ((Flingable)entity).setFlinging(true);
+            } else if(targetPortal.getDirection().getAxis().isVertical()) {
+                ((Flingable)entity).setFlinging(false);
+            }
+            // in other cases leave it alone
         }
 
         boolean doMathTrickery = entity instanceof IDragCancelable
