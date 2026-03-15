@@ -210,6 +210,16 @@ public class PortalGun extends Item {
         Optional<UUID> uuid = getUUID(gun);
         if (!uuid.isPresent()) return;
 
+        CompoundNBT nbt = gun.getOrCreateTag();
+
+        boolean isPrimary = end == PortalEnd.PRIMARY;
+
+        if (nbt.contains("Locked") && nbt.getString("Locked").equals(isPrimary ? "Left" : "Right")) {
+//            end = end.other();
+//            isPrimary = !isPrimary;
+            return;
+        }
+
         // Play shooting animation and sound
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                 new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.SHOOT));
@@ -231,16 +241,7 @@ public class PortalGun extends Item {
         Vec3 position = new Vec3(ray.getLocation());
         Direction face = ray.getDirection();
         Direction up = face.getAxis().isHorizontal() ? Direction.UP : player.getDirection();
-        
-        CompoundNBT nbt = gun.getOrCreateTag();
 
-        boolean isPrimary = end == PortalEnd.PRIMARY;
-
-        if (nbt.contains("Locked") && nbt.getString("Locked").equals(isPrimary ? "Left" : "Right")) {
-            end = end.other();
-            isPrimary = !isPrimary;
-        }
-        
         String hue = "blue";
         if(nbt.contains(isPrimary ? "LeftColor" : "RightColor")) {
             hue = nbt.getString(isPrimary ? "LeftColor" : "RightColor");
