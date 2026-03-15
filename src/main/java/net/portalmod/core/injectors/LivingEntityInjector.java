@@ -20,10 +20,6 @@ public class LivingEntityInjector {
         RepulsionGelBlock.onPreTick(entity);
         PropulsionGelBlock.onPreTick(entity);
         if (effectsShouldBeReset(entity, true) && entity.getDeltaMovement().y < 0) ((Flingable) entity).setFlinging(false);
-
-        if (effectsShouldBeReset(entity, false)) {
-            ((IGelAffected) entity).setAffectedBySpeedGel(false);
-        }
     }
 
     public static void onPostTick(LivingEntity entity) {

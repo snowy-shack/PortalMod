@@ -403,17 +403,25 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     private boolean horizontalBounced = false;
     private boolean wasOnGround = true;
     private Vector3d lastDeltaMovement = Vector3d.ZERO;
-    private boolean affectedBySpeedGel = false;
-    private int ticksSinceSpeedGel = 100;
+    private int propulsionTicks = 0;
 
     @Override
-    public void setAffectedBySpeedGel(boolean newAffectedBySpeedGel) {
-        affectedBySpeedGel = newAffectedBySpeedGel;
+    public int getPropulsionTicks() {
+        return this.propulsionTicks;
     }
 
     @Override
-    public boolean getAffectedBySpeedGel() {
-        return affectedBySpeedGel;
+    public void incrementPropulsionTicks() {
+        if (this.propulsionTicks < MAX_PROPULSION_TICKS) {
+            this.propulsionTicks++;
+        }
+    }
+
+    @Override
+    public void decrementPropulsionTicks() {
+        if (this.propulsionTicks > 0) {
+            this.propulsionTicks--;
+        }
     }
 
     @Override
@@ -454,16 +462,6 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     @Override
     public boolean getWasOnGround() {
         return wasOnGround;
-    }
-
-    @Override
-    public void setTicksSinceSpeedGel(int ticksSinceSpeedGel) {
-        this.ticksSinceSpeedGel = ticksSinceSpeedGel;
-    }
-
-    @Override
-    public int getTicksSinceSpeedGel() {
-        return ticksSinceSpeedGel;
     }
 
     @Override
