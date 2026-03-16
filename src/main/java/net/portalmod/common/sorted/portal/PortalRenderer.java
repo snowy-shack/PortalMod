@@ -107,7 +107,8 @@ public class PortalRenderer {
     }
 
     private void renderMask(PortalEntity portal, Matrix4f modelView) {
-        glUseProgram(0);
+        ShaderInit.PORTAL_MASK.get().bind()
+                .setMatrix("modelViewProjection", modelView);
 
         int age = portal.getAge();
         boolean spawning = age < 4;
@@ -137,6 +138,7 @@ public class PortalRenderer {
 
         RenderSystem.bindTexture(0);
         unbindBuffer();
+        ShaderInit.PORTAL_MASK.get().unbind();
     }
 
     private void renderBackground() {
@@ -399,6 +401,9 @@ public class PortalRenderer {
             setupMatrixStack(matrixStack, portalCamera);
             setupSkyAndFog(portalCamera, partialTicks);
 
+            Matrix4f modelViewProjection = projectionMatrix.copy();
+            modelViewProjection.multiply(getModelViewMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 2));
+
             ActiveRenderInfo fogCamera = portalCamera;
             if(portal.getOtherPortal().isPresent()) {
                 fogCamera = new PortalCamera(portalCamera, partialTicks);
@@ -411,7 +416,7 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0x7F);
             RenderSystem.stencilFunc(GL_EQUAL, recursion - 1, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-            renderMask(portal, modelView);
+            renderMask(portal, modelViewProjection);
 
             RenderSystem.stencilMask(0);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
@@ -455,9 +460,6 @@ public class PortalRenderer {
                     mainFBO.bindWrite(false);
                 }
             }
-
-            Matrix4f modelViewProjection = projectionMatrix.copy();
-            modelViewProjection.multiply(getModelViewMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 2));
 
             glDisable(GL_CLIP_PLANE0);
             GL11.glEnable(GL_STENCIL_TEST);
