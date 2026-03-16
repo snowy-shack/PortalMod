@@ -2,7 +2,7 @@
   "parent": "block/slab_top",
   "textures": {
     "side": "portalmod:block/arbored_blackplate_tiles",
-    "bottom": "portalmod:block/arbored_blackplate_bottom",
-    "top": "portalmod:block/arbored_blackplate_top"
+    "bottom": "portalmod:block/arbored_blackplate_slab_bottom",
+    "top": "portalmod:block/arbored_blackplate_slab_top"
   }
 }
