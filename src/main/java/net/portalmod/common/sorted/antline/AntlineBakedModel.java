@@ -182,6 +182,15 @@ public class AntlineBakedModel implements IDynamicBakedModel {
             case NORTH: quads.add(createQuad(v(dx, uy, d).add(absOffset), v(dx, dy, d).add(absOffset), v(ux, dy, d).add(absOffset), v(ux, uy, d).add(absOffset), tex)); break;
             case SOUTH: quads.add(createQuad(v(ux, uy, u).add(absOffset), v(ux, dy, u).add(absOffset), v(dx, dy, u).add(absOffset), v(dx, uy, u).add(absOffset), tex)); break;
         }
+
+        switch(side) {
+            case UP:    quads.add(createQuad(v(dx, u, dy).add(absOffset), v(dx, u, uy).add(absOffset), v(ux, u, uy).add(absOffset), v(ux, u, dy).add(absOffset), tex)); break;
+            case DOWN:  quads.add(createQuad(v(ux, d, dy).add(absOffset), v(ux, d, uy).add(absOffset), v(dx, d, uy).add(absOffset), v(dx, d, dy).add(absOffset), tex)); break;
+            case EAST:  quads.add(createQuad(v(u, uy, ux).add(absOffset), v(u, dy, ux).add(absOffset), v(u, dy, dx).add(absOffset), v(u, uy, dx).add(absOffset), tex)); break;
+            case WEST:  quads.add(createQuad(v(d, uy, dx).add(absOffset), v(d, dy, dx).add(absOffset), v(d, dy, ux).add(absOffset), v(d, uy, ux).add(absOffset), tex)); break;
+            case NORTH: quads.add(createQuad(v(ux, uy, d).add(absOffset), v(ux, dy, d).add(absOffset), v(dx, dy, d).add(absOffset), v(dx, uy, d).add(absOffset), tex)); break;
+            case SOUTH: quads.add(createQuad(v(dx, uy, u).add(absOffset), v(dx, dy, u).add(absOffset), v(ux, dy, u).add(absOffset), v(ux, uy, u).add(absOffset), tex)); break;
+        }
     }
 
     @Nonnull
