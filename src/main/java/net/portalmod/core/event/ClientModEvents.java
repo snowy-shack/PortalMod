@@ -163,9 +163,6 @@ public class ClientModEvents {
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
             event.addSprite(AutoPortalTER.TEXTURE);
-            event.addSprite(WatermarkRenderer.WM_LEFT);
-            event.addSprite(WatermarkRenderer.WM_RIGHT);
-            event.addSprite(TriggerTER.FIELD_TEXTURE);
         }
     }
 }
