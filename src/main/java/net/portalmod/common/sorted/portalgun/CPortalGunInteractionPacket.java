@@ -115,7 +115,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     break;
 
                 case SHOOT_PORTAL:
-                    PortalGun.placePortal(player, player.level, end, player.getMainHandItem());
+                    PortalGun.placePortal(player, player.level, end, player.getMainHandItem(), this.blockHit);
                     break;
 
                 case PRESS_BUTTON:

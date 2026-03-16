@@ -5,8 +5,12 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.autoportal.AutoPortalBlock;
@@ -50,14 +54,32 @@ public class PortalGunClient {
 
         if (player.hasPassenger(TestElementEntity.class)) {
             TestElementEntity.dropHeldEntities(player, true, false, player.getMainHandItem());
-
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.THROW_ENTITY).build());
-        } else PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.PRIMARY).build());
+        } else {
+            this.shootPortal(PortalEnd.PRIMARY);
+        }
     }
 
     private void handleRightClick() {
-        if (!Minecraft.getInstance().player.hasPassenger(TestElementEntity.class))
-            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL).end(PortalEnd.SECONDARY).build());
+        if (!Minecraft.getInstance().player.hasPassenger(TestElementEntity.class)) {
+            this.shootPortal(PortalEnd.SECONDARY);
+        }
+    }
+
+    private void shootPortal(PortalEnd end) {
+        PlayerEntity player = Minecraft.getInstance().player;
+        if(player == null)
+            return;
+
+        float partialTicks = Minecraft.getInstance().getFrameTime();
+        Vector3d rayPath = player.getViewVector(partialTicks).scale(200);
+        Vector3d from = player.getEyePosition(partialTicks);
+        Vector3d to = from.add(rayPath);
+        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
+        BlockRayTraceResult ray = PortalGun.customClip(player.level, rayCtx);
+
+        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL)
+                .end(end).blockHit(ray).build());
     }
 
     public void tick() {

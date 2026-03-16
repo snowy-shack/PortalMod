@@ -203,7 +203,7 @@ public class PortalGun extends Item {
         player.awardStat(StatsInit.PORTALS_SHOT);
     }
 
-    public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun) {
+    public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun, BlockRayTraceResult ray) {
         if(player.isSpectator() || level.isClientSide)
             return;
 
@@ -226,12 +226,6 @@ public class PortalGun extends Item {
 
         level.playSound(null, player.position().x, player.position().y, player.position().z,
                 (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
-
-        Vector3d rayPath = player.getViewVector(0).scale(200);
-        Vector3d from = player.getEyePosition(0);
-        Vector3d to = from.add(rayPath);
-        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
-        BlockRayTraceResult ray = customClip(level, rayCtx);
 
         if(ray.getType() == RayTraceResult.Type.MISS) {
             triggerMoonAdvancement(level, (ServerPlayerEntity)player);
@@ -278,7 +272,7 @@ public class PortalGun extends Item {
             return;
         }
 
-        triggerPortalAdvancements(level, (ServerPlayerEntity)player, portal, ray.getLocation().subtract(from).length());
+        triggerPortalAdvancements(level, (ServerPlayerEntity)player, portal, ray.getLocation().subtract(player.getEyePosition(0)).length());
 
         // todo convert to string
         gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
