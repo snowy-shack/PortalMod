@@ -24,9 +24,7 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.portalmod.PortalMod;
-import net.portalmod.client.render.WatermarkRenderer;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
 import net.portalmod.common.sorted.antline.AntlineLoader;
@@ -54,11 +52,7 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
-
         SkinManager.getClientInstance().onClientStartup();
-
-//        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PortalModOptionsScreen.CONFIG, "portalmod-client.toml");
 
         KeyInit.init();
         Minecraft.getInstance().getMainRenderTarget().enableStencil();
@@ -91,10 +85,6 @@ public class ClientModEvents {
         RenderTypeLookup.setRenderLayer(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
         RenderTypeLookup.setRenderLayer(BlockInit.TRIGGER.get(),         RenderType.cutout());
 
-//        RenderTypeLookup.setRenderLayer(BlockInit.GOO.get(),         RenderType.translucent());
-//        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLUID.get(),   RenderType.translucent());
-//        RenderTypeLookup.setRenderLayer(FluidInit.GOO_FLOWING.get(), RenderType.translucent());
-
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.TRIGGER.get(), TriggerTER::new);
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.AUTOPORTAL.get(), AutoPortalTER::new);
@@ -107,12 +97,8 @@ public class ClientModEvents {
         RenderingRegistry.registerEntityRenderingHandler(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
         Minecraft.getInstance().getItemColors().register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
 
-//        APIWrapper.init();
-
         event.enqueueWork(() -> {
             registerItemProperty(ItemInit.PORTALGUN.get(), "color",  PortalGun::getColorOverride);
-//            registerItemProperty(ItemInit.PORTALGUN.get(), "grab",   PortalGun::getGrabOverride);
-//            registerItemProperty(ItemInit.PORTALGUN.get(), "accent", PortalGun::getAccentOverride);
 
             ShaderInit.REGISTRY.registerAll();
         });
@@ -148,18 +134,13 @@ public class ClientModEvents {
     }
 
     @SubscribeEvent
-    public static void onModelBakeEvent(ModelBakeEvent event) {
-    }
-
-    @SubscribeEvent
     public static void onTextureStitch(TextureStitchEvent.Pre event) {
         TextureInit.register(event);
 
         if(event.getMap().location() == AtlasTexture.LOCATION_BLOCKS) {
             for(ResourceLocation texture : AntlineBakedModel.getAllTextures())
                 event.addSprite(texture);
-//            for(ResourceLocation texture : FaithPlateTargetBakedModel.getAllTextures())
-//                event.addSprite(texture);
+
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
             event.addSprite(AutoPortalTER.TEXTURE);
