@@ -179,6 +179,15 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
                 new FaithPlateTargetBakedModel().getQuad(face, distance),
                 1, 1, 1, light, overlay);
         matrixStack.popPose();
+
+        pos = pos.add(new Vec3(face).to3d());
+
+        matrixStack.pushPose();
+        matrixStack.translate(pos.x(), pos.y(), pos.z());
+        renderBuffer.getBuffer(RenderType.cutout()).putBulkData(matrixStack.last(),
+                new FaithPlateTargetBakedModel().getQuad(face.getOpposite(), distance),
+                1, 1, 1, light, overlay);
+        matrixStack.popPose();
     }
 
     private void renderPointedPath(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int overlay) {
