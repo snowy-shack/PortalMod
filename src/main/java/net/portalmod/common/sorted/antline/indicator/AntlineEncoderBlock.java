@@ -46,6 +46,12 @@ public class AntlineEncoderBlock extends AntlineIcon implements AntlineActivator
     }
 
     @Override
+    public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean b) {
+        // Check for power to immediately update the state
+        world.neighborChanged(pos, this, pos);
+    }
+
+    @Override
     public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
         return true;
     }
