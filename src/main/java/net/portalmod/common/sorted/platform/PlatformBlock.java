@@ -160,6 +160,12 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
+    public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean b) {
+        // Check for power to immediately update the state
+        world.neighborChanged(pos, this, pos);
+    }
+
+    @Override
     public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         boolean power = level.hasNeighborSignal(pos);
 
