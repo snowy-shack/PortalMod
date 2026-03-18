@@ -52,7 +52,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     private PlayerEntity configuringPlayer;
 
     private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
-            .add(3, 16, 3, 13, 17, 13)
+            .add(5, 16, 5, 11, 17, 11)
             .build();
 
     public FaithPlateTileEntity(TileEntityType<?> type) {
