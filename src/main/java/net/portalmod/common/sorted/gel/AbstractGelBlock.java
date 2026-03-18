@@ -1,9 +1,6 @@
 package net.portalmod.common.sorted.gel;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.BreakableBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
@@ -102,6 +99,8 @@ public class AbstractGelBlock extends BreakableBlock {
                 blockState = removeSide(direction, blockState);
                 world.setBlockAndUpdate(pos, blockState);
                 world.playSound(null, pos, SoundInit.GEL_BREAK.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+
+                if (blockState.getBlock() instanceof AirBlock) return;
             }
         }
 
@@ -175,7 +174,7 @@ public class AbstractGelBlock extends BreakableBlock {
     
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
-       return PushReaction.DESTROY;
+       return PushReaction.NORMAL;
     }
 
     public BlockState rotate(BlockState state) {
