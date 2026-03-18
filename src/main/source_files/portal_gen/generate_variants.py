@@ -42,6 +42,6 @@ for filename in os.listdir("."):
         new_img.putdata(new_pixels)
 
         # Save with new filename
-        new_filename = "../" + filename.replace("blue", color_name)
+        new_filename = "output/" + filename.replace("blue", color_name)
         new_img.save(new_filename)
         print(f"Saved {new_filename}")
