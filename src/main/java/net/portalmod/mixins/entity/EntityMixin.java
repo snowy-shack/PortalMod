@@ -297,8 +297,12 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
             Vector3d positionBeforePortal = normalRay.getLocation();
             Optional<Vector3d> optionalPositionOnPortal = portalChain.get(0).getBoundingBox().clip(context.getFrom(), context.getTo());
 
-            if(optionalPositionOnPortal.isPresent() && positionBeforePortal.length() < optionalPositionOnPortal.get().length()) {
-                return normalRay;
+            if(optionalPositionOnPortal.isPresent()) {
+                double distanceBeforePortal = positionBeforePortal.subtract(context.getFrom()).length();
+                double distanceOnPortal = optionalPositionOnPortal.get().subtract(context.getFrom()).length();
+
+                if(distanceBeforePortal < distanceOnPortal)
+                    return normalRay;
             }
 
             PortalRenderer.getInstance().outlineRenderingPortalChain = portalChain;
