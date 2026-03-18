@@ -343,7 +343,7 @@ public class AntlineBlock extends Block {
 
         // Break like normal
         if (tileEntity.getSideMap().getSideCount() <= 1) {
-            if (player != null) level.levelEvent(player, 2001, pos, getId(state)); // Particles and sound
+            if (player != null) level.levelEvent(null, 2001, pos, getId(state)); // Particles and sound
 
             if (player == null || !player.isCreative()) dropResources(state, level, pos); // Item drops
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
