@@ -128,7 +128,7 @@ public class FaithPlateBlock extends DoubleBlock {
 
     @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
-        return PushReaction.DESTROY;
+        return PushReaction.BLOCK;
     }
     
     @Override
