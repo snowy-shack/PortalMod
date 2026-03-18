@@ -62,9 +62,8 @@
         "renderer.FramebufferMixin",
         "renderer.GameRendererMixin",
         "renderer.ItemRendererMixin",
-        "renderer.LevelRendererMixinFinal",
+        "renderer.LevelRendererMixin",
         "renderer.LivingRendererMixin",
-        "renderer.WorldRendererMixin",
         "screen.CreativeScreenMixin",
         "screen.OptionsScreenMixin"
     ],

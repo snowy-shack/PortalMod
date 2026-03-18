@@ -2,6 +2,7 @@ package net.portalmod.mixins.renderer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
@@ -9,9 +10,12 @@ import net.minecraft.client.renderer.culling.ClippingHelper;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IBlockReader;
 import net.portalmod.client.render.PortalCamera;
+import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.config.PortalModConfigManager;
 import org.lwjgl.opengl.GL11;
@@ -21,7 +25,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(WorldRenderer.class)
-public class LevelRendererMixinFinal {
+public class LevelRendererMixin {
+
+    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isAir(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z"), remap = false)
+    public boolean fizzlerIsAirToo(BlockState instance, IBlockReader blockReader, BlockPos pos) {
+        return instance.isAir(blockReader, pos) || instance.getBlock() instanceof FizzlerFieldBlock;
+    }
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
