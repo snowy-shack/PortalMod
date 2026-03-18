@@ -17,7 +17,7 @@ public class GameRuleInit {
     public static GameRules.RuleKey<GameRules.BooleanValue> USE_PORTALABLE_BLACKLIST;
 
     public static void registerAll() {
-        DO_FUNNELING = GameRules.register("portalFunneling", GameRules.Category.PLAYER, BooleanValueAccessor.pmCreate(true));
+        DO_FUNNELING = GameRules.register("portalFunneling", GameRules.Category.PLAYER, BooleanValueAccessor.pmCreate(true, (minecraftServer, booleanValue) -> {}));
 
         USE_PORTALABLE_BLACKLIST = GameRules.register("usePortalableBlacklist", GameRules.Category.PLAYER,
                 BooleanValueAccessor.pmCreate(false, (server, value) ->
