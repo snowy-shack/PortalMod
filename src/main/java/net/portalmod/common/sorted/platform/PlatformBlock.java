@@ -143,7 +143,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
             }
         }
 
-        return context.getClickedFace();
+        return context.getNearestLookingDirection().getOpposite();
     }
 
     @Override
