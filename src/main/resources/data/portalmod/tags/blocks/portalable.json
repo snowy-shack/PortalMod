@@ -26,6 +26,9 @@
     "portalmod:vintage_lunecast_platform",
 
     "minecraft:end_stone",
+    "minecraft:end_stone_bricks",
+    "minecraft:end_stone_brick_stairs",
+    "minecraft:end_stone_brick_slab",
 
     "minecraft:white_concrete",
     "minecraft:orange_concrete",
