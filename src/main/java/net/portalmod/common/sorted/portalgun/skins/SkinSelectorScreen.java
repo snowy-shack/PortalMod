@@ -1,6 +1,8 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
 import java.awt.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +14,7 @@ import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
@@ -70,6 +73,7 @@ public class SkinSelectorScreen extends Screen {
 
     private static final int REFRESH_TIMEOUT = 5 * 60 * 1000;
     private static final int APPLY_BUTTON_WIDTH = 70;
+    private Button infoButton;
     private Button refreshButton;
     private Button applyButton;
     private volatile long lastRefresh = 0;
@@ -92,6 +96,7 @@ public class SkinSelectorScreen extends Screen {
     @Override
     protected void init() {
         this.initRefreshButton();
+        this.initInfoButton();
         this.initApplyButton();
 
         this.skinPreviewWidget = new SkinPreviewWidget(this.getX() + SKIN_PREVIEW_X, this.getY() + SKIN_PREVIEW_Y,
@@ -160,12 +165,26 @@ public class SkinSelectorScreen extends Screen {
         }
     }
 
+    private void initInfoButton() {
+        int height = 20;
+        int x = this.getX() + SKIN_PREVIEW_X - APPLY_BUTTON_WIDTH + 1 - (height + 1) * 2;
+        int y = this.getY() + HEIGHT + 1;
+
+        this.infoButton = new IconButton(x, y, TEXTURE, 0, 208, button -> {
+            try {
+                Util.getPlatform().openUri(new URI("https://portalmod.net/info-skins"));
+            } catch (URISyntaxException ignored) { }
+        });
+
+        this.addButton(this.infoButton);
+    }
+
     private void initRefreshButton() {
         int height = 20;
         int x = this.getX() + SKIN_PREVIEW_X - APPLY_BUTTON_WIDTH + 1 - height - 1;
         int y = this.getY() + HEIGHT + 1;
 
-        this.refreshButton = new IconButton(x, y, TEXTURE, 0, 208, button -> {
+        this.refreshButton = new IconButton(x, y, TEXTURE, 16, 208, button -> {
             long millis = System.currentTimeMillis();
             this.loadingStart = millis;
             this.lastRefresh = millis;
@@ -249,6 +268,7 @@ public class SkinSelectorScreen extends Screen {
             this.renderLoadingBlob();
         }
 
+        this.infoButton.render(matrixStack, mouseX, mouseY, partialTicks);
         this.refreshButton.render(matrixStack, mouseX, mouseY, partialTicks);
         this.applyButton.render(matrixStack, mouseX, mouseY, partialTicks);
     }
