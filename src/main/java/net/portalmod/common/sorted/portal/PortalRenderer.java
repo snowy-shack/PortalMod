@@ -434,7 +434,7 @@ public class PortalRenderer {
                 portalStack.push(otherPortal);
 
                 clipMatrix.pushPose();
-                RenderUtil.setupClipPlane(clipMatrix, portal, camera, portal.getWallAttachmentDistance(camera), false);
+                RenderUtil.setupClipPlane(clipMatrix, portal, camera, 0, false);
 
                 currentCamera = portalCamera;
 
