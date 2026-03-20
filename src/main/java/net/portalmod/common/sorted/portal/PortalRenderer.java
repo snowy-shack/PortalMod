@@ -265,18 +265,12 @@ public class PortalRenderer {
 
         renderedPortals = 0;
 
-        ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
-        renderChunks.addAll(mc.levelRenderer.renderChunks);
-
         for(Entity entity : level.entitiesForRendering()) {
             if(entity instanceof PortalEntity) {
                 renderPortal((PortalEntity)entity, camera, clippingHelper, projectionMatrix, partialTicks, fabulousGraphics);
                 renderedPortals++;
             }
         }
-
-        mc.levelRenderer.renderChunks.clear();
-        mc.levelRenderer.renderChunks.addAll(renderChunks);
 
         if(recursion == 0) {
             currentlyRenderingPortals = false;
@@ -448,10 +442,17 @@ public class PortalRenderer {
                 PMState.cameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf == null ? null
                         : PMState.cameraPosOverrideForRenderingSelf.clone().transform(PortalEntity.getPortalToPortalMatrix(portal, otherPortal));
 
+                ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
+                renderChunks.addAll(mc.levelRenderer.renderChunks);
+
                 boolean renderOutline = this.shouldRenderOutline(portalChain);
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), renderOutline, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
                 TriggerTER.renderAllTriggers();
+
+                mc.levelRenderer.needsUpdate = true;
+                mc.levelRenderer.renderChunks.clear();
+                mc.levelRenderer.renderChunks.addAll(renderChunks);
 
                 TileEntityRendererDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
