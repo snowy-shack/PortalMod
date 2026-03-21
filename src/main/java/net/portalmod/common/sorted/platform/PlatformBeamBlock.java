@@ -107,6 +107,13 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     }
 
     @Override
+    public boolean canStickTo(BlockState state, BlockState other) {
+        // False for mod compatibility, we define our own way to stick to blocks
+        //todo test with create mod whether the sides still pull blocks
+        return false;
+    }
+
+    @Override
     public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
         return dir.getAxis() == state.getValue(FACING).getAxis();
     }
