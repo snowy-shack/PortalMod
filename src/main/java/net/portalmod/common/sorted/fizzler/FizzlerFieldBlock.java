@@ -50,6 +50,7 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
         return VoxelShapes.empty();
     }
 
+    @Override
     public VoxelShape getFieldShape(BlockState state) {
         VoxelShapeGroup group = new VoxelShapeGroup.Builder()
                 .add(7, 0, 0, 9, 16, 16)
@@ -97,6 +98,11 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     @Override
     public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
         return this.getFieldShape(state).bounds().move(pos).intersects(box);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        return true;
     }
 
     @Override

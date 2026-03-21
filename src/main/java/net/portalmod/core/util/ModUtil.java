@@ -1,12 +1,14 @@
 package net.portalmod.core.util;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
@@ -18,6 +20,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.*;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
@@ -27,6 +30,7 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -52,6 +56,28 @@ public class ModUtil {
 
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.ANY, null);
         return level.clip(rayCtx);
+    }
+
+    public static BlockRayTraceResult customClip(World level, RayTraceContext context, Function<BlockPos, Optional<VoxelShape>> shapeOverride) {
+        return IBlockReader.traverseBlocks(context, (ctx, pos) -> {
+            BlockState blockstate = level.getBlockState(pos);
+            FluidState fluidstate = level.getFluidState(pos);
+
+            Vector3d vector3d = ctx.getFrom();
+            Vector3d vector3d1 = ctx.getTo();
+            VoxelShape voxelshape = shapeOverride.apply(pos).orElse(ctx.getBlockShape(blockstate, level, pos));
+
+            BlockRayTraceResult blockraytraceresult = level.clipWithInteractionOverride(vector3d, vector3d1, pos, voxelshape, blockstate);
+            VoxelShape voxelshape1 = ctx.getFluidShape(fluidstate, level, pos);
+
+            BlockRayTraceResult blockraytraceresult1 = voxelshape1.clip(vector3d, vector3d1, pos);
+            double d0 = blockraytraceresult == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockraytraceresult.getLocation());
+            double d1 = blockraytraceresult1 == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockraytraceresult1.getLocation());
+            return d0 <= d1 ? blockraytraceresult : blockraytraceresult1;
+        }, ctx -> {
+            Vector3d vector3d = ctx.getFrom().subtract(ctx.getTo());
+            return BlockRayTraceResult.miss(ctx.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(ctx.getTo()));
+        });
     }
 
     public static List<PortalEntity> getPortalsAlongRay(World level, Vec3 from, Vec3 to, Predicate<PortalEntity> filter) {
