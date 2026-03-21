@@ -47,9 +47,9 @@ public class CommonEvents {
                 return;
 
             String name = event.getParseResults().getContext().getNodes().get(1).getNode().getName();
-            Boolean value = (Boolean)event.getParseResults().getContext().getArguments().get("value").getResult();
 
             if(name.equals(GameRuleInit.DO_FUNNELING.getId())) {
+                Boolean value = (Boolean)event.getParseResults().getContext().getArguments().get("value").getResult();
                 PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SUpdateFunnelingGameRulePacket(name, value));
             }
         }
