@@ -155,11 +155,11 @@ public class AntlineBlock extends Block {
 
                 // Power indicators
                 if (neighborBlock instanceof AntlineActivated)
-                    ((AntlineActivated) neighborBlock).setActive(active, neighborState, level, friend.pos);
+                    ((AntlineActivated) neighborBlock).onAntlineActivation(active, neighborState, level, friend.pos);
 
                 // Hit another input, adopt its signal
                 if (neighborBlock instanceof AntlineActivator) {
-                    newActive = ((AntlineActivator) neighborBlock).isActive(neighborState);
+                    newActive = ((AntlineActivator) neighborBlock).isAntlineActive(neighborState);
 
                     if (newActive && !active) {
                         recursiveSignalChain(level, side, pos, null, newActive, 0);
@@ -217,7 +217,7 @@ public class AntlineBlock extends Block {
 
             BlockState friendState = level.getBlockState(friend.pos);
             if (element && friendState.getBlock() instanceof AntlineActivator) {
-                active = ((AntlineActivator) friendState.getBlock()).isActive(friendState);
+                active = ((AntlineActivator) friendState.getBlock()).isAntlineActive(friendState);
                 originDirection = connectionDirection;
             }
 

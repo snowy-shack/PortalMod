@@ -12,5 +12,8 @@ public interface AntlineConnector {
      */
     Direction getHorsedOn(BlockState state);
 
-    boolean connectsInDirection(Direction direction, BlockState state);
+    /**
+     * Returns whether antlines in a certain direction should connect to this block.
+     */
+    boolean antlineConnectsInDirection(Direction direction, BlockState state);
 }

@@ -10,20 +10,20 @@ import net.minecraft.world.World;
  * Interface for things that are powered by antlines, such as indicators.
  */
 public interface AntlineActivated extends AntlineConnector {
-    void setActive(boolean active, BlockState state, World world, BlockPos pos);
+    void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos);
 
-    default boolean ignoreActivationFromBlock(BlockState state) {
+    default boolean ignoreAntlineActivationFromBlock(BlockState state) {
         return false;
     }
 
     /**
      * Looks around to check whether we should be powered or not.
      */
-    default void updatePower(BlockState state, World world, BlockPos pos) {
+    default void updateAntlineActivation(BlockState state, World world, BlockPos pos) {
         Direction horsedOn = this.getHorsedOn(state);
 
         for (Direction direction : Direction.values()) {
-            if (!this.connectsInDirection(direction, state)) continue;
+            if (!this.antlineConnectsInDirection(direction, state)) continue;
 
             BlockPos neighborPos = pos.relative(direction);
             BlockState neighborState = world.getBlockState(neighborPos);
@@ -31,17 +31,17 @@ public interface AntlineActivated extends AntlineConnector {
 
             // Powered by element
             if (neighborBlock instanceof AntlineActivator
-                    && ((AntlineActivator) neighborBlock).connectsInDirection(direction.getOpposite(), neighborState)
+                    && ((AntlineActivator) neighborBlock).antlineConnectsInDirection(direction.getOpposite(), neighborState)
                     && ((AntlineActivator) neighborBlock).getHorsedOn(neighborState) == horsedOn
-                    && ((AntlineActivator) neighborBlock).isActive(neighborState)
-                    && !ignoreActivationFromBlock(neighborState)
+                    && ((AntlineActivator) neighborBlock).isAntlineActive(neighborState)
+                    && !ignoreAntlineActivationFromBlock(neighborState)
             ) {
-                this.setActive(true, state, world, pos);
+                this.onAntlineActivation(true, state, world, pos);
                 return;
             }
 
             // Powered by antline
-            if (neighborBlock instanceof AntlineBlock && !ignoreActivationFromBlock(neighborState)) {
+            if (neighborBlock instanceof AntlineBlock && !ignoreAntlineActivationFromBlock(neighborState)) {
                 // First update antline
 //                world.neighborChanged(neighborPos, state.getBlock(), pos);
 
@@ -50,12 +50,12 @@ public interface AntlineActivated extends AntlineConnector {
 
                 AntlineTileEntity.Side side = tileEntity.getSideMap().get(horsedOn);
                 if (side.hasConnection(direction.getOpposite()) && side.isActive()) {
-                    this.setActive(true, state, world, pos);
+                    this.onAntlineActivation(true, state, world, pos);
                     return;
                 }
             }
         }
 
-        this.setActive(false, state, world, pos);
+        this.onAntlineActivation(false, state, world, pos);
     }
 }

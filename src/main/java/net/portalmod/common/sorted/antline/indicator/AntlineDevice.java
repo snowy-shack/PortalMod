@@ -76,7 +76,7 @@ public class AntlineDevice extends HorizontalFaceBlock implements AntlineConnect
     }
 
     @Override
-    public boolean connectsInDirection(Direction direction, BlockState state) {
+    public boolean antlineConnectsInDirection(Direction direction, BlockState state) {
         return direction.getAxis() != getHorsedOn(state).getAxis();
     }
 }

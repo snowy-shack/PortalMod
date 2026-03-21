@@ -61,7 +61,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    public void setActive(boolean active, BlockState state, World world, BlockPos pos) {
+    public void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos) {
         if (state.getValue(ACTIVATED) == active) return;
 
         // Save antline power

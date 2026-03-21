@@ -57,7 +57,7 @@ public class AntlineEncoderBlock extends AntlineIcon implements AntlineActivator
     }
 
     @Override
-    public boolean isActive(BlockState state) {
+    public boolean isAntlineActive(BlockState state) {
         return state.getValue(POWERED);
     }
 

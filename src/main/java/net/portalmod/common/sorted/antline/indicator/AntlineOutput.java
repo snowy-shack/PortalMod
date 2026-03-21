@@ -52,7 +52,7 @@ public abstract class AntlineOutput extends AntlineDevice implements AntlineActi
 
     @Override
     public void neighborChanged(BlockState state, World world, BlockPos pos, Block nBlock, BlockPos nPos, boolean b) {
-        this.updatePower(state, world, pos);
+        this.updateAntlineActivation(state, world, pos);
 
         super.neighborChanged(state, world, pos, nBlock, nPos, b);
     }
@@ -61,6 +61,6 @@ public abstract class AntlineOutput extends AntlineDevice implements AntlineActi
     public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean b) {
         // First update surrounding antlines, then check for them
         world.updateNeighborsAt(pos, this);
-        this.updatePower(state, world, pos);
+        this.updateAntlineActivation(state, world, pos);
     }
 }

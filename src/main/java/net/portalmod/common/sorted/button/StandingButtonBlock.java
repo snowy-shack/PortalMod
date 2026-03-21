@@ -226,7 +226,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public boolean isActive(BlockState state) {
+    public boolean isAntlineActive(BlockState state) {
         return state.getValue(ACTIVE);
     }
 
@@ -240,7 +240,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public boolean connectsInDirection(Direction direction, BlockState state) {
+    public boolean antlineConnectsInDirection(Direction direction, BlockState state) {
         return state.getValue(HALF) == DoubleBlockHalf.LOWER && direction.getAxis() != state.getValue(FACING).getAxis();
     }
 

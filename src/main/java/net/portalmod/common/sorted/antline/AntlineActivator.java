@@ -6,5 +6,5 @@ import net.minecraft.block.BlockState;
  * Activates Antlines.
  */
 public interface AntlineActivator extends AntlineConnector {
-    boolean isActive(BlockState state);
+    boolean isAntlineActive(BlockState state);
 }

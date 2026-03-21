@@ -238,7 +238,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
 
     @Override
-    public boolean isActive(BlockState state) {
+    public boolean isAntlineActive(BlockState state) {
         return state.getValue(ACTIVE);
     }
 
@@ -248,7 +248,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
 
     @Override
-    public boolean connectsInDirection(Direction direction, BlockState state) {
+    public boolean antlineConnectsInDirection(Direction direction, BlockState state) {
         return direction.getAxis() != state.getValue(FACING).getAxis();
     }
 }

@@ -53,7 +53,7 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    public void setActive(boolean active, BlockState state, World world, BlockPos pos) {
+    public void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos) {
         if (state.getValue(ACTIVATED) == active) return;
 
         world.setBlock(pos, state.setValue(ACTIVATED, active), 2);
@@ -61,7 +61,7 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    public boolean ignoreActivationFromBlock(BlockState state) {
+    public boolean ignoreAntlineActivationFromBlock(BlockState state) {
         return state.getBlock() instanceof AntlineEncoderBlock;
     }
 
@@ -87,14 +87,14 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
 
     @Override
     public void neighborChanged(BlockState state, World world, BlockPos pos, Block nBlock, BlockPos nPos, boolean b) {
-        this.updatePower(state, world, pos);
+        this.updateAntlineActivation(state, world, pos);
     }
 
     @Override
     public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean b) {
         // First update surrounding antlines, then check for them
         world.updateNeighborsAt(pos, this);
-        this.updatePower(state, world, pos);
+        this.updateAntlineActivation(state, world, pos);
     }
 
     @Override
