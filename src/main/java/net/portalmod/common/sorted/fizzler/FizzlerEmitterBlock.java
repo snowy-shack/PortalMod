@@ -252,16 +252,33 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        //todo new rotation & mirror
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        Direction upperDirection = getUpperDirection(state);
+        Direction facing = state.getValue(FACING);
+
+        if (facing.getAxis().isVertical() && ModUtil.getRotationAmount(rotation) % 2 == 1) {
+            state = state.cycle(ROTATED);
+        }
+
+        if (upperDirection.getAxisDirection() != rotation.rotate(upperDirection).getAxisDirection()) {
+            state = state.cycle(HALF);
+        }
+
+        return state.setValue(FACING, rotation.rotate(facing));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
+        Direction upperDirection = getUpperDirection(state);
         Direction facing = state.getValue(FACING);
-        if (mirror.mirror(facing) != facing) {
-            return state.setValue(FACING, facing.getOpposite());
+
+        if (mirror.mirror(upperDirection) != upperDirection) {
+            state = state.cycle(HALF);
         }
+
+        if (mirror.mirror(facing) != facing) {
+            state = state.setValue(FACING, facing.getOpposite());
+        }
+
         return state;
     }
 
