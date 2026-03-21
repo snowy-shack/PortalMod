@@ -106,6 +106,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
         return this.getShapeGroup(state).getVariant(state.getValue(ACTIVE) ? "active" : "");
     }
 
+    @Override
     public VoxelShape getFieldShape(BlockState state) {
         return this.getShapeGroup(state).getPart("field");
     }
@@ -129,6 +130,11 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     @Override
     public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
         return state.getValue(FizzlerEmitterBlock.ACTIVE) && this.getFieldShape(state).bounds().move(pos).intersects(box);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        return state.getValue(ACTIVE);
     }
 
     @Override

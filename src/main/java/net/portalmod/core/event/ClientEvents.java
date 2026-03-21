@@ -40,6 +40,7 @@ import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -55,6 +56,7 @@ import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.faithplate.Flingable;
+import net.portalmod.common.sorted.fizzler.Fizzler;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.CameraAnimator;
 import net.portalmod.common.sorted.portal.PortalEntity;
@@ -135,6 +137,39 @@ public class ClientEvents {
 
                 if(TriggerSelectionClient.isSelecting()) {
                     TriggerSelectionClient.abort();
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerPickUpItem(final PlayerEvent.ItemPickupEvent event) {
+        ItemEntity originalItemEntity = event.getOriginalEntity();
+        ItemStack itemStack = event.getStack();
+        PlayerEntity player = event.getPlayer();
+        World level = player.level;
+
+        if(itemStack.getItem().getItem() instanceof PortalGun) {
+            RayTraceContext context = new RayTraceContext(player.getEyePosition(1), originalItemEntity.position(),
+                    RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, player);
+
+            BlockRayTraceResult result = ModUtil.customClip(level, context, pos -> {
+                BlockState state = level.getBlockState(pos);
+                Block block = state.getBlock();
+
+                if(Fizzler.isActiveFizzler(state)) {
+                    return Optional.of(((Fizzler)block).getFieldShape(state));
+                }
+
+                return Optional.empty();
+            });
+
+            if(result.getType() == RayTraceResult.Type.BLOCK) {
+                BlockPos pos = result.getBlockPos();
+                BlockState state = level.getBlockState(pos);
+
+                if(Fizzler.isActiveFizzler(state)) {
+                    PortalGun.fizzleGunItem(itemStack);
                 }
             }
         }
