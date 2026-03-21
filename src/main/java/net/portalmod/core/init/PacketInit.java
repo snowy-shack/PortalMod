@@ -39,7 +39,6 @@ public class PacketInit {
         register(new SRadioUpdatePacket(),              NetworkDirection.PLAY_TO_CLIENT);
         register(new SAntlineUpdatePacket(),            NetworkDirection.PLAY_TO_CLIENT);
         register(new SFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_CLIENT);
-        register(new SEntityPortalTeleportPacketNew(),  NetworkDirection.PLAY_TO_CLIENT);
         register(new SEntityPortalTeleportLerpPacket(), NetworkDirection.PLAY_TO_CLIENT);
         register(new SPortalGunAnimationPacket(),       NetworkDirection.PLAY_TO_CLIENT);
         register(new SPortalPairPacket(),               NetworkDirection.PLAY_TO_CLIENT);
