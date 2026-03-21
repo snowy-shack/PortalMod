@@ -105,7 +105,7 @@ public class SkinManager {
 
         PortalGunPlayer payload = this.gson.fromJson(data, PortalGunPlayer.class);
         if(this.clientSide)
-            this.fetchNewSkins(new HashSet<>(payload.skins));
+            this.fetchTheseNewSkins(new HashSet<>(payload.skins));
 
         if(player != null)
             this.players.put(player, payload);
@@ -193,16 +193,16 @@ public class SkinManager {
 
     // SKINS
 
-    private void uploadSkin(String id) {
+    private void uploadSkin(String id, boolean overwrite) {
         Texture currentTexture = Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(id));
-        if(!(currentTexture instanceof PortalGunAnimatedTexture)) {
+        if(!(currentTexture instanceof PortalGunAnimatedTexture) || overwrite) {
             PortalGunAnimatedTexture skinTexture = new PortalGunAnimatedTexture(id, this.getSkinCatalog().get(id).framerate);
             Minecraft.getInstance().textureManager.register(this.getSkinLocation(id), skinTexture);
         }
     }
 
-    private void uploadAllSkins() {
-        this.getSkinCatalog().forEach((k, v) -> this.uploadSkin(v.skin_id));
+    private void uploadAllSkins(boolean overwrite) {
+        this.getSkinCatalog().forEach((k, v) -> this.uploadSkin(v.skin_id, overwrite));
     }
 
     private void updateSkin(PortalGunSkin skin, File skinFile) throws IOException {
@@ -259,19 +259,23 @@ public class SkinManager {
         }
     }
 
-    private void fetchNewSkins(Set<String> skins) {
+    private void fetchNewSkins() {
+        try {
+            this.fetchSkinCatalog();
+            this.cacheSkinCatalog();
+            this.updateAllSkins();
+        } catch(IOException e) {
+            PortalMod.LOGGER.error(e.getMessage());
+        }
+    }
+
+    private void fetchTheseNewSkins(Set<String> skins) {
         List<String> newSkins = skins.stream()
                 .filter(newSkin -> !this.getSkinCatalog().containsKey(newSkin))
                 .collect(Collectors.toList());
 
         if(!newSkins.isEmpty()) {
-            try {
-                this.fetchSkinCatalog();
-                this.cacheSkinCatalog();
-                this.updateAllSkins();
-            } catch(IOException e) {
-                PortalMod.LOGGER.error(e.getMessage());
-            }
+            this.fetchNewSkins();
         }
     }
 
@@ -327,7 +331,7 @@ public class SkinManager {
         if(this.clientSide) {
             if(player == null && this.getOwnUUID().isPresent())
                 player = this.getOwnUUID().get();
-            this.fetchNewSkins(Collections.singleton(skin));
+            this.fetchTheseNewSkins(Collections.singleton(skin));
         }
 
         if(player != null)
@@ -425,7 +429,7 @@ public class SkinManager {
         this.callbackPending = false;
 
         if(this.clientSide) {
-            this.uploadAllSkins();
+            this.uploadAllSkins(false);
         }
 
         while(!this.pendingCallbacks.isEmpty()) {
@@ -498,7 +502,7 @@ public class SkinManager {
 
         try {
             this.loadSkinCatalog();
-            this.uploadAllSkins();
+            this.uploadAllSkins(true);
         } catch(IOException e) {
             PortalMod.LOGGER.error(e.getMessage());
         }
@@ -514,9 +518,10 @@ public class SkinManager {
             UUID uuid = optionalUUID.get();
 
             try {
+                this.fetchNewSkins();
                 this.fetchPlayer(uuid);
                 this.updateConfigHasSkinsFlag();
-                this.uploadAllSkins();
+                this.uploadAllSkins(true);
 
                 selectedSkin = this.adjustSelectedSkin(selectedSkin);
                 this.setConfigSelectedSkin(selectedSkin);
