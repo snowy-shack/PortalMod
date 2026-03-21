@@ -14,6 +14,7 @@
     "minecraft:jungle_leaves",
     "minecraft:iron_bars",
     "minecraft:ladder",
-    "minecraft:chain"
+    "minecraft:chain",
+    "minecraft:structure_void"
   ]
 }

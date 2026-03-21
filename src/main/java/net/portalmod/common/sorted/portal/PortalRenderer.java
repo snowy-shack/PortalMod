@@ -23,6 +23,7 @@ import net.minecraft.util.math.vector.*;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
+import net.portalmod.client.render.Shader;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -106,9 +107,13 @@ public class PortalRenderer {
         return instance;
     }
 
-    private void renderMask(PortalEntity portal, Matrix4f modelView) {
+    private void renderMask(PortalEntity portal, Matrix4f model, Matrix4f view, Matrix4f projectionMatrix) {
         ShaderInit.PORTAL_MASK.get().bind()
-                .setMatrix("modelViewProjection", modelView);
+                .setMatrix("model", model)
+                .setMatrix("view", view)
+                .setMatrix("projection", projectionMatrix);
+
+        this.setupShaderClipPlane(ShaderInit.PORTAL_MASK.get(), this.portalStack.peekFirst());
 
         int age = portal.getAge();
         boolean spawning = age < 4;
@@ -129,7 +134,7 @@ public class PortalRenderer {
         GL11.glEnable(GL_ALPHA_TEST);
         glEnable(GL_DEPTH_CLAMP);
         RenderSystem.depthMask(false);
-        portalMesh.render(new Mat4(modelView));
+        portalMesh.render();
         RenderSystem.depthMask(true);
         glDisable(GL_DEPTH_CLAMP);
         GL11.glDisable(GL_ALPHA_TEST);
@@ -153,7 +158,7 @@ public class PortalRenderer {
         ShaderInit.COLOR.get().unbind();
     }
 
-    private void renderDepth(Matrix4f modelViewProjection) {
+    private void renderDepth(Matrix4f modelView) {
         glUseProgram(0);
 
         RenderSystem.enableDepthTest();
@@ -163,7 +168,7 @@ public class PortalRenderer {
         glEnable(GL_DEPTH_CLAMP);
         RenderSystem.depthFunc(GL_ALWAYS);
         RenderSystem.colorMask(false, false, false, false);
-        portalMesh.render(new Mat4(modelViewProjection));
+        portalMesh.render(new Mat4(modelView));
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthFunc(GL_LESS);
         glDisable(GL_DEPTH_CLAMP);
@@ -173,7 +178,7 @@ public class PortalRenderer {
         unbindBuffer();
     }
 
-    private void renderBorder(PortalEntity portal, float partialTicks, Matrix4f modelViewProjection) {
+    private void renderBorder(PortalEntity portal, float partialTicks, Matrix4f model, Matrix4f view, Matrix4f projectionMatrix) {
         Minecraft mc = Minecraft.getInstance();
 
         if(mc.player == null)
@@ -209,7 +214,11 @@ public class PortalRenderer {
         ShaderInit.PORTAL_FRAME.get().bind()
                 .setInt("frameCount", frameCount)
                 .setFloat("frameIndex", frameIndex)
-                .setMatrix("modelViewProjection", modelViewProjection);
+                .setMatrix("model", model)
+                .setMatrix("view", view)
+                .setMatrix("projection", projectionMatrix);
+
+        this.setupShaderClipPlane(ShaderInit.PORTAL_FRAME.get(), this.portalStack.peekFirst());
 
         RenderUtil.bindTexture(ShaderInit.PORTAL_FRAME.get(), "texture", path, 0);
 
@@ -256,18 +265,12 @@ public class PortalRenderer {
 
         renderedPortals = 0;
 
-        ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
-        renderChunks.addAll(mc.levelRenderer.renderChunks);
-
         for(Entity entity : level.entitiesForRendering()) {
             if(entity instanceof PortalEntity) {
                 renderPortal((PortalEntity)entity, camera, clippingHelper, projectionMatrix, partialTicks, fabulousGraphics);
                 renderedPortals++;
             }
         }
-
-        mc.levelRenderer.renderChunks.clear();
-        mc.levelRenderer.renderChunks.addAll(renderChunks);
 
         if(recursion == 0) {
             currentlyRenderingPortals = false;
@@ -390,7 +393,13 @@ public class PortalRenderer {
 
         Minecraft mc = Minecraft.getInstance();
         Framebuffer mainFBO = mc.getMainRenderTarget();
-        Matrix4f modelView = getModelViewMatrix(portal, camera, portal.getWallAttachmentDistance(camera));
+
+        Matrix4f modelMatrix = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera));
+        Matrix4f modelMatrix2 = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 2);
+        Matrix4f viewMatrix = getViewMatrix(camera);
+
+        Matrix4f modelView = viewMatrix.copy();
+        modelView.multiply(modelMatrix);
 
         if(!discardPortal(portal, camera, clippingHelper)) {
             GL11.glEnable(GL_STENCIL_TEST);
@@ -400,9 +409,6 @@ public class PortalRenderer {
             ActiveRenderInfo portalCamera = setupCamera(camera, portal, partialTicks);
             setupMatrixStack(matrixStack, portalCamera);
             setupSkyAndFog(portalCamera, partialTicks);
-
-            Matrix4f modelViewProjection = projectionMatrix.copy();
-            modelViewProjection.multiply(getModelViewMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 2));
 
             ActiveRenderInfo fogCamera = portalCamera;
             if(portal.getOtherPortal().isPresent()) {
@@ -416,7 +422,7 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0x7F);
             RenderSystem.stencilFunc(GL_EQUAL, recursion - 1, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-            renderMask(portal, modelViewProjection);
+            renderMask(portal, modelMatrix2, viewMatrix, projectionMatrix);
 
             RenderSystem.stencilMask(0);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
@@ -428,7 +434,7 @@ public class PortalRenderer {
                 portalStack.push(otherPortal);
 
                 clipMatrix.pushPose();
-                RenderUtil.setupClipPlane(clipMatrix, portal, camera, portal.getWallAttachmentDistance(camera), false);
+                RenderUtil.setupClipPlane(clipMatrix, portal, camera, 0, false);
 
                 currentCamera = portalCamera;
 
@@ -436,10 +442,17 @@ public class PortalRenderer {
                 PMState.cameraPosOverrideForRenderingSelf = PMState.cameraPosOverrideForRenderingSelf == null ? null
                         : PMState.cameraPosOverrideForRenderingSelf.clone().transform(PortalEntity.getPortalToPortalMatrix(portal, otherPortal));
 
+                ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
+                renderChunks.addAll(mc.levelRenderer.renderChunks);
+
                 boolean renderOutline = this.shouldRenderOutline(portalChain);
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), renderOutline, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
                 TriggerTER.renderAllTriggers();
+
+                mc.levelRenderer.needsUpdate = true;
+                mc.levelRenderer.renderChunks.clear();
+                mc.levelRenderer.renderChunks.addAll(renderChunks);
 
                 TileEntityRendererDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
@@ -468,12 +481,12 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0x80);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0xFF);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INVERT);
-            renderMask(portal, modelView);
+            renderMask(portal, modelMatrix, viewMatrix, projectionMatrix);
 
             RenderSystem.stencilMask(0);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            renderBorder(portal, partialTicks, modelViewProjection);
+            renderBorder(portal, partialTicks, modelMatrix2, viewMatrix, projectionMatrix);
             renderDepth(modelView);
 
             RenderSystem.stencilMask(0x7F);
@@ -571,12 +584,16 @@ public class PortalRenderer {
             if (!(item.getItem() instanceof PortalGun) || !gunUUID.isPresent() || !gunUUID.get().equals(portal.getGunUUID()))
                 continue;
 
-            Matrix4f modelViewProjection = projectionMatrix.copy();
-            modelViewProjection.multiply(getModelViewMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 3));
+            Matrix4f model = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 3);
+            Matrix4f view = getViewMatrix(camera);
 
             ShaderInit.PORTAL_HIGHLIGHT.get().bind()
-                    .setMatrix("modelViewProjection", modelViewProjection)
+                    .setMatrix("model", model)
+                    .setMatrix("view", view)
+                    .setMatrix("projection", projectionMatrix)
                     .setFloat("intensity", (float)portal.position().distanceTo(cameraPos));
+
+            this.setupShaderClipPlane(ShaderInit.PORTAL_HIGHLIGHT.get(), this.portalStack.peekFirst());
 
             RenderUtil.bindTexture(ShaderInit.PORTAL_HIGHLIGHT.get(), "texture",
                     "textures/portal/highlight_" + portal.getColor() + ".png", 0);
@@ -609,20 +626,41 @@ public class PortalRenderer {
         VertexBuffer.unbind();
     }
 
-    private Matrix4f getModelViewMatrix(PortalEntity portal, ActiveRenderInfo camera, float offset) {
-        Vector3d cameraPos = camera.getPosition();
+    private void setupShaderClipPlane(Shader shader, @Nullable PortalEntity portal) {
+        if(portal == null) {
+            shader.bind().setInt("clipPlaneEnabled", 0);
+            return;
+        }
+
+        Vec3 pos = new Vec3(portal.position());
+        Vec3 vec = new Vec3(portal.getDirection());
+
+        shader.bind()
+                .setInt("clipPlaneEnabled", 1)
+                .setFloat("clipVec", (float)vec.x, (float)vec.y, (float)vec.z)
+                .setFloat("clipPos", (float)pos.x, (float)pos.y, (float)pos.z);
+    }
+
+    private Matrix4f getModelMatrix(PortalEntity portal, ActiveRenderInfo camera, float offset) {
         Vector3i portalNormal = portal.getDirection().getNormal();
         MatrixStack matrix = new MatrixStack();
         Vec3 offsetNormal = new Vec3(camera.getPosition()).sub(portal.position()).normalize().mul(offset);
+
+        matrix.translate(offsetNormal.x, offsetNormal.y, offsetNormal.z);
+        matrix.translate(portalNormal.getX() * 0.0001f, portalNormal.getY() * 0.0001f, portalNormal.getZ() * 0.0001f);
+        PortalEntity.setupMatrix(matrix, portal.getDirection(), portal.getUpVector(), portal.getPivotPoint());
+        return matrix.last().pose();
+    }
+
+    private Matrix4f getViewMatrix(ActiveRenderInfo camera) {
+        Vector3d cameraPos = camera.getPosition();
+        MatrixStack matrix = new MatrixStack();
         float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
         matrix.mulPose(Vector3f.ZP.rotationDegrees(roll));
         matrix.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
         matrix.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
-        matrix.translate(offsetNormal.x, offsetNormal.y, offsetNormal.z);
-        matrix.translate(portalNormal.getX() * 0.0001f, portalNormal.getY() * 0.0001f, portalNormal.getZ() * 0.0001f);
         matrix.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-        PortalEntity.setupMatrix(matrix, portal.getDirection(), portal.getUpVector(), portal.getPivotPoint());
         return matrix.last().pose();
     }
 
