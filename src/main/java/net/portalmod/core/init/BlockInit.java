@@ -198,10 +198,10 @@ public class BlockInit {
     // GEL
     
     public static final RegistryObject<Block> REPULSION_GEL = BLOCKS.register("repulsion_gel", () -> new RepulsionGelBlock(
-            AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_BLUE).sound(SoundTypeInit.GEL).noOcclusion().noCollission()));
+            AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_BLUE).sound(SoundTypeInit.GEL).noOcclusion().noCollission().strength(-1)));
 
     public static final RegistryObject<Block> PROPULSION_GEL = BLOCKS.register("propulsion_gel", () -> new PropulsionGelBlock(
-            AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_ORANGE).sound(SoundTypeInit.GEL).noOcclusion().noCollission()));
+            AbstractBlock.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_ORANGE).sound(SoundTypeInit.GEL).noOcclusion().noCollission().strength(-1)));
 
 
 
