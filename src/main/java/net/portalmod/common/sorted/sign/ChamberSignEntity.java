@@ -67,6 +67,10 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public void tick() {
+        if(this.tickCount == 1) {
+            this.recalculateBoundingBox();
+        }
+
         super.tick();
 
         boolean powered = isPowered();
