@@ -158,7 +158,9 @@ public class PortalGun extends Item {
 
             Block block = blockstate.getBlock();
             if(block == BlockInit.FIZZLER_EMITTER.get()) {
-                voxelshape = ((FizzlerEmitterBlock)block).getFieldShape(blockstate);
+                if(blockstate.getValue(FizzlerEmitterBlock.ACTIVE)) {
+                    voxelshape = ((FizzlerEmitterBlock)block).getFieldShape(blockstate);
+                }
             } else if(block == BlockInit.FIZZLER_FIELD.get()) {
                 voxelshape = ((FizzlerFieldBlock)block).getFieldShape(blockstate);
             }
