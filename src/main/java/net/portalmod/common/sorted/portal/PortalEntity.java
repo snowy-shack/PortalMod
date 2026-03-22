@@ -460,7 +460,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         AxisAlignedBB actualAABB = noneOfTheServersBusiness ? travelAABB.inflate(3) : travelAABB;
 
         List<PortalEntity> portals = getOpenPortals(entity.level, actualAABB, portal -> {
-            boolean blockBehind = (float)new Vec3(Vector3d.atCenterOf(pos)).sub(portal.position()).dot(portal.getNormal()) < 0;
+            Vec3 center = new Vec3(pos).blockCenter();
+            Vec3 portalBlockCenter = new Vec3(portal.position()).blockCenter();
+            boolean isBlockBehind = (float)center.clone().sub(portalBlockCenter).dot(portal.getNormal()) < 0;
+            boolean isBlockSupportingPortal = portal.getBlocksBehind().contains(pos);
             boolean entityAligned = portal.isEntityAlignedToPortal(entity);
             boolean velocityAffine = entity.getDeltaMovement().dot(new Vector3d(portal.getNormal())) <= 0;
             boolean intersect = entity.getBoundingBox().intersects(portal.getBoundingBox());
@@ -474,7 +477,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 }
             }
 
-            return blockBehind && entityAligned && (velocityAffine || intersect) && (!hasJustUsedPortal || justUsedPortalInFront);
+            return (isBlockBehind || isBlockSupportingPortal) && entityAligned && (velocityAffine || intersect) && (!hasJustUsedPortal || justUsedPortalInFront);
         });
 
         return !portals.isEmpty();

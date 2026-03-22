@@ -338,6 +338,10 @@ public class Vec3 {
         return this.compute(Math::abs);
     }
 
+    public Vec3 blockCenter() {
+        return this.floor().add(.5);
+    }
+
     public Vec3 lerp(Vec3 v, double factor) {
         this.x = this.x * (1 - factor) + v.x * factor;
         this.y = this.y * (1 - factor) + v.y * factor;
