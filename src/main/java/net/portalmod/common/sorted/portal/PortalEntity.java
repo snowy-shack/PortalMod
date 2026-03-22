@@ -348,7 +348,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public static Vector3d doFunneling(Entity entity, Vector3d delta) {
-        if(!entity.level.getGameRules().getBoolean(GameRuleInit.DO_FUNNELING))
+        if(!entity.level.getGameRules().getBoolean(GameRuleInit.PORTAL_FUNNELING))
             return delta;
 
         float downDot = (float)entity.getViewVector(1).dot(new Vec3(Direction.DOWN.getNormal()).to3d());

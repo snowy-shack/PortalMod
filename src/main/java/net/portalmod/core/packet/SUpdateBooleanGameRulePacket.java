@@ -3,6 +3,7 @@ package net.portalmod.core.packet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -11,23 +12,23 @@ import net.portalmod.core.init.GameRuleInit;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-public class SUpdateFunnelingGameRulePacket implements AbstractPacket<SUpdateFunnelingGameRulePacket> {
+public class SUpdateBooleanGameRulePacket implements AbstractPacket<SUpdateBooleanGameRulePacket> {
     private String name;
     private boolean value;
 
-    public SUpdateFunnelingGameRulePacket() {}
+    public SUpdateBooleanGameRulePacket() {}
 
-    public SUpdateFunnelingGameRulePacket(String name, boolean value) {
+    public SUpdateBooleanGameRulePacket(String name, boolean value) {
         this.name = name;
         this.value = value;
     }
 
     @Override
-    public SUpdateFunnelingGameRulePacket decode(PacketBuffer buffer) {
+    public SUpdateBooleanGameRulePacket decode(PacketBuffer buffer) {
         int length = buffer.readInt();
         String rule = buffer.readCharSequence(length, StandardCharsets.UTF_8).toString();
         boolean value = buffer.readBoolean();
-        return new SUpdateFunnelingGameRulePacket(rule, value);
+        return new SUpdateBooleanGameRulePacket(rule, value);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class SUpdateFunnelingGameRulePacket implements AbstractPacket<SUpdateFun
                 if(level == null)
                     return;
 
-                level.getGameRules().getRule(GameRuleInit.DO_FUNNELING).set(this.value, null);
+                level.getGameRules().getRule(GameRuleInit.<GameRules.BooleanValue>getRule(this.name)).set(this.value, null);
             });
         });
         context.get().setPacketHandled(true);
