@@ -65,6 +65,7 @@ public class CommonEvents {
         });
 
         GameRuleInit.sendBooleanRule((ServerPlayerEntity)event.getEntity(), GameRuleInit.PORTAL_FUNNELING);
+        GameRuleInit.sendBooleanRule((ServerPlayerEntity)event.getEntity(), GameRuleInit.PORTAL_SLOWSHOT);
         GameRuleInit.sendBooleanRule((ServerPlayerEntity)event.getEntity(), GameRuleInit.USE_PORTALABLE_BLACKLIST);
     }
 

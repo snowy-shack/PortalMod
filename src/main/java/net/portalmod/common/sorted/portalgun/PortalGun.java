@@ -46,6 +46,7 @@ import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class PortalGun extends Item {
 
@@ -238,9 +239,11 @@ public class PortalGun extends Item {
         Direction face = ray.getDirection();
         Direction up = face.getAxis().isHorizontal() ? Direction.UP : player.getDirection();
 
-        String hue = "blue";
+        String hue;
         if(nbt.contains(isPrimary ? "LeftColor" : "RightColor")) {
             hue = nbt.getString(isPrimary ? "LeftColor" : "RightColor");
+        } else {
+            hue = "blue";
         }
 
         boolean inFizzler = AABBUtil.getBlocksWithin(player.getBoundingBox()).stream()
@@ -261,24 +264,37 @@ public class PortalGun extends Item {
                     return VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND);
                 });
 
-        PortalEntity portal = null;
+        PortalEntity portal;
+        double distance = ray.getLocation().subtract(player.getEyePosition(0)).length();
+        int ticks = (int)Math.ceil(distance / 2);
+
+        Consumer<PortalEntity> onPlace = placedPortal -> {
+            if(placedPortal == null) {
+                level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, 1f);
+                PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
+                        new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
+                return;
+            }
+
+            triggerPortalAdvancements(level, (ServerPlayerEntity)player, placedPortal, distance);
+
+            // todo convert to string
+            gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
+            player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());
+        };
 
         if(!inFizzler) {
-            portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player));
-        }
-
-        if(portal == null) {
+            if(level.getGameRules().getBoolean(GameRuleInit.PORTAL_SLOWSHOT)) {
+                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player), ticks, onPlace);
+            } else {
+                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player));
+                onPlace.accept(portal);
+            }
+        } else {
             level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, 1f);
             PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                     new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
-            return;
         }
-
-        triggerPortalAdvancements(level, (ServerPlayerEntity)player, portal, ray.getLocation().subtract(player.getEyePosition(0)).length());
-
-        // todo convert to string
-        gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
-        player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());
     }
 
     @Override
@@ -468,6 +484,8 @@ public class PortalGun extends Item {
     public static boolean fizzleGunItem(ItemStack itemStack) {
         Optional<UUID> gunUUID = PortalGun.getUUID(itemStack);
         if (!gunUUID.isPresent()) return false;
+
+        PortalManager.getInstance().clearScheduledPlacements(gunUUID.get());
 
         PortalPair pair = PortalManager.getInstance().getPair(gunUUID.get());
         if (pair == null) return false;
