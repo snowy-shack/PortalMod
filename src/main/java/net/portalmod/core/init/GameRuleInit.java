@@ -40,6 +40,6 @@ public class GameRuleInit {
 
     public static void sendBooleanRule(ServerPlayerEntity player, GameRules.RuleKey<GameRules.BooleanValue> key) {
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                new SUpdateBooleanGameRulePacket(key.getId(), player.level.getGameRules().getBoolean(GameRuleInit.PORTAL_FUNNELING)));
+                new SUpdateBooleanGameRulePacket(key.getId(), player.level.getGameRules().getBoolean(key)));
     }
 }
