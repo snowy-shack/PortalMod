@@ -39,7 +39,6 @@ public class EntityInit {
 
     public static final RegistryObject<EntityType<TurretEntity>> TURRET = ENTITIES.register("turret",
             () -> EntityType.Builder.<TurretEntity>of(TurretEntity::new, EntityClassification.CREATURE)
-                    .sized(.8f, 1.3f)
                     .build(new ResourceLocation(PortalMod.MODID, "turret").toString()));
 
     public static final RegistryObject<EntityType<ChamberSignEntity>> CHAMBER_SIGN = ENTITIES.register("chamber_sign",

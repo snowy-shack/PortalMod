@@ -43,16 +43,9 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
 //        if(super.shouldRender(turret, ))
         TurretState turretState = turret.getState();
 
-        float yRod = -(float) Math.toRadians(turret.yRot);
-        float rotSin = (float) Math.sin(yRod);
-        float rotCos = (float) Math.cos(yRod);
-
-        float tipSide = (float) turret.tipDirection.x * rotCos - (float) turret.tipDirection.z * rotSin;
-        boolean tipToLeft = (tipSide > 0);
-
-        float fallAnimTick = Math.min(turret.animationTick + partialTicks, turret.fallDuration);
+        float fallAnimTick = Math.min(turret.getAnimationTicks() + partialTicks, turret.fallDuration);
         float fallAmount = 90F * (fallAnimTick * fallAnimTick) / (turret.fallDuration * turret.fallDuration);
-        int tipDir = tipToLeft ? -1 : 1;
+        int tipDir = turret.getTipDirectionRight() ? 1 : -1;
         fallAmount *= tipDir;
         float tipOffset = 0.2F;
         float halfModelHeight = 0.8F;

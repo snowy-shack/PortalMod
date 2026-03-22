@@ -37,10 +37,16 @@ public class TurretEntity extends TestElementEntity {
     public static final DataParameter<Integer> AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.INT);
     public static final DataParameter<Boolean> INFINITE_AMMO_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
     public static final DataParameter<String> STATE_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.STRING);
+    public static final DataParameter<Integer> ANIMATION_TICKS_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.INT);
+    public static final DataParameter<Boolean> TIP_DIRECTION_RIGHT_ID = EntityDataManager.defineId(TurretEntity.class, DataSerializers.BOOLEAN);
+
     public static final int AMMO_PER_BULLET = 20;
     public static final int MAX_BULLETS = 64;
     public static final float BULLET_DAMAGE = 0.5f;
     public static final float BULLET_KNOCKBACK = 0.1f;
+
+    public static final EntitySize DIMENSIONS = EntitySize.scalable(.5f, 1.2f);
+    public static final EntitySize DEAD_DIMENSIONS = EntitySize.scalable(.5f, .5f);
 
     public static Predicate<LivingEntity> TARGETS = e ->
             !(e instanceof TestElementEntity)
@@ -58,8 +64,6 @@ public class TurretEntity extends TestElementEntity {
     public LivingEntity targetEntity = null;
     public Vector3d lastLaserPos = Vector3d.ZERO;
     public Vector3d turretToTarget = Vector3d.ZERO;
-    public Vector3d tipDirection = Vector3d.ZERO;
-    public int animationTick = 0;
 
     public static DamageSource damageSource(LivingEntity entity) {
         return new EntityDamageSource("turret", entity);
@@ -73,8 +77,13 @@ public class TurretEntity extends TestElementEntity {
     }
 
     @Override
-    protected float getStandingEyeHeight(Pose p_213348_1_, EntitySize p_213348_2_) {
-        return 0.75F;
+    public float getEyeHeight(Pose pose) {
+        return this.getState() == TurretState.DEAD ? 0.3f : .75f;
+    }
+
+    @Override
+    public EntitySize getDimensions(Pose pose) {
+        return this.getState() == TurretState.DEAD ? DEAD_DIMENSIONS : DIMENSIONS;
     }
 
     @Override
@@ -87,21 +96,21 @@ public class TurretEntity extends TestElementEntity {
 
         // If it's being held with a Portal Gun
         if (this.getVehicle() instanceof PlayerEntity) {
-            setState(TurretState.LOST_TARGET);
+            this.setState(TurretState.LOST_TARGET);
             return;
         }
 
         this.animate();
 
         // Tipping over
-        Vector3d motionXZ = new Vector3d(getDeltaMovement().x, 0, getDeltaMovement().z);
-        if (motionXZ.length() > 0.1
+        Vector3d deltaMovement = getDeltaMovement();
+        Vector3d motionXZ = new Vector3d(deltaMovement.x, 0, deltaMovement.z);
+        if (motionXZ.length() > 0.01
                 && getState() != TurretState.FALLING
                 && getState() != TurretState.DEAD
                 && this.onGround) {
-            this.animationTick = 0;
-            setState(TurretState.FALLING);
-            this.tipDirection = motionXZ.normalize();
+            this.setState(TurretState.FALLING);
+            this.setTipDirectionRight(this.getLookAngle().yRot(90).dot(deltaMovement) < 0);
             return;
         }
 
@@ -109,9 +118,15 @@ public class TurretEntity extends TestElementEntity {
 
         if (getState() == TurretState.SHOOTING || getState() == TurretState.FALLING) {
             this.shoot();
-        } else this.thisTargetShootingTicks = 0;
+        } else {
+            this.thisTargetShootingTicks = 0;
+        }
 
         this.previousTargetEntity = this.targetEntity;
+
+        if (this.tickCount == 1) {
+            this.refreshDimensions();
+        }
     }
 
     @Override
@@ -121,24 +136,23 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void animate() {
-        if (getState() == TurretState.OPENING && this.animationTick >= 10
-                || getState() == TurretState.LOST_TARGET && this.animationTick >= 20
-                || getState() == TurretState.CLOSING && this.animationTick >= 15
+        this.setAnimationTicks(this.getAnimationTicks() + 1);
+
+        if (getState() == TurretState.OPENING && this.getAnimationTicks() >= 10
+                || getState() == TurretState.LOST_TARGET && this.getAnimationTicks() >= 20
+                || getState() == TurretState.CLOSING && this.getAnimationTicks() >= 15
         ) {
             this.animationFinished();
-            this.animationTick = 0;
-        }
-
-        if (getState() == TurretState.FALLING && this.animationTick >= this.fallDuration) {
-            setState(TurretState.DEAD); // I don't hate you.
-            this.animationTick = 0;
+            this.setAnimationTicks(0);
         }
 
         if (getState() == TurretState.RESTING || getState() == TurretState.SHOOTING) {
-            this.animationTick = 0;
+            this.setAnimationTicks(0);
         }
 
-        this.animationTick++;
+        if (getState() == TurretState.FALLING && this.getAnimationTicks() >= this.fallDuration) {
+            this.setState(TurretState.DEAD); // I don't hate you.
+        }
     }
 
     public void shoot() {
@@ -433,6 +447,8 @@ public class TurretEntity extends TestElementEntity {
         this.entityData.define(AMMO_ID, 0);
         this.entityData.define(INFINITE_AMMO_ID, false);
         this.entityData.define(STATE_ID, String.valueOf(TurretState.RESTING));
+        this.entityData.define(ANIMATION_TICKS_ID, 0);
+        this.entityData.define(TIP_DIRECTION_RIGHT_ID, false);
     }
 
     @Override
@@ -475,15 +491,15 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void setState(TurretState state) {
-        if (getState() != state) {
-            this.entityData.set(STATE_ID, String.valueOf(state));
-            this.setState(state);
+        this.entityData.set(STATE_ID, String.valueOf(state));
 
-            if (state == TurretState.OPENING || state == TurretState.FALLING) {
-                this.playSound(SoundInit.TURRET_OPEN.get(), 3.5f, 1);
-            } else if (state == TurretState.CLOSING || state == TurretState.DEAD) {
-                this.playSound(SoundInit.TURRET_CLOSE.get(), 3.5f, 1);
-            }
+        this.setAnimationTicks(0);
+        this.refreshDimensions();
+
+        if (state == TurretState.OPENING || state == TurretState.FALLING) {
+            this.playSound(SoundInit.TURRET_OPEN.get(), 3.5f, 1);
+        } else if (state == TurretState.CLOSING || state == TurretState.DEAD) {
+            this.playSound(SoundInit.TURRET_CLOSE.get(), 3.5f, 1);
         }
     }
 
@@ -497,5 +513,21 @@ public class TurretEntity extends TestElementEntity {
 
     public boolean shouldLaserEase() {
         return getState() == TurretState.SHOOTING || getState() == TurretState.LOST_TARGET || getState() == TurretState.OPENING;
+    }
+
+    public int getAnimationTicks() {
+        return this.entityData.get(ANIMATION_TICKS_ID);
+    }
+
+    public void setAnimationTicks(int animationTick) {
+        this.entityData.set(ANIMATION_TICKS_ID, animationTick);
+    }
+
+    public boolean getTipDirectionRight() {
+        return this.entityData.get(TIP_DIRECTION_RIGHT_ID);
+    }
+
+    public void setTipDirectionRight(boolean right) {
+        this.entityData.set(TIP_DIRECTION_RIGHT_ID, right);
     }
 }
