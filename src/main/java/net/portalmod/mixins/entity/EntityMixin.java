@@ -12,6 +12,7 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.faithplate.Flingable;
@@ -337,6 +338,13 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         }
 
         return level.clip(context);
+    }
+
+    @Inject(remap = false, method = "tick", at = @At("RETURN"))
+    public void checkFizzlers(CallbackInfo ci) {
+        if (this instanceof Fizzleable) {
+            ((Fizzleable) this).checkForFizzlers((Entity) (Object) this);
+        }
     }
 
     // Replaced

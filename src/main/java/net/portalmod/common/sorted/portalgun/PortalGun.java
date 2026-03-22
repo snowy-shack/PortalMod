@@ -440,11 +440,13 @@ public class PortalGun extends Item {
         return colour;
     }
 
-    public static void fizzleGun(World level, PlayerEntity entity) {
+    public static void fizzleGunsInInventory(PlayerEntity player) {
+        if (player.level.isClientSide) return;
+
         boolean didFizzleAny = false;
 
-        ArrayList<ItemStack> test = new ArrayList<>(entity.inventory.items);
-        test.add(entity.getOffhandItem());
+        ArrayList<ItemStack> test = new ArrayList<>(player.inventory.items);
+        test.add(player.getOffhandItem());
 
         for (ItemStack itemStack : test) {
             if (itemStack.getItem() instanceof PortalGun) {
@@ -453,9 +455,9 @@ public class PortalGun extends Item {
         }
 
         if (didFizzleAny) {
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) entity),
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                     new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
-            level.playSound(null, entity.position().x, entity.position().y, entity.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
+            player.level.playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
         }
     }
 

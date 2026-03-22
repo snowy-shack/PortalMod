@@ -1,8 +1,6 @@
 package net.portalmod.common.entities;
 
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -21,8 +19,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.GameRules;
@@ -31,7 +27,6 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
 import net.portalmod.common.particles.PortalGunSparkParticle;
-import net.portalmod.common.sorted.fizzler.Fizzler;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
@@ -46,12 +41,11 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Stream;
 
 /**
  * Entity which can be fizzled, dropped by a cube dropper, picked up using a portal gun and broken with a wrench.
  */
-public abstract class TestElementEntity extends LivingEntity {
+public abstract class TestElementEntity extends LivingEntity implements Fizzleable {
 
     public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
     public static final DataParameter<Boolean> FROM_DROPPER_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.BOOLEAN);
@@ -94,39 +88,20 @@ public abstract class TestElementEntity extends LivingEntity {
 
         if (this.isFizzling()) {
             this.fizzleTick();
-        } else {
-            this.checkTraversedBlocks();
         }
     }
 
-    public AxisAlignedBB boundingBoxFromPos(Vector3d position) {
-        double h = this.getBbHeight();
-        double w = 0.5 * this.getBbWidth();
-        return new AxisAlignedBB(position.add(-w, 0, -w), position.add(w, h, w));
+    @Override
+    public boolean shouldCheckForFizzlers() {
+        return !this.isFizzling();
     }
 
-    public void checkTraversedBlocks() {
-        AxisAlignedBB oldBox = this.boundingBoxFromPos(ModUtil.getOldPos(this));
-
-        AxisAlignedBB movementBox = this.getBoundingBox().minmax(oldBox);
-        Stream<BlockPos> collidedPositions = BlockPos.betweenClosedStream(movementBox);
-
-        collidedPositions.forEach(pos -> {
-            BlockState state = this.level.getBlockState(pos);
-            if (this.isInsideFizzler(pos, state, movementBox)) {
-                this.startFizzling();
-                this.fizzleTick();
-            }
-        });
-    }
-
-    private boolean isInsideFizzler(BlockPos pos, BlockState state, AxisAlignedBB box) {
-        Block block = state.getBlock();
-        if (block instanceof Fizzler) {
-            return ((Fizzler) block).isInsideField(box, pos, state);
+    @Override
+    public void onTouchingFizzler() {
+        if (!this.isFizzling()) {
+            this.startFizzling();
+            this.fizzleTick();
         }
-
-        return false;
     }
 
     public boolean isFizzling() {

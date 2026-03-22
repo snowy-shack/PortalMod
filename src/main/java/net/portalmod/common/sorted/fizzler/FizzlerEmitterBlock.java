@@ -3,8 +3,6 @@ package net.portalmod.common.sorted.fizzler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
@@ -19,7 +17,6 @@ import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
@@ -28,7 +25,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -164,29 +160,6 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
         }
 
         return false;
-    }
-
-    @Override
-    public void entityInside(BlockState state, World level, BlockPos pos, Entity entity) {
-        if (!state.getValue(ACTIVE)) return;
-
-        VoxelShape voxelshape = getFieldShape(state);
-        VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
-        VoxelShape entityShape = VoxelShapes.create(entity.getBoundingBox());
-
-        if (level.isClientSide) {
-            return;
-        }
-
-        if(VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND)) {
-            if (entity instanceof PlayerEntity) {
-                PortalGun.fizzleGun(level, (PlayerEntity) entity);
-            }
-
-            if (entity instanceof ItemEntity && ((ItemEntity) entity).getItem().getItem() instanceof PortalGun) {
-                PortalGun.fizzleGunItem(((ItemEntity) entity).getItem());
-            }
-        }
     }
 
     @Override

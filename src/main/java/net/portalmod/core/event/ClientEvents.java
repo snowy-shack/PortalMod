@@ -49,6 +49,7 @@ import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.render.WatermarkRenderer;
+import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
@@ -145,11 +146,10 @@ public class ClientEvents {
     @SubscribeEvent
     public static void onPlayerPickUpItem(final PlayerEvent.ItemPickupEvent event) {
         ItemEntity originalItemEntity = event.getOriginalEntity();
-        ItemStack itemStack = event.getStack();
         PlayerEntity player = event.getPlayer();
         World level = player.level;
 
-        if(itemStack.getItem().getItem() instanceof PortalGun) {
+        if(Fizzleable.isFizzleableItem(event.getStack())) {
             RayTraceContext context = new RayTraceContext(player.getEyePosition(1), originalItemEntity.position(),
                     RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, player);
 
@@ -169,7 +169,7 @@ public class ClientEvents {
                 BlockState state = level.getBlockState(pos);
 
                 if(Fizzler.isActiveFizzler(state)) {
-                    PortalGun.fizzleGunItem(itemStack);
+                    ((Fizzleable) player).onTouchingFizzler();
                 }
             }
         }
