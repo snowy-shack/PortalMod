@@ -166,12 +166,10 @@ public class PortalPlacer {
         portal.setGunUUID(gunUUID);
         portal.recalculateBoundingBox();
 
-        PortalEntity oldPortal = PortalManager.getInstance().get(gunUUID, end);
         PortalManager.getInstance().put(gunUUID, end, portal);
         level.addFreshEntity(portal);
 
-        PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(),
-                new SPortalShotPacket(portal.getId(), oldPortal == null ? -1 : oldPortal.getId()));
+        PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SPortalShotPacket(portal.getId()));
 
         level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
                 SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, 1);

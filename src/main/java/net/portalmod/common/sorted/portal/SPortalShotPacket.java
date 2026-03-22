@@ -12,24 +12,21 @@ import java.util.function.Supplier;
 
 public class SPortalShotPacket implements AbstractPacket<SPortalShotPacket> {
     protected int id;
-    protected int oldId;
 
     public SPortalShotPacket() {}
 
-    public SPortalShotPacket(int id, int oldId) {
+    public SPortalShotPacket(int id) {
         this.id = id;
-        this.oldId = oldId;
     }
 
     @Override
     public void encode(PacketBuffer buffer) {
         buffer.writeInt(this.id);
-        buffer.writeInt(this.oldId);
     }
 
     @Override
     public SPortalShotPacket decode(PacketBuffer buffer) {
-        return new SPortalShotPacket(buffer.readInt(), buffer.readInt());
+        return new SPortalShotPacket(buffer.readInt());
     }
 
     @Override
