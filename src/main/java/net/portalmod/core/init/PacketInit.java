@@ -49,8 +49,7 @@ public class PacketInit {
         register(new SSpawnChamberSignPacket(),         NetworkDirection.PLAY_TO_CLIENT);
         register(new SFaithPlateStartConfigPacket(),    NetworkDirection.PLAY_TO_CLIENT);
         register(new STriggerStartConfigPacket(),       NetworkDirection.PLAY_TO_CLIENT);
-        register(new SUpdateFunnelingGameRulePacket(),    NetworkDirection.PLAY_TO_CLIENT);
-        register(new SUpdatePortalableGameRulePacket(),   NetworkDirection.PLAY_TO_CLIENT);
+        register(new SUpdateBooleanGameRulePacket(),    NetworkDirection.PLAY_TO_CLIENT);
 
         register(new CFaithPlateUpdatedPacket(),        NetworkDirection.PLAY_TO_SERVER);
         register(new CFaithPlateLaunchPacket(),         NetworkDirection.PLAY_TO_SERVER);
