@@ -77,6 +77,11 @@ public class TurretEntity extends TestElementEntity {
     }
 
     @Override
+    protected float getStandingEyeHeight(Pose pose, EntitySize size) {
+        return .75f;
+    }
+
+    @Override
     public float getEyeHeight(Pose pose) {
         return this.getState() == TurretState.DEAD ? 0.3f : .75f;
     }
