@@ -279,6 +279,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
 
             ((IDragCancelable)entity).pmSetCancelDrag(true);
+        } else {
+            ((IDragCancelable)entity).pmSetCancelDrag(false);
         }
 
         delta = portal.teleportVector(new Vec3(delta)).to3d();
