@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.common.blocks.PushDoorBlock;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.portal.ITeleportable;
@@ -119,11 +120,16 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     break;
 
                 case PRESS_BUTTON:
+                case OPEN_DOOR:
                     BlockState blockState = player.level.getBlockState(blockHit.getBlockPos());
                     Block block = blockState.getBlock();
                     if (block instanceof StandingButtonBlock && ((StandingButtonBlock) block).canPress(blockState)) {
                         ((StandingButtonBlock) block).press(blockState, player.level, blockHit.getBlockPos());
                     }
+                    if (block instanceof PushDoorBlock) {
+                        ((PushDoorBlock) block).interact(blockState, player.level, blockHit.getBlockPos(), blockHit);
+                    }
+                    break;
             }
         });
 

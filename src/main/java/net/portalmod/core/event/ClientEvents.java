@@ -49,10 +49,10 @@ import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.render.WatermarkRenderer;
+import net.portalmod.common.blocks.EKeyInteractable;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
-import net.portalmod.common.sorted.button.StandingButtonBlock;
 import net.portalmod.common.sorted.creer.CreerRenderer;
 import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
@@ -342,11 +342,9 @@ public class ClientEvents {
             return;
         }
 
-        // Press button
+        // Press block
         Block block = Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock();
-        double buttonReach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
-        if (block instanceof StandingButtonBlock && rayHit.getLocation().subtract(player.getEyePosition(1)).length() < buttonReach) {
-            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
+        if (block instanceof EKeyInteractable && ((EKeyInteractable) block).eKeyInteract(player, rayHit)) {
             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
             return;
         }

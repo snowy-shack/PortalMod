@@ -6,5 +6,6 @@ public enum PortalGunInteraction {
     THROW_ENTITY,
     RELEASE_ENTITY,
     SHOOT_PORTAL,
-    PRESS_BUTTON
+    PRESS_BUTTON,
+    OPEN_DOOR
 }

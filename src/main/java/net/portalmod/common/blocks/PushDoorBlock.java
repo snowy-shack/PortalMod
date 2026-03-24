@@ -17,6 +17,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
+import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
@@ -24,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class PushDoorBlock extends DoorBlock {
+public class PushDoorBlock extends DoorBlock implements EKeyInteractable {
     private void playCloseSound(World world, BlockPos pos) {
         world.playSound(null, pos, SoundInit.PUSH_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
@@ -35,22 +38,31 @@ public class PushDoorBlock extends DoorBlock {
 
     @Override
     public ActionResultType use(BlockState blockState, World world, BlockPos blockPos, PlayerEntity playerEntity, Hand hand, BlockRayTraceResult blockRayTraceResult) {
+        return interact(blockState, world, blockPos, blockRayTraceResult) ? ActionResultType.sidedSuccess(world.isClientSide) : ActionResultType.PASS;
+    }
+
+    public boolean interact(BlockState blockState, World world, BlockPos blockPos, BlockRayTraceResult blockRayTraceResult) {
         Direction clickedFace = blockRayTraceResult.getDirection();
         Direction doorFront = blockState.getValue(OPEN)
                 ? blockState.getValue(FACING).getOpposite().getClockWise()
                 : blockState.getValue(FACING).getOpposite();
 
         if (clickedFace == doorFront) {
-
             if (!blockState.getValue(OPEN)) open(blockState, world, blockPos);
             if (blockState.getValue(OPEN)) close(blockState, world, blockPos);
 
             world.getBlockTicks().scheduleTick(blockPos, this, 20);
 
-            return ActionResultType.sidedSuccess(world.isClientSide);
-        } else {
-            return ActionResultType.PASS;
+            return true;
         }
+
+        return false;
+    }
+
+    @Override
+    public boolean eKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
+        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.OPEN_DOOR).blockHit(rayHit).build());
+        return true;
     }
 
     public PushDoorBlock(Properties p_i48413_1_) {
