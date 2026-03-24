@@ -1,6 +1,8 @@
 package net.portalmod.common.sorted.portal;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
@@ -13,14 +15,18 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.math.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class PortalManager extends WorldSavedData {
     private static PortalManager instance;
     public static final String PATH = PortalMod.MODID + "_portals";
     private final Map<UUID, PortalPair> portalMap = new HashMap<>();
+    private final Map<Pair<UUID, PortalEnd>, PortalPlacementInfo> scheduledPlacements = new HashMap<>();
     private final HashMap<RegistryKey<World>, HashMap<ChunkPos, List<PortalEntity>>> portalsPerChunk = new HashMap<>();
     private final Deque<PortalEntity> pendingRemovals = new ArrayDeque<>();
     public boolean unloadingChunk = false;
@@ -40,10 +46,32 @@ public class PortalManager extends WorldSavedData {
             ((ServerWorld)portal.level).removeEntity(portal, false);
         }
         this.pendingRemovals.clear();
+
+        List<Pair<UUID, PortalEnd>> completedPlacements = new ArrayList<>();
+        this.scheduledPlacements.forEach((key, info) -> {
+            if(--info.tickCountdown <= 0) {
+                PortalEntity portal = PortalPlacer.placePortal(info.level, info.end, info.hue, info.gunUUID, info.position, info.face, info.upDirection, info.override, info.lookingDirections);
+                info.onPlace.accept(portal);
+
+                completedPlacements.add(key);
+            }
+        });
+        completedPlacements.forEach(this.scheduledPlacements::remove);
     }
 
     public void scheduleRemoval(PortalEntity portal) {
         this.pendingRemovals.add(portal);
+    }
+
+    public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, long tickCountdown, Consumer<PortalEntity> onPlace) {
+        Pair<UUID, PortalEnd> key = new Pair<>(gunUUID, end);
+        this.scheduledPlacements.put(key, new PortalPlacementInfo(level, end, hue, gunUUID, position, face, upDirection, override, lookingDirections, tickCountdown, onPlace));
+    }
+
+    public void clearScheduledPlacements(UUID gunUUID) {
+        List<Pair<UUID, PortalEnd>> removedScheduledPlacements = this.scheduledPlacements.keySet().stream()
+                .filter(key -> key.getFirst().equals(gunUUID)).collect(Collectors.toList());
+        removedScheduledPlacements.forEach(this.scheduledPlacements::remove);
     }
 
     @Override
@@ -197,5 +225,33 @@ public class PortalManager extends WorldSavedData {
 
     public Map<UUID, PortalPair> getPortalMap() {
         return portalMap;
+    }
+
+    private static class PortalPlacementInfo {
+        public final World level;
+        public final PortalEnd end;
+        public final String hue;
+        public final UUID gunUUID;
+        public final Vec3 position;
+        public final Direction face;
+        public final Direction upDirection;
+        public final boolean override;
+        public final @Nullable Direction[] lookingDirections;
+        public long tickCountdown;
+        public Consumer<PortalEntity> onPlace;
+
+        public PortalPlacementInfo(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, long tickCountdown, Consumer<PortalEntity> onPlace) {
+            this.level = level;
+            this.end = end;
+            this.hue = hue;
+            this.gunUUID = gunUUID;
+            this.position = position;
+            this.face = face;
+            this.upDirection = upDirection;
+            this.override = override;
+            this.lookingDirections = lookingDirections;
+            this.tickCountdown = tickCountdown;
+            this.onPlace = onPlace;
+        }
     }
 }

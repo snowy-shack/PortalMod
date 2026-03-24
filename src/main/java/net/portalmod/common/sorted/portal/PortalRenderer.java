@@ -178,7 +178,7 @@ public class PortalRenderer {
         unbindBuffer();
     }
 
-    private void renderBorder(PortalEntity portal, float partialTicks, Matrix4f model, Matrix4f view, Matrix4f projectionMatrix) {
+    private void renderBorder(PortalEntity portal, Matrix4f model, Matrix4f view, Matrix4f projectionMatrix) {
         Minecraft mc = Minecraft.getInstance();
 
         if(mc.player == null)
@@ -203,17 +203,17 @@ public class PortalRenderer {
         Dimension textureSize = optionalTextureSize.get();
         int frameCount = (int)textureSize.getHeight() / (2 * (int)textureSize.getWidth());
 
-        float frameIndex;
+        int frameIndex;
         if(spawning) {
             frameIndex = age % frameCount;
         } else {
-            int frameTime = 5;
-            frameIndex = ((int)(ticks / 5) % frameCount) + ((ticks % frameTime) + partialTicks) / frameTime;
+            final int frameTime = 1;
+            frameIndex = (ticks / frameTime) % frameCount;
         }
 
         ShaderInit.PORTAL_FRAME.get().bind()
                 .setInt("frameCount", frameCount)
-                .setFloat("frameIndex", frameIndex)
+                .setInt("frameIndex", frameIndex)
                 .setMatrix("model", model)
                 .setMatrix("view", view)
                 .setMatrix("projection", projectionMatrix);
@@ -486,7 +486,7 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            renderBorder(portal, partialTicks, modelMatrix2, viewMatrix, projectionMatrix);
+            renderBorder(portal, modelMatrix2, viewMatrix, projectionMatrix);
             renderDepth(modelView);
 
             RenderSystem.stencilMask(0x7F);
