@@ -2,6 +2,8 @@ package net.portalmod.common.sorted.portal;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.GameSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.*;
@@ -15,9 +17,7 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -350,7 +350,19 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public static Vector3d doFunneling(Entity entity, Vector3d delta) {
+        final float funnelHeight = 32;
+
         if(!entity.level.getGameRules().getBoolean(GameRuleInit.PORTAL_FUNNELING))
+            return delta;
+
+        GameSettings options = Minecraft.getInstance().options;
+        boolean moving = options.keyLeft.isDown()
+                || options.keyRight.isDown()
+                || options.keyUp.isDown()
+                || options.keyDown.isDown();
+
+        // don't if the player wants to move
+        if(moving)
             return delta;
 
         float downDot = (float)entity.getViewVector(1).dot(new Vec3(Direction.DOWN.getNormal()).to3d());
@@ -361,7 +373,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Vec3 entityPos = new Vec3(entity.position());
         AxisAlignedBB travelAABB = entity.getBoundingBox()
                 .expandTowards(delta)
-                .expandTowards(0, -10, 0)
+                .expandTowards(0, -funnelHeight, 0)
                 .expandTowards(3, 0, 3)
                 .expandTowards(-3, 0, -3);
 
@@ -389,22 +401,30 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             return hDistance2 < hDistance1 ? portal2 : portal1;
         }).get();
 
+        RayTraceContext rayContext = new RayTraceContext(entity.getEyePosition(1), portal.position(), RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, entity);
+        BlockRayTraceResult rayResult = entity.level.clip(rayContext);
+
+        // don't if there's blocks in between
+        if(rayResult.getType() != RayTraceResult.Type.MISS)
+            return delta;
+
         Vec3 portalPos = new Vec3(portal.position());
         Vec3 relativeEntityPos = entityPos.clone().sub(portalPos.clone());
         Vec3 flatRelativeEntityPos = relativeEntityPos.clone().mul(1, 0, 1);
         float coneRadius = (float)relativeEntityPos.y * .2f;
 
-        boolean isInCone = relativeEntityPos.y < 16 && relativeEntityPos.y > 0
+        boolean isInCone = relativeEntityPos.y < funnelHeight && relativeEntityPos.y > 0
                 && flatRelativeEntityPos.magnitude() < coneRadius;
 
         if(!isInCone)
             return delta;
 
-        float speed = (float)delta.length();
-        Vec3 funnelAcceleration = portalPos.clone().sub(entityPos)
-                .mul(1, 0, 1)
-                .mul(.8)
-                .div(Math.sqrt(relativeEntityPos.y / speed));
+        float currentHeight = (float)(relativeEntityPos.y);
+        float startHeight = Math.min(currentHeight + entity.fallDistance, funnelHeight);
+        float progress = 1 - currentHeight / startHeight;
+
+        float distanceFactor = (float)(1 - Math.exp(-2 * progress));
+        Vec3 funnelAcceleration = flatRelativeEntityPos.clone().negate().mul(distanceFactor);
 
         return delta.add(funnelAcceleration.to3d());
     }
