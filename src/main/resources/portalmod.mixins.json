@@ -54,6 +54,7 @@
         "entity.EnderPearlMixin",
         "entity.KeyBindingMixin",
         "entity.RabbitRendererMixin",
+        "entity.RemoteClientPlayerEntityMixin",
         "level.ChunkArrayMixin",
         "level.ClientLevelMixin",
         "network.ClientPlayNetHandlerMixin",

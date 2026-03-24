@@ -61,6 +61,7 @@ public class PacketInit {
         register(new CTriggerEndConfigPacket(),         NetworkDirection.PLAY_TO_SERVER);
         register(new CTriggerAbortConfigPacket(),       NetworkDirection.PLAY_TO_SERVER);
         register(new CThroughPortalProofPacket(),       NetworkDirection.PLAY_TO_SERVER);
+        register(new CPlayerPortalTeleportLerpPacket(), NetworkDirection.PLAY_TO_SERVER);
 
         // TODO use this below too
         
