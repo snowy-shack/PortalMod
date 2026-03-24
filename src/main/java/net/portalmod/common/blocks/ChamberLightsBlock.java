@@ -3,6 +3,7 @@ package net.portalmod.common.blocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
@@ -81,8 +82,7 @@ public class ChamberLightsBlock extends DoubleBlock {
         if (isPowered) {
             this.setBlockStateValue(ACTIVE, false, state, world, pos);
         } else {
-            // We pass the original state to guarantee at least 1 blink
-            this.blink(state, world, pos);
+            this.blink(world.getBlockState(pos), world, pos);
         }
     }
 
@@ -92,16 +92,18 @@ public class ChamberLightsBlock extends DoubleBlock {
 
         this.setBlockStateValue(ACTIVE, !oldActive, state, world, pos);
 
-        // Cancel the sequence 80% of the time, but only when active is what it should be
-        if (random.nextDouble() < 0.8 && state.getValue(POWERED) == oldActive) {
+        if (!oldActive) {
+            this.playBlinkSound(world, pos);
+        }
+
+        // Cancel the sequence 50% of the time, but only when the state is what it should be
+        if (random.nextDouble() < 0.5 && state.getValue(POWERED) == oldActive) {
             return;
         }
 
         // Gaussian distribution starting at 1 with standard deviation of 10 (to make the chance for a short blink higher)
         double ticks = Math.abs(random.nextGaussian()) * 5 + 1;
         world.getBlockTicks().scheduleTick(pos, this, (int) ticks);
-
-        playBlinkSound(world, pos);
     }
 
     @Override
@@ -141,10 +143,17 @@ public class ChamberLightsBlock extends DoubleBlock {
         return blockstate.setValue(ROTATED, context.getHorizontalDirection().getAxis() == Direction.Axis.X);
     }
 
+    @Override
+    public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
+        super.setPlacedBy(world, pos, blockState, entity, itemStack);
+
+        this.blink(blockState, world, pos);
+    }
+
     public void playBlinkSound(World world, BlockPos pos) {
         world.playSound(
                 null, pos, SoundInit.CHAMBER_LIGHTS_FLICKER.get(),
-                SoundCategory.BLOCKS, new Random().nextFloat(), ModUtil.randomSlightSoundPitch()
+                SoundCategory.BLOCKS, new Random().nextFloat() * 0.5f + 0.5f, ModUtil.randomSlightSoundPitch()
         );
     }
 
