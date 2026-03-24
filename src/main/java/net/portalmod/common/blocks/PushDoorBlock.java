@@ -6,6 +6,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.properties.DoorHingeSide;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -43,9 +44,12 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
 
     public boolean interact(BlockState blockState, World world, BlockPos blockPos, BlockRayTraceResult blockRayTraceResult) {
         Direction clickedFace = blockRayTraceResult.getDirection();
-        Direction doorFront = blockState.getValue(OPEN)
-                ? blockState.getValue(FACING).getOpposite().getClockWise()
-                : blockState.getValue(FACING).getOpposite();
+        Direction facing = blockState.getValue(FACING);
+        Direction doorFront = !blockState.getValue(OPEN)
+                ? facing.getOpposite()
+                : blockState.getValue(HINGE) == DoorHingeSide.LEFT
+                        ? facing.getClockWise()
+                        : facing.getCounterClockWise();
 
         if (clickedFace == doorFront) {
             if (!blockState.getValue(OPEN)) open(blockState, world, blockPos);
