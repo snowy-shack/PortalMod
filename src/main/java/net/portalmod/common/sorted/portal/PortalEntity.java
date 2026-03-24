@@ -355,7 +355,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(!entity.level.getGameRules().getBoolean(GameRuleInit.PORTAL_FUNNELING))
             return delta;
 
-        if(delta.y > -.5)
+        boolean fastEnough = delta.y < -.5;
+        boolean fallingMore = Math.abs(delta.y) > Math.abs(delta.x) && Math.abs(delta.y) > Math.abs(delta.z);
+        if(!fastEnough || !fallingMore)
             return delta;
 
         GameSettings options = Minecraft.getInstance().options;
