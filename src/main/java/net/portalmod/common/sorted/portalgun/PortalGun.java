@@ -339,7 +339,7 @@ public class PortalGun extends Item {
     public void fillItemCategory(ItemGroup itemGroup, NonNullList<ItemStack> itemStacks) {
         if (this.allowdedIn(itemGroup)) {
             itemStacks.add(new ItemStack(this));
-            itemStacks.add(modifyColors(new ItemStack(this), "light_blue", "blue", "light_blue"));
+            itemStacks.add(modifyColors(new ItemStack(this), "light_blue", "purple", "light_blue"));
             itemStacks.add(modifyColors(new ItemStack(this), "yellow", "red", "orange"));
         }
     }
