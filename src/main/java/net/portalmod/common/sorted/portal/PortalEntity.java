@@ -355,19 +355,18 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(!entity.level.getGameRules().getBoolean(GameRuleInit.PORTAL_FUNNELING))
             return delta;
 
+        if(delta.y > -.5)
+            return delta;
+
         GameSettings options = Minecraft.getInstance().options;
         boolean moving = options.keyLeft.isDown()
                 || options.keyRight.isDown()
                 || options.keyUp.isDown()
                 || options.keyDown.isDown();
 
-        // don't if the player wants to move
-        if(moving)
-            return delta;
-
         float downDot = (float)entity.getViewVector(1).dot(new Vec3(Direction.DOWN.getNormal()).to3d());
 
-        if(!(entity instanceof PlayerEntity) || delta.y > -.5 || downDot < .5)
+        if(entity instanceof PlayerEntity && (downDot < .5 || moving))
             return delta;
 
         Vec3 entityPos = new Vec3(entity.position());
