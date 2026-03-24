@@ -7,7 +7,7 @@
       "AbstractBlockMixin",
       "BlockMixin",
       "ItemStackMixin",
-      "KeyBindingClass",
+      "KeyBindingMixin",
       "PistonBlockStructureHelperMixin",
       "PistonTileEntityMixin",
       "accessors.AbstractMinecartAccessor",

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(KeyBinding.class)
-public abstract class KeyBindingClass {
+public abstract class KeyBindingMixin {
     @Shadow public abstract boolean isDefault();
 
     @Inject(method = "same", at = @At("HEAD"), cancellable = true, remap = false)

@@ -3,6 +3,7 @@ package net.portalmod.mixins;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.core.init.KeyInit;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,7 +33,9 @@ public class MinecraftMixin {
             )
     )
     private void pmCancelInventoryOpen(Minecraft minecraft, Screen screen) {
-        if (minecraft.player != null && minecraft.player.getMainHandItem().getItem() instanceof PortalGun) {
+        if (minecraft.player != null
+                && minecraft.player.getMainHandItem().getItem() instanceof PortalGun
+                && KeyInit.PORTALGUN_INTERACT.getKey() == minecraft.options.keyInventory.getKey()) {
             return;
         }
 
