@@ -49,7 +49,7 @@ import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
 import net.portalmod.client.render.WatermarkRenderer;
-import net.portalmod.common.blocks.EKeyInteractable;
+import net.portalmod.common.blocks.InteractKeyInteractable;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.ModSpawnEggItem;
@@ -344,7 +344,7 @@ public class ClientEvents {
 
         // Press block
         Block block = Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock();
-        if (block instanceof EKeyInteractable && ((EKeyInteractable) block).eKeyInteract(player, rayHit)) {
+        if (block instanceof InteractKeyInteractable && ((InteractKeyInteractable) block).interactKeyInteract(player, rayHit)) {
             consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
             return;
         }

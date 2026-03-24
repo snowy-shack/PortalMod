@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class PushDoorBlock extends DoorBlock implements EKeyInteractable {
+public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable {
     private void playCloseSound(World world, BlockPos pos) {
         world.playSound(null, pos, SoundInit.PUSH_DOOR_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSoundPitch());
     }
@@ -60,7 +60,7 @@ public class PushDoorBlock extends DoorBlock implements EKeyInteractable {
     }
 
     @Override
-    public boolean eKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
+    public boolean interactKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
         PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.OPEN_DOOR).blockHit(rayHit).build());
         return true;
     }

@@ -23,7 +23,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.blocks.DoubleBlock;
-import net.portalmod.common.blocks.EKeyInteractable;
+import net.portalmod.common.blocks.InteractKeyInteractable;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivator;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class StandingButtonBlock extends DoubleBlock implements AntlineActivator, EKeyInteractable {
+public class StandingButtonBlock extends DoubleBlock implements AntlineActivator, InteractKeyInteractable {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty PRESSED = BooleanProperty.create("pressed");
@@ -189,7 +189,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public boolean eKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
+    public boolean interactKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
         double buttonReach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
         if (rayHit.getLocation().subtract(player.getEyePosition(1)).length() < buttonReach) {
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
