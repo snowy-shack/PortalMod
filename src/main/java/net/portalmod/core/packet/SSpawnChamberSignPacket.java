@@ -1,24 +1,21 @@
 package net.portalmod.core.packet;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.portalmod.common.sorted.sign.ChamberSignEntity;
 
 import java.util.UUID;
 import java.util.function.Supplier;
 
 public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSignPacket> {
-    private int id;
-    private UUID uuid;
-    private BlockPos pos;
-    private Direction direction;
-    private boolean verticallyAligned;
+    public int id;
+    public UUID uuid;
+    public BlockPos pos;
+    public Direction direction;
+    public boolean verticallyAligned;
 
     public SSpawnChamberSignPacket() {}
 
@@ -52,16 +49,8 @@ public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSign
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                ClientWorld level = Minecraft.getInstance().level;
-                if (level == null) return;
-
-                ChamberSignEntity entity = new ChamberSignEntity(level, this.pos, this.direction, this.verticallyAligned);
-                entity.setId(this.id);
-                entity.setUUID(this.uuid);
-
-                level.putNonPlayerEntity(entity.getId(), entity);
-            });
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                    () -> () -> ClientPacketHandler.handleSSpawnChamberSignPacket(this));
         });
         context.get().setPacketHandled(true);
         return true;

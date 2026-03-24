@@ -12,10 +12,9 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.StringTextComponent;
-import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunModel;
-import net.portalmod.core.init.ItemInit;
+import net.portalmod.common.sorted.portalgun.PortalGunModelManager;
 import net.portalmod.core.util.Colour;
 
 import java.util.Optional;
@@ -87,7 +86,7 @@ public class SkinPreviewWidget extends Widget {
         matrixStack.translate(0, -.2, 0);
 
         PortalGunISTER.renderGun(matrixStack, null, this.getModel(), irendertypebuffer$impl,
-                SkinManager.getClientInstance().getSkinTexture(selectedSkin),
+                ClientSkinManager.getInstance().getSkinTexture(selectedSkin),
                 stripeColour, lastPortalColor, tint, false, false, 15728880, OverlayTexture.NO_OVERLAY);
 
         matrixStack.popPose();
@@ -150,7 +149,7 @@ public class SkinPreviewWidget extends Widget {
     }
 
     private PortalGunModel getModel() {
-        return ((PortalGun)ItemInit.PORTALGUN.get()).getModel();
+        return PortalGunModelManager.getInstance().getModel(null);
     }
 
     private void computeAnimation() {

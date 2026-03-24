@@ -123,13 +123,13 @@ public class SkinSelectorScreen extends Screen {
         this.skinEntryList.clear();
         this.children.removeIf(child -> child instanceof SkinEntryWidget);
 
-        List<PortalGunSkin> skins = SkinManager.getClientInstance().getSkinCatalog().values().stream()
-                .filter(skin -> SkinManager.getClientInstance().playerHasSkin(null, skin.skin_id))
+        List<PortalGunSkin> skins = ClientSkinManager.getInstance().getSkinCatalog().values().stream()
+                .filter(skin -> ClientSkinManager.getInstance().playerHasSkin(null, skin.skin_id))
                 .collect(Collectors.toList());
 
         int i = 0;
         for(PortalGunSkin skin : skins) {
-            if(SkinManager.getClientInstance().getSkinTexture(skin.skin_id) instanceof PortalGunAnimatedTexture) {
+            if(ClientSkinManager.getInstance().getSkinTexture(skin.skin_id) instanceof PortalGunAnimatedTexture) {
                 SkinEntryWidget widget = new SkinEntryWidget(
                         this.listRegion.x, this.listRegion.y + SKIN_ENTRY_HEIGHT * i++,
                         this.listRegion.width, SKIN_ENTRY_HEIGHT,
@@ -143,13 +143,13 @@ public class SkinSelectorScreen extends Screen {
 
         if(!this.skinEntryList.isEmpty()) {
             Optional<SkinEntryWidget> optionalEntry = skinEntryList.stream()
-                    .filter(entry -> entry.getSkin().skin_id.equals(SkinManager.getClientInstance().getSelectedSkinForPlayer(null)))
+                    .filter(entry -> entry.getSkin().skin_id.equals(ClientSkinManager.getInstance().getSelectedSkinForPlayer(null)))
                     .findAny();
 
             if(optionalEntry.isPresent()) {
                 this.selectEntry(optionalEntry.get(), false);
             } else {
-                SkinManager.getClientInstance().setConfigSelectedSkin("default");
+                ClientSkinManager.getInstance().setConfigSelectedSkin("default");
 
                 Optional<SkinEntryWidget> optionalDefault = skinEntryList.stream()
                         .filter(entry -> entry.getSkin().skin_id.equals("default"))
@@ -189,8 +189,8 @@ public class SkinSelectorScreen extends Screen {
             this.loadingStart = millis;
             this.lastRefresh = millis;
 
-            SkinManager.getClientInstance().onSkinCatalogRefresh();
-            SkinManager.getClientInstance().enqueueCallback(() -> {
+            ClientSkinManager.getInstance().onSkinCatalogRefresh();
+            ClientSkinManager.getInstance().enqueueCallback(() -> {
                 this.colorPickerWidget.init();
                 this.initSkinList();
                 this.loadingStart = -1;
@@ -208,7 +208,7 @@ public class SkinSelectorScreen extends Screen {
         TranslationTextComponent text = new TranslationTextComponent("options." + PortalMod.MODID + ".skins.apply");
 
         this.applyButton = new Button(x, y, APPLY_BUTTON_WIDTH, height, text, button -> {
-            SkinManager.getClientInstance().onSkinSelected(
+            ClientSkinManager.getInstance().onSkinSelected(
                     this.selectedSkin.getSkin().skin_id,
                     this.colorPickerWidget.getTint().getRGBValue()
             );

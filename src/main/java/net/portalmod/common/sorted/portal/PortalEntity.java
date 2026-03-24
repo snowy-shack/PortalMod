@@ -49,6 +49,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
@@ -360,11 +361,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(!fastEnough || !fallingMore)
             return delta;
 
-        GameSettings options = Minecraft.getInstance().options;
-        boolean moving = options.keyLeft.isDown()
-                || options.keyRight.isDown()
-                || options.keyUp.isDown()
-                || options.keyDown.isDown();
+        boolean moving = false;
+        Supplier<Supplier<Boolean>> localPlayerMovingSupplier = () -> PortalEntityClient::isLocalPlayerMoving;
+
+        if(entity.level.isClientSide) {
+            moving = localPlayerMovingSupplier.get().get();
+        }
 
         float downDot = (float)entity.getViewVector(1).dot(new Vec3(Direction.DOWN.getNormal()).to3d());
 

@@ -53,21 +53,19 @@ public class PortalGun extends Item {
     public String defaultLeftColor;
     public String defaultRightColor;
     public String defaultAccentColor;
-    private final PortalGunModel model;
 
     private static final HashMap<UUID, PortalGun> BY_UUID = new HashMap<>();
 
     public PortalGun(Properties properties) {
-        this(properties, new PortalGunModel(), "blue", "orange", "none");
+        this(properties, "blue", "orange", "none");
     }
 
     // Use for custom portal guns
-    public PortalGun(Properties properties, PortalGunModel model, String defaultLeftColor, String defaultRightColor, String defaultAccentColor) {
+    public PortalGun(Properties properties, String defaultLeftColor, String defaultRightColor, String defaultAccentColor) {
         super(properties);
         this.defaultLeftColor = defaultLeftColor;
         this.defaultRightColor = defaultRightColor;
         this.defaultAccentColor = defaultAccentColor;
-        this.model = model;
     }
 
     // The portalgun tracks whether it is holding something on its own
@@ -437,12 +435,8 @@ public class PortalGun extends Item {
         return color;
     }
 
-    public PortalGunModel getModel() {
-        return this.model;
-    }
-
     public static PortalGunModel getModel(UUID gunUUID) {
-        return BY_UUID.get(gunUUID).getModel();
+        return PortalGunModelManager.getInstance().getModel(gunUUID);
     }
 
     public static Colour getAccentColour(CompoundNBT nbt) {

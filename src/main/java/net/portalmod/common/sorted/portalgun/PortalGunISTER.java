@@ -13,13 +13,11 @@ import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
-import net.portalmod.PortalMod;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
+import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import net.portalmod.core.init.AnimationInit;
 import net.portalmod.core.util.Colour;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
 
 import java.util.UUID;
 
@@ -154,7 +152,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         }
 
         UUID gunUUID = PortalGun.getUUID(itemStack).orElse(null);
-        PortalGunModel model = ((PortalGun)itemStack.getItem()).getModel();
+        PortalGunModel model = PortalGunModelManager.getInstance().getModel(gunUUID);
 
         UUID actualRenderingPortalGunOwner = renderingPortalGunOwner;
         String skin = "default";
@@ -164,22 +162,22 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             case THIRD_PERSON_LEFT_HAND:
             case THIRD_PERSON_RIGHT_HAND:
             case HEAD:
-                skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(actualRenderingPortalGunOwner);
+                skin = ClientSkinManager.getInstance().getSelectedSkinForPlayer(actualRenderingPortalGunOwner);
                 break;
 
             case GUI:
-                if(SkinManager.getClientInstance().hasUUID()) {
-                    skin = SkinManager.getClientInstance().getSelectedSkinForPlayer(null);
+                if(ClientSkinManager.getInstance().hasUUID()) {
+                    skin = ClientSkinManager.getInstance().getSelectedSkinForPlayer(null);
                 }
                 actualRenderingPortalGunOwner = null;
                 break;
         }
 
-        int intTint = SkinManager.getClientInstance().getTintForPlayerOnSkin(actualRenderingPortalGunOwner, skin);
+        int intTint = ClientSkinManager.getInstance().getTintForPlayerOnSkin(actualRenderingPortalGunOwner, skin);
         Colour tint = intTint == 0 ? Colour.WHITE : new Colour(intTint).opaque();
 
         renderGun(matrixStack, gunUUID, model, renderTypeBuffer,
-                SkinManager.getClientInstance().getSkinTexture(skin),
+                ClientSkinManager.getInstance().getSkinTexture(skin),
                 stripeColour, lastPortalColor, tint, gunLightOn, animate, packedLight, packedOverlay);
 
         matrixStack.popPose();

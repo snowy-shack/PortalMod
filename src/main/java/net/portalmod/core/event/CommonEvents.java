@@ -20,7 +20,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.common.commands.PortalCommand;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.portal.*;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
+import net.portalmod.common.sorted.portalgun.skins.ServerSkinManager;
 import net.portalmod.common.sorted.trigger.TriggerSelectionServer;
 import net.portalmod.core.init.GameRuleInit;
 import net.portalmod.core.init.PacketInit;
@@ -40,7 +40,7 @@ public class CommonEvents {
     @SubscribeEvent
     public static void onServerTick(final TickEvent.ServerTickEvent event) {
         if(event.phase == TickEvent.Phase.START) {
-            SkinManager.getServerInstance().tick();
+            ServerSkinManager.getInstance().tick();
             PortalManager.getInstance().tick();
             VolatilePortalHelperManager.getInstance().clearVolatilePortalHelpers();
         }
@@ -48,7 +48,7 @@ public class CommonEvents {
 
     @SubscribeEvent
     public static void onServerLogin(final PlayerEvent.PlayerLoggedInEvent event) {
-        SkinManager.getServerInstance().onServerLogin((ServerPlayerEntity)event.getPlayer());
+        ServerSkinManager.getInstance().onServerLogin((ServerPlayerEntity)event.getPlayer());
     }
 
     @SubscribeEvent

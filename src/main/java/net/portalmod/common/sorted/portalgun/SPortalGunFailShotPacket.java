@@ -1,22 +1,21 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
-import net.portalmod.common.sorted.portal.PortalPhotonParticle;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.AbstractPacket;
+import net.portalmod.core.packet.ClientPacketHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
 public class SPortalGunFailShotPacket implements AbstractPacket<SPortalGunFailShotPacket> {
-    private Vec3 position;
-    private Vec3 normal;
-    private Vec3 upVector;
-    private String dyeColor;
+    public Vec3 position;
+    public Vec3 normal;
+    public Vec3 upVector;
+    public String dyeColor;
 
     public SPortalGunFailShotPacket() {}
 
@@ -54,9 +53,8 @@ public class SPortalGunFailShotPacket implements AbstractPacket<SPortalGunFailSh
 
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            PortalPhotonParticle.createFailParticles(Minecraft.getInstance().level, position, normal, upVector, dyeColor);
-        }));
+        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> ClientPacketHandler.handleSPortalGunFailShotPacket(this)));
 
         context.get().setPacketHandled(true);
         return true;

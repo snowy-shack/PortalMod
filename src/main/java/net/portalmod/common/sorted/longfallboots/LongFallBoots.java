@@ -11,6 +11,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.portalmod.PortalMod;
 import net.portalmod.core.util.ModUtil;
 
@@ -26,6 +28,7 @@ public class LongFallBoots extends ArmorItem {
     
     @Nullable
     @Override
+    @OnlyIn(Dist.CLIENT)
     public <A extends BipedModel<?>> A getArmorModel(LivingEntity entity, ItemStack itemStack, EquipmentSlotType armorSlot, A originalModel) {
         return (A)(new LongFallBootsModel(entity));
     }

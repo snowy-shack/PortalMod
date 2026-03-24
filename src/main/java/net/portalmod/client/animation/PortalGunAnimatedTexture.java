@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
 import net.portalmod.PortalMod;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
+import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,7 +32,7 @@ public class PortalGunAnimatedTexture extends Texture {
     
     public PortalGunAnimatedTexture(String id, int framerate) {
         this.skinId = id;
-        this.material = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, SkinManager.getClientInstance().getSkinLocation(id));
+        this.material = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ClientSkinManager.getInstance().getSkinLocation(id));
         this.framerate = framerate;
     }
 
@@ -67,7 +67,7 @@ public class PortalGunAnimatedTexture extends Texture {
         if(ni != null)
             return;
 
-        File skinFile = new File(SkinManager.getClientInstance().getSkinsFolder(), "textures/" + skinId + ".png");
+        File skinFile = new File(ClientSkinManager.getInstance().getSkinsFolder(), "textures/" + skinId + ".png");
 
         if(skinId.equals("default") || !skinFile.exists()) {
             try(IResource iresource = rm.getResource(DEFAULT_SKIN)) {

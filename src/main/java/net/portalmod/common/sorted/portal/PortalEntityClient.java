@@ -1,6 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.player.PlayerEntity;
@@ -198,5 +199,13 @@ public class PortalEntityClient {
             event.setYaw(newCamera.getYRot());
             event.setRoll(newCamera.getRoll());
         }
+    }
+
+    public static boolean isLocalPlayerMoving() {
+        GameSettings options = Minecraft.getInstance().options;
+        return options.keyLeft.isDown()
+            || options.keyRight.isDown()
+            || options.keyUp.isDown()
+            || options.keyDown.isDown();
     }
 }

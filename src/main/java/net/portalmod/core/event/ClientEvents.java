@@ -64,7 +64,7 @@ import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalEntityClient;
 import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.common.sorted.portalgun.*;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
+import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import net.portalmod.common.sorted.trigger.TriggerSelectionClient;
 import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -88,7 +88,7 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onClientLogin(final ClientPlayerNetworkEvent.LoggedInEvent event) {
-        SkinManager.getClientInstance().onClientLogin();
+        ClientSkinManager.getInstance().onClientLogin();
     }
 
     @SubscribeEvent
@@ -276,7 +276,7 @@ public class ClientEvents {
             return;
         }
 
-        SkinManager.getClientInstance().tick();
+        ClientSkinManager.getInstance().tick();
 
         // STIK ER IN
         // 🔥

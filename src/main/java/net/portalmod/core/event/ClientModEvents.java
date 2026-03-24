@@ -40,7 +40,7 @@ import net.portalmod.common.sorted.portal.PortalEntityRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
-import net.portalmod.common.sorted.portalgun.skins.SkinManager;
+import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
 import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.common.sorted.turret.TurretEntity;
@@ -52,7 +52,7 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
-        SkinManager.getClientInstance().onClientStartup();
+        ClientSkinManager.getInstance().onClientStartup();
 
         KeyInit.init();
         Minecraft.getInstance().getMainRenderTarget().enableStencil();

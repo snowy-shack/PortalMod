@@ -3,8 +3,6 @@ package net.portalmod.common.sorted.antline;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
@@ -376,7 +374,7 @@ public class AntlineBlock extends Block {
     }
 
     public void sendUpdatePacket(World level, BlockPos pos, Direction sideDir, AntlineTileEntity tileEntity) {
-        if (level instanceof ClientWorld) return;
+        if (level.isClientSide) return;
         CompoundNBT nbtA = new CompoundNBT();
 
         AntlineTileEntity.SideMap sideMap = tileEntity.getSideMap();
@@ -472,12 +470,11 @@ public class AntlineBlock extends Block {
         if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
             return VoxelShapes.empty();
 
-        PlayerEntity player = Minecraft.getInstance().player;
+        if (context.getEntity() == null)
+            return VoxelShapes.empty();
 
-        if (player == null) return VoxelShapes.empty();
-
-        Vector3d rayPath = player.getViewVector(0).scale(7);
-        Vector3d from = player.getEyePosition(0);
+        Vector3d rayPath = context.getEntity().getViewVector(0).scale(7);
+        Vector3d from = context.getEntity().getEyePosition(0);
         Vector3d to = from.add(rayPath);
 
         for (Direction direction : Direction.values()) {

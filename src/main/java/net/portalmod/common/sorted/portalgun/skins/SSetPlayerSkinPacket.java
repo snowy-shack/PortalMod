@@ -55,7 +55,7 @@ public class SSetPlayerSkinPacket implements AbstractPacket<SSetPlayerSkinPacket
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                () -> () -> SkinManager.getClientInstance().onClientReceivedPacket(this)));
+                () -> () -> ClientSkinManager.getInstance().onClientReceivedPacket(this)));
 
         context.get().setPacketHandled(true);
         return true;

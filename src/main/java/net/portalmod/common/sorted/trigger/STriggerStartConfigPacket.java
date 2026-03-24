@@ -1,19 +1,17 @@
 package net.portalmod.common.sorted.trigger;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.portalmod.core.packet.AbstractPacket;
+import net.portalmod.core.packet.ClientPacketHandler;
 
 import java.util.function.Supplier;
 
 public class STriggerStartConfigPacket implements AbstractPacket<STriggerStartConfigPacket> {
-    protected BlockPos pos;
+    public BlockPos pos;
 
     public STriggerStartConfigPacket() {}
 
@@ -33,15 +31,8 @@ public class STriggerStartConfigPacket implements AbstractPacket<STriggerStartCo
 
     @Override
     public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            World level = Minecraft.getInstance().level;
-            if(level == null)
-                return;
-
-            TileEntity be = level.getBlockEntity(pos);
-            if(be instanceof TriggerTileEntity)
-                TriggerSelectionClient.startSelecting(((TriggerTileEntity) be));
-        }));
+        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> ClientPacketHandler.handleSTriggerStartConfigPacket(this)));
 
         context.get().setPacketHandled(true);
         return true;

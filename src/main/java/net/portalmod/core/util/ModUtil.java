@@ -2,10 +2,8 @@ package net.portalmod.core.util;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -22,7 +20,6 @@ import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.*;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -232,19 +229,6 @@ public class ModUtil {
 
     public static float randomSlightSoundPitch() {
         return randomSoundPitch(0.075f);
-    }
-
-    public static void sendClientChat(Object... text) {
-        ClientWorld clientWorld = Minecraft.getInstance().level;
-        if (clientWorld == null) {
-            PortalMod.LOGGER.error("Tried to send a client chat message while not in a client environment");
-            return;
-        }
-
-        // This may not always be accurate
-        boolean isClientSide = Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER;
-
-        sendChat(clientWorld, isClientSide, text);
     }
 
     public static void sendChat(World level, Object... text) {

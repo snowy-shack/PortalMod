@@ -47,7 +47,7 @@ public class CSetPlayerSkinPacket implements AbstractPacket<CSetPlayerSkinPacket
         context.get().enqueueWork(() -> {
             ServerPlayerEntity player = context.get().getSender();
             if(player != null)
-                SkinManager.getServerInstance().onServerReceivedPacket(player, this);
+                ServerSkinManager.getInstance().onServerReceivedPacket(player, this);
         });
 
         context.get().setPacketHandled(true);
