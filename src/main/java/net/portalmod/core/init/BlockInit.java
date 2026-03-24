@@ -157,7 +157,7 @@ public class BlockInit {
             () -> new SuperButtonBlock(stoneCopy(MaterialColor.COLOR_RED).noOcclusion()));
 
     public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
-            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> i.getValue(ChamberLightsBlock.POWERED) ? 0 : 15)));
+            () -> new ChamberLightsBlock(AbstractBlock.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> i.getValue(ChamberLightsBlock.ACTIVE) ? 15 : 0)));
 
     public static final RegistryObject<Block> TRIGGER = BLOCKS.register("trigger",
             () -> new TriggerBlock(AbstractBlock.Properties.copy(Blocks.COBBLESTONE_SLAB).lightLevel(i -> i.getValue(TriggerBlock.STATE) == TriggerState.ACTIVE ? 15 : 0)));
