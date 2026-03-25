@@ -2,8 +2,6 @@ package net.portalmod.common.sorted.portal;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.GameSettings;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.*;
@@ -309,8 +307,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 && targetPortal.getDirection().getAxis() == Direction.Axis.Y
                 && portal.getDirection() == targetPortal.getDirection());
 
-        if(entity instanceof ClientPlayerEntity && shouldDisableFlying) {
-            ((ClientPlayerEntity)entity).abilities.flying = false;
+        if(entity instanceof PlayerEntity && shouldDisableFlying) {
+            ((PlayerEntity)entity).abilities.flying = false;
         }
 
         if(targetPortal.getDirection() == Direction.UP) {
