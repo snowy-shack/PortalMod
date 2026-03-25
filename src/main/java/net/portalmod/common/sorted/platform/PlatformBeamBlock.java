@@ -33,6 +33,10 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     public static final VoxelShape SHAPE_X = Block.box(0, 5, 5, 16, 11, 11);
     public static final VoxelShape SHAPE_Y = Block.box(5, 0, 5, 11, 16, 11);
     public static final VoxelShape SHAPE_Z = Block.box(5, 5, 0, 11, 11, 16);
+    
+    public static final VoxelShape COLLISION_SHAPE_X = Block.box(0, 4.5, 4.5, 16, 11.5, 11.5);
+    public static final VoxelShape COLLISION_SHAPE_Y = Block.box(4.5, 0, 4.5, 11.5, 16, 11.5);
+    public static final VoxelShape COLLISION_SHAPE_Z = Block.box(4.5, 4.5, 0, 11.5, 11.5, 16);
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -47,6 +51,15 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     @Override
     protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(WATERLOGGED, FACING);
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+        switch (state.getValue(FACING).getAxis()) {
+            case X: return COLLISION_SHAPE_X;
+            case Y: return COLLISION_SHAPE_Y;
+            default: return COLLISION_SHAPE_Z;
+        }
     }
 
     @Override
