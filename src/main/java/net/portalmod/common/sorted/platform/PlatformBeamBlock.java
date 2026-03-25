@@ -121,9 +121,7 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
 
     @Override
     public boolean canStickTo(BlockState state, BlockState other) {
-        // False for mod compatibility, we define our own way to stick to blocks
-        //todo test with create mod whether the sides still pull blocks
-        return false;
+        return other.isStickyBlock();
     }
 
     @Override
