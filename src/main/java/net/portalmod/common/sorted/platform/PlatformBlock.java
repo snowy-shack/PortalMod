@@ -141,6 +141,9 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
             if (facing.getAxis() != context.getClickedFace().getAxis()) {
                 return facing;
             }
+        } else if (clickedState.getBlock() instanceof PlatformBeamBlock
+                && clickedState.getValue(FACING).equals(context.getClickedFace())) {
+            return context.getClickedFace();
         }
 
         return context.getNearestLookingDirection().getOpposite();
