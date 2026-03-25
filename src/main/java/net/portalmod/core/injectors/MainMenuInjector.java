@@ -1,24 +1,19 @@
 package net.portalmod.core.injectors;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.renderer.RenderSkyboxCube;
 import net.minecraft.client.util.Splashes;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.portalmod.PortalMod;
 import net.portalmod.mixins.accessors.MainMenuScreenAccessor;
 import net.portalmod.mixins.accessors.MinecraftAccessor;
 import net.portalmod.mixins.accessors.SplashesAccessor;
 
 public class MainMenuInjector {
-    private static final int NO_PANORAMAS = 1;
+    private static final int NO_PANORAMAS = 7;
     private static final ResourceLocation EDITION = new ResourceLocation(PortalMod.MODID, "textures/gui/title/edition.png");
     private static final ResourceLocation SPLASHES = new ResourceLocation(PortalMod.MODID, "texts/splashes.txt");
     private static ResourceLocation prevEdition;
