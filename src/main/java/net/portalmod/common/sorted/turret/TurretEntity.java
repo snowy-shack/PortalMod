@@ -176,7 +176,7 @@ public class TurretEntity extends TestElementEntity {
         }
 
         // Particles
-        if (this.canShoot() && this.level.getGameTime() % 2 == 0) {
+        if (this.canShoot() && this.level.getGameTime() % 2 == 0 && this.level.isClientSide) {
             TurretSparkParticle.createGlowParticles(this.level, this, this.turretToTarget);
         }
 
