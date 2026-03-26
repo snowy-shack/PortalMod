@@ -82,6 +82,7 @@ public class ChamberLightsBlock extends DoubleBlock {
         if (isPowered) {
             this.setBlockStateValue(ACTIVE, false, state, world, pos);
         } else {
+            this.setBlockStateValue(ACTIVE, new Random().nextBoolean(), state, world, pos);
             this.blink(world.getBlockState(pos), world, pos);
         }
     }
@@ -133,7 +134,8 @@ public class ChamberLightsBlock extends DoubleBlock {
         boolean willBeHorizontal = prefersHorizontal && horizontalTopHalf.isPresent() || !verticalTopHalf.isPresent();
 
         BlockState blockstate = this.defaultBlockState()
-                .setValue(HALF, willBeHorizontal ? horizontalTopHalf.get() : verticalTopHalf.get());
+                .setValue(HALF, willBeHorizontal ? horizontalTopHalf.get() : verticalTopHalf.get())
+                .setValue(ACTIVE, new Random().nextBoolean());
 
         if (willBeHorizontal) {
             return blockstate.setValue(AXIS, axis)
