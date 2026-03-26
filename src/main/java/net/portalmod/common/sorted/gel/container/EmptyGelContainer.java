@@ -40,6 +40,7 @@ public class EmptyGelContainer extends Item {
         // Fill container with gel
         if (!creative) {
             ItemStack newContainer = new ItemStack(clickedState.getBlock().asItem());
+            newContainer.setTag(context.getItemInHand().getTag());
             GelContainer.setAmount(newContainer, 1);
             player.setItemInHand(context.getHand(), newContainer);
         }

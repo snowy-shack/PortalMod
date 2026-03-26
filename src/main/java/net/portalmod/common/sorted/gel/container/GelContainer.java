@@ -5,6 +5,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -69,10 +70,19 @@ public class GelContainer extends BlockItem {
 
         // Replace with empty container if empty
         if (getAmount(player.getItemInHand(context.getHand())) <= 0) {
-            player.setItemInHand(context.getHand(), new ItemStack(ItemInit.CONTAINER.get()));
+            player.setItemInHand(
+                    context.getHand(),
+                    createEmptyContainer(itemStack)
+            );
         }
 
         return result;
+    }
+
+    public static ItemStack createEmptyContainer(ItemStack stack) {
+        ItemStack test = new ItemStack(ItemInit.CONTAINER.get());
+        test.setTag(stack.getTag());
+        return test;
     }
 
     public static void increaseAmount(ItemStack stack) {
