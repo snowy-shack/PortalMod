@@ -155,7 +155,7 @@ public class ChamberLightsBlock extends DoubleBlock {
     public void playBlinkSound(World world, BlockPos pos) {
         world.playSound(
                 null, pos, SoundInit.CHAMBER_LIGHTS_FLICKER.get(),
-                SoundCategory.BLOCKS, new Random().nextFloat() * 0.5f + 0.5f, ModUtil.randomSlightSoundPitch()
+                SoundCategory.BLOCKS, new Random().nextFloat() * 0.3f + 0.1f, ModUtil.randomSlightSoundPitch()
         );
     }
 
