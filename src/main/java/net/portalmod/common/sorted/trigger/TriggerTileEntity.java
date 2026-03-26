@@ -50,8 +50,6 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
             return;
         }
 
-        // todo limit selection distance
-
         AxisAlignedBB aabb = this.getField();
         aabb = aabb.move(this.worldPosition);
 

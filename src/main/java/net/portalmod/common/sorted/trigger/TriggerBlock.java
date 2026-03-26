@@ -41,8 +41,6 @@ public class TriggerBlock extends Block {
 
     // TODO
     //  test multiplayer
-    //  field visuals for mobs
-    //  structure rotations
 
     public TriggerBlock(Properties properties) {
         super(properties);

@@ -1,10 +1,13 @@
 package net.portalmod.common.sorted.trigger;
 
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.portalmod.core.init.PacketInit;
 
 public class TriggerSelectionClient {
+    public static final int MAX_FIELD_SIZE = 32;
+    public static final int MAX_DISTANCE_FROM_BLOCK = 32;
 
     public static TriggerTileEntity selected;
     public static BlockPos selectingStart;
@@ -58,11 +61,33 @@ public class TriggerSelectionClient {
     }
 
     public static void updateSelectedPos(BlockPos pos) {
-        if (isSelectingEnd()) {
-            selectingEnd = pos.subtract(selected.getBlockPos());
-        } else {
-            selectingStart = pos.subtract(selected.getBlockPos());
+        if (selected == null || selected.isRemoved()) {
+            abort();
+            return;
         }
+
+        BlockPos blockEntityPos = selected.getBlockPos();
+
+        if (isSelectingEnd()) {
+            selectingEnd = limitPosToDistance(
+                    limitPosToDistance(pos, selectingStart.offset(blockEntityPos), MAX_FIELD_SIZE - 1),
+                    blockEntityPos,
+                    MAX_DISTANCE_FROM_BLOCK - 1
+            ).subtract(blockEntityPos);
+        } else {
+            selectingStart = limitPosToDistance(pos, blockEntityPos, MAX_DISTANCE_FROM_BLOCK - 1).subtract(blockEntityPos);
+        }
+    }
+
+    public static BlockPos limitPosToDistance(BlockPos pos, BlockPos origin, int distance) {
+        BlockPos min = origin.offset(-distance, -distance, -distance);
+        BlockPos max = origin.offset(distance, distance, distance);
+
+        BlockPos.Mutable result = pos.mutable();
+        result.clamp(Direction.Axis.X, min.getX(), max.getX());
+        result.clamp(Direction.Axis.Y, min.getY(), max.getY());
+        result.clamp(Direction.Axis.Z, min.getZ(), max.getZ());
+        return result.immutable();
     }
 
     public static AxisAlignedBB getBox() {
