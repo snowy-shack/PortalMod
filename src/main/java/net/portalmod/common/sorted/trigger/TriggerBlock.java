@@ -14,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -122,6 +123,11 @@ public class TriggerBlock extends Block {
     @Override
     public TileEntity createTileEntity(BlockState state, IBlockReader world) {
         return TileEntityTypeInit.TRIGGER.get().create();
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return ModUtil.getRotationAmount(rotation) % 2 == 1 ? state.cycle(AXIS) : state;
     }
 
     @Override
