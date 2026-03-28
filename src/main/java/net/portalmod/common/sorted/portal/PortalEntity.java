@@ -231,55 +231,55 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             // in other cases leave it alone
         }
 
-        boolean doMathTrickery = entity instanceof IDragCancelable
-                && portal.getDirection() == Direction.UP && targetPortal.getDirection() == Direction.UP
+        boolean doMathTrickery = portal.getDirection() == Direction.UP && targetPortal.getDirection() == Direction.UP
                 && (!(entity instanceof Flingable) || !((Flingable)entity).isFlinging());
 
-        if(doMathTrickery) {
+        if(entity instanceof IDragCancelable) {
+            if(doMathTrickery) {
+                if(!((IDragCancelable)entity).pmIsCancelDrag()) {
+                    double yDelta = -Math.log(1 - (-delta.y) / (gravity / 0.02)) / 0.02;
+                    delta = new Vector3d(delta.x, ((int) yDelta) * -gravity, delta.z);
+                }
+    //            double yDelta = Math.sqrt(2 * gravity * entity.fallDistance);
+    //            delta = new Vector3d(delta.x, yDelta, delta.z);
 
-            if(!((IDragCancelable)entity).pmIsCancelDrag()) {
-                double yDelta = -Math.log(1 - (-delta.y) / (gravity / 0.02)) / 0.02;
-                delta = new Vector3d(delta.x, ((int) yDelta) * -gravity, delta.z);
+                double deltay = Math.signum(delta.y) * Math.max(Math.abs(delta.y), 0.5);
+        //        deltay = Math.floor(deltay / gravity) * gravity;
+        //        deltay -= Math.signum(deltay) * (Math.abs(deltay) % gravity);
+                double deltayResidual = Math.abs(deltay) % gravity;
+    //            if(entity instanceof IDragCancelable && !((IDragCancelable)entity).pmIsCancelDrag())
+                    deltay = Math.signum(deltay) * (Math.abs(deltay) - deltayResidual + (deltayResidual > (gravity / 2) ? gravity : 0));
+    //            else
+    //                deltay = Math.signum(deltay) * (Math.abs(deltay) - deltayResidual);
+                delta = new Vector3d(delta.x, deltay, delta.z);
+
+
+
+
+
+                if(!((IDragCancelable)entity).pmIsCancelDrag()) {
+                    double ydm = -Math.log(1 - (-dm.y) / (gravity / 0.02)) / 0.02;
+                    dm = new Vector3d(dm.x, ((int) ydm) * -gravity, dm.z);
+                }
+    //            double ydm = Math.sqrt(2 * gravity * entity.fallDistance);
+    //            dm = new Vector3d(dm.x, ydm, dm.z);
+
+
+                double dmy = Math.signum(dm.y) * Math.max(Math.abs(dm.y), 0.5);
+        //        dmy = Math.floor(dmy / gravity) * gravity;
+                double dmyResidual = Math.abs(dmy) % gravity;
+    //            if(entity instanceof IDragCancelable && !((IDragCancelable)entity).pmIsCancelDrag())
+                    dmy = Math.signum(deltay) * (Math.abs(dmy) - dmyResidual + (deltayResidual > (gravity / 2) ? gravity : 0));
+    //            else
+    //                dmy = Math.signum(dmy) * (Math.abs(dmy) - dmyResidual);
+                dm = new Vector3d(dm.x, dmy, dm.z);
+
+
+
+                ((IDragCancelable)entity).pmSetCancelDrag(true);
+            } else {
+                ((IDragCancelable)entity).pmSetCancelDrag(false);
             }
-//            double yDelta = Math.sqrt(2 * gravity * entity.fallDistance);
-//            delta = new Vector3d(delta.x, yDelta, delta.z);
-
-            double deltay = Math.signum(delta.y) * Math.max(Math.abs(delta.y), 0.5);
-    //        deltay = Math.floor(deltay / gravity) * gravity;
-    //        deltay -= Math.signum(deltay) * (Math.abs(deltay) % gravity);
-            double deltayResidual = Math.abs(deltay) % gravity;
-//            if(entity instanceof IDragCancelable && !((IDragCancelable)entity).pmIsCancelDrag())
-                deltay = Math.signum(deltay) * (Math.abs(deltay) - deltayResidual + (deltayResidual > (gravity / 2) ? gravity : 0));
-//            else
-//                deltay = Math.signum(deltay) * (Math.abs(deltay) - deltayResidual);
-            delta = new Vector3d(delta.x, deltay, delta.z);
-
-
-
-
-
-            if(!((IDragCancelable)entity).pmIsCancelDrag()) {
-                double ydm = -Math.log(1 - (-dm.y) / (gravity / 0.02)) / 0.02;
-                dm = new Vector3d(dm.x, ((int) ydm) * -gravity, dm.z);
-            }
-//            double ydm = Math.sqrt(2 * gravity * entity.fallDistance);
-//            dm = new Vector3d(dm.x, ydm, dm.z);
-
-
-            double dmy = Math.signum(dm.y) * Math.max(Math.abs(dm.y), 0.5);
-    //        dmy = Math.floor(dmy / gravity) * gravity;
-            double dmyResidual = Math.abs(dmy) % gravity;
-//            if(entity instanceof IDragCancelable && !((IDragCancelable)entity).pmIsCancelDrag())
-                dmy = Math.signum(deltay) * (Math.abs(dmy) - dmyResidual + (deltayResidual > (gravity / 2) ? gravity : 0));
-//            else
-//                dmy = Math.signum(dmy) * (Math.abs(dmy) - dmyResidual);
-            dm = new Vector3d(dm.x, dmy, dm.z);
-
-
-
-            ((IDragCancelable)entity).pmSetCancelDrag(true);
-        } else {
-            ((IDragCancelable)entity).pmSetCancelDrag(false);
         }
 
         delta = portal.teleportVector(new Vec3(delta)).to3d();
