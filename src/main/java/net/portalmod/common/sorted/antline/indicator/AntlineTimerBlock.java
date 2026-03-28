@@ -153,7 +153,12 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     public static void scheduleTick(BlockState state, World level, BlockPos pos) {
-        int ticks = Math.round(state.getValue(DURATION) * 20f / 9f);
+        final float stepFactor = 20f / 9f;
+        int currentSteps = 9 - state.getValue(TIMER);
+        int totalSteps = state.getValue(DURATION);
+        double timePassed = Math.round(currentSteps * totalSteps * stepFactor);
+        double targetTime = Math.round((currentSteps+1) * totalSteps * stepFactor);
+        int ticks = (int) (targetTime - timePassed);
         level.getBlockTicks().scheduleTick(pos, BlockInit.ANTLINE_TIMER.get(), ticks);
     }
 
