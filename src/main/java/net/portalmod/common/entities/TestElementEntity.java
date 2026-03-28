@@ -62,6 +62,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
     private Vec3 oldRidingVec;
     private boolean holderJustTeleported;
+    private Mat4 holderJustTeleportedMatrix;
     private int oldPortalChainLength;
     private Float eyeHeightOld;
 
@@ -285,11 +286,6 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             this.yRot = -(float)(Math.atan2(lookVec.x, lookVec.z) * 180 / Math.PI);
             this.yBodyRot = this.yRot;
 
-            if(passedPortal) {
-                this.yRotO = this.yRot;
-                this.yBodyRotO = this.yBodyRot;
-            }
-
             // old position
             Vec3 oldRidingVec = this.oldRidingVec;
             if(oldRidingVec == null) {
@@ -307,8 +303,22 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             }
 
             oldRidingVec = oldRidingVec.transform(portalRotationMatrix);
-            oldRidingVec = holderJustTeleported ? ridingVersor.clone().mul(oldRidingVec.magnitude()) : oldRidingVec;
-            holderJustTeleported = false;
+
+            if(this.holderJustTeleported) {
+                if(this.holderJustTeleportedMatrix != null) {
+                    // holding client
+                    oldRidingVec = oldRidingVec.transform(this.holderJustTeleportedMatrix);
+                    this.holderJustTeleportedMatrix = null;
+                } else {
+                    // server
+                    oldRidingVec = ridingVersor.clone().mul(oldRidingVec.magnitude());
+                }
+
+                this.holderJustTeleported = false;
+            } else if(passedPortal) {
+                this.yRotO = this.yRot;
+                this.yBodyRotO = this.yBodyRot;
+            }
 
             // teleport entity every tick
             Vec3 oldPos = eyeOldPos.clone().add(oldRidingVec);
@@ -360,11 +370,17 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     }
 
     public void onHolderTeleport(PortalEntity from, PortalEntity to) {
-        holderJustTeleported = true;
+        if(this.holderJustTeleportedMatrix == null)
+            this.holderJustTeleportedMatrix = Mat4.identity();
+
+        Mat4 matrix = from.getSourceBasis().getChangeOfBasisMatrix(to.getDestinationBasis());
+        this.holderJustTeleportedMatrix = matrix.mul(this.holderJustTeleportedMatrix);
+
+        this.holderJustTeleported = true;
     }
 
     public void onHolderTeleportPacket() {
-        holderJustTeleported = true;
+        this.holderJustTeleported = true;
     }
 
     @Override
