@@ -285,6 +285,13 @@ public class PortalRenderer {
         if(PortalModConfigManager.HIGHLIGHTS.get())
             renderHighlights(camera, projectionMatrix);
 
+        if(recursion == 0 && !fabulousGraphics) {
+            mainFBO.bindWrite(false);
+            GL11.glEnable(GL_STENCIL_TEST);
+            RenderSystem.stencilMask(0xFF);
+            RenderSystem.clear(GL_STENCIL_BUFFER_BIT, false);
+        }
+
         GL11.glEnable(GL_ALPHA_TEST);
     }
 
