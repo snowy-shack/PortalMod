@@ -148,7 +148,7 @@ public class DuplicateEntityRenderer {
             shouldRenderShadow = portal.getDirection().getAxis().isHorizontal() && otherPortal.getDirection().getAxis().isHorizontal();
             matrixStack.popPose();
 
-            RenderUtil.setupClipPlane(new MatrixStack(), otherPortal, camera, portal.getWallAttachmentDistance(camera), true);
+            RenderUtil.setupClipPlane(new MatrixStack(), otherPortal, camera, 0, true);
 
             erm.render(entity, d0, d1, d2, f,
                     partialTicks, matrixStack, Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource(),
