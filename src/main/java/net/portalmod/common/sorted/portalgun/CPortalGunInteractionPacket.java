@@ -91,7 +91,10 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
 
             switch(type) {
                 case PICK_ENTITY:
-                    CriteriaTriggerInit.GRAB_ENTITY.get().trigger(player);
+                    if (player.getMainHandItem().getItem() instanceof PortalGun) {
+                        CriteriaTriggerInit.GRAB_ENTITY.get().trigger(player);
+                    }
+
                     Entity entity = player.level.getEntity(data);
 
                     if (entity instanceof TestElementEntity) {
