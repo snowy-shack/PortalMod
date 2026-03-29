@@ -14,12 +14,10 @@ public class GameRuleInit {
 
     public static final Map<String, GameRules.RuleKey<?>> REGISTRY = new HashMap<>();
 
-    public static GameRules.RuleKey<GameRules.BooleanValue> PORTAL_FUNNELING;
     public static GameRules.RuleKey<GameRules.BooleanValue> PORTAL_SLOWSHOT;
     public static GameRules.RuleKey<GameRules.BooleanValue> USE_PORTALABLE_BLACKLIST;
 
     public static void registerAll() {
-        PORTAL_FUNNELING = registerBoolean("portalFunneling", GameRules.Category.PLAYER, true);
         PORTAL_SLOWSHOT = registerBoolean("portalSlowShot", GameRules.Category.PLAYER, false);
         USE_PORTALABLE_BLACKLIST = registerBoolean("usePortalableBlacklist", GameRules.Category.PLAYER, false);
     }

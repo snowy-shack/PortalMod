@@ -32,6 +32,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -351,8 +352,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public static Vector3d doFunneling(Entity entity, Vector3d delta) {
         final float funnelHeight = 32;
 
-        if(!entity.level.getGameRules().getBoolean(GameRuleInit.PORTAL_FUNNELING))
+        if(entity.level.isClientSide && !PortalModConfigManager.PORTAL_FUNNELING.get()) {
             return delta;
+        }
 
         boolean fastEnough = delta.y < -.5;
         boolean fallingMore = Math.abs(delta.y) > Math.abs(delta.x) && Math.abs(delta.y) > Math.abs(delta.z);
