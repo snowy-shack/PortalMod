@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.antline;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
@@ -20,9 +21,12 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
+import net.portalmod.core.util.ClientModUtil;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -470,11 +474,19 @@ public class AntlineBlock extends Block {
         if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
             return VoxelShapes.empty();
 
-        if (context.getEntity() == null)
-            return VoxelShapes.empty();
+        AtomicReference<Entity> entity = new AtomicReference<>(context.getEntity());
 
-        Vector3d rayPath = context.getEntity().getViewVector(0).scale(7);
-        Vector3d from = context.getEntity().getEyePosition(0);
+        if (entity.get() == null) {
+            if (!((World)level).isClientSide)
+                return VoxelShapes.empty();
+
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                entity.set(ClientModUtil.getLocalPlayer());
+            });
+        }
+
+        Vector3d rayPath = entity.get().getViewVector(0).scale(7);
+        Vector3d from = entity.get().getEyePosition(0);
         Vector3d to = from.add(rayPath);
 
         for (Direction direction : Direction.values()) {

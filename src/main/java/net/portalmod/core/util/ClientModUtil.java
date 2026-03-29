@@ -2,6 +2,7 @@ package net.portalmod.core.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
 
@@ -17,5 +18,9 @@ public class ClientModUtil {
         boolean isClientSide = Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER;
 
         ModUtil.sendChat(clientWorld, isClientSide, text);
+    }
+
+    public static PlayerEntity getLocalPlayer() {
+        return Minecraft.getInstance().player;
     }
 }
