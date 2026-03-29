@@ -405,6 +405,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     private boolean leftGround = false;
     private Vector3d lastDeltaMovement = Vector3d.ZERO;
     private int propulsionTicks = 0;
+    private boolean serverBoosting = false;
 
     @Override
     public int getPropulsionTicks() {
@@ -425,6 +426,16 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     public void decrementPropulsionTicks() {
         // Decrement at double speed
         this.propulsionTicks = Math.max(0, this.propulsionTicks - 2);
+    }
+
+    @Override
+    public void setServerBoosting(boolean serverBoosting) {
+        this.serverBoosting = serverBoosting;
+    }
+
+    @Override
+    public boolean isServerBoosting() {
+        return this.serverBoosting;
     }
 
     @Override

@@ -11,6 +11,7 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 
 import java.util.UUID;
@@ -76,7 +77,23 @@ public class PropulsionGelBlock extends AbstractGelBlock {
 
         if (isInSpeedGel) {
             if (actuallyOnSpeedGel(pos, state, entity)) {
-                gelAffected.incrementPropulsionTicks();
+                if (entity.level.isClientSide) {
+                    double speed = entity.getDeltaMovement().multiply(1, 0, 1).length();
+
+                    if (speed > 0.01) {
+                        gelAffected.incrementPropulsionTicks();
+                        PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket());
+                    } else {
+                        gelAffected.decrementPropulsionTicks();
+                    }
+                } else {
+                    if (((IGelAffected)entity).isServerBoosting()) {
+                        gelAffected.incrementPropulsionTicks();
+                        ((IGelAffected)entity).setServerBoosting(false);
+                    } else {
+                        gelAffected.decrementPropulsionTicks();
+                    }
+                }
             }
         } else {
             // Preserve speed while jumping / bouncing
