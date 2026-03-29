@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
 import net.portalmod.common.sorted.portal.PortalServerProofManager;
+import net.portalmod.core.interfaces.ITeleportLerpable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -42,6 +43,20 @@ public class ServerPlayNetHandlerMixin {
     )
     private boolean pmAllowPortalTeleportation(ServerPlayerEntity player) {
         return true; // todo actual logic to check tp validity here
+    }
+
+    @Redirect(
+            remap = false,
+            method = "handleMovePlayer",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/player/ServerPlayerEntity;isChangingDimension()Z"
+            )
+    )
+    private boolean pm(ServerPlayerEntity player) {
+        if(((ITeleportLerpable)player).hasUsedPortal())
+            return true;
+        return player.isChangingDimension();
     }
 
     @Redirect(
