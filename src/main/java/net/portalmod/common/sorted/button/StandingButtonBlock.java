@@ -190,12 +190,10 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
     @Override
     public boolean interactKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
-        double buttonReach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
-        if (rayHit.getLocation().subtract(player.getEyePosition(1)).length() < buttonReach) {
+        if (withinInteractRange(player, rayHit)) {
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
             return true;
         }
-
         return false;
     }
 

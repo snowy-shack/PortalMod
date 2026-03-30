@@ -65,8 +65,11 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
 
     @Override
     public boolean interactKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
-        PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.OPEN_DOOR).blockHit(rayHit).build());
-        return true;
+        if (withinInteractRange(player, rayHit)) {
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.OPEN_DOOR).blockHit(rayHit).build());
+            return true;
+        }
+        return false;
     }
 
     public PushDoorBlock(Properties p_i48413_1_) {
