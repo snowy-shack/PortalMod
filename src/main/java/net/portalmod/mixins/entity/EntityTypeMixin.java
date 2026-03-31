@@ -28,7 +28,7 @@ public abstract class EntityTypeMixin<T extends Entity> extends net.minecraftfor
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     public void spawn(ServerWorld world, CompoundNBT nbt, ITextComponent textComponent, PlayerEntity player, BlockPos pos, SpawnReason spawnReason, boolean p_220342_7_, boolean p_220342_8_, CallbackInfoReturnable<T> cir, T t) {
-        if (t instanceof TurretEntity) {
+        if (t instanceof TurretEntity && player != null) {
             ((TurretEntity) t).onSpawnedByPlayer(player);
         }
         if (t instanceof Cube) {
