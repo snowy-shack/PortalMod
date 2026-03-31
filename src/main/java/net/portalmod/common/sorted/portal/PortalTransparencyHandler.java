@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.vector.Vector3d;
+import net.portalmod.core.math.Vec3;
 import net.portalmod.mixins.accessors.ChunkRenderDispatcherAccessor;
 import net.portalmod.mixins.accessors.CompiledChunkAccessor;
 
@@ -59,6 +60,27 @@ public class PortalTransparencyHandler {
                     bufferBuilder.sortQuads(x - (float) lric.chunk.getOrigin().getX(), y - (float) lric.chunk.getOrigin().getY(), z - (float) lric.chunk.getOrigin().getZ());
                     bufferBuilder.end();
                     lric.chunk.getBuffer(PortalTransparencyHandler.PORTAL_TRANSLUCENT).upload(bufferBuilder);
+                }
+            }
+        }
+    }
+
+    public static void resortMainTransparency(Vec3 position) {
+        WorldRenderer lr = Minecraft.getInstance().levelRenderer;
+        Queue<RegionRenderCacheBuilder> freeBuffers = ((ChunkRenderDispatcherAccessor)lr.chunkRenderDispatcher).pmGetFreeBuffers();
+        if(!freeBuffers.isEmpty()) {
+            for(WorldRenderer.LocalRenderInformationContainer lric : lr.renderChunks) {
+                float x = (float)position.x;
+                float y = (float)position.y;
+                float z = (float)position.z;
+                CompiledChunkAccessor cca = ((CompiledChunkAccessor)lric.chunk.compiled.get());
+                BufferBuilder.State bufferbuilder$state = cca.pmGetTransparencyState();
+                if(bufferbuilder$state != null && cca.pmGetHasBlocks().contains(RenderType.translucent())) {
+                    bufferBuilder.begin(7, DefaultVertexFormats.BLOCK);
+                    bufferBuilder.restoreState(bufferbuilder$state);
+                    bufferBuilder.sortQuads(x - (float) lric.chunk.getOrigin().getX(), y - (float) lric.chunk.getOrigin().getY(), z - (float) lric.chunk.getOrigin().getZ());
+                    bufferBuilder.end();
+                    lric.chunk.getBuffer(RenderType.translucent()).upload(bufferBuilder);
                 }
             }
         }

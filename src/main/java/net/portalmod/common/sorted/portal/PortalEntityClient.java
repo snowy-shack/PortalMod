@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.portalmod.PMState;
 import net.portalmod.client.render.PortalCamera;
+import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
@@ -198,6 +199,12 @@ public class PortalEntityClient {
             event.setPitch(newCamera.getXRot());
             event.setYaw(newCamera.getYRot());
             event.setRoll(newCamera.getRoll());
+
+            if(((ITeleportLerpable)Minecraft.getInstance().player).hasUsedPortal()) {
+                Minecraft.getInstance().getProfiler().push("pm_translucent_sort");
+                PortalTransparencyHandler.resortMainTransparency(new Vec3(newCamera.getPosition()));
+                Minecraft.getInstance().getProfiler().pop();
+            }
         }
     }
 
