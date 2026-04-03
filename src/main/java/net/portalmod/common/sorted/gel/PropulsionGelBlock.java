@@ -82,13 +82,12 @@ public class PropulsionGelBlock extends AbstractGelBlock {
 
                     if (speed > 0.01) {
                         gelAffected.incrementPropulsionTicks();
-                        PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket());
+                        PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket(gelAffected.getPropulsionTicks()));
                     } else {
                         gelAffected.decrementPropulsionTicks();
                     }
                 } else {
                     if (((IGelAffected)entity).isServerBoosting()) {
-                        gelAffected.incrementPropulsionTicks();
                         ((IGelAffected)entity).setServerBoosting(false);
                     } else {
                         gelAffected.decrementPropulsionTicks();

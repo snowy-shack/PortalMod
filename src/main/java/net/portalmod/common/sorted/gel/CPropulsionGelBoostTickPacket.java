@@ -8,14 +8,22 @@ import net.portalmod.core.packet.AbstractPacket;
 import java.util.function.Supplier;
 
 public class CPropulsionGelBoostTickPacket implements AbstractPacket<CPropulsionGelBoostTickPacket> {
+    private int ticks;
+
     public CPropulsionGelBoostTickPacket() {}
 
+    public CPropulsionGelBoostTickPacket(int ticks) {
+        this.ticks = ticks;
+    }
+
     @Override
-    public void encode(PacketBuffer buffer) {}
+    public void encode(PacketBuffer buffer) {
+        buffer.writeInt(this.ticks);
+    }
 
     @Override
     public CPropulsionGelBoostTickPacket decode(PacketBuffer buffer) {
-        return new CPropulsionGelBoostTickPacket();
+        return new CPropulsionGelBoostTickPacket(buffer.readInt());
     }
 
     @Override
@@ -26,6 +34,7 @@ public class CPropulsionGelBoostTickPacket implements AbstractPacket<CPropulsion
                 return;
 
             ((IGelAffected)player).setServerBoosting(true);
+            ((IGelAffected)player).setPropulsionTicks(this.ticks);
         });
 
         context.get().setPacketHandled(true);
