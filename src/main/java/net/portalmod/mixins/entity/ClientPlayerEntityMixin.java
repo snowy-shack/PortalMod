@@ -3,6 +3,7 @@ package net.portalmod.mixins.entity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.play.client.CPlayerPacket;
 import net.minecraft.util.math.vector.Vector3d;
@@ -28,8 +29,11 @@ public class ClientPlayerEntityMixin {
         ClientPlayerEntity thiss = (ClientPlayerEntity)(Object)this;
         ItemStack selected = thiss.inventory.getSelected();
 
-        if(selected.getItem() instanceof PortalGun) {
-            PortalGun.dropCube(thiss, selected);
+        if(selected.getItem() instanceof PortalGun && selected.hasTag()) {
+            CompoundNBT nbt = selected.getTag();
+            if(nbt != null && nbt.contains("Holding") && nbt.getBoolean("Holding")) {
+                PortalGun.dropCube(thiss, selected);
+            }
         }
     }
 
