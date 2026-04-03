@@ -237,5 +237,9 @@
             "portalmod:item/wrench/fail"
         ],
         "subtitle": "subtitles.item.wrench.fail"
+    },
+
+    "disc.rain": {
+        "sounds": [ "portalmod:disc/rain" ]
     }
 }

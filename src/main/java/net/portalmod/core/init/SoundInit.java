@@ -62,6 +62,9 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> WRENCH_USE = register("item.wrench.use");
     public static final RegistryObject<SoundEvent> WRENCH_FAIL = register("item.wrench.fail");
 
+    // DISC
+    public static final RegistryObject<SoundEvent> DISC_RAIN = register("disc.rain");
+
     // ENTITY
     public static final RegistryObject<SoundEvent> PORTAL_OPEN = register("entity.portal.open");
     public static final RegistryObject<SoundEvent> PORTAL_CLOSE = register("entity.portal.close");
