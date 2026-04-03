@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.util.ModUtil;
 
@@ -148,13 +149,20 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             }
 
             verticalBounce(entity, velocity);
+
+            if(level.isClientSide && (bounceFromSpeed || bounceFromJump)) {
+                PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(true));
+            }
         }
     }
 
     public static void onPreTick(LivingEntity entity) {
         IGelAffected gelAffected = ((IGelAffected) entity);
         if (entity.getDeltaMovement().y < -0.1) {
-            gelAffected.setBounced(false);
+            if(entity.level.isClientSide) {
+                gelAffected.setBounced(false);
+                PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(false));
+            }
         } else {
             gelAffected.setLastNeurtalHeight((float) entity.getY());
         }

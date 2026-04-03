@@ -33,7 +33,6 @@ public class CPropulsionGelBoostTickPacket implements AbstractPacket<CPropulsion
             if(player == null)
                 return;
 
-            ((IGelAffected)player).setServerBoosting(true);
             ((IGelAffected)player).setPropulsionTicks(this.ticks);
         });
 

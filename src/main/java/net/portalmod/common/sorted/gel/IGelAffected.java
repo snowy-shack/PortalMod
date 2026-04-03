@@ -28,9 +28,6 @@ public interface IGelAffected {
     void incrementPropulsionTicks();
     void decrementPropulsionTicks();
 
-    void setServerBoosting(boolean serverBoosting);
-    boolean isServerBoosting();
-
     void setLastDeltaMovement(Vector3d lastDeltaMovement);
     Vector3d getLastDeltaMovement();
 }

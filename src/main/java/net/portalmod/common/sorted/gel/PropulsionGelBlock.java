@@ -6,6 +6,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -75,33 +76,31 @@ public class PropulsionGelBlock extends AbstractGelBlock {
 
         IGelAffected gelAffected = ((IGelAffected) entity);
 
-        if (isInSpeedGel) {
-            if (actuallyOnSpeedGel(pos, state, entity)) {
-                if (entity.level.isClientSide) {
+        // to each their own
+        if (entity.level.isClientSide == entity instanceof PlayerEntity) {
+            if (isInSpeedGel) {
+                if (actuallyOnSpeedGel(pos, state, entity)) {
                     double speed = entity.getDeltaMovement().multiply(1, 0, 1).length();
 
                     if (speed > 0.01) {
                         gelAffected.incrementPropulsionTicks();
-                        PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket(gelAffected.getPropulsionTicks()));
-                    } else {
-                        gelAffected.decrementPropulsionTicks();
-                    }
-                } else {
-                    if (((IGelAffected)entity).isServerBoosting()) {
-                        ((IGelAffected)entity).setServerBoosting(false);
                     } else {
                         gelAffected.decrementPropulsionTicks();
                     }
                 }
-            }
-        } else {
-            // Preserve speed while jumping / bouncing
-            if (entity.isOnGround() && gelAffected.getLeftGround() && !(state.getBlock() instanceof RepulsionGelBlock)) {
-                gelAffected.setPropulsionTicks(0);
+            } else {
+                // Preserve speed while jumping / bouncing
+                if (entity.isOnGround() && gelAffected.getLeftGround() && !(state.getBlock() instanceof RepulsionGelBlock)) {
+                    gelAffected.setPropulsionTicks(0);
+                }
+
+                if (LivingEntityInjector.effectsShouldBeReset(entity, true)) {
+                    gelAffected.decrementPropulsionTicks();
+                }
             }
 
-            if (LivingEntityInjector.effectsShouldBeReset(entity, true)) {
-                gelAffected.decrementPropulsionTicks();
+            if (entity.level.isClientSide) {
+                PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket(gelAffected.getPropulsionTicks()));
             }
         }
 
