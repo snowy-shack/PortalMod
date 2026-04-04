@@ -84,6 +84,7 @@ public class PortalCommand {
                 wall ? direction : face == AttachFace.FLOOR ? Direction.UP : Direction.DOWN,
                 wall ? Direction.UP : direction,
                 false,
+                null,
                 null
         );
 

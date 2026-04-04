@@ -33,14 +33,6 @@ public class PortalGunClient {
     private static final int SHOOT_DELAY = 5;
     private long nextShot = 0;
 
-    private static final int HELPER_DELAY = 15;
-    private long nextHelp = 0;
-    private UUID lastHelpedGun;
-    private PortalEnd lastHelpedEnd;
-    private BlockPos lastHelpedPos;
-    private Direction lastHelpedFace;
-    private VolatilePortalHelper lastHelpedHelper;
-
     private PortalGunClient() {}
 
     public static PortalGunClient getInstance() {
@@ -86,9 +78,6 @@ public class PortalGunClient {
         if(this.nextShot > 0)
             this.nextShot--;
 
-        if(this.nextHelp > 0)
-            this.nextHelp--;
-
         if(this.canShoot()) {
             if(this.leftButtonPressed) {
                 this.handleLeftClick();
@@ -104,68 +93,6 @@ public class PortalGunClient {
 
     private boolean canShoot() {
         return this.nextShot <= 0;
-    }
-
-    public boolean willBeHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face, Direction horizontalDirection, World level) {
-        BlockState state = level.getBlockState(pos);
-        Block block = state.getBlock();
-        Block frontBlock = level.getBlockState(pos.relative(face)).getBlock();
-
-        if(this.nextHelp > 0 && !(frontBlock instanceof AutoPortalBlock)) {
-            if(this.lastHelpedGun != null && this.lastHelpedEnd != null && this.lastHelpedPos != null && this.lastHelpedFace != null) {
-                BlockState panelState = level.getBlockState(this.lastHelpedPos);
-                Block panelBlock = panelState.getBlock();
-
-                if(block instanceof PortalHelper && panelBlock instanceof PortalHelper) {
-                    PortalHelper newHelper = (PortalHelper)block;
-                    PortalHelper oldHelper = (PortalHelper)panelBlock;
-
-                    if(newHelper.willHelpPortal(face, horizontalDirection, state, level)) {
-                        boolean sameGun = gun.equals(this.lastHelpedGun);
-                        boolean sameEnd = end.equals(this.lastHelpedEnd);
-                        boolean samePanel = oldHelper.containsBlock(panelState, this.lastHelpedPos, pos, level);
-                        boolean sameFace = face.equals(this.lastHelpedFace);
-
-                        if(sameGun && sameEnd && samePanel && sameFace) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-
-        return block instanceof PortalHelper && ((PortalHelper)block).willHelpPortal(face, horizontalDirection, state, level);
-    }
-
-    public boolean willBeHelped(UUID gun, PortalEnd end, Vec3 position, Direction face, VolatilePortalHelper helper) {
-        if(this.nextHelp > 0) {
-            if(this.lastHelpedGun != null && this.lastHelpedEnd != null && this.lastHelpedHelper != null) {
-                boolean sameGun = gun.equals(this.lastHelpedGun);
-                boolean sameEnd = end.equals(this.lastHelpedEnd);
-                boolean sameHelper = this.lastHelpedHelper.equals(helper);
-
-                if(sameGun && sameEnd && sameHelper) {
-                    return false;
-                }
-            }
-        }
-
-        return helper.willHelpPortal(position, face);
-    }
-
-    public void setHelped(UUID gun, PortalEnd end, BlockPos pos, Direction face) {
-        this.lastHelpedGun = gun;
-        this.lastHelpedEnd = end;
-        this.lastHelpedPos = pos;
-        this.lastHelpedFace = face;
-        this.nextHelp = HELPER_DELAY;
-    }
-
-    public void setHelped(UUID gun, PortalEnd end, VolatilePortalHelper helper) {
-        this.lastHelpedGun = gun;
-        this.lastHelpedEnd = end;
-        this.lastHelpedHelper = helper;
-        this.nextHelp = HELPER_DELAY;
     }
 
     public boolean handleMouseButtons(int button, int action) {

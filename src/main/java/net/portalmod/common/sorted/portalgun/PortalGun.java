@@ -283,9 +283,9 @@ public class PortalGun extends Item {
 
         if(!inFizzler) {
             if(level.getGameRules().getBoolean(GameRuleInit.PORTAL_SLOWSHOT)) {
-                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player), ticks, onPlace);
+                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player), (ServerPlayerEntity) player, ticks, onPlace);
             } else {
-                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player));
+                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player), (ServerPlayerEntity) player);
                 onPlace.accept(portal);
             }
         } else {

@@ -3,7 +3,7 @@ package net.portalmod.common.sorted.portal;
 import net.minecraft.util.Direction;
 import net.portalmod.core.math.Vec3;
 
-public class VolatilePortalHelper {
+public class VolatilePortalHelper implements AbstractPortalHelper {
     private static final float TOLERANCE = 0.01f;
 
     public final Vec3 position;

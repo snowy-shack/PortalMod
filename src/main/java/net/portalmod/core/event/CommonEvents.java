@@ -20,6 +20,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.common.commands.PortalCommand;
 import net.portalmod.common.sorted.faithplate.FaithPlateTileEntity;
 import net.portalmod.common.sorted.portal.*;
+import net.portalmod.common.sorted.portalgun.PortalHelperServerManager;
 import net.portalmod.common.sorted.portalgun.skins.ServerSkinManager;
 import net.portalmod.common.sorted.trigger.TriggerSelectionServer;
 import net.portalmod.core.init.GameRuleInit;
@@ -43,6 +44,7 @@ public class CommonEvents {
             ServerSkinManager.getInstance().tick();
             PortalManager.getInstance().tick();
             VolatilePortalHelperManager.getInstance().clearVolatilePortalHelpers();
+            PortalHelperServerManager.getInstance().tick();
         }
     }
 

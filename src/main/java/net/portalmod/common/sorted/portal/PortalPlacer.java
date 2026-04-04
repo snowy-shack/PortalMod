@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -16,7 +17,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.panel.PortalHelper;
-import net.portalmod.common.sorted.portalgun.PortalGunClient;
+import net.portalmod.common.sorted.portalgun.PortalHelperServerManager;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
@@ -31,7 +32,7 @@ import java.util.stream.Stream;
 public class PortalPlacer {
     private static final BinaryOperator<Vec3> selectLeast = (o, n) -> n.magnitude() < o.magnitude() ? n : o;
 
-    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections) {
+    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player) {
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
@@ -45,17 +46,19 @@ public class PortalPlacer {
                 || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face, level)))
             return null;
 
-        Optional<VolatilePortalHelper> optionalHelper = VolatilePortalHelperManager.getInstance().findHelperThatWillHelp(gunUUID, end, level, position, face);
-        if(optionalHelper.isPresent()) {
-            VolatilePortalHelper helper = optionalHelper.get();
-            PortalGunClient.getInstance().setHelped(gunUUID, end, helper);
-            position = helper.helpPortal(position, face);
+        if(player != null) {
+            Optional<VolatilePortalHelper> optionalHelper = VolatilePortalHelperManager.getInstance().findHelperThatWillHelp(player, gunUUID, end, level, position, face);
+            if(optionalHelper.isPresent()) {
+                VolatilePortalHelper helper = optionalHelper.get();
+                PortalHelperServerManager.getInstance().setHelped(player, gunUUID, end, helper);
+                position = helper.helpPortal(position, face);
 
-        } else if(PortalGunClient.getInstance().willBeHelped(gunUUID, end, shotBlockPos, face, upDirection, level) && lookingDirections != null) {
-            PortalGunClient.getInstance().setHelped(gunUUID, end, shotBlockPos, face);
-            Pair<Vec3, Direction> helpment = ((PortalHelper)shotBlock).helpPortal(position, face, upDirection, lookingDirections, shotBlockState, level);
-            position = helpment.getFirst();
-            up = new Vec3(helpment.getSecond());
+            } else if(PortalHelperServerManager.getInstance().willBeHelped(player, gunUUID, end, shotBlockPos, face, upDirection, level) && lookingDirections != null) {
+                PortalHelperServerManager.getInstance().setHelped(player, gunUUID, end, shotBlockPos, face);
+                Pair<Vec3, Direction> helpment = ((PortalHelper)shotBlock).helpPortal(position, face, upDirection, lookingDirections, shotBlockState, level);
+                position = helpment.getFirst();
+                up = new Vec3(helpment.getSecond());
+            }
         }
 
         AxisAlignedBB portalAABB = new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f);

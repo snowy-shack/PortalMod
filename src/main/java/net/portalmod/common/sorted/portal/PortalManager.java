@@ -1,6 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
@@ -50,7 +51,7 @@ public class PortalManager extends WorldSavedData {
         List<Pair<UUID, PortalEnd>> completedPlacements = new ArrayList<>();
         this.scheduledPlacements.forEach((key, info) -> {
             if(--info.tickCountdown <= 0) {
-                PortalEntity portal = PortalPlacer.placePortal(info.level, info.end, info.hue, info.gunUUID, info.position, info.face, info.upDirection, info.override, info.lookingDirections);
+                PortalEntity portal = PortalPlacer.placePortal(info.level, info.end, info.hue, info.gunUUID, info.position, info.face, info.upDirection, info.override, info.lookingDirections, info.player);
                 info.onPlace.accept(portal);
 
                 completedPlacements.add(key);
@@ -63,9 +64,9 @@ public class PortalManager extends WorldSavedData {
         this.pendingRemovals.add(portal);
     }
 
-    public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, long tickCountdown, Consumer<PortalEntity> onPlace) {
+    public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
         Pair<UUID, PortalEnd> key = new Pair<>(gunUUID, end);
-        this.scheduledPlacements.put(key, new PortalPlacementInfo(level, end, hue, gunUUID, position, face, upDirection, override, lookingDirections, tickCountdown, onPlace));
+        this.scheduledPlacements.put(key, new PortalPlacementInfo(level, end, hue, gunUUID, position, face, upDirection, override, lookingDirections, player, tickCountdown, onPlace));
     }
 
     public void clearScheduledPlacements(UUID gunUUID) {
@@ -237,10 +238,11 @@ public class PortalManager extends WorldSavedData {
         public final Direction upDirection;
         public final boolean override;
         public final @Nullable Direction[] lookingDirections;
+        public final @Nullable ServerPlayerEntity player;
         public long tickCountdown;
         public Consumer<PortalEntity> onPlace;
 
-        public PortalPlacementInfo(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, long tickCountdown, Consumer<PortalEntity> onPlace) {
+        public PortalPlacementInfo(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
             this.level = level;
             this.end = end;
             this.hue = hue;
@@ -250,6 +252,7 @@ public class PortalManager extends WorldSavedData {
             this.upDirection = upDirection;
             this.override = override;
             this.lookingDirections = lookingDirections;
+            this.player = player;
             this.tickCountdown = tickCountdown;
             this.onPlace = onPlace;
         }

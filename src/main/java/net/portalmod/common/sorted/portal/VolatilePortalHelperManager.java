@@ -1,9 +1,10 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.world.World;
-import net.portalmod.common.sorted.portalgun.PortalGunClient;
+import net.portalmod.common.sorted.portalgun.PortalHelperServerManager;
 import net.portalmod.core.math.Vec3;
 
 import java.util.*;
@@ -37,7 +38,7 @@ public class VolatilePortalHelperManager {
         this.volatilePortalHelpers.forEach((k, v) -> v.clear());
     }
 
-    public Optional<VolatilePortalHelper> findHelperThatWillHelp(UUID gun, PortalEnd end, World level, Vec3 hitPos, Direction face) {
+    public Optional<VolatilePortalHelper> findHelperThatWillHelp(ServerPlayerEntity player, UUID gun, PortalEnd end, World level, Vec3 hitPos, Direction face) {
         List<VolatilePortalHelper> helpers = new ArrayList<>(this.volatilePortalHelpers.getOrDefault(level.dimension(), new ArrayList<>()));
 
         helpers = helpers.stream().sorted((o1, o2) ->
@@ -45,7 +46,7 @@ public class VolatilePortalHelperManager {
                 .collect(Collectors.toList());
 
         for(VolatilePortalHelper helper : helpers)
-            if(PortalGunClient.getInstance().willBeHelped(gun, end, hitPos, face, helper))
+            if(PortalHelperServerManager.getInstance().willBeHelped(player, gun, end, hitPos, face, helper))
                 return Optional.of(helper);
         return Optional.empty();
     }
