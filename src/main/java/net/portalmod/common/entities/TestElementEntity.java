@@ -141,8 +141,10 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
         this.setDeltaMovement(newMovement);
 
-        FizzleGlowParticle.createGlowParticles(level, this);
-        FizzleFlakeParticle.createFlakeParticles(level, this);
+        if (this.level.isClientSide) {
+            FizzleGlowParticle.createGlowParticles(level, this);
+            FizzleFlakeParticle.createFlakeParticles(level, this);
+        }
 
         // Rotate slowly
         this.yRot += 35f * (float) newMovement.length();
