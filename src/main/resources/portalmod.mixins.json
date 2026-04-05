@@ -7,7 +7,6 @@
         "AbstractBlockMixin",
         "BlockMixin",
         "ItemStackMixin",
-        "KeyBindingMixin",
         "PistonBlockStructureHelperMixin",
         "PistonTileEntityMixin",
         "accessors.AbstractMinecartAccessor",
@@ -38,6 +37,7 @@
         "screen.ContainerMixin"
     ],
     "client": [
+        "KeyBindingMixin",
         "KeyboardListenerMixin",
         "MinecraftMixin",
         "PlayerControllerMixin",
