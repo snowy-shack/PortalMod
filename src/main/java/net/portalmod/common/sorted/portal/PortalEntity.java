@@ -32,6 +32,7 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
+import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.interfaces.IDragCancelable;
@@ -224,7 +225,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Vector3d dm = entity.getDeltaMovement();
 
         if(entity instanceof Flingable) {
-            if(portal.getDirection().getAxis().isVertical() && targetPortal.getDirection().getAxis().isHorizontal()) {
+            boolean portalFling = portal.getDirection().getAxis().isVertical() && targetPortal.getDirection().getAxis().isHorizontal();
+            boolean propulsionAffected = ((IGelAffected) entity).getPropulsionTicks() > 0;
+
+            if(portalFling || propulsionAffected) {
                 ((Flingable)entity).setFlinging(true);
             } else if(targetPortal.getDirection().getAxis().isVertical()) {
                 ((Flingable)entity).setFlinging(false);
