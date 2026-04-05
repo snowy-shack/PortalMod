@@ -359,10 +359,12 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
         this.fallDistance = 0;
 
-        if (player.getMainHandItem().getItem() instanceof PortalGun) {
-            PortalGunSparkParticle.createParticles(this.level, player, false);
-        } else if (player.getOffhandItem().getItem() instanceof PortalGun) {
-            PortalGunSparkParticle.createParticles(this.level, player, true);
+        if (player.level.isClientSide) {
+            if (player.getMainHandItem().getItem() instanceof PortalGun) {
+                PortalGunSparkParticle.createParticles(this.level, player, false);
+            } else if (player.getOffhandItem().getItem() instanceof PortalGun) {
+                PortalGunSparkParticle.createParticles(this.level, player, true);
+            }
         }
 
         if (this.isFizzling()) {
