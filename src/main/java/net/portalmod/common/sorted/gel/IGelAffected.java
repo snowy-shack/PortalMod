@@ -30,4 +30,6 @@ public interface IGelAffected {
 
     void setLastDeltaMovement(Vector3d lastDeltaMovement);
     Vector3d getLastDeltaMovement();
+    void setLastLastDeltaMovement(Vector3d lastLastDeltaMovement);
+    Vector3d getLastLastDeltaMovement();
 }

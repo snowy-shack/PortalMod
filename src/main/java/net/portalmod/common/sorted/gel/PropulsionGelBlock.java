@@ -12,6 +12,7 @@ import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 
@@ -87,6 +88,10 @@ public class PropulsionGelBlock extends AbstractGelBlock {
                     } else {
                         gelAffected.decrementPropulsionTicks();
                     }
+
+                    Vector3d velocity = entity.getDeltaMovement().multiply(1, 0, 1).normalize();
+                    Vector3d oldVelocity = ((IGelAffected) entity).getLastLastDeltaMovement().multiply(1, 0, 1).normalize();
+                    gelAffected.setPropulsionTicks((int)Math.round(gelAffected.getPropulsionTicks() * (velocity.dot(oldVelocity) / 2 + 0.5)));
                 }
             } else {
                 // Preserve speed while jumping / bouncing

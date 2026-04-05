@@ -26,6 +26,7 @@ public class LivingEntityInjector {
         RepulsionGelBlock.onPostTick(entity);
         IGelAffected gelAffected = (IGelAffected) entity;
         gelAffected.setWasOnGround(entity.isOnGround());
+        gelAffected.setLastLastDeltaMovement(gelAffected.getLastDeltaMovement());
         gelAffected.setLastDeltaMovement(entity.getDeltaMovement());
         gelAffected.setHorizontalBounced(false);
     }
