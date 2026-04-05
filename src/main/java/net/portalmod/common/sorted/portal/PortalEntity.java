@@ -226,7 +226,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         if(entity instanceof Flingable) {
             boolean portalFling = portal.getDirection().getAxis().isVertical() && targetPortal.getDirection().getAxis().isHorizontal();
-            boolean propulsionAffected = ((IGelAffected) entity).getPropulsionTicks() > 0;
+            boolean propulsionAffected = ((IGelAffected) entity).getPropulsionTicks() > 0 && targetPortal.getDirection().getAxis().isHorizontal();
 
             if(portalFling || propulsionAffected) {
                 ((Flingable)entity).setFlinging(true);
