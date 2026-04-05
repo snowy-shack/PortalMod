@@ -2,9 +2,11 @@ package net.portalmod.common.sorted.portalgun.skins;
 
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,11 @@ public class ServerSkinManager extends SkinManager {
         if(instance == null)
             instance = new ServerSkinManager();
         return instance;
+    }
+
+    @Override
+    public File getModFolder() {
+        return new File(ServerLifecycleHooks.getCurrentServer().getServerDirectory(), "portalmod");
     }
 
     public void onServerLogin(ServerPlayerEntity player) {

@@ -41,8 +41,10 @@ public abstract class SkinManager {
 
     // CONSTANT METHODS
 
+    public abstract File getModFolder();
+
     public File getCacheFolder() {
-        return new File(PortalMod.getModFolder(), "cache");
+        return new File(this.getModFolder(), "cache");
     }
 
     public File getSkinsFolder() {
