@@ -58,8 +58,4 @@ public class PortalMod {
     private void createConfigs() {
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> PortalModConfigManager::init);
     }
-
-    public static File getModFolder() {
-        return new File(Minecraft.getInstance().gameDirectory, PortalMod.MODID);
-    }
 }

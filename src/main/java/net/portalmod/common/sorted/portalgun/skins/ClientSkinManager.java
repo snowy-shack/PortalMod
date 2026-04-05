@@ -9,6 +9,7 @@ import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.PacketInit;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +26,11 @@ public class ClientSkinManager extends SkinManager {
         if(instance == null)
             instance = new ClientSkinManager();
         return instance;
+    }
+
+    @Override
+    public File getModFolder() {
+        return new File(Minecraft.getInstance().gameDirectory, "portalmod");
     }
 
     public ResourceLocation getSkinLocation(String id) {
