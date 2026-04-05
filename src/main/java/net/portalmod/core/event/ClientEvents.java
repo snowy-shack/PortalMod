@@ -120,72 +120,7 @@ public class ClientEvents {
             event.getRenderer().getModel().leftArmPose = mainHand;
         }
     }
-    
-    @SubscribeEvent
-    public static void onPlayerTick(final PlayerTickEvent event) {
-        PlayerEntity player = event.player;
 
-        if(event.phase == Phase.START)
-            if(player.abilities.flying)
-                ((Flingable)player).setFlinging(false);
-
-        if(event.phase == Phase.END && player.isLocalPlayer()) {
-            if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get()) {
-                if(FaithPlateTER.selected != null) {
-                    PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(FaithPlateTER.selected));
-                    FaithPlateTER.selected = null;
-                }
-
-                if(TriggerSelectionClient.isSelecting()) {
-                    TriggerSelectionClient.abort();
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerPickUpItem(final PlayerEvent.ItemPickupEvent event) {
-        ItemEntity originalItemEntity = event.getOriginalEntity();
-        PlayerEntity player = event.getPlayer();
-        World level = player.level;
-
-        if(Fizzleable.isFizzleableItem(event.getStack())) {
-            RayTraceContext context = new RayTraceContext(player.getEyePosition(1), originalItemEntity.position(),
-                    RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, player);
-
-            BlockRayTraceResult result = ModUtil.customClip(level, context, pos -> {
-                BlockState state = level.getBlockState(pos);
-                Block block = state.getBlock();
-
-                if(Fizzler.isActiveFizzler(state)) {
-                    return Optional.of(((Fizzler)block).getFieldShape(state));
-                }
-
-                return Optional.empty();
-            });
-
-            if(result.getType() == RayTraceResult.Type.BLOCK) {
-                BlockPos pos = result.getBlockPos();
-                BlockState state = level.getBlockState(pos);
-
-                if(Fizzler.isActiveFizzler(state)) {
-                    ((Fizzleable) player).onTouchingFizzler();
-                }
-            }
-        }
-    }
-    
-    @SubscribeEvent
-    public static void onLivingUpdate(final LivingUpdateEvent event) {
-        LivingEntityInjector.onPreTick(event.getEntityLiving());
-    }
-    
-    @SubscribeEvent
-    public static void onLivingFall(final LivingFallEvent event) {
-        if(event.getEntityLiving().getItemBySlot(EquipmentSlotType.FEET).getItem() == ItemInit.LONGFALL_BOOTS.get())
-            event.setCanceled(true);
-    }
-    
     @SubscribeEvent
     public static void screenOpen(final GuiOpenEvent event) {
         if(!(event.getGui() instanceof MainMenuScreen)) return;
@@ -220,19 +155,6 @@ public class ClientEvents {
         
         event.setCanceled(true);
         CreerRenderer.INSTANCE.get().render(entity, 0, partialTicks, matrixStack, renderTypeBuffer, light);
-    }
-
-    @SubscribeEvent
-    public static void onLivingDrops(final LivingDropsEvent event) {
-        LivingEntity entity = event.getEntityLiving();
-        if (entity instanceof TestElementEntity) {
-            for (ItemEntity itemEntity : event.getDrops()) {
-                ItemStack itemStack = itemEntity.getItem();
-                if (itemStack.getItem() instanceof ModSpawnEggItem && entity.hasCustomName()) {
-                    itemStack.setHoverName(entity.getCustomName());
-                }
-            }
-        }
     }
 
     @SubscribeEvent
