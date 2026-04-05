@@ -330,7 +330,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             ((PortalHandler)entity).onTeleport(portal, targetPortal);
         }
 
-        if(entity instanceof ClientPlayerEntity) {
+        if(entity instanceof PlayerEntity && entity.level.isClientSide) {
             float pitch = 0.9f + (float)entity.getDeltaMovement().length() / 4 * 0.4f;
             level.playSound((PlayerEntity)entity, targetPortal.position().x, targetPortal.position().y, targetPortal.position().z,
                     SoundInit.PORTAL_TELEPORT.get(), SoundCategory.PLAYERS, 0.5f, pitch);
