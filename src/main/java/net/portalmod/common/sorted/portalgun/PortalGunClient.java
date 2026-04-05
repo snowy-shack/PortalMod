@@ -1,27 +1,16 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
-import net.portalmod.common.sorted.autoportal.AutoPortalBlock;
-import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.common.sorted.portal.PortalEnd;
-import net.portalmod.common.sorted.portal.VolatilePortalHelper;
 import net.portalmod.core.init.PacketInit;
-import net.portalmod.core.math.Vec3;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.UUID;
 
 public class PortalGunClient {
     private static PortalGunClient instance;
