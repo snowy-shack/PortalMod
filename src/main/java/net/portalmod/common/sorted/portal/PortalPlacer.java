@@ -22,6 +22,7 @@ import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.*;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -175,7 +176,7 @@ public class PortalPlacer {
         PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SPortalShotPacket(portal.getId()));
 
         level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
-                SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, 1);
+                SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, ModUtil.randomSlightSoundPitch());
 
         return portal;
     }

@@ -137,7 +137,7 @@ public class Cube extends TestElementEntity {
     }
 
     public void onSpawnedByPlayer() {
-        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 0.5f, 1);
+        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 0.5f, ModUtil.randomSoundPitch());
     }
 
     @Override

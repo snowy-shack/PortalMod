@@ -181,8 +181,8 @@ public class TurretEntity extends TestElementEntity {
         }
 
         // Sounds
-        if (this.level.getGameTime() % 8 == 0) {
-            this.playSound(this.canShoot() ? SoundInit.TURRET_FIRE.get() : SoundInit.TURRET_FIRE_FAIL.get(), 4.5f, 1);
+        if (time % 8 == 0) {
+            this.playSound(this.canShoot() ? SoundInit.TURRET_FIRE.get() : SoundInit.TURRET_FIRE_FAIL.get(), 4.5f, ModUtil.randomSlightSoundPitch());
         }
 
         // Shoot every 4 ticks (5 times per second)
@@ -414,7 +414,7 @@ public class TurretEntity extends TestElementEntity {
             if (!this.level.isClientSide) {
                 this.setWiggle(10);
                 this.setHurtDir(-this.getHurtDir());
-                this.playSound(SoundInit.TURRET_STOCK.get(), 1, 1);
+                this.playSound(SoundInit.TURRET_STOCK.get(), 1, ModUtil.randomSlightSoundPitch());
             }
 
             return ActionResultType.SUCCESS;
@@ -437,7 +437,7 @@ public class TurretEntity extends TestElementEntity {
             if (!this.level.isClientSide) {
                 this.setWiggle(10);
                 this.setHurtDir(-this.getHurtDir());
-                this.playSound(SoundInit.TURRET_STOCK.get(), 1, 1);
+                this.playSound(SoundInit.TURRET_STOCK.get(), 1, ModUtil.randomSlightSoundPitch());
             }
 
             return ActionResultType.SUCCESS;
@@ -502,9 +502,9 @@ public class TurretEntity extends TestElementEntity {
         this.refreshDimensions();
 
         if (state == TurretState.OPENING || state == TurretState.FALLING) {
-            this.playSound(SoundInit.TURRET_OPEN.get(), 3.5f, 1);
+            this.playSound(SoundInit.TURRET_OPEN.get(), 3.5f, ModUtil.randomSlightSoundPitch());
         } else if (state == TurretState.CLOSING || state == TurretState.DEAD) {
-            this.playSound(SoundInit.TURRET_CLOSE.get(), 3.5f, 1);
+            this.playSound(SoundInit.TURRET_CLOSE.get(), 3.5f, ModUtil.randomSlightSoundPitch());
         }
     }
 
