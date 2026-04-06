@@ -83,7 +83,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
         if (usedWrench) {
             WrenchItem.playUseSound(world, Vector3d.atCenterOf(pos));
         } else {
-            player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f);
+            player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
         }
 
         return ActionResultType.SUCCESS;

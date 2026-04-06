@@ -162,7 +162,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
      */
     public void fizzleInit() {
         this.setNoGravity(true);
-        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, 1);
+        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, ModUtil.randomSlightSoundPitch());
     }
 
     /**

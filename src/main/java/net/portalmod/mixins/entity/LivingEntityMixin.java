@@ -318,7 +318,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
             float slamDamage = (float)(momentumFromLastTick * 3 - 10);
             if(slamDamage > .1F) {
-                entity.playSound(this.getFallDamageSound((int)slamDamage), 1.0F, 1.0F);
+                entity.playSound(this.getFallDamageSound((int)slamDamage), 1.0F, ModUtil.randomSlightSoundPitch());
                 entity.hurt(new DamageSource("faithplate_wall"), slamDamage);
             }
         }

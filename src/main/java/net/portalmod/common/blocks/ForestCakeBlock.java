@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ModUtil;
 
 import java.util.Random;
 
@@ -41,7 +42,7 @@ public class ForestCakeBlock extends CakeBlock {
         ActionResultType used = super.use(blockState, world, pos, player, hand, result);
         if (used == ActionResultType.SUCCESS) {
             boolean ateCandle = blockState.getValue(BITES) == 0;
-            world.playSound(player, pos, (ateCandle ? SoundInit.CAKE_EAT_CANDLE.get() : SoundEvents.GENERIC_EAT), SoundCategory.PLAYERS, 1, 1);
+            world.playSound(player, pos, (ateCandle ? SoundInit.CAKE_EAT_CANDLE.get() : SoundEvents.GENERIC_EAT), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
         }
         return used;
     }

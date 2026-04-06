@@ -268,7 +268,7 @@ public class PortalGun extends Item {
 
         Consumer<PortalEntity> onPlace = placedPortal -> {
             if(placedPortal == null) {
-                level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, 1f);
+                level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
                 PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                         new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
                 return;
@@ -289,7 +289,7 @@ public class PortalGun extends Item {
                 onPlace.accept(portal);
             }
         } else {
-            level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, 1f);
+            level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
             PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                     new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
         }
@@ -467,7 +467,7 @@ public class PortalGun extends Item {
         if (didFizzleAny) {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
                     new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
-            player.level.playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, 1);
+            player.level.playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
         }
     }
 

@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.util.ModUtil;
 
 /**
  * Abstract class for antline devices that can activate testing elements and can be reversed, such as {@link AntlineIndicatorBlock} and {@link AntlineTimerBlock}.
@@ -47,7 +48,7 @@ public abstract class AntlineOutput extends AntlineDevice implements AntlineActi
     }
 
     public void playActivationSound(boolean active, World world, BlockPos pos) {
-        world.playSound(null, pos, (active ? SoundInit.ANTLINE_INDICATOR_ACTIVATE : SoundInit.ANTLINE_INDICATOR_DEACTIVATE).get(), SoundCategory.BLOCKS, 3, 1);
+        world.playSound(null, pos, (active ? SoundInit.ANTLINE_INDICATOR_ACTIVATE : SoundInit.ANTLINE_INDICATOR_DEACTIVATE).get(), SoundCategory.BLOCKS, 3, ModUtil.randomSlightSoundPitch());
     }
 
     @Override

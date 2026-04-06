@@ -138,7 +138,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
     private void setActivated(boolean activated, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(ACTIVE, activated, blockState, world, pos);
-        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, 1);
+        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     @Override

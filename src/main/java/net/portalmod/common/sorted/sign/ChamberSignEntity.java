@@ -32,6 +32,7 @@ import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.packet.SSpawnChamberSignPacket;
+import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.stream.Stream;
@@ -265,7 +266,7 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public void dropItem(@Nullable Entity entity) {
-        this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1.0F, 1.0F);
+        this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1.0F, ModUtil.randomSlightSoundPitch() * 0.9f);
 
         if (entity instanceof PlayerEntity && ((PlayerEntity) entity).isCreative()
                 || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) return;
@@ -275,7 +276,7 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public void playPlacementSound() {
-        this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1, 1);
+        this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1, ModUtil.randomSlightSoundPitch());
     }
 
     @Override

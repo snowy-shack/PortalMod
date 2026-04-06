@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.portal;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
@@ -34,7 +33,10 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.core.config.PortalModConfigManager;
-import net.portalmod.core.init.*;
+import net.portalmod.core.init.EntityInit;
+import net.portalmod.core.init.ItemInit;
+import net.portalmod.core.init.PacketInit;
+import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.interfaces.IDragCancelable;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.math.AABBUtil;
@@ -42,6 +44,7 @@ import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.CPlayerPortalTeleportPacket;
 import net.portalmod.core.util.DebugRenderer;
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.mixins.accessors.EntityAccessor;
 
 import javax.annotation.Nonnull;
@@ -337,7 +340,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(entity instanceof PlayerEntity && entity.level.isClientSide) {
             float pitch = 0.9f + (float)entity.getDeltaMovement().length() / 4 * 0.4f;
             level.playSound((PlayerEntity)entity, targetPortal.position().x, targetPortal.position().y, targetPortal.position().z,
-                    SoundInit.PORTAL_TELEPORT.get(), SoundCategory.PLAYERS, 0.5f, pitch);
+                    SoundInit.PORTAL_TELEPORT.get(), SoundCategory.PLAYERS, 0.5f, pitch * ModUtil.randomSlightSoundPitch());
         }
 
         if(justExited == null && entity instanceof PlayerEntity && entity.level.isClientSide)
@@ -803,7 +806,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SForgetPortalPacket(this.gunUUID, this.end));
 
             level.playSound(null, this.position().x, this.position().y, this.position().z,
-                    SoundInit.PORTAL_CLOSE.get(), SoundCategory.NEUTRAL, .8f, 1);
+                    SoundInit.PORTAL_CLOSE.get(), SoundCategory.NEUTRAL, .8f, ModUtil.randomSlightSoundPitch());
         }
     }
 
