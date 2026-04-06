@@ -132,7 +132,10 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         double a = parabola.getA();
         double b = parabola.getB();
 
-        final float increment = .15f / (float)Math.max(Math.abs(a), 1);
+        double horizontalDistance = relativeStartPoint.clone().mul(1, 0, 1).sub(relativeTargetPos.clone().mul(1, 0, 1)).magnitude();
+
+        // Always use around 20 line segments
+        final float increment = Math.max((float) horizontalDistance / 20, 0.05f);
 
         for(float i = 0;; i += increment) {
             float x = (float)(i * parabola.getComponentX());
@@ -150,12 +153,9 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
             targetToPlateNormal.y = 0;
             nextToPlateNormal.y = 0;
 
-            if(targetToPlateNormal.dot(nextToPlateNormal) < 0) {
-                matrixStack.popPose();
-                return;
-            }
-
-            if(be.getBlockPos().getY() + y < -1000) {
+            if (targetToPlateNormal.dot(nextToPlateNormal) < 0 || be.getBlockPos().getY() + y < -1000) {
+                vertex(lineBuffer, matrix4f, x, y, z);
+                vertex(lineBuffer, matrix4f, (float) relativeTargetPos.x, (float) relativeTargetPos.y, (float) relativeTargetPos.z);
                 matrixStack.popPose();
                 return;
             }
