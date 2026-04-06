@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.turret;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.vector.Vector3d;
@@ -74,7 +75,6 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 	@Override
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		float wingOffset, yaw, pitch;
-		Vector3d wingAngle;
 
 		float yRod = -(float) Math.toRadians(entity.yRot);
 
@@ -88,16 +88,17 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 		yaw = -(float) Math.atan2(laserDirR.x, laserDirR.z);
 		pitch = -(float) Math.asin(laserDirR.y);
 
-		wingOffset = (entity.getState() == TurretState.OPENING
-				   || entity.getState() == TurretState.SHOOTING
-				   || entity.getState() == TurretState.LOST_TARGET
-		           || entity.getState() == TurretState.FALLING) ? 2.0F : 0.0F;
+		TurretState state = entity.getState();
+		wingOffset = state.wingsOpen() ? 2.0F : 0.0F;
 
-		setRotationAngle(wing_left, pitch, yaw, 0);
-		setRotationAngle(wing_right, pitch, yaw, 0);
+		int tickTime = entity.tickCount + entity.getId();
+		float recoil = state == TurretState.SHOOTING ? (tickTime % 2 + Minecraft.getInstance().getFrameTime()) * 0.1f - 0.07f : 0;
 
-		wing_left.setPos(0.5F + wingOffset, 12.0F, 0.0F);
-		wing_right.setPos(-0.5F - wingOffset, 12.0F, 0.0F);
+		setRotationAngle(wing_left, pitch + recoil, yaw, 0);
+		setRotationAngle(wing_right, pitch + recoil, yaw, 0);
+
+		wing_left.setPos(0.5F + wingOffset, 12.0F, 0);
+		wing_right.setPos(-0.5F - wingOffset, 12.0F, 0);
 	}
 
 	@Override

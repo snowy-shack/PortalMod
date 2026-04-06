@@ -54,7 +54,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             fallAmount = 90F * tipDir;
         }
 
-        if (turretState == TurretState.FALLING || turretState == TurretState.DEAD) {
+        if (!turretState.isStanding()) {
             Vector3f lookAngle = new Vector3f(turret.getLookAngle().multiply(1, 0, 1).normalize());
 
             matrixStack.pushPose();
@@ -73,7 +73,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         // todo dont render turret if clipped
         super.render(turret, a, partialTicks, matrixStack, renderTypeBuffer, light);
 
-        if (turretState == TurretState.FALLING || turretState == TurretState.DEAD) {
+        if (!turretState.isStanding()) {
             matrixStack.popPose();
         }
 
@@ -161,7 +161,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
         LASER_BUFFER.bind();
         DefaultVertexFormats.POSITION_TEX_COLOR.setupBufferState(0L);
-        if (turretState != TurretState.FALLING && turretState != TurretState.DEAD && turret.getHurtTime() == 0) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
+        if (turretState.isStanding() && turret.getHurtTime() == 0) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
         VertexBuffer.unbind();
         DefaultVertexFormats.POSITION_TEX_COLOR.clearBufferState();
 

@@ -28,7 +28,7 @@ import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
-import net.portalmod.core.init.BlockInit;
+import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
@@ -44,6 +44,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Deque;
@@ -562,5 +563,12 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     @Redirect(method = "baseTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;stopRiding()V"))
     public void avoidTestElementEntityDismount(LivingEntity instance){
         if (!(instance instanceof TestElementEntity)) stopRiding();
+    }
+
+    @Inject(method = "canSee", at = @At("HEAD"), cancellable = true, remap = false)
+    public void pmCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (entity instanceof TurretEntity && !((TurretEntity) entity).getState().isStanding()) {
+            cir.setReturnValue(false);
+        }
     }
 }

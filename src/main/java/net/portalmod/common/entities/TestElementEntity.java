@@ -496,7 +496,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         boolean holdingWrench = source instanceof EntityDamageSource && source.getEntity() instanceof LivingEntity && WrenchItem.hitWithWrench((LivingEntity) source.getEntity());
         boolean outOfWorld = source == DamageSource.OUT_OF_WORLD;
         boolean inGoo = source == FluidInit.GOO_DAMAGE && this.getVehicle() == null;
-        boolean isCreative = source instanceof EntityDamageSource && source.getEntity() instanceof PlayerEntity && ((PlayerEntity) source.getEntity()).isCreative();
+        boolean isCreative = source.isCreativePlayer();
 
         boolean shouldHurt = holdingWrench || inGoo || outOfWorld || isCreative;
 
