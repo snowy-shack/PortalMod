@@ -26,6 +26,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.blocks.QuadBlock;
+import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivator;
 import net.portalmod.core.init.EntityTagInit;
@@ -226,8 +227,9 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     private boolean isBeingPressed(World level, BlockPos pos) {
         AxisAlignedBB trigger = this.getTrigger(level.getBlockState(pos), pos);
 
-        List<? extends Entity> entities = level.getEntitiesOfClass(LivingEntity.class, trigger,
-                EntityPredicates.NO_SPECTATORS.and(entity -> !entity.getType().is(EntityTagInit.BUTTON_NO_PRESS)));
+        List<? extends Entity> entities = level.getEntitiesOfClass(LivingEntity.class, trigger, EntityPredicates.NO_SPECTATORS
+                .and(entity -> !entity.getType().is(EntityTagInit.BUTTON_NO_PRESS))
+                .and(entity -> !(entity instanceof TestElementEntity && ((TestElementEntity) entity).isFizzling())));
 
         return !entities.isEmpty();
     }
