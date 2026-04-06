@@ -53,7 +53,8 @@ public class TurretEntity extends TestElementEntity {
             && !e.isSpectator()
             && !(e instanceof PlayerEntity && ((PlayerEntity) e).isCreative())
             && !(e.isBaby() && e.getClassification(false) != EntityClassification.MONSTER)
-            && !e.isInvisible();
+            && !e.isInvisible()
+            && !WrenchItem.holdingWrench(e);
 
     public int fallDuration = 10;
     public int viewDistance = 32;
@@ -161,7 +162,7 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void shoot() {
-        if (this.targetEntity == null || WrenchItem.holdingWrench(this.targetEntity) || this.turretView(targetEntity) == HitType.TRANSPARENT) {
+        if (this.targetEntity == null || this.turretView(targetEntity) == HitType.TRANSPARENT) {
             return;
         }
 
@@ -175,18 +176,20 @@ public class TurretEntity extends TestElementEntity {
             this.thisTargetShootingTicks = 0;
         }
 
+        long tickTime = this.tickCount + this.getId();
+
         // Particles
-        if (this.canShoot() && this.level.getGameTime() % 2 == 0 && this.level.isClientSide) {
+        if (this.canShoot() && tickTime % 2 == 0 && this.level.isClientSide) {
             TurretSparkParticle.createGlowParticles(this.level, this, this.turretToTarget);
         }
 
-        // Sounds
-        if (time % 8 == 0) {
+        // 4 shots fired per sound
+        if (tickTime % 8 == 0) {
             this.playSound(this.canShoot() ? SoundInit.TURRET_FIRE.get() : SoundInit.TURRET_FIRE_FAIL.get(), 4.5f, ModUtil.randomSlightSoundPitch());
         }
 
-        // Shoot every 4 ticks (5 times per second)
-        if (this.level.getGameTime() % 2 != 0 || !canShoot()) {
+        // Shoot every 2 ticks (10 times per second)
+        if (tickTime % 2 != 0 || !canShoot()) {
             return;
         }
 
@@ -208,7 +211,7 @@ public class TurretEntity extends TestElementEntity {
             }
         }
 
-        // Do damage
+        // Do damage only sometimes
         if (new Random().nextFloat() < 0.6f && !targetEntity.isBlocking()) {
             this.targetEntity.invulnerableTime = 0; // No mercy
             boolean hurt = this.targetEntity.hurt(damageSource(this), BULLET_DAMAGE);
@@ -226,6 +229,19 @@ public class TurretEntity extends TestElementEntity {
             }
         }
 
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float damage) {
+        if (source.isProjectile()) {
+            if (this.getState().isStanding()) {
+                this.setState(TurretState.FALLING);
+                this.setTipDirectionRight(new Random().nextBoolean());
+            }
+            return false;
+        }
+
+        return super.hurt(source, damage);
     }
 
     public boolean canShoot() {

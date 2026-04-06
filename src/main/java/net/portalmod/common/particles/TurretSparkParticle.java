@@ -56,14 +56,20 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
         double heightMid = entity.getBbHeight() * 0.5;
         Vector3d middle = entity.position().add(0, heightMid, 0);
 
-        Vector3d front = middle.add(direction.normalize().multiply(0.3F, 0F, 0.3F));
+        Vector3d front = middle.add(direction.normalize().multiply(0.25F, 0F, 0.25F));
 
         Vector3d side = new Vector3d(-direction.normalize().z, 0, direction.normalize().x);
-        boolean leftSide = world.getGameTime() % 8 < 4;
-        float verticalOffset = (world.getGameTime() % 4 < 2) ? 0.1F : -0.1F;
+        boolean leftSide = new Random().nextBoolean();
+        boolean upperSide = new Random().nextBoolean();
+
+//        long tickTime = world.getGameTime() + entity.getId();
+//        boolean leftSide = tickTime % 8 < 4;
+//        boolean upperSide = tickTime % 4 < 2;
+
+        float verticalOffset = upperSide ? 0.12F : 0;
         side = side.multiply(leftSide ? -0.25F : 0.25F, 0, leftSide ? -0.25F : 0.25F);
 
-        Vector3d particlePos = front.add(0F, 0.2F, 0F);
+        Vector3d particlePos = front.add(0F, 0.08F, 0F);
 
         world.addParticle(ParticleInit.TURRET_SPARK.get(),
                 particlePos.x + side.x, particlePos.y + verticalOffset, particlePos.z + side.z,

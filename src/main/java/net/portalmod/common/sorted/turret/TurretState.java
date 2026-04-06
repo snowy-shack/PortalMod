@@ -15,4 +15,15 @@ public enum TurretState implements IStringSerializable {
     public String getSerializedName() {
         return this.name().toLowerCase();
     }
+
+    public boolean isStanding() {
+        return this != TurretState.FALLING && this != TurretState.DEAD;
+    }
+
+    public boolean wingsOpen() {
+        return this == TurretState.OPENING
+                || this == TurretState.SHOOTING
+                || this == TurretState.LOST_TARGET
+                || this == TurretState.FALLING;
+    }
 }
