@@ -103,7 +103,7 @@ public class ItemInit {
     public static final RegistryObject<Item> RADIO = registerBlockItem("radio", BlockInit.RADIO);
 
     // Discs
-    public static final RegistryObject<Item> DISC_RAIN = ITEMS.register("disc_rain",
+    public static final RegistryObject<Item> DISC_RAIN = ITEMS.register("music_disc_rain",
             () -> new MusicDiscItem(1, SoundInit.DISC_RAIN, properties().stacksTo(1).rarity(Rarity.RARE)));
 
     public static final RegistryObject<Item> FOREST_CAKE = ITEMS.register("forest_cake",

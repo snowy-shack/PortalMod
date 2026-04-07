@@ -16,8 +16,8 @@
   "item.portalmod.turret":         "Sentry Turret",
   "item.portalmod.chamber_sign":   "Chamber Sign",
 
-  "item.portalmod.disc_rain": "Music Disc",
-  "item.portalmod.disc_rain.desc": "Scyriate - Rain",
+  "item.portalmod.music_disc_rain": "Music Disc",
+  "item.portalmod.music_disc_rain.desc": "Scyriate - Rain",
 
   "block.portalmod.repulsion_gel":  "Repulsion Gel",
   "block.portalmod.propulsion_gel": "Propulsion Gel",
