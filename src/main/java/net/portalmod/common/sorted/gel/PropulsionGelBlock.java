@@ -6,11 +6,14 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
+import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 
 import java.util.UUID;
@@ -74,18 +77,35 @@ public class PropulsionGelBlock extends AbstractGelBlock {
 
         IGelAffected gelAffected = ((IGelAffected) entity);
 
-        if (isInSpeedGel) {
-            if (actuallyOnSpeedGel(pos, state, entity)) {
-                gelAffected.incrementPropulsionTicks();
-            }
-        } else {
-            // Preserve speed while jumping / bouncing
-            if (entity.isOnGround() && gelAffected.getLeftGround() && !(state.getBlock() instanceof RepulsionGelBlock)) {
-                gelAffected.setPropulsionTicks(0);
+        // to each their own
+        if (entity.level.isClientSide == entity instanceof PlayerEntity) {
+            if (isInSpeedGel) {
+                if (actuallyOnSpeedGel(pos, state, entity)) {
+                    double speed = entity.getDeltaMovement().multiply(1, 0, 1).length();
+
+                    if (speed > 0.01) {
+                        gelAffected.incrementPropulsionTicks();
+                    } else {
+                        gelAffected.decrementPropulsionTicks();
+                    }
+
+                    Vector3d velocity = entity.getDeltaMovement().multiply(1, 0, 1).normalize();
+                    Vector3d oldVelocity = ((IGelAffected) entity).getLastLastDeltaMovement().multiply(1, 0, 1).normalize();
+                    gelAffected.setPropulsionTicks((int)Math.round(gelAffected.getPropulsionTicks() * (velocity.dot(oldVelocity) / 2 + 0.5)));
+                }
+            } else {
+                // Preserve speed while jumping / bouncing
+                if (entity.isOnGround() && gelAffected.getLeftGround() && !(state.getBlock() instanceof RepulsionGelBlock)) {
+                    gelAffected.setPropulsionTicks(0);
+                }
+
+                if (LivingEntityInjector.effectsShouldBeReset(entity, true)) {
+                    gelAffected.decrementPropulsionTicks();
+                }
             }
 
-            if (LivingEntityInjector.effectsShouldBeReset(entity, true)) {
-                gelAffected.decrementPropulsionTicks();
+            if (entity.level.isClientSide) {
+                PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket(gelAffected.getPropulsionTicks()));
             }
         }
 

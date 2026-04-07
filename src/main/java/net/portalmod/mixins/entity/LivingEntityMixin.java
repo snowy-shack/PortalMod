@@ -405,6 +405,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     private boolean wasOnGround = true;
     private boolean leftGround = false;
     private Vector3d lastDeltaMovement = Vector3d.ZERO;
+    private Vector3d lastLastDeltaMovement = Vector3d.ZERO;
     private int propulsionTicks = 0;
 
     @Override
@@ -476,6 +477,16 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     @Override
     public Vector3d getLastDeltaMovement() {
         return lastDeltaMovement;
+    }
+
+    @Override
+    public void setLastLastDeltaMovement(Vector3d newLastLastDeltaMovement) {
+        lastLastDeltaMovement = newLastLastDeltaMovement;
+    }
+
+    @Override
+    public Vector3d getLastLastDeltaMovement() {
+        return lastLastDeltaMovement;
     }
 
     @Override
