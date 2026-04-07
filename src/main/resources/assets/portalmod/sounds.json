@@ -7,9 +7,7 @@
     },
     "block.radio.transmission": {
         "sounds": [
-            "portalmod:block/radio/dinosaur1",
-            "portalmod:block/radio/dinosaur2",
-            "portalmod:block/radio/dinosaur4"
+            "portalmod:block/radio/dinosaur1"
         ],
         "subtitle": "subtitles.block.radio.transmission"
     },
