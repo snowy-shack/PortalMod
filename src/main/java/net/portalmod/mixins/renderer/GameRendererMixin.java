@@ -1,11 +1,13 @@
 package net.portalmod.mixins.renderer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -16,6 +18,10 @@ import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
+import net.portalmod.core.math.AABBUtil;
+import net.portalmod.core.math.Mat4;
+import net.portalmod.core.math.Vec3;
+import net.portalmod.core.util.ModUtil;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(GameRenderer.class)
@@ -68,13 +75,41 @@ public abstract class GameRendererMixin {
                     target = "Lnet/minecraft/entity/projectile/ProjectileHelper;getEntityHitResult(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/function/Predicate;D)Lnet/minecraft/util/math/EntityRayTraceResult;"
             )
     )
-    private EntityRayTraceResult pmPortalConditionallyPickable(Entity entity, Vector3d from, Vector3d to, AxisAlignedBB aabb, Predicate<Entity> predicate, double d) {
-        return ProjectileHelper.getEntityHitResult(entity, from, to, aabb, target -> {
+    private EntityRayTraceResult pmCustomEntityPick(Entity entity, Vector3d from, Vector3d to, AxisAlignedBB aabb, Predicate<Entity> predicate, double d) {
+        EntityRayTraceResult rayResult = ProjectileHelper.getEntityHitResult(entity, from, to, aabb, target -> {
             if(target instanceof PortalEntity && entity instanceof LivingEntity)
                 if(WrenchItem.hitWithWrench((LivingEntity)entity) || !((PortalEntity)target).isOpen())
                     return true;
             return !target.isSpectator() && target.isPickable();
         }, d);
+
+        PlayerEntity player = Minecraft.getInstance().player;
+        if(player == null)
+            return rayResult;
+
+        List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(player.level, new Vec3(from), new Vec3(to), portal -> true);
+        Mat4 portalMatrix = ModUtil.getMatrixFromPortalChain(portalChain);
+        Pair<Vector3d, Vector3d> ray = ModUtil.teleportRay(portalChain, from, to);
+        aabb = AABBUtil.transform(aabb, portalMatrix);
+
+        EntityRayTraceResult teleportedRayResult = ProjectileHelper.getEntityHitResult(entity, ray.getFirst(), ray.getSecond(), aabb, target -> {
+            if(target instanceof PortalEntity && entity instanceof LivingEntity)
+                if(WrenchItem.hitWithWrench((LivingEntity)entity) || !((PortalEntity)target).isOpen())
+                    return true;
+            return !target.isSpectator() && target.isPickable();
+        }, d);
+
+        if(teleportedRayResult == null) {
+            return rayResult;
+        } else if(rayResult == null) {
+            return teleportedRayResult;
+        }
+
+        Vector3d teleportedFrom = new Vec3(from).transform(portalMatrix).to3d();
+        double realWorldDistance = rayResult.getLocation().subtract(from).lengthSqr();
+        double teleportedDistance = teleportedRayResult.getLocation().subtract(teleportedFrom).lengthSqr();
+
+        return realWorldDistance <= teleportedDistance ? rayResult : teleportedRayResult;
     }
 
     @Inject(
