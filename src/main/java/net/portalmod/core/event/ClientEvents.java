@@ -403,12 +403,12 @@ public class ClientEvents {
         Minecraft minecraft = Minecraft.getInstance();
         FontRenderer fontRenderer = minecraft.font;
 
-        if(PortalMod.WATERMARK) {
-            WatermarkRenderer.render(event.getMatrixStack());
-        }
-
         if(event.getType() == ElementType.CROSSHAIRS) {
             PortalGunCrosshairRenderer.render(event.getMatrixStack());
+
+            if(PortalMod.WATERMARK) {
+                WatermarkRenderer.render(event.getMatrixStack());
+            }
             
         } else if(event.getType() == ElementType.SUBTITLES) {
             MainWindow window = event.getWindow();
