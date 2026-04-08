@@ -67,6 +67,17 @@ public class PortalGunCrosshairRenderer {
         } else {
             primaryFilled = ClientPortalManager.getInstance().hasFullOrPartial(uuid.get(), PortalEnd.PRIMARY);
             secondaryFilled = ClientPortalManager.getInstance().hasFullOrPartial(uuid.get(), PortalEnd.SECONDARY);
+
+            CompoundNBT tag = itemStack.getTag();
+            if(tag != null && (tag.contains("Locked") && !tag.getString("Locked").equals("None"))) {
+                if(tag.getString("Locked").equals("Right")) {
+                    secondaryFilled = primaryFilled;
+                }
+
+                if(tag.getString("Locked").equals("Left")) {
+                    primaryFilled = secondaryFilled;
+                }
+            }
         }
 
         CompoundNBT nbt = itemStack.getOrCreateTag();
