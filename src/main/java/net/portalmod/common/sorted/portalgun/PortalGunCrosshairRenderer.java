@@ -78,7 +78,7 @@ public class PortalGunCrosshairRenderer {
         if(isClassicCrosshair) {
             CompoundNBT tag = itemStack.getTag();
             if(tag != null) {
-                if(tag.contains("LastPortal")) {
+                if(tag.contains("LastPortal") && (!tag.contains("Locked") || tag.getString("Locked").equals("None"))) {
                     int lastPortal = tag.getInt("LastPortal");
                     if(lastPortal == -1) {
                         renderCrosshairDot(matrixStack, PortalEnd.PRIMARY, primaryColor);
