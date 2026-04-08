@@ -112,7 +112,7 @@ public class FaithPlateBlock extends DoubleBlock {
 
         FaithPlateTileEntity faithPlate = (FaithPlateTileEntity)tileEntity;
 
-        if(WrenchItem.usedWrench(player, hand)) {
+        if(WrenchItem.usedWrench(player, hand) && !FaithPlateTileEntity.isPlayerConfiguring(player)) {
             if(!faithPlate.isBeingConfigured()) {
                 faithPlate.startConfiguration((ServerPlayerEntity)player);
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());

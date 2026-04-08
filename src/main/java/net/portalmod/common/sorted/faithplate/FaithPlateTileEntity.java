@@ -160,6 +160,10 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         PLATE_PER_PLAYER.remove(player);
     }
 
+    public static boolean isPlayerConfiguring(PlayerEntity player) {
+        return PLATE_PER_PLAYER.containsKey(player);
+    }
+
     // todo handle player leave
     public boolean isBeingConfigured() {
         return this.configuringPlayer != null;
