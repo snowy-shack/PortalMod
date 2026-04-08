@@ -4,7 +4,7 @@ license="All rights reserved"
 
 [[mods]]
 modId="portalmod"
-version="0.2.1"
+version="0.3"
 displayName="PortalMod"
 #logoFile="examplemod.png"
 authors="SerialSniper, PhantomEye, LarsMans"
