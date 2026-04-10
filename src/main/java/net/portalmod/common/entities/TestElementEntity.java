@@ -87,6 +87,8 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
         super.tick();
 
+        this.checkForFizzlers(this);
+
         if (this.isFizzling()) {
             this.fizzleTick();
         }
@@ -230,6 +232,8 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 this.yOld = this.serverOldPos.y;
                 this.zOld = this.serverOldPos.z;
             }
+
+            this.checkForFizzlers(this);
         } else {
             Vec3 eyePos = new Vec3(player.getEyePosition(1).add(0, -0.4, 0));
             Vec3 eyeOldPos = new Vec3(player.getEyePosition(0).add(0, -0.4, 0));
