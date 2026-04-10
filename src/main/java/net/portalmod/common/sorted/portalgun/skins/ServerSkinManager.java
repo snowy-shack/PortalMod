@@ -35,6 +35,12 @@ public class ServerSkinManager extends SkinManager {
             return;
 
         this.enqueueTask(() -> {
+            try {
+                this.loadSkinCatalog();
+            } catch(IOException e) {
+                PortalMod.LOGGER.error(e.getMessage());
+            }
+
             Map<UUID, String> temp = new HashMap<>(this.getSelectedSkinMap());
             temp.forEach((uuid, skin) -> {
                 if(!uuid.equals(player.getUUID())) {

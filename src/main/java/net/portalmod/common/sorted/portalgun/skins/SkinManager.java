@@ -74,8 +74,7 @@ public abstract class SkinManager {
         }
 
         PortalGunPlayer payload = this.gson.fromJson(data, PortalGunPlayer.class);
-        if(this.clientSide)
-            this.fetchTheseNewSkins(new HashSet<>(payload.skins));
+        this.fetchTheseNewSkins(new HashSet<>(payload.skins));
 
         if(player != null)
             this.players.put(player, payload);
@@ -223,7 +222,10 @@ public abstract class SkinManager {
         try {
             this.fetchSkinCatalog();
             this.cacheSkinCatalog();
-            this.updateAllSkins();
+
+            if(this.clientSide) {
+                this.updateAllSkins();
+            }
         } catch(IOException e) {
             PortalMod.LOGGER.error(e.getMessage());
         }
