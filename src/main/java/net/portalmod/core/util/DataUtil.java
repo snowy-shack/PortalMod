@@ -2,13 +2,11 @@ package net.portalmod.core.util;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
+import java.net.HttpRetryException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class DataUtil {
@@ -63,16 +61,26 @@ public class DataUtil {
     }
 
     public static byte[] makeRequest(String url) throws IOException {
-        HttpGet request = new HttpGet(url);
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(10000);
+        connection.setReadTimeout(10000);
+
+        InputStream is = null;
         byte[] data;
 
-        try(CloseableHttpClient client = HttpClients.custom().disableCookieManagement().build()) {
-            HttpResponse response = client.execute(request);
-            if(response.getStatusLine().getStatusCode() != 200)
-                throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+        try {
+            connection.connect();
+            if(connection.getResponseCode() != 200) {
+                throw new HttpRetryException(connection.getResponseMessage(), connection.getResponseCode());
+            }
 
-            InputStream is = response.getEntity().getContent();
+            is = connection.getInputStream();
             data = readInputStream(is);
+        } finally {
+            if(is != null) {
+                is.close();
+            }
         }
 
         return data;
