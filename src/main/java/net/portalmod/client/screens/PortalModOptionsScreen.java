@@ -17,7 +17,7 @@ import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.common.sorted.portalgun.skins.SkinSelectorScreen;
 
 public class PortalModOptionsScreen extends Screen {
-    private static final int BUTTON_WIDTH = 150;
+    private static final int BUTTON_WIDTH = 200;
     private static final int BUTTON_HEIGHT = 20;
 
     private final Screen lastScreen;
@@ -53,15 +53,15 @@ public class PortalModOptionsScreen extends Screen {
         CROSSHAIR_BUTTON = this.createToggleButton(x, y, "crosshair", PortalModConfigManager.CROSSHAIR.get());
         RECURSION_SLIDER = this.createRecursionSlider(x, y += stepY);
         RENDER_SELF_BUTTON = this.createToggleButton(x, y += stepY, "render_self", PortalModConfigManager.RENDER_SELF.get());
-        HIGHLIGHTS_BUTTON = this.createToggleButton(x, y += stepY, "highlights", PortalModConfigManager.HIGHLIGHTS.get());
-        SKIN_PAGE_BUTTON = this.createSkinPageButton(x, y + stepY);
+        HIGHLIGHTS_BUTTON = this.createToggleButton(x, y + stepY, "highlights", PortalModConfigManager.HIGHLIGHTS.get());
 
         x = this.width / 2 + 5;
         y = baseY;
         TOOLTIPS_BUTTON = this.createToggleButton(x, y, "tooltips", PortalModConfigManager.TOOLTIPS.get());
         MENU_BUTTON = this.createToggleButton(x, y += stepY, "menu", PortalModConfigManager.MENU.get());
         FUNNELING_BUTTON = this.createToggleButton(x, y += stepY, "portal_funneling", PortalModConfigManager.PORTAL_FUNNELING.get());
-        SEPARATE_GUN_BUTTON = this.createToggleButton(x, y + stepY, "separate_gun", PortalModConfigManager.SEPARATE_GUN.get());
+        SEPARATE_GUN_BUTTON = this.createToggleButton(x, y += stepY, "separate_gun", PortalModConfigManager.SEPARATE_GUN.get());
+        SKIN_PAGE_BUTTON = this.createSkinPageButton(x, y + stepY);
 
         this.addButton(CROSSHAIR_BUTTON);
         this.addButton(RECURSION_SLIDER);
@@ -98,7 +98,7 @@ public class PortalModOptionsScreen extends Screen {
     }
 
     private Button createSkinPageButton(int x, int y) {
-        return new Button(x, y, BUTTON_WIDTH * 2 + 10, BUTTON_HEIGHT, this.getText("skins"), b -> {
+        return new Button(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, this.getText("skins"), b -> {
             this.save();
             Minecraft.getInstance().setScreen(SkinSelectorScreen.getInstance(this));
         });
