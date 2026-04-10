@@ -38,6 +38,7 @@ import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
 import net.portalmod.common.sorted.portal.*;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import net.portalmod.core.math.AABBUtil;
 import net.portalmod.core.math.Vec3;
@@ -216,9 +217,11 @@ public class PortalGun extends Item {
         boolean isPrimary = end == PortalEnd.PRIMARY;
 
         if (nbt.contains("Locked") && nbt.getString("Locked").equals(isPrimary ? "Left" : "Right")) {
-//            end = end.other();
-//            isPrimary = !isPrimary;
-            return;
+            if (PortalModConfigManager.SEPARATE_GUN.get())
+                return;
+
+            end = end.other();
+            isPrimary = !isPrimary;
         }
 
         // Play shooting animation and sound
@@ -266,6 +269,7 @@ public class PortalGun extends Item {
         double distance = ray.getLocation().subtract(player.getEyePosition(0)).length();
         int ticks = (int)Math.ceil(distance / 2);
 
+        PortalEnd finalEnd = end;
         Consumer<PortalEntity> onPlace = placedPortal -> {
             if(placedPortal == null) {
                 level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
@@ -277,8 +281,8 @@ public class PortalGun extends Item {
             triggerPortalAdvancements(level, (ServerPlayerEntity)player, placedPortal, distance);
 
             // todo convert to string
-            gun.getOrCreateTag().putInt("LastPortal", end == PortalEnd.PRIMARY ? -1 : 1);
-            player.getMainHandItem().getOrCreateTag().putByte("color", (byte)end.ordinal());
+            gun.getOrCreateTag().putInt("LastPortal", finalEnd == PortalEnd.PRIMARY ? -1 : 1);
+            player.getMainHandItem().getOrCreateTag().putByte("color", (byte) finalEnd.ordinal());
         };
 
         if(!inFizzler) {

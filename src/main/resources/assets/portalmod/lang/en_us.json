@@ -336,6 +336,7 @@
   "options.portalmod.render_self":      "Render Own Player Model",
   "options.portalmod.highlights":       "Portal Highlights",
   "options.portalmod.portal_funneling": "Portal Funneling",
+  "options.portalmod.separate_gun":     "Separate Locked Gun Buttons",
 
   "options.portalmod.skins.title": "Skin Selector",
   "options.portalmod.skins.apply": "Apply",

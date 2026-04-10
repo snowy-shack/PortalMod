@@ -28,6 +28,7 @@ public class PortalModOptionsScreen extends Screen {
     private ToggleButton TOOLTIPS_BUTTON;
     private ToggleButton MENU_BUTTON;
     private ToggleButton FUNNELING_BUTTON;
+    private ToggleButton SEPARATE_GUN_BUTTON;
     private Button SKIN_PAGE_BUTTON;
     
     public PortalModOptionsScreen(Screen lastScreen) {
@@ -59,7 +60,8 @@ public class PortalModOptionsScreen extends Screen {
         y = baseY;
         TOOLTIPS_BUTTON = this.createToggleButton(x, y, "tooltips", PortalModConfigManager.TOOLTIPS.get());
         MENU_BUTTON = this.createToggleButton(x, y += stepY, "menu", PortalModConfigManager.MENU.get());
-        FUNNELING_BUTTON = this.createToggleButton(x, y + stepY, "portal_funneling", PortalModConfigManager.PORTAL_FUNNELING.get());
+        FUNNELING_BUTTON = this.createToggleButton(x, y += stepY, "portal_funneling", PortalModConfigManager.PORTAL_FUNNELING.get());
+        SEPARATE_GUN_BUTTON = this.createToggleButton(x, y + stepY, "separate_gun", PortalModConfigManager.SEPARATE_GUN.get());
 
         this.addButton(CROSSHAIR_BUTTON);
         this.addButton(RECURSION_SLIDER);
@@ -68,6 +70,7 @@ public class PortalModOptionsScreen extends Screen {
         this.addButton(TOOLTIPS_BUTTON);
         this.addButton(MENU_BUTTON);
         this.addButton(FUNNELING_BUTTON);
+        this.addButton(SEPARATE_GUN_BUTTON);
         this.addButton(SKIN_PAGE_BUTTON);
 
         this.addButton(new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, DialogTexts.GUI_DONE, (p_213056_1_) -> {
@@ -138,6 +141,7 @@ public class PortalModOptionsScreen extends Screen {
         PortalModConfigManager.TOOLTIPS.set(TOOLTIPS_BUTTON.getValue());
         PortalModConfigManager.MENU.set(MENU_BUTTON.getValue());
         PortalModConfigManager.PORTAL_FUNNELING.set(FUNNELING_BUTTON.getValue());
+        PortalModConfigManager.SEPARATE_GUN.set(SEPARATE_GUN_BUTTON.getValue());
     }
 
     private static class RecursionSlider extends Slider {

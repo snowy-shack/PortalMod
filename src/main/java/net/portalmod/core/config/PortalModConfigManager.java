@@ -15,6 +15,7 @@ public class PortalModConfigManager {
     public static ForgeConfigSpec.ConfigValue<Boolean> RENDER_SELF;
     public static ForgeConfigSpec.ConfigValue<Boolean> HIGHLIGHTS;
     public static ForgeConfigSpec.ConfigValue<Boolean> PORTAL_FUNNELING;
+    public static ForgeConfigSpec.ConfigValue<Boolean> SEPARATE_GUN;
     public static ForgeConfigSpec.ConfigValue<String>  PORTALGUN_SKIN;
     public static ForgeConfigSpec.ConfigValue<Boolean> HAS_SKINS;
     public static ForgeConfigSpec.ConfigValue<Integer> SKIN_TINT;
@@ -31,6 +32,7 @@ public class PortalModConfigManager {
         RENDER_SELF      = builder.define("render_self", true);
         HIGHLIGHTS       = builder.define("highlights", true);
         PORTAL_FUNNELING = builder.define("portal_funneling", true);
+        SEPARATE_GUN     = builder.define("separate_gun", true);
         PORTALGUN_SKIN   = builder.define("portalgun_skin", "default");
         HAS_SKINS        = builder.define("has_skins", false);
         SKIN_TINT        = builder.define("skin_tint", 0);
