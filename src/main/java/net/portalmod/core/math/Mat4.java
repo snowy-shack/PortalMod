@@ -3,7 +3,6 @@ package net.portalmod.core.math;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3f;
-import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
 
@@ -89,7 +88,7 @@ public class Mat4 {
        this.m12 = 2.0F * (f8 - f10);
     }
 
-    private static final FloatBuffer temp = BufferUtils.createFloatBuffer(16);
+    private static final FloatBuffer temp = FloatBuffer.allocate(16);
 
     public Mat4(Matrix4f m) {
         m.store(temp);
@@ -327,7 +326,7 @@ public class Mat4 {
     }
 
     public FloatBuffer toBuffer() {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+        FloatBuffer buffer = FloatBuffer.allocate(16);
         this.store(buffer);
         return buffer;
     }
