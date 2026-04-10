@@ -455,7 +455,10 @@ public class PortalGun extends Item {
     }
 
     public static void fizzleGunsInInventory(PlayerEntity player) {
-        if (player.level.isClientSide) return;
+        if (player.level.isClientSide) {
+            PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.FIZZLE).build());
+            return;
+        }
 
         boolean didFizzleAny = false;
 

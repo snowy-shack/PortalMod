@@ -21,6 +21,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.World;
+import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
@@ -240,6 +241,13 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         this.lerpY += offset.y;
         this.lerpZ += offset.z;
         ((ITeleportable)instance).removeLastUsedPortal();
+    }
+
+    @Inject(remap = false, method = "tick", at = @At("RETURN"))
+    public void checkFizzlers(CallbackInfo ci) {
+        if (this instanceof Fizzleable) {
+            ((Fizzleable) this).checkForFizzlers(this);
+        }
     }
 
     @Unique

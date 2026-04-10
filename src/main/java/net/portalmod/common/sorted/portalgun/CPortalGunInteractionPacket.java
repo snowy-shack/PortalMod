@@ -133,6 +133,10 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                         ((PushDoorBlock) block).interact(blockState, player.level, blockHit.getBlockPos(), blockHit);
                     }
                     break;
+
+                case FIZZLE:
+                    PortalGun.fizzleGunsInInventory(player);
+                    break;
             }
         });
 
