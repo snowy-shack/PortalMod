@@ -53,7 +53,7 @@ public class ServerPlayNetHandlerMixin {
                     target = "Lnet/minecraft/entity/player/ServerPlayerEntity;isChangingDimension()Z"
             )
     )
-    private boolean pm(ServerPlayerEntity player) {
+    private boolean pmAllowPortalTeleportation2(ServerPlayerEntity player) {
         if(((ITeleportLerpable)player).hasUsedPortal())
             return true;
         return player.isChangingDimension();
