@@ -349,6 +349,8 @@ public class ClientEvents {
                 if(handled) {
                     event.setCanceled(true);
                 }
+            } else {
+                PortalGunClient.getInstance().resetPresses();
             }
         }
     }

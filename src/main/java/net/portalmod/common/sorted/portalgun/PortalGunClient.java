@@ -143,6 +143,11 @@ public class PortalGunClient {
         return false;
     }
 
+    public void resetPresses() {
+        this.leftButtonPressed = false;
+        this.rightButtonPressed = false;
+    }
+
     private enum PressState {
         NONE,
         PORTALGUN,
