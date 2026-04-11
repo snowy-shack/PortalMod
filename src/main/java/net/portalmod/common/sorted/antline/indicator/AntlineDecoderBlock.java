@@ -16,9 +16,11 @@ import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated {
+public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated, IndicatorActivated {
     public static final BooleanProperty ACTIVATED = BooleanProperty.create("activated");
 
     public AntlineDecoderBlock(Properties properties) {
@@ -54,9 +56,14 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
 
     @Override
     public void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos) {
-        if (state.getValue(ACTIVATED) == active) return;
+        // This method gets called on neighbor updates too, so it's safe to check for indicators here
 
-        world.setBlock(pos, state.setValue(ACTIVATED, active), 2);
+        boolean shouldBeActive = (active || this.checkIndicators(state, world, pos).allIndicatorsActivated);
+
+        if (state.getValue(ACTIVATED) == shouldBeActive)
+            return;
+
+        world.setBlock(pos, state.setValue(ACTIVATED, shouldBeActive), 2);
         this.updateNeighbours(world.getBlockState(pos), world, pos);
     }
 
@@ -95,6 +102,15 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
         // First update surrounding antlines, then check for them
         world.updateNeighborsAt(pos, this);
         this.updateAntlineActivation(state, world, pos);
+    }
+
+    @Override
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+        Direction.Axis axis = this.getHorsedOn(blockState).getAxis();
+        return Arrays.stream(Direction.values())
+                .filter(direction -> direction.getAxis() != axis)
+                .map(pos::relative)
+                .collect(Collectors.toList());
     }
 
     @Override

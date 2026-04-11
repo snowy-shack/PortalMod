@@ -10,6 +10,6 @@ public class IndicatorInfo {
         this.totalIndicators = totalIndicators;
         this.activatedIndicators = activatedIndicators;
         this.hasIndicators = totalIndicators > 0;
-        this.allIndicatorsActivated = totalIndicators == activatedIndicators;
+        this.allIndicatorsActivated = this.hasIndicators && totalIndicators == activatedIndicators;
     }
 }
