@@ -512,14 +512,16 @@ public class TurretEntity extends TestElementEntity {
     }
 
     public void setState(TurretState state) {
+        TurretState oldState = this.getState();
+
         this.entityData.set(STATE_ID, String.valueOf(state));
 
         this.setAnimationTicks(0);
         this.refreshDimensions();
 
-        if (state == TurretState.OPENING || state == TurretState.FALLING) {
+        if (state == TurretState.OPENING || state == TurretState.FALLING && !oldState.wingsOpen()) {
             this.playSound(SoundInit.TURRET_OPEN.get(), 3.5f, ModUtil.randomSlightSoundPitch());
-        } else if (state == TurretState.CLOSING || state == TurretState.DEAD) {
+        } else if (state == TurretState.CLOSING || state == TurretState.DEAD && oldState.wingsOpen()) {
             this.playSound(SoundInit.TURRET_CLOSE.get(), 3.5f, ModUtil.randomSlightSoundPitch());
         }
     }
