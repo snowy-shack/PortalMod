@@ -4,11 +4,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
+import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.PacketInit;
 import org.lwjgl.glfw.GLFW;
 
@@ -58,6 +61,18 @@ public class PortalGunClient {
         Vector3d to = from.add(rayPath);
         RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
         BlockRayTraceResult ray = PortalGun.customClip(player.level, rayCtx);
+        ItemStack itemStack = player.getMainHandItem();
+
+        if(itemStack.hasTag()) {
+            CompoundNBT nbt = itemStack.getTag();
+
+            if(nbt.contains("Locked") && nbt.getString("Locked").equals(end == PortalEnd.PRIMARY ? "Left" : "Right")) {
+                if(PortalModConfigManager.SEPARATE_GUN.get())
+                    return;
+
+                end = end.other();
+            }
+        }
 
         PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.SHOOT_PORTAL)
                 .end(end).blockHit(ray).build());

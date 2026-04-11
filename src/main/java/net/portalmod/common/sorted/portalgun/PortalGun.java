@@ -217,11 +217,7 @@ public class PortalGun extends Item {
         boolean isPrimary = end == PortalEnd.PRIMARY;
 
         if (nbt.contains("Locked") && nbt.getString("Locked").equals(isPrimary ? "Left" : "Right")) {
-            if (PortalModConfigManager.SEPARATE_GUN.get())
-                return;
-
-            end = end.other();
-            isPrimary = !isPrimary;
+            return;
         }
 
         // Play shooting animation and sound
