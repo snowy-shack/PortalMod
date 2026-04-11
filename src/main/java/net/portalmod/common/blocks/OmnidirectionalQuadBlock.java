@@ -7,7 +7,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
-import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -41,7 +40,7 @@ public class OmnidirectionalQuadBlock extends QuadBlock {
         for (int i = 0; i < 4; i++) {
             QuadBlockCorner corner = QuadBlockCorner.getCorner(prefersUp ^ flipUp[i], prefersLeft ^ flipLeft[i]);
 
-            if (this.isCornerPlaceable(context, corner, horizontalDirection)) {
+            if (this.isCornerPlaceable(context, corner)) {
                 BlockState blockState = this.defaultBlockState()
                         .setValue(FACING, direction)
                         .setValue(CORNER, corner);
@@ -120,11 +119,6 @@ public class OmnidirectionalQuadBlock extends QuadBlock {
         for(QuadBlockCorner corner : QuadBlockCorner.values())
             poses.add(getOtherBlock(pos, base, corner, facing, direction));
         return poses;
-    }
-
-    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner, Direction direction) {
-        return this.getAllBlocks(context.getClickedPos(), corner, context.getClickedFace(), direction).stream()
-                .allMatch(pos -> ModUtil.canPlaceAt(context, pos));
     }
 
     @Override

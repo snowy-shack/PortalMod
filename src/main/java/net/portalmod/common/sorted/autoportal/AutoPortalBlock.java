@@ -4,6 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.state.BooleanProperty;
@@ -191,6 +192,17 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     @Override
     public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
         return this.getShape(state, level, pos, context);
+    }
+
+    @Override
+    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+        Direction direction = context.getClickedFace();
+        return this.getAllBlocks(context.getClickedPos(), corner, direction, context.getHorizontalDirection()).stream()
+                .allMatch(pos ->
+                        ModUtil.canPlaceAt(context, pos) && context.getLevel()
+                                .getBlockState(pos.relative(direction.getOpposite()))
+                                .isFaceSturdy(context.getLevel(), pos, direction)
+                );
     }
 
     @Override
