@@ -94,6 +94,8 @@ public class TurretEntity extends TestElementEntity {
 
     @Override
     public void tick() {
+        boolean serverSide = !this.level.isClientSide;
+
         super.tick();
 
         this.yHeadRot = this.yRot;
@@ -102,7 +104,9 @@ public class TurretEntity extends TestElementEntity {
 
         // If it's being held with a Portal Gun
         if (this.getVehicle() instanceof PlayerEntity) {
-            this.setState(TurretState.LOST_TARGET);
+            if (serverSide) {
+                this.setState(TurretState.LOST_TARGET);
+            }
             return;
         }
 
@@ -111,16 +115,17 @@ public class TurretEntity extends TestElementEntity {
         // Tipping over
         Vector3d deltaMovement = getDeltaMovement();
         Vector3d motionXZ = new Vector3d(deltaMovement.x, 0, deltaMovement.z);
-        if (motionXZ.length() > 0.01
-                && getState() != TurretState.FALLING
-                && getState() != TurretState.DEAD
-                && this.onGround) {
-            this.setState(TurretState.FALLING);
-            this.setTipDirectionRight(this.getLookAngle().yRot(90).dot(deltaMovement) < 0);
+        if (motionXZ.length() > 0.01 && this.getState().isStanding() && this.onGround) {
+            if (serverSide) {
+                this.setState(TurretState.FALLING);
+                this.setTipDirectionRight(this.getLookAngle().yRot(90).dot(deltaMovement) < 0);
+            }
             return;
         }
 
-        this.updateTargetEntity();
+        if (serverSide) {
+            this.updateTargetEntity();
+        }
 
         if (getState() == TurretState.SHOOTING || getState() == TurretState.FALLING) {
             this.shoot();
