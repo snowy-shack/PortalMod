@@ -8,6 +8,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.portalmod.common.blocks.PushDoorBlock;
@@ -70,7 +71,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
         buffer.writeEnum(type);
         buffer.writeEnum(end);
         buffer.writeInt(data);
-        buffer.writeBlockHitResult(blockHit);
+        this.writeBlockHitResult(buffer, blockHit);
     }
 
     @Override
@@ -79,7 +80,36 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                 buffer.readEnum(PortalGunInteraction.class),
                 buffer.readEnum(PortalEnd.class),
                 buffer.readInt(),
-                buffer.readBlockHitResult());
+                this.readBlockHitResult(buffer));
+    }
+
+    private void writeBlockHitResult(PacketBuffer buffer, BlockRayTraceResult result) {
+        BlockPos pos = result.getBlockPos();
+        buffer.writeBlockPos(pos);
+        buffer.writeEnum(result.getDirection());
+
+        Vector3d location = result.getLocation();
+        buffer.writeFloat((float)(location.x - (double)pos.getX()));
+        buffer.writeFloat((float)(location.y - (double)pos.getY()));
+        buffer.writeFloat((float)(location.z - (double)pos.getZ()));
+
+        buffer.writeBoolean(result.getType() == RayTraceResult.Type.MISS);
+        buffer.writeBoolean(result.isInside());
+    }
+
+    private BlockRayTraceResult readBlockHitResult(PacketBuffer buffer) {
+        BlockPos blockpos = buffer.readBlockPos();
+        Direction direction = buffer.readEnum(Direction.class);
+
+        float x = buffer.readFloat();
+        float y = buffer.readFloat();
+        float z = buffer.readFloat();
+        Vector3d position = new Vector3d(blockpos.getX() + x, blockpos.getY() + y, blockpos.getZ() + z);
+
+        boolean miss = buffer.readBoolean();
+        boolean inside = buffer.readBoolean();
+
+        return miss ? BlockRayTraceResult.miss(position, direction, blockpos) : new BlockRayTraceResult(position, direction, blockpos, inside);
     }
 
     @Override
