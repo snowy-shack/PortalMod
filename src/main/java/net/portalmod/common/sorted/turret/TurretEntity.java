@@ -166,8 +166,12 @@ public class TurretEntity extends TestElementEntity {
         }
     }
 
+    public boolean shouldShoot() {
+        return this.targetEntity != null && this.turretView(targetEntity) != HitType.TRANSPARENT;
+    }
+
     public void shoot() {
-        if (this.targetEntity == null || this.turretView(targetEntity) == HitType.TRANSPARENT) {
+        if (!this.shouldShoot()) {
             return;
         }
 

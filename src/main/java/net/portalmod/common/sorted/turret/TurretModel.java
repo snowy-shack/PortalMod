@@ -92,7 +92,8 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 		wingOffset = state.wingsOpen() ? 2.0F : 0.0F;
 
 		int tickTime = entity.tickCount + entity.getId();
-		float recoil = state == TurretState.SHOOTING ? (tickTime % 2 + Minecraft.getInstance().getFrameTime()) * 0.1f - 0.07f : 0;
+		float recoil = state == TurretState.SHOOTING && entity.shouldShoot()
+				? (tickTime % 2 + Minecraft.getInstance().getFrameTime()) * 0.1f - 0.07f : 0;
 
 		setRotationAngle(wing_left, pitch + recoil, yaw, 0);
 		setRotationAngle(wing_right, pitch + recoil, yaw, 0);
