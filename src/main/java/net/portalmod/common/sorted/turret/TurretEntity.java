@@ -123,9 +123,7 @@ public class TurretEntity extends TestElementEntity {
             return;
         }
 
-        if (serverSide) {
-            this.updateTargetEntity();
-        }
+        this.updateTargetEntity();
 
         if (getState() == TurretState.SHOOTING || getState() == TurretState.FALLING) {
             this.shoot();
