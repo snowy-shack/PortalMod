@@ -1,0 +1,19 @@
+{
+  "actionbar.portalmod.turret.empty": "This canon is already unloaded",
+  "actionbar.portalmod.turret.full": "This canon is loaded with all the canonballs it could hold!",
+  "actionbar.portalmod.turret.infinite_ammo": "This canon will never run out of canonballs",
+  "advancements.portalmod.faith_plate_elytra.description": "Shoot yerself from a Faith plate to fly with yer wings",
+  "advancements.portalmod.grab_entity.title": "WingARRdium Leviosa",
+  "advancements.portalmod.turret_defense.description": "Use a cannon to fend of those beasts",
+  "block.portalmod.antline": "Blocky Light Line",
+  "block.portalmod.antline_indicator": "Blocky Light Line Indicator",
+  "block.portalmod.blackplate": "Brawny Steel",
+  "block.portalmod.lunecast": "Fancy Sky Rock",
+  "block.portalmod.propulsion_gel": "Slippery Sludge",
+  "block.portalmod.repulsion_gel": "Bounceable Sludge",
+  "entity.portalmod.portal": "Magic Whirlpool",
+  "item.portalmod.container": "Bottle o’ Gloop",
+  "item.portalmod.longfall_boots": "Big Height Feet Fenders",
+  "item.portalmod.portalgun": "Witchcraft Cannon",
+  "itemGroup.portalmod": "PortalMod"
+}
