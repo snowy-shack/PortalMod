@@ -203,6 +203,7 @@ public class ClientEvents {
         // STIK ER IN
         // 🔥
 
+        Minecraft mc = Minecraft.getInstance();
         PlayerEntity player = Minecraft.getInstance().player;
         World level = Minecraft.getInstance().level;
 
@@ -223,6 +224,12 @@ public class ClientEvents {
                     pos = pos.relative(rayHit.getDirection());
 
                 TriggerSelectionClient.updateSelectedPos(pos);
+            }
+
+            if(mc.overlay != null || mc.screen != null) {
+                if(player.getMainHandItem().getItem() instanceof PortalGun) {
+                    PortalGunClient.getInstance().resetPresses();
+                }
             }
         }
 
