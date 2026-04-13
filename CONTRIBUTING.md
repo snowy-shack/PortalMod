@@ -17,6 +17,9 @@ We are happy to accept community contributions such as the following:
 3.  **Test your code:** This mod allows for a lot of opportunity for edge cases to exhibit back-stabbing. Please test your changes thoroughly to ensure it doesn't create more bugs.
 4.  **Art changes:** We have a very specific workflow for maintaining our assets. We are open to suggestions on art, but please do so on Discord instead of directly making changes. 
 
+## Want to do more?
+If you want to make more in-depth contributions than specified above, please reach out. Send a message to `@phantomeye` on discord, or an email `portalmod.official@gmail.com`. Maybe we could use your help to improve PortalMod.
+
 ## Questions?
 If you're unsure if a change you have in mind fits these guidelines, please chat with us on our **[Discord Server](https://discord.gg/hUXXtfJc44)**. We’re always happy to talk!
 
