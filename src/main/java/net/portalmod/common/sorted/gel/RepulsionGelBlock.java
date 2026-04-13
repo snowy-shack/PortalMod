@@ -1,7 +1,6 @@
 package net.portalmod.common.sorted.gel;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -75,7 +74,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         Vector3d parallel = new Vector3d(Math.abs(bounceDir.z), 0, Math.abs(bounceDir.x));
 
         Vector3d bounceSurface = Vector3d.atCenterOf(pos).add(bounceDir.scale(-.5F));
-        Vector3d distance = entity.getPosition(1F).subtract(bounceSurface);
+        Vector3d distance = entity.position().subtract(bounceSurface);
 
         // Check whether the player is nearby enough
         if (direction.getAxis() == Direction.Axis.X) {
@@ -85,7 +84,9 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         }
 
         float speed = (float) checkSpeedInDirection(entity, direction);
-        if (speed > 0.1 || (Minecraft.getInstance().options.keyJump.isDown())) {
+
+        // TODO maybe reimplement bounce when holding jump
+        if (speed > 0.1/* || Minecraft.getInstance().options.keyJump.isDown()*/) {
 
             // This also applies a boost along the plane of the gel
             speedBounceBonusAmount = (deltaMovement.multiply(parallel).length() < maxSpeedBoostAmount) ? speedBounceBonusAmount : 1.0F;
