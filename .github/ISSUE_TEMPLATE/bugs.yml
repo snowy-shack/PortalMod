@@ -12,7 +12,6 @@ body:
 
   - type: checkboxes
     attributes:
-      label: Latest Version
       options:
         - label: This is the latest version of the mod
           required: true
