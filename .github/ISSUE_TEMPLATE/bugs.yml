@@ -3,10 +3,6 @@ description: Report a bug / issue
 labels: ["bug"]
 type: Bug
 body:
-  - type: markdown
-    attributes:
-      value: "# Bug / issue Report"
-
   - type: checkboxes
     attributes:
       label: Latest Version
@@ -23,8 +19,8 @@ body:
 
   - type: textarea
     attributes:
-      label: Video / screenshots
-      placeholder: Please upload a video or screenshots showcasing the issue.
+      label: Please upload a video or screenshots showcasing the issue
+      placeholder: ...
     validations:
       required: true
 
