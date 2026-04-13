@@ -3,11 +3,18 @@ description: Report a bug / issue
 labels: ["bug"]
 type: Bug
 body:
+  - type: input
+    attributes:
+      label: What version of the mod are you using?
+      placeholder: "1.0"
+    validations:
+      required: true
+
   - type: checkboxes
     attributes:
       label: Latest Version
       options:
-        - label: I am running the latest version of the mod.
+        - label: This is the latest version of the mod
           required: true
 
   - type: textarea
@@ -33,13 +40,6 @@ body:
 
   - type: input
     attributes:
-      label: What version of the mod are you using?
-      placeholder: "1.0"
-    validations:
-      required: true
-
-  - type: input
-    attributes:
       label: Your latest.log
-      description: Please give us a URL to your latest.log (we recommend uploading it to https://gist.github.com/)
-      placeholder: https://gist.github.com/<user>/<gist id>
+      description: Please give us a URL to your latest.log (we recommend uploading it to https://mclo.gs/)
+      placeholder: https://mclo.gs/<id>
