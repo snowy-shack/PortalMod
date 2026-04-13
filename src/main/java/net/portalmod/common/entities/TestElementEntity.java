@@ -19,6 +19,12 @@ import net.minecraft.stats.Stats;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.GameRules;
@@ -35,6 +41,7 @@ import net.portalmod.core.init.EntityTagInit;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
+import net.portalmod.core.math.AABBUtil;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
@@ -326,6 +333,37 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 this.yBodyRotO = this.yBodyRot;
             }
 
+            Vector3d ridingPos = eyePos.clone().add(ridingVec).to3d();
+
+            // check if the new position is free of collision
+            if(passedPortal) {
+                AxisAlignedBB nextSpace = this.getBoundingBox().move(this.position().reverse()).move(ridingPos);
+                boolean nextSpaceEmpty = true;
+
+                // temporarily set the hitbox to there for internal stuff
+                AxisAlignedBB oldHitbox = this.getBoundingBox();
+                this.setBoundingBox(nextSpace);
+
+                for(BlockPos pos : AABBUtil.getBlocksWithin(nextSpace)) {
+                    VoxelShape blockShape = level.getBlockState(pos)
+                            .getCollisionShape(this.level, pos, ISelectionContext.of(this))
+                            .move(pos.getX(), pos.getY(), pos.getZ());
+
+                    if(VoxelShapes.joinIsNotEmpty(blockShape, VoxelShapes.create(nextSpace), IBooleanFunction.AND)) {
+                        nextSpaceEmpty = false;
+                    }
+                }
+
+                this.setBoundingBox(oldHitbox);
+
+                // if there's any collision drop it
+                if(!nextSpaceEmpty) {
+                    dropHeldEntities(player, false, true, player.getMainHandItem());
+                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.RELEASE_ENTITY).build());
+                    return;
+                }
+            }
+
             // teleport entity every tick
             Vec3 oldPos = eyeOldPos.clone().add(oldRidingVec);
             Vec3 center = new Vec3(this.getBoundingBox().getCenter()).sub(0, this.getBoundingBox().getYsize() / 2, 0);
@@ -333,7 +371,6 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             this.setPosAndOldPos(oldPos.x, oldPos.y, oldPos.z);
 
             // move the entity
-            Vector3d ridingPos = eyePos.clone().add(ridingVec).to3d();
             this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
 
             // tell the server
