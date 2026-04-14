@@ -352,7 +352,7 @@ public class AntlineBlock extends Block {
 
         } else {
             // Just a dot removed
-            level.levelEvent(player, 2001, pos, getId(state)); // Particles and sound
+            level.levelEvent(null, 2001, pos, getId(state)); // Particles and sound
             tileEntity.getSideMap().removeSide(direction);
 
             if (player == null || !player.isCreative()) dropResources(state, level, pos); // Item drops
