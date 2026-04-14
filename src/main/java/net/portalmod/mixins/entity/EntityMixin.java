@@ -244,7 +244,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
             Vec3 entityPos = entityOldPos.clone().add(delta);
 
             return portal.isEntityAlignedToPortal(thiss)
-                    && !portal.canPointEnter(entityOldPos) && portal.canPointEnter(entityPos);
+                    && !portal.canPointEnter(entityOldPos, false) && portal.canPointEnter(entityPos, false);
         });
 
         info.setReturnValue(portals.isEmpty());
