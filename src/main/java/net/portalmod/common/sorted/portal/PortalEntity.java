@@ -153,12 +153,16 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return vector.clone().transform(portalToPortalMatrix);
     }
 
-    public boolean canPointEnter(Vec3 point) {
+    public boolean canPointEnter(Vec3 point, boolean lenient) {
         Optional<PortalEntity> targetPortalOptional = this.getOtherPortal();
         if(!this.isOpen() || (!targetPortalOptional.isPresent() && !ClientPortalManager.getInstance().hasPartial(this.gunUUID, this.end.other())))
             return false;
 
         Vec3 portalPos = new Vec3(this.position());
+        if(lenient) {
+            portalPos.add(new Vec3(this.getNormal()).negate().mul(0.3));
+        }
+
         Vec3 distance = point.clone().sub(portalPos);
         return distance.dot(this.getNormal()) < 0;
     }
@@ -188,8 +192,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             Vec3 entityOldPos = new Vec3(entity.getBoundingBox().getCenter());
             Vec3 entityPos = entityOldPos.clone().add(tmpDelta);
 
+            boolean entering = !portal.canPointEnter(entityOldPos, true) && portal.canPointEnter(entityPos, false);
+            boolean correctDirection = entity.getDeltaMovement().dot(new Vec3(portal.getNormal()).to3d()) < 0;
+
             return portal.isEntityAlignedToPortal(entity)
-                    && !portal.canPointEnter(entityOldPos) && portal.canPointEnter(entityPos)
+                    && entering
+                    && correctDirection
                     && (justExited == null
                         || new Vec3(portal.position()).sub(justExited.position()).dot(justExited.getNormal()) > 0
                         || portal == justExited);
