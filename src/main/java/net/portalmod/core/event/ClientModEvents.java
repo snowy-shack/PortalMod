@@ -141,6 +141,9 @@ public class ClientModEvents {
             for(ResourceLocation texture : AntlineBakedModel.getAllTextures())
                 event.addSprite(texture);
 
+            for(ResourceLocation texture : TriggerTER.getAllFieldTextures())
+                event.addSprite(texture);
+
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
             event.addSprite(AutoPortalTER.TEXTURE);

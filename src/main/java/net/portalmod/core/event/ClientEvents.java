@@ -370,7 +370,6 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void onRenderWorldLast(final RenderWorldLastEvent event) {
-        TriggerTER.renderAllTriggers();
         DebugRenderer.renderAllShapes(event.getMatrixStack());
     }
 

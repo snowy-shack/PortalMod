@@ -455,7 +455,6 @@ public class PortalRenderer {
                 boolean renderOutline = this.shouldRenderOutline(portalChain);
                 mc.levelRenderer.renderLevel(matrixStack, partialTicks, Util.getNanos(), renderOutline, portalCamera,
                         mc.gameRenderer, mc.gameRenderer.lightTexture, projectionMatrix);
-                TriggerTER.renderAllTriggers();
 
                 mc.levelRenderer.needsUpdate = true;
                 mc.levelRenderer.renderChunks.clear();
