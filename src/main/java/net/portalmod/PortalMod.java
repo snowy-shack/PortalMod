@@ -1,6 +1,5 @@
 package net.portalmod;
 
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -13,8 +12,6 @@ import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.File;
 
 @Mod(PortalMod.MODID)
 public class PortalMod {
