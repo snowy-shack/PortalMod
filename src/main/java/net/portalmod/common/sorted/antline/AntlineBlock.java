@@ -404,7 +404,7 @@ public class AntlineBlock extends Block {
         Vector3d to = from.add(rayPath);
 
         for (Direction direction : Direction.values()) {
-            BlockRayTraceResult rayHit = getSideShape(level, pos, direction).clip(from, to, pos);
+            BlockRayTraceResult rayHit = getSideShape(level, pos, direction, isHoldingAntline(player)).clip(from, to, pos);
 
             if (rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK) {
                 breakDot(state, level, pos, player, direction);
@@ -414,7 +414,12 @@ public class AntlineBlock extends Block {
         return false;
     }
 
+    public static boolean isHoldingAntline(PlayerEntity player) {
+        return player.getMainHandItem().getItem() instanceof AntlineBlockItem;
+    }
+
     private static final VoxelShape DOT = Block.box(5.0D, 0.0D, 5.0D, 11.0D, 2.0D, 11.0D);
+    private static final VoxelShape WHOLE_SIDE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
     private static final HashMap<Direction, VoxelShape> dotShapes = new HashMap<>();
 
     static {
@@ -457,7 +462,7 @@ public class AntlineBlock extends Block {
         ROTATE.put(Direction.DOWN, shape -> shape);
     }
 
-    public VoxelShape getSideShape(IBlockReader level, BlockPos pos, Direction sideDirection) {
+    public VoxelShape getSideShape(IBlockReader level, BlockPos pos, Direction sideDirection, boolean largeShape) {
         TileEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity == null || sideDirection == null) return VoxelShapes.empty();
 
@@ -470,9 +475,16 @@ public class AntlineBlock extends Block {
         if (side.getSideType() != NONE && DOT != null)
             RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(DOT)));
 
-        side.getConnections().forEach((direction, b) -> {
-            if (b && dotShapes.get(direction) != null) RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(dotShapes.get(direction))));
-        });
+        if (largeShape) {
+            if (!side.isEmpty()) {
+                RESULT.set(ROTATE.get(sideDirection).apply(WHOLE_SIDE));
+            }
+        } else {
+            side.getConnections().forEach((direction, b) -> {
+                if (b && dotShapes.get(direction) != null)
+                    RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(dotShapes.get(direction))));
+            });
+        }
 
         return RESULT.get();
     }
@@ -498,7 +510,8 @@ public class AntlineBlock extends Block {
         Vector3d to = from.add(rayPath);
 
         for (Direction direction : Direction.values()) {
-            VoxelShape shape = getSideShape(level, pos, direction);
+            boolean holdingAntline = entity.get() instanceof PlayerEntity && isHoldingAntline((PlayerEntity) entity.get());
+            VoxelShape shape = getSideShape(level, pos, direction, holdingAntline);
             BlockRayTraceResult rayHit = shape.clip(from, to, pos);
 
             if (rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK)
