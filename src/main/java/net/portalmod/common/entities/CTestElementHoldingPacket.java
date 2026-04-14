@@ -30,12 +30,12 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
     @Override
     public void encode(PacketBuffer buffer) {
         buffer.writeInt(this.id);
-        buffer.writeFloat((float)this.oldPosition.x);
-        buffer.writeFloat((float)this.oldPosition.y);
-        buffer.writeFloat((float)this.oldPosition.z);
-        buffer.writeFloat((float)this.position.x);
-        buffer.writeFloat((float)this.position.y);
-        buffer.writeFloat((float)this.position.z);
+        buffer.writeDouble(this.oldPosition.x);
+        buffer.writeDouble(this.oldPosition.y);
+        buffer.writeDouble(this.oldPosition.z);
+        buffer.writeDouble(this.position.x);
+        buffer.writeDouble(this.position.y);
+        buffer.writeDouble(this.position.z);
         buffer.writeFloat(this.oldRotation);
         buffer.writeFloat(this.rotation);
     }
@@ -43,8 +43,8 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
     @Override
     public CTestElementHoldingPacket decode(PacketBuffer buffer) {
         int id = buffer.readInt();
-        Vec3 oldPosition = new Vec3(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
-        Vec3 position = new Vec3(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
+        Vec3 oldPosition = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
+        Vec3 position = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         float oldRotation = buffer.readFloat();
         float rotation = buffer.readFloat();
 
@@ -66,10 +66,8 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
             if(entity.getVehicle() != sender)
                 return;
 
-            Vector3d position = entity.position();
             tee.serverOldPos = oldPosition;
-            tee.setBoundingBox(entity.getBoundingBox().move(position.reverse()).move(this.position.to3d()));
-            tee.setLocationFromBoundingbox();
+            tee.setPos(this.position.x, this.position.y, this.position.z);
 
             tee.yRot = this.rotation;
             tee.yRotO = this.oldRotation;
