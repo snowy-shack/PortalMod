@@ -322,11 +322,13 @@ public class AntlineBlock extends Block {
             // Allow new connections if the updating block is connectable with the side
             sideUpdate(level, side, pos, false, true, neighborState.getBlock() instanceof AntlineConnector ? neighborDir : null);
 
+            boolean hasNowConnection = side.hasConnection(neighborDir);
+
             if (!usedToHaveConnection) continue;
 
             //TODO placing a branch next to an antline that is next to an indicator still causes issues
 
-            if (!(neighborState.getBlock() instanceof AntlineBlock) && !(neighborState.getBlock() instanceof AntlineConnector)) {
+            if (!hasNowConnection) {
                 recursiveSignalChain(level, side, pos, null, false, 0);
             }
         }
@@ -363,6 +365,12 @@ public class AntlineBlock extends Block {
                     if (side.isEmpty() || side.toDirection() == direction) continue;
 
                     sideUpdate(level, side, pos, false, false, null);
+                }
+
+                for (AntlineTileEntity.Side side : tileEntity.getSideMap().values()) {
+                    if (side.isEmpty() || side.toDirection() == direction) continue;
+
+                    recursiveSignalChain(level, side, pos, null, false, 0);
                 }
             }
         }
