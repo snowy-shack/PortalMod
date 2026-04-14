@@ -50,7 +50,8 @@ public class PortalEntityClient {
             playerAABB = playerAABB.inflate(1);
 
         List<PortalEntity> entities = PortalEntity.getOpenPortals(level,
-                playerAABB.deflate(0.001), portal -> true);
+                playerAABB.deflate(0.001), portal ->
+                        portal.arePointsAlignedToPortal(new Vec3(newCamera.getPosition())));
 
         Optional<PortalEntity> optionalPortal = entities.stream().reduce((o, n) ->
                 new Vec3(player.getBoundingBox().getCenter()).sub(n.position()).magnitudeSqr()
