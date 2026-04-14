@@ -318,10 +318,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             CameraRotator.rotate(entity, portal, targetPortal);
         }
 
-        boolean shouldDisableFlying = portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane()
-                || (portal.getDirection().getAxis() == Direction.Axis.Y
+        boolean shouldDisableFlying = portal.getDirection().getAxis() == Direction.Axis.Y
                 && targetPortal.getDirection().getAxis() == Direction.Axis.Y
-                && portal.getDirection() == targetPortal.getDirection());
+                && portal.getDirection() == targetPortal.getDirection();
+
+        boolean shouldStopEntity = entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.flying
+                && portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane();
 
         if(entity instanceof PlayerEntity && shouldDisableFlying) {
             ((PlayerEntity)entity).abilities.flying = false;
@@ -334,6 +336,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             if(amount < target)
                 entity.setDeltaMovement(new Vec3(entity.getDeltaMovement())
                         .add(new Vec3(targetPortal.direction).mul(target - amount)).to3d());
+        }
+
+        if(shouldStopEntity) {
+            entity.setDeltaMovement(new Vector3d(0, 0, 0));
         }
 
         // todo send custom packet for this
