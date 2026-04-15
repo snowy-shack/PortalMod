@@ -6,8 +6,9 @@
     },
     "language": {
         "pm_ap": {
-            "name": "Aperture Science Language Enhancement Package",
-            "region": "The Enrichment Center"
+            "name": "Aperture Science Appellation Amplification",
+            "region": "The Enrichment Center",
+            "bidirectional": false
         }
     }
 }
