@@ -6,7 +6,7 @@ license="All rights reserved"
 modId="portalmod"
 version="0.4"
 displayName="PortalMod"
-#logoFile="examplemod.png"
+logoFile="pack.png"
 authors="SerialSniper, PhantomEye, LarsMans"
 description='''
 Portal in Minecraft, reimagined.
