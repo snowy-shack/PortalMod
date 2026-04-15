@@ -106,7 +106,7 @@ public class PortalGunCrosshairRenderer {
         ResourceLocation texture = new ResourceLocation(PortalMod.MODID, BASE + color.getName() + ".png");
         MainWindow window = Minecraft.getInstance().getWindow();
         int x = -17;
-        int y = -16;
+        int y = -17;
         int size = 33;
 
         RenderSystem.disableBlend();
@@ -120,7 +120,7 @@ public class PortalGunCrosshairRenderer {
         ResourceLocation texture = new ResourceLocation(PortalMod.MODID, BASE + "dots_" + color.getName() + ".png");
         MainWindow window = Minecraft.getInstance().getWindow();
         int x = -17;
-        int y = -16;
+        int y = -17;
         int size = 33;
 
         RenderSystem.disableBlend();
