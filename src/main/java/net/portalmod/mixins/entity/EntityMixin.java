@@ -198,7 +198,8 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         boolean tall = hitbox.getYsize() > hitbox.getXsize();
         boolean flinging = ((Flingable)entity).isFlinging();
         List<PortalEntity> portalsInside = PortalEntity.getPortals(entity.level, travelAABB,
-                portal -> portal.getDirection().getAxis().isHorizontal() && portal.isOpen());
+                portal -> portal.getDirection().getAxis().isHorizontal() && portal.isOpen()
+                        && portal.isEntityAlignedToPortal(entity));
 
         if(tall && flinging && !portalsInside.isEmpty()) {
             double shrink = hitbox.getYsize() / 2 - hitbox.getXsize() / 2;
