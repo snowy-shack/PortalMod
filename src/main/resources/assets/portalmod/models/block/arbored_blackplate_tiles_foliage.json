@@ -2,7 +2,7 @@
   "parent": "portalmod:block/cube_bottom_top_tint",
   "textures": {
     "side": "portalmod:block/arbored_blackplate_tiles_foliage",
-    "top": "portalmod:block/arbored_blackplate_top_foliage",
+    "top": "portalmod:block/arbored_blackplate_slab_top_foliage",
     "bottom": "portalmod:block/arbored_blackplate_bottom_foliage"
   }
 }
