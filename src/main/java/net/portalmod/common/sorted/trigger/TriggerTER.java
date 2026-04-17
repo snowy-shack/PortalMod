@@ -15,15 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
+    private final TriggerFieldBakedModel triggerFieldBakedModel;
 
     public TriggerTER(TileEntityRendererDispatcher terd) {
         super(terd);
+        this.triggerFieldBakedModel = new TriggerFieldBakedModel();
     }
 
     @Override
     public void render(TriggerTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
         if(Minecraft.getInstance().player == null || !WrenchItem.holdingWrench(Minecraft.getInstance().player))
             return;
+
+        this.triggerFieldBakedModel.bakeQuadsOnce();
 
         AxisAlignedBB aabb = null;
 
@@ -104,9 +108,8 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         matrixStack.pushPose();
         matrixStack.translate(x, y, z);
 
-        final float offset = 0.001f;
         renderBuffer.getBuffer(RenderType.translucentMovingBlock()).putBulkData(matrixStack.last(),
-                new TriggerFieldBakedModel().getQuad(face, texture, offset),
+                this.triggerFieldBakedModel.getQuad(face, texture),
                 1, 1, 1, light, overlay);
 
         matrixStack.popPose();
