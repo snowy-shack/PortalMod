@@ -3,12 +3,14 @@ package net.portalmod.common.sorted.sign;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
+import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
 
 public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
     public static final ResourceLocation TEXTURE_ON = new ResourceLocation(PortalMod.MODID, "textures/entity/chamber_sign/chamber_sign_on.png");
@@ -35,8 +37,11 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
         // Move down + z-fight fix
         matrixStack.translate(0, -1.505, -0.005);
 
+        int light = enabled ? LightTexture.pack(15, 15) : WorldRenderer.getLightColor(entity.level, entity.getPos().above());
+
         this.model.changeModel(entity);
-        this.model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(this.model.renderType(enabled ? TEXTURE_ON : TEXTURE_OFF)), LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        this.model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(this.model.renderType(enabled ? TEXTURE_ON : TEXTURE_OFF)),
+                light, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
 
         matrixStack.popPose();
 
