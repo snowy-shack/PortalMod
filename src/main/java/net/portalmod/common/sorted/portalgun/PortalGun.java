@@ -486,18 +486,27 @@ public class PortalGun extends Item {
 
         PortalPair pair = PortalManager.getInstance().getPair(gunUUID.get());
         if (pair == null) return false;
+        boolean sex = false;
 
-        if (pair.has(PortalEnd.PRIMARY)) {
+        String lock = "";
+        if (itemStack.hasTag()) {
+            itemStack.getTag().contains("Locked");
+            lock = itemStack.getTag().getString("Locked");
+        }
+
+        if (pair.has(PortalEnd.PRIMARY) && !lock.equals("Left")) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
             PortalManager.getInstance().scheduleRemoval(primary);
+            sex = true;
         }
-        if (pair.has(PortalEnd.SECONDARY)) {
+        if (pair.has(PortalEnd.SECONDARY) && !lock.equals("Right")) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
             PortalManager.getInstance().scheduleRemoval(secondary);
+            sex = true;
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);
-        return true;
+        return sex;
     }
 
     @Override
