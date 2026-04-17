@@ -1,9 +1,6 @@
 package net.portalmod.common.sorted.trigger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,6 +22,24 @@ import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 
 public class TriggerFieldBakedModel implements IDynamicBakedModel {
+    private final Map<ResourceLocation, Map<Direction, BakedQuad>> bakedQuads;
+
+    public TriggerFieldBakedModel() {
+        this.bakedQuads = new HashMap<>();
+    }
+
+    public void bakeQuadsOnce() {
+        if(this.bakedQuads.isEmpty()) {
+            for(ResourceLocation texture : TriggerTER.getAllFieldTextures()) {
+                Map<Direction, BakedQuad> perDirection = new HashMap<>();
+                for(Direction direction : Direction.values()) {
+                    perDirection.put(direction, this.genQuad(direction, texture));
+                }
+                bakedQuads.put(texture, perDirection);
+            }
+        }
+    }
+
     private void putVertex(BakedQuadBuilder builder, Vector3d normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
 
@@ -81,18 +96,22 @@ public class TriggerFieldBakedModel implements IDynamicBakedModel {
         return new Vector3d(x, y, z);
     }
 
-    private void addQuad(List<BakedQuad> quads, Direction side, TextureAtlasSprite texture, float offset) {
-        double l = -offset;
-        double r = 1 + offset;
+    private BakedQuad genQuad(Direction side, ResourceLocation texture) {
+        double l = -0.001;
+        double r = 1 + 0.001;
+
+        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(texture);
 
         switch(side) {
-            case UP:    quads.add(createQuad(v(0, r, 0), v(0, r, 1), v(1, r, 1), v(1, r, 0), texture)); break;
-            case DOWN:  quads.add(createQuad(v(0, l, 1), v(0, l, 0), v(1, l, 0), v(1, l, 1), texture)); break;
-            case EAST:  quads.add(createQuad(v(r, 1, 1), v(r, 0, 1), v(r, 0, 0), v(r, 1, 0), texture)); break;
-            case WEST:  quads.add(createQuad(v(l, 1, 0), v(l, 0, 0), v(l, 0, 1), v(l, 1, 1), texture)); break;
-            case NORTH: quads.add(createQuad(v(1, 1, l), v(1, 0, l), v(0, 0, l), v(0, 1, l), texture)); break;
-            case SOUTH: quads.add(createQuad(v(0, 1, r), v(0, 0, r), v(1, 0, r), v(1, 1, r), texture)); break;
+            case UP:    return createQuad(v(0, r, 0), v(0, r, 1), v(1, r, 1), v(1, r, 0), sprite);
+            case DOWN:  return createQuad(v(0, l, 1), v(0, l, 0), v(1, l, 0), v(1, l, 1), sprite);
+            case EAST:  return createQuad(v(r, 1, 1), v(r, 0, 1), v(r, 0, 0), v(r, 1, 0), sprite);
+            case WEST:  return createQuad(v(l, 1, 0), v(l, 0, 0), v(l, 0, 1), v(l, 1, 1), sprite);
+            case NORTH: return createQuad(v(1, 1, l), v(1, 0, l), v(0, 0, l), v(0, 1, l), sprite);
+            case SOUTH: return createQuad(v(0, 1, r), v(0, 0, r), v(1, 0, r), v(1, 1, r), sprite);
         }
+
+        return null;
     }
 
     @Nonnull
@@ -101,10 +120,8 @@ public class TriggerFieldBakedModel implements IDynamicBakedModel {
         return Collections.emptyList();
     }
 
-    public BakedQuad getQuad(Direction side, ResourceLocation texture, float offset) {
-        List<BakedQuad> quads = new ArrayList<>();
-        addQuad(quads, side, Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(texture), offset);
-        return quads.get(0);
+    public BakedQuad getQuad(Direction side, ResourceLocation texture) {
+        return this.bakedQuads.get(texture).get(side);
     }
 
     @Override
