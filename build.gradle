@@ -16,7 +16,7 @@ plugins {
 
 apply plugin: 'org.spongepowered.mixin'
 
-version = '0.4'
+version = '1.0'
 group = 'net.portalmod'
 
 base {
