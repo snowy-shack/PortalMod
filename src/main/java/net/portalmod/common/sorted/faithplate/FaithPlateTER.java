@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.model.Model;
@@ -33,10 +34,14 @@ import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
 public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
-    public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate");
-    public static final ResourceLocation TEXTURE_ORANGE = new ResourceLocation(PortalMod.MODID, "entity/faithplate_active");
+    public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate");
+    public static final ResourceLocation TEXTURE_ORANGE = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_active");
+    public static final ResourceLocation TEXTURE_BLUE_E = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_emission");
+    public static final ResourceLocation TEXTURE_ORANGE_E = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_active_emission");
     public static RenderMaterial MATERIAL_BLUE;
     public static RenderMaterial MATERIAL_ORANGE;
+    public static RenderMaterial MATERIAL_BLUE_E;
+    public static RenderMaterial MATERIAL_ORANGE_E;
     private final FaithPlatePlateModel plateModel;
     public static BlockPos selected;
 
@@ -45,6 +50,8 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         plateModel = new FaithPlatePlateModel();
         MATERIAL_BLUE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_BLUE);
         MATERIAL_ORANGE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_ORANGE);
+        MATERIAL_BLUE_E = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_BLUE_E);
+        MATERIAL_ORANGE_E = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_ORANGE_E);
     }
 
     private void renderPlate(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int combinedOverlay) {
@@ -67,15 +74,24 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.mulPose(Vector3f.XP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
-        IVertexBuilder ivertexbuilder = be.isEnabled() && be.getCooldown() < 2
+        boolean disabled = be.isEnabled() && be.getCooldown() < 2;
+        IVertexBuilder ivbNormal = disabled
                 ? MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent)
                 : MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent);
+
+        IVertexBuilder ivbEmissive = disabled
+                ? MATERIAL_ORANGE_E.buffer(renderBuffer, RenderType::entityTranslucent)
+                : MATERIAL_BLUE_E.buffer(renderBuffer, RenderType::entityTranslucent);
 
         int light = WorldRenderer.getLightColor(be.getLevel(),
                 onWall ? pos.relative(state.getValue(FaithPlateBlock.FACING)) : pos.above());
 
-        plateModel.render(be, plateModel.bone, matrixStack, ivertexbuilder, light, combinedOverlay, new Colour(0xFFFFFFFF), false);
-        plateModel.render(be, plateModel.bb_main, matrixStack, ivertexbuilder, light, combinedOverlay, new Colour(0xFFFFFFFF), false);
+        plateModel.render(be, plateModel.bone, matrixStack, ivbNormal, light, combinedOverlay, new Colour(0xFFFFFFFF), false);
+        plateModel.render(be, plateModel.bb_main, matrixStack, ivbNormal, light, combinedOverlay, new Colour(0xFFFFFFFF), false);
+
+        // Emissive layer
+        plateModel.render(be, plateModel.bone, matrixStack, ivbEmissive, LightTexture.pack(15, 15), combinedOverlay, new Colour(0xFFFFFFFF), false);
+        plateModel.render(be, plateModel.bb_main, matrixStack, ivbEmissive, LightTexture.pack(15, 15), combinedOverlay, new Colour(0xFFFFFFFF), false);
 
         matrixStack.popPose();
     }

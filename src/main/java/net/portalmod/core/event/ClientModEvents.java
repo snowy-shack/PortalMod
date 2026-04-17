@@ -146,6 +146,9 @@ public class ClientModEvents {
 
             event.addSprite(FaithPlateTER.TEXTURE_BLUE);
             event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
+            event.addSprite(FaithPlateTER.TEXTURE_BLUE_E);
+            event.addSprite(FaithPlateTER.TEXTURE_ORANGE_E);
+
             event.addSprite(AutoPortalTER.TEXTURE);
         }
     }
