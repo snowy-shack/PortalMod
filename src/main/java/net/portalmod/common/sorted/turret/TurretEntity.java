@@ -444,6 +444,11 @@ public class TurretEntity extends TestElementEntity {
         }
         else if (holdingItem.getItem() instanceof WrenchItem) {
 
+            if (this.getInfiniteAmmo()) {
+                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.turret.infinite_ammo"), true);
+                return ActionResultType.PASS;
+            }
+
             if (this.getAmmo() == 0) {
                 player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.turret.empty"), true);
                 return ActionResultType.CONSUME;
