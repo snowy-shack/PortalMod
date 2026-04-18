@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.turret;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -15,10 +16,7 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -214,6 +212,32 @@ public class TurretEntity extends TestElementEntity {
             AxisAlignedBB cubeAABB = cube.getBoundingBox();
             if (cubeAABB.clip(you, theGuySheTellsYouNotToWorryAbout).isPresent()) {
                 cube.playSound(SoundInit.CUBE_HIT.get(), 0.75f, ModUtil.randomSoundPitch()); // A cube intercepted the bullets
+                return;
+            }
+        }
+
+        // Glass Shattering
+        BlockRayTraceResult blockHit = this.level.clip(new RayTraceContext(
+                you,
+                theGuySheTellsYouNotToWorryAbout,
+                RayTraceContext.BlockMode.OUTLINE,
+                RayTraceContext.FluidMode.NONE,
+                this
+        ));
+
+        if (blockHit.getType() == RayTraceResult.Type.BLOCK) {
+            BlockPos pos = blockHit.getBlockPos();
+            BlockState state = this.level.getBlockState(pos);
+
+            if (state.is(Blocks.GLASS_PANE)) {
+                this.level.destroyBlock(pos, false);
+
+                this.level.playSound(null, pos,
+                        SoundEvents.GLASS_BREAK,
+                        SoundCategory.BLOCKS,
+                        1.0F,
+                        1.0F);
+
                 return;
             }
         }
