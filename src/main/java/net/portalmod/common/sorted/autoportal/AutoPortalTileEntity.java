@@ -102,6 +102,9 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
                 if(indicatorInfo.allIndicatorsActivated) {
                     openPortal(blockState);
                     return;
+                } else {
+                    closePortal();
+                    return;
                 }
             }
         }
