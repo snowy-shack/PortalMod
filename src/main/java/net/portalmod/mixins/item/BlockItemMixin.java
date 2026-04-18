@@ -17,7 +17,7 @@ public abstract class BlockItemMixin extends Item {
         super(p_i48487_1_);
     }
 
-    @Redirect(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;shrink(I)V"), remap = false)
+    @Redirect(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;shrink(I)V"))
     public void shrink(ItemStack instance, int i) {
         Item item = instance.getItem();
         if (item instanceof GelContainer) {

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(CreativeScreen.class)
 public abstract class CreativeScreenMixin {
 
-    @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 1), remap = false)
+    @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 1))
     public ItemStack pmResetGunUUIDOnCopy(ItemStack instance) {
         ItemStack itemStack = instance.copy();
         if (itemStack.getItem() instanceof PortalGun) {

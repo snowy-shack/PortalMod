@@ -23,8 +23,7 @@ public class ClientPlayNetHandlerMixin {
     @Shadow private ClientWorld level;
 
     @Inject(
-            remap = false,
-            method = "handleMoveEntity",
+                        method = "handleMoveEntity",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;lerpTo(DDDFFIZ)V"
@@ -35,8 +34,7 @@ public class ClientPlayNetHandlerMixin {
     }
 
     @Inject(
-            remap = false,
-            method = "handleMoveEntity",
+                        method = "handleMoveEntity",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isControlledByLocalInstance()Z"),
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
@@ -48,8 +46,7 @@ public class ClientPlayNetHandlerMixin {
     }
 
     @Inject(
-            remap = false,
-            method = "handleTeleportEntity",
+                        method = "handleTeleportEntity",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;lerpTo(DDDFFIZ)V"

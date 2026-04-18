@@ -28,15 +28,14 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 @Mixin(WorldRenderer.class)
 public class LevelRendererMixin {
 
-    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isAir(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z"), remap = false)
+    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isAir(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;)Z"))
     public boolean fizzlerIsAirToo(BlockState instance, IBlockReader blockReader, BlockPos pos) {
         return instance.isAir(blockReader, pos) || instance.getBlock() instanceof FizzlerFieldBlock;
     }
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"
@@ -50,8 +49,7 @@ public class LevelRendererMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/FogRenderer;setupColor(Lnet/minecraft/client/renderer/ActiveRenderInfo;FLnet/minecraft/client/world/ClientWorld;IF)V"
@@ -70,8 +68,7 @@ public class LevelRendererMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/FogRenderer;setupFog(Lnet/minecraft/client/renderer/ActiveRenderInfo;Lnet/minecraft/client/renderer/FogRenderer$FogType;FZF)V"
@@ -91,8 +88,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Inject(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/world/DimensionRenderInfo;constantAmbientLight()Z"
@@ -114,8 +110,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @ModifyArgs(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/WorldRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/matrix/MatrixStack;DDD)V"
@@ -129,8 +124,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "renderChunkLayer",
+                        method = "renderChunkLayer",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
@@ -143,8 +137,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "renderChunkLayer",
+                        method = "renderChunkLayer",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$CompiledChunk;isEmpty(Lnet/minecraft/client/renderer/RenderType;)Z"
@@ -156,8 +149,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Inject(
-            remap = false,
-            method = "renderChunkLayer",
+                        method = "renderChunkLayer",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/RenderType;setupRenderState()V",
@@ -176,8 +168,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "setupRender",
+                        method = "setupRender",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;setCamera(Lnet/minecraft/util/math/vector/Vector3d;)V"
@@ -211,8 +202,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/Minecraft;shouldEntityAppearGlowing(Lnet/minecraft/entity/Entity;)Z"
@@ -226,8 +216,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;isDetached()Z"
@@ -241,8 +230,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Redirect(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/entity/EntityRendererManager;shouldRender(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ClippingHelper;DDD)Z"
@@ -256,8 +244,7 @@ public class LevelRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Inject(
-            remap = false,
-            method = "renderLevel",
+                        method = "renderLevel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/profiler/IProfiler;popPush(Ljava/lang/String;)V",

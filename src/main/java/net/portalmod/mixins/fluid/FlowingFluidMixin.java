@@ -22,7 +22,12 @@ public abstract class FlowingFluidMixin {
     @Shadow public abstract FluidState getFlowing(int p_207207_1_, boolean p_207207_2_);
     @Shadow protected abstract int getDropOff(IWorldReader p_204528_1_);
 
-    @Inject(method = "getNewLiquid", at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FlowingFluid;getDropOff(Lnet/minecraft/world/IWorldReader;)I"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, remap = false)
+    @Inject(
+            method = "getNewLiquid(Lnet/minecraft/world/IWorldReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Lnet/minecraft/fluid/FluidState;",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/fluid/FlowingFluid;getDropOff(Lnet/minecraft/world/IWorldReader;)I"),
+            locals = LocalCapture.CAPTURE_FAILHARD,
+            cancellable = true
+    )
     public void pmSpread5Blocks(IWorldReader p_205576_1_, BlockPos p_205576_2_, BlockState p_205576_3_, CallbackInfoReturnable<FluidState> cir, int i) {
         int k = i - this.getDropOff(p_205576_1_);
         if (this.getSource().is(FluidTagInit.GOO)) {

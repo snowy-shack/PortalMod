@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
     @Inject(
-            remap = false,
-            method = "tagMatches",
+                        method = "tagMatches",
             at = @At("HEAD"),
             cancellable = true
     )

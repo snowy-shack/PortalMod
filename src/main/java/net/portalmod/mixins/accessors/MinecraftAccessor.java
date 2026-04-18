@@ -9,12 +9,12 @@ import net.minecraft.client.util.Splashes;
 
 @Mixin(Minecraft.class)
 public interface MinecraftAccessor {
-    @Accessor(remap = false, value = "splashManager")
+    @Accessor(value = "splashManager")
     void pmSetSplashManager(Splashes splashManager);
 
-    @Accessor(remap = false, value = "mainRenderTarget")
+    @Accessor(value = "mainRenderTarget")
     void pmSetMainRenderTarget(Framebuffer framebuffer);
 
-    @Accessor(remap = false, value = "pausePartialTick")
+    @Accessor(value = "pausePartialTick")
     float pmGetPausePartialTick();
 }

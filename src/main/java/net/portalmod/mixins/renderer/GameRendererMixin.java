@@ -50,8 +50,7 @@ public abstract class GameRendererMixin {
 
     // BEWARE: PORTAL RENDERING
     @Inject(
-            remap = false,
-            method = "getProjectionMatrix",
+                        method = "getProjectionMatrix",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -68,8 +67,7 @@ public abstract class GameRendererMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "pick",
+                        method = "pick",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/projectile/ProjectileHelper;getEntityHitResult(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/function/Predicate;D)Lnet/minecraft/util/math/EntityRayTraceResult;"
@@ -113,8 +111,7 @@ public abstract class GameRendererMixin {
     }
 
     @Inject(
-            remap = false,
-            method = "shouldRenderBlockOutline",
+                        method = "shouldRenderBlockOutline",
             at = @At("HEAD"),
             cancellable = true
     )

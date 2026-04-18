@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractMinecartEntity.class)
 public class AbstractMinecartMixin {
-    @Inject(remap = false, method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;floor(D)I", ordinal = 0))
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;floor(D)I", ordinal = 0))
     private void pmTeleportMinecart(CallbackInfo info) {
         PortalEntity.teleportEntity((Entity)(Object)this, ((Entity)(Object)this).getDeltaMovement());
     }
@@ -32,8 +32,7 @@ public class AbstractMinecartMixin {
 
     // has to redirect setPos after lerping
     @Redirect(
-            remap = false,
-            method = "tick",
+                        method = "tick",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/item/minecart/AbstractMinecartEntity;setPos(DDD)V",

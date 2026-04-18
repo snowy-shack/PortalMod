@@ -10,12 +10,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
-    @Invoker(remap = false, value = "collide")
+    @Invoker(value = "collide")
     Vector3d pmCollide(Vector3d delta);
 
-    @Invoker(remap = false, value = "getBoundingBoxForPose")
+    @Invoker(value = "getBoundingBoxForPose")
     AxisAlignedBB pmGetBoundingBoxForPose(Pose pose);
 
-    @Accessor(remap = false, value = "firstTick")
+    @Accessor(value = "firstTick")
     boolean pmGetFirstTick();
 }

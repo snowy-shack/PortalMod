@@ -25,13 +25,17 @@ public abstract class FlowingFluidBlockMixin extends Block implements IBucketPic
 
     @Shadow public abstract FluidState getFluidState(BlockState p_204507_1_);
 
-    @Shadow(remap = false) public abstract FlowingFluid getFluid();
+    @Shadow public abstract FlowingFluid getFluid();
 
     public FlowingFluidBlockMixin(Properties p_i48440_1_) {
         super(p_i48440_1_);
     }
 
-    @Inject(method = "shouldSpreadLiquid", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(
+            method = "shouldSpreadLiquid(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
+            at = @At("HEAD"),
+            cancellable = true
+    )
     public void pmHandleHorizontalGooReactions(World world, BlockPos pos, BlockState blockState, CallbackInfoReturnable<Boolean> cir) {
         for(Direction direction : Direction.values()) {
             if (direction != Direction.UP) {

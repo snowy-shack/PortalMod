@@ -58,7 +58,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         super(entityType, level);
     }
 
-    @Shadow(remap = false) protected abstract SoundEvent getFallDamageSound(int i);
+    @Shadow protected abstract SoundEvent getFallDamageSound(int i);
 
 //    @Shadow protected int lerpSteps;
 
@@ -83,8 +83,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     @Shadow protected abstract void checkFallDamage(double p_184231_1_, boolean p_184231_3_, BlockState p_184231_4_, BlockPos p_184231_5_);
 
     @Inject(
-            remap = false,
-            method = "aiStep",
+                        method = "aiStep",
             at = @At("HEAD")
     )
     private void pmLerpPosWithPortal(CallbackInfo info) {
@@ -104,8 +103,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     @Redirect(
-            remap = false,
-            method = "baseTick",
+                        method = "baseTick",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/LivingEntity;isInWall()Z"
@@ -116,8 +114,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     @Redirect(
-            remap = false,
-            method = "checkFallDamage",
+                        method = "checkFallDamage",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;checkFallDamage(DZLnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;)V"
@@ -139,8 +136,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     // has to redirect setPos after lerping
     @Redirect(
-            remap = false,
-            method = "aiStep",
+                        method = "aiStep",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/LivingEntity;setPos(DDD)V",
@@ -243,7 +239,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         ((ITeleportable)instance).removeLastUsedPortal();
     }
 
-    @Inject(remap = false, method = "tick", at = @At("RETURN"))
+    @Inject(method = "tick", at = @At("RETURN"))
     public void checkFizzlers(CallbackInfo ci) {
         if (this instanceof Fizzleable) {
             ((Fizzleable) this).checkForFizzlers(this);
@@ -264,8 +260,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     @Inject(
-            remap = false,
-            method = "travel",
+                        method = "travel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/LivingEntity;setDeltaMovement(DDD)V",
@@ -286,8 +281,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     @Redirect(
-            remap = false,
-            method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V",
+                        method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/LivingEntity;setDeltaMovement(DDD)V"),
@@ -333,12 +327,12 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         }
     }
     
-    @Inject(remap = false, at = @At("TAIL"), method = "tick()V")
+    @Inject(at = @At("TAIL"), method = "tick()V")
     private void pmOnPostTick(CallbackInfo info) {
         LivingEntityInjector.onPostTick((LivingEntity)(Object)this);
     }
 
-//    @Inject(remap = false, method = "lerpTo", at = @At("HEAD"), cancellable = true)
+//    @Inject(method = "lerpTo", at = @At("HEAD"), cancellable = true)
 //    private void pmLerpTo(double x, double y, double z, float yRot, float xRot, int steps, boolean b, CallbackInfo info) {
 //        World level = this.level;
 //
@@ -556,7 +550,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         }
     }
 
-    @Inject(method = "baseTick", at = @At("HEAD"), remap = false)
+    @Inject(method = "baseTick", at = @At("HEAD"))
     public void pmAddGooDamage(CallbackInfo ci) {
         if (GooBlock.isInGoo(this)) {
             GooBlock.addGooDamage(this);
@@ -584,7 +578,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         if (!(instance instanceof TestElementEntity)) stopRiding();
     }
 
-    @Inject(method = "canSee", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "canSee", at = @At("HEAD"), cancellable = true)
     public void pmCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof TurretEntity && !((TurretEntity) entity).getState().isStanding()) {
             cir.setReturnValue(false);

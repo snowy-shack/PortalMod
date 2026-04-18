@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ProjectileEntityMixin {
 
     @Inject(
-            remap = false,
-            method = "tick",
+                        method = "tick",
             at = @At("HEAD")
     )
     private void pmTeleport(CallbackInfo ci) {
@@ -23,8 +22,7 @@ public class ProjectileEntityMixin {
     }
 
     @Inject(
-            remap = false,
-            method = "canHitEntity",
+                        method = "canHitEntity",
             at = @At("HEAD"),
             cancellable = true
     )

@@ -18,8 +18,7 @@ public class ServerPlayNetHandlerMixin {
     private BlockPos pmCapturedBlockPos;
 
     @ModifyVariable(
-            remap = false,
-            method = "handleMovePlayer",
+                        method = "handleMovePlayer",
             at = @At("STORE"),
             ordinal = 0
     )
@@ -33,8 +32,7 @@ public class ServerPlayNetHandlerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "handleMovePlayer",
+                        method = "handleMovePlayer",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/player/ServerPlayerEntity;isSleeping()Z",
@@ -46,8 +44,7 @@ public class ServerPlayNetHandlerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "handleMovePlayer",
+                        method = "handleMovePlayer",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/player/ServerPlayerEntity;isChangingDimension()Z"
@@ -60,8 +57,7 @@ public class ServerPlayNetHandlerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "handleUseItemOn",
+                        method = "handleUseItemOn",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/BlockRayTraceResult;getBlockPos()Lnet/minecraft/util/math/BlockPos;"
@@ -73,8 +69,7 @@ public class ServerPlayNetHandlerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "handleUseItemOn",
+                        method = "handleUseItemOn",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/ai/attributes/ModifiableAttributeInstance;getValue()D"

@@ -17,8 +17,7 @@ public abstract class EntityRendererManagerMixin {
     @Shadow private static void renderShadow(MatrixStack p_229096_0_, IRenderTypeBuffer p_229096_1_, Entity p_229096_2_, float p_229096_3_, float p_229096_4_, IWorldReader p_229096_5_, float p_229096_6_) { }
 
     @Redirect(
-            remap = false,
-            method = "renderShadow",
+                        method = "renderShadow",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/MathHelper;lerp(DDD)D",
@@ -32,8 +31,7 @@ public abstract class EntityRendererManagerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "renderShadow",
+                        method = "renderShadow",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/MathHelper;lerp(DDD)D",
@@ -47,8 +45,7 @@ public abstract class EntityRendererManagerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "renderShadow",
+                        method = "renderShadow",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/math/MathHelper;lerp(DDD)D",
@@ -62,8 +59,7 @@ public abstract class EntityRendererManagerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "render",
+                        method = "render",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/entity/EntityRendererManager;renderShadow(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;Lnet/minecraft/entity/Entity;FFLnet/minecraft/world/IWorldReader;F)V"

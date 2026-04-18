@@ -12,8 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ChunkPrimerMixin {
 
     @Inject(
-            remap = false,
-            method = "addEntity(Lnet/minecraft/entity/Entity;)V",
+                        method = "addEntity(Lnet/minecraft/entity/Entity;)V",
             at = @At("HEAD"),
             cancellable = true
     )

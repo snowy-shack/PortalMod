@@ -29,8 +29,7 @@ public abstract class EntityTrackerMixin {
 //    @Shadow protected abstract void updateChunkTracking(ServerPlayerEntity player, ChunkPos chunkPos, IPacket<?>[] packets, boolean before, boolean after);
 
 //    @Inject(
-//            remap = false,
-//            method = "move",
+//            //            method = "move",
 //            at = @At("TAIL")
 //    )
 //    private void pmLoadChunksInsidePortal(ServerPlayerEntity player, CallbackInfo info) {
@@ -44,8 +43,7 @@ public abstract class EntityTrackerMixin {
     @Shadow protected abstract int getEffectiveRange();
 
 //    @ModifyVariable(
-//            remap = false,
-//            method = "updatePlayer",
+//            //            method = "updatePlayer",
 //            at = @At("STORE"),
 //            ordinal = 0
 //    )
@@ -90,8 +88,7 @@ public abstract class EntityTrackerMixin {
     @Shadow @Final private Set<ServerPlayerEntity> seenBy;
 
     @Inject(
-            remap = false,
-            method = "updatePlayer",
+                        method = "updatePlayer",
             at = @At("HEAD"),
             cancellable = true
     )

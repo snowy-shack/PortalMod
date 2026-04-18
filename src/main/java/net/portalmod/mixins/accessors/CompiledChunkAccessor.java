@@ -10,9 +10,9 @@ import java.util.Set;
 
 @Mixin(ChunkRenderDispatcher.CompiledChunk.class)
 public interface CompiledChunkAccessor {
-    @Accessor(remap = false, value = "transparencyState")
+    @Accessor(value = "transparencyState")
     BufferBuilder.State pmGetTransparencyState();
 
-    @Accessor(remap = false, value = "hasBlocks")
+    @Accessor(value = "hasBlocks")
     Set<RenderType> pmGetHasBlocks();
 }

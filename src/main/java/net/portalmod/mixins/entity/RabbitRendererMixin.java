@@ -15,8 +15,7 @@ import java.util.Objects;
 @Mixin(RabbitRenderer.class)
 public class RabbitRendererMixin {
     @Inject(
-            remap = false,
-            method = "getTextureLocation(Lnet/minecraft/entity/passive/RabbitEntity;)Lnet/minecraft/util/ResourceLocation;",
+                        method = "getTextureLocation(Lnet/minecraft/entity/passive/RabbitEntity;)Lnet/minecraft/util/ResourceLocation;",
             at = @At("HEAD"),
             cancellable = true
     )

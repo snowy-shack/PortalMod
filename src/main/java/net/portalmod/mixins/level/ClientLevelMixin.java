@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientWorld.class)
 public class ClientLevelMixin {
     @Redirect(
-            remap = false,
-            method = "tickNonPassenger",
+                        method = "tickNonPassenger",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;tick()V"
@@ -25,8 +24,7 @@ public class ClientLevelMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "tickPassenger",
+                        method = "tickPassenger",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;rideTick()V"
@@ -37,8 +35,7 @@ public class ClientLevelMixin {
     }
 
     @Inject(
-            remap = false,
-            method = "updateChunkPos",
+                        method = "updateChunkPos",
             at = @At("HEAD"),
             cancellable = true
     )

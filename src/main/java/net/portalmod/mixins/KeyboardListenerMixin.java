@@ -18,9 +18,9 @@ import net.portalmod.client.render.Shader;
 
 @Mixin(KeyboardListener.class)
 public abstract class KeyboardListenerMixin {
-    @Shadow(remap = false) protected abstract void debugFeedbackTranslated(String string, Object... objects);
+    @Shadow protected abstract void debugFeedbackTranslated(String string, Object... objects);
 
-    @Inject(remap = false, at = @At(value = "RETURN"),
+    @Inject(at = @At(value = "RETURN"),
             slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/WorldRenderer;allChanged()V")),
             method = "handleDebugKeys(I)Z", cancellable = true)
     private void pmHandleDebugKeys(int key, CallbackInfoReturnable<Boolean> info) {

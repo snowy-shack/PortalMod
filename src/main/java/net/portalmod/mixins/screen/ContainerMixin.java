@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(Container.class)
 public abstract class ContainerMixin {
 
-    @Redirect(method = "doClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 4), remap = false)
+    @Redirect(method = "doClick", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 4))
     public ItemStack pmResetGunUUIDOnCopy(ItemStack instance) {
         ItemStack itemStack = instance.copy();
         if (itemStack.getItem() instanceof PortalGun) {

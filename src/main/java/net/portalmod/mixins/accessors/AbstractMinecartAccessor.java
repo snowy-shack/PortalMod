@@ -6,15 +6,15 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(AbstractMinecartEntity.class)
 public interface AbstractMinecartAccessor {
-    @Accessor(remap = false, value = "lSteps")
+    @Accessor(value = "lSteps")
     void pmSetLSteps(int value);
 
-    @Accessor(remap = false, value = "lx")
+    @Accessor(value = "lx")
     void pmSetLX(double value);
 
-    @Accessor(remap = false, value = "ly")
+    @Accessor(value = "ly")
     void pmSetLY(double value);
 
-    @Accessor(remap = false, value = "lz")
+    @Accessor(value = "lz")
     void pmSetLZ(double value);
 }

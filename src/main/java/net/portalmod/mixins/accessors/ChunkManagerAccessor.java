@@ -11,20 +11,20 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ChunkManager.class)
 public interface ChunkManagerAccessor {
-    @Accessor(remap = false, value = "entityMap")
+    @Accessor(value = "entityMap")
     Int2ObjectMap<?> pmGetEntityMap();
 
-    @Accessor(remap = false, value = "viewDistance")
+    @Accessor(value = "viewDistance")
     int pmGetViewDistance();
 
-    @Invoker(remap = false, value = "getVisibleChunkIfPresent")
+    @Invoker(value = "getVisibleChunkIfPresent")
     ChunkHolder pmGetVisibleChunkIfPresent(long pos);
 
-    @Invoker(remap = false, value = "checkerboardDistance")
+    @Invoker(value = "checkerboardDistance")
     static int pmCheckerboardDistance(ChunkPos pos, ServerPlayerEntity player, boolean oldPos) {
         throw new AssertionError();
     }
 
-    @Invoker(remap = false, value = "getChunks")
+    @Invoker(value = "getChunks")
     Iterable<ChunkHolder> pmGetChunks();
 }
