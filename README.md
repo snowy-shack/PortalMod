@@ -22,7 +22,7 @@
 
 ## Contributing
 
-PortalMod is our passion project, and we manage development closely to maintain its specific vision. Please read our **[Contributing Guidelines](../../blob/main/CONTRIBUTING.md)** if you want to contribute.
+PortalMod is our passion project, and we manage development closely to maintain its specific vision. Please read our **[Contributing Guidelines](../../blob/master/CONTRIBUTING.md)** if you want to contribute.
 
 ---
 Find more information at [portalmod.net](https://portalmod.net/).
