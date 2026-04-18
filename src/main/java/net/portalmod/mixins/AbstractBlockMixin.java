@@ -17,7 +17,11 @@ import net.portalmod.common.sorted.portal.PortalEntity;
 
 @Mixin(AbstractBlock.AbstractBlockState.class)
 public class AbstractBlockMixin {
-    @Inject(remap = false, at = @At(value = "RETURN"), method = "getCollisionShape(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/shapes/ISelectionContext;)Lnet/minecraft/util/math/shapes/VoxelShape;", cancellable = true)
+    @Inject(
+            method = "getCollisionShape(Lnet/minecraft/world/IBlockReader;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/shapes/ISelectionContext;)Lnet/minecraft/util/math/shapes/VoxelShape;",
+            at = @At(value = "RETURN"),
+            cancellable = true
+    )
     private void pmGetCollisionShape(IBlockReader blockReader, BlockPos pos, ISelectionContext selectionContext, CallbackInfoReturnable<VoxelShape> info) {
         if(PortalEntity.shouldSkipCollision(blockReader, pos, selectionContext))
             info.setReturnValue(VoxelShapes.empty());

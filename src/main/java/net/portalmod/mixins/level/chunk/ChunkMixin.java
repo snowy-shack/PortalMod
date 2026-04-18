@@ -12,8 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ChunkMixin {
 
 //    @Inject(
-//            remap = false,
-//            method = "addEntity",
+//            //            method = "addEntity",
 //            at = @At("HEAD"),
 //            cancellable = true
 //    )

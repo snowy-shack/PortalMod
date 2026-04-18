@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ServerWorld.class)
 public interface ServerLevelAccessor {
-    @Invoker(remap = false, value = "add")
+    @Invoker(value = "add")
     void pmForceAddPortal(Entity entity);
 }

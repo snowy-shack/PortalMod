@@ -21,8 +21,7 @@ public abstract class RemoteClientPlayerEntityMixin extends LivingEntity {
     }
 
     @Inject(
-            remap = false,
-            method = "aiStep",
+                        method = "aiStep",
             at = @At("HEAD")
     )
     private void pmLerpPosWithPortal(CallbackInfo info) {

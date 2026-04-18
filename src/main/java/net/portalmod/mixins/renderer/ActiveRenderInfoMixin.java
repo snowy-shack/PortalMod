@@ -21,8 +21,7 @@ import java.util.List;
 public abstract class ActiveRenderInfoMixin {
 
     @Inject(
-            remap = false,
-            method = "getMaxZoom",
+                        method = "getMaxZoom",
             at = @At(value = "HEAD"),
             cancellable = true
     )

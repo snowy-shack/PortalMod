@@ -21,8 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class ClientPlayerEntityMixin {
 
     @Inject(
-            remap = false,
-            method = "drop",
+                        method = "drop",
             at = @At("HEAD")
     )
     private void pmStopHoldingSoundOnDrop(boolean all, CallbackInfoReturnable<Boolean> info) {
@@ -38,8 +37,7 @@ public class ClientPlayerEntityMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "sendPosition",
+                        method = "sendPosition",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"

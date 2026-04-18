@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(FlameParticle.class)
 public interface FlameParticleAccessor {
-    @Invoker(remap = false, value = "<init>")
+    @Invoker(value = "<init>")
     static FlameParticle pmInit(ClientWorld world, double a, double b, double c, double d, double e, double f) {
         throw new AssertionError();
     }

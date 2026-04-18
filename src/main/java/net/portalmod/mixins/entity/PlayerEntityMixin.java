@@ -51,7 +51,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     @Shadow @Final public PlayerAbilities abilities;
-    @Shadow(remap = false) @Nullable private Pose forcedPose;
+    @Shadow @Nullable private Pose forcedPose;
 
     @Unique
     private boolean clientJustPortaled = false;
@@ -102,8 +102,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     @Inject(
-            remap = false,
-            method = "isSecondaryUseActive",
+                        method = "isSecondaryUseActive",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -114,8 +113,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     @Redirect(
-            remap = false,
-            method = "maybeBackOffFromEdge",
+                        method = "maybeBackOffFromEdge",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;noCollision(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/AxisAlignedBB;)Z"
@@ -140,8 +138,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     private boolean pmWasFlying = false;
 
     @Inject(
-            remap = false,
-            method = "travel",
+                        method = "travel",
             at = @At("HEAD")
     )
     private void pmFixStopFlyingVelocity(CallbackInfo info) {
@@ -198,8 +195,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     @Inject(
-            remap = false,
-            method = "startFallFlying",
+                        method = "startFallFlying",
             at = @At("HEAD")
     )
     private void pmGrantFaithPlateElytraAdvancement(CallbackInfo info) {
@@ -213,8 +209,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
 
 
     @Inject(
-            remap = false,
-            method = "getHurtSound",
+                        method = "getHurtSound",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -225,8 +220,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     @Inject(
-            remap = false,
-            method = "createAttributes",
+                        method = "createAttributes",
             at = @At("RETURN"),
             cancellable = true
     )

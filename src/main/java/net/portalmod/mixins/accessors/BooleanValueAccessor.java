@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
 
 @Mixin(GameRules.BooleanValue.class)
 public interface BooleanValueAccessor {
-    @Invoker(remap = false, value = "create")
+    @Invoker(value = "create")
     static GameRules.RuleType<GameRules.BooleanValue> pmCreate(boolean value, BiConsumer<MinecraftServer, GameRules.BooleanValue> consumer) {
         throw new AssertionError();
     }

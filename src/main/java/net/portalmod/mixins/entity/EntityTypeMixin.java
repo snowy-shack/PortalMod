@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(EntityType.class)
 public abstract class EntityTypeMixin<T extends Entity> extends net.minecraftforge.registries.ForgeRegistryEntry<EntityType<?>> {
     @Inject(
-            remap = false,
             method = "spawn(Lnet/minecraft/world/server/ServerWorld;Lnet/minecraft/nbt/CompoundNBT;Lnet/minecraft/util/text/ITextComponent;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/SpawnReason;ZZ)Lnet/minecraft/entity/Entity;",
             at = @At(
                     value = "INVOKE",

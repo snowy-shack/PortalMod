@@ -136,8 +136,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     // TODO this causes the player to not be able to swim
     // this may cause the player not to be able to swim, however it is required for the portals to work
     @Redirect(
-            remap = false,
-            method = "move",
+                        method = "move",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;maybeBackOffFromEdge(Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/entity/MoverType;)Lnet/minecraft/util/math/vector/Vector3d;"
@@ -153,8 +152,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @Inject(
-            remap = false,
-            method = "move",
+                        method = "move",
             at = @At(
                     value = "FIELD",
                     target = "Lnet/minecraft/entity/Entity;onGround:Z",
@@ -173,8 +171,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     Vector3d capturedDelta;
 
     @Inject(
-            remap = false,
-            method = "collide",
+                        method = "collide",
             at = @At("HEAD")
     )
     private void pmCaptureCollideDelta(Vector3d delta, CallbackInfoReturnable<Vector3d> info) {
@@ -182,8 +179,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @Redirect(
-            remap = false,
-            method = "collide",
+                        method = "collide",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;getBoundingBox()Lnet/minecraft/util/math/AxisAlignedBB;"
@@ -218,8 +214,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @Inject(
-            remap = false,
-            method = "canEnterPose",
+                        method = "canEnterPose",
             at = @At("RETURN"),
             cancellable = true
     )
@@ -252,8 +247,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @ModifyVariable(
-            remap = false,
-            method = "collide(Lnet/minecraft/util/math/vector/Vector3d;)Lnet/minecraft/util/math/vector/Vector3d;",
+                        method = "collide(Lnet/minecraft/util/math/vector/Vector3d;)Lnet/minecraft/util/math/vector/Vector3d;",
             at = @At(
                     value = "STORE",
                     ordinal = 0
@@ -278,8 +272,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @Redirect(
-            remap = false,
-            method = "pick",
+                        method = "pick",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/World;clip(Lnet/minecraft/util/math/RayTraceContext;)Lnet/minecraft/util/math/BlockRayTraceResult;"
@@ -341,7 +334,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         return level.clip(context);
     }
 
-    @Inject(remap = false, method = "tick", at = @At("RETURN"))
+    @Inject(method = "tick", at = @At("RETURN"))
     public void checkFizzlers(CallbackInfo ci) {
         if (this instanceof Fizzleable) {
             ((Fizzleable) this).checkForFizzlers((Entity) (Object) this);
@@ -349,7 +342,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     // Replaced
-//    @Inject(remap = false, at = @At(value = "HEAD"), method = "getBlockSpeedFactor()F", cancellable = true)
+//    @Inject(at = @At(value = "HEAD"), method = "getBlockSpeedFactor()F", cancellable = true)
 //    private void pmGetPropulsionGelSpeedFactor(CallbackInfoReturnable<Float> info) {
 //        Entity entity = (Entity)(Object)this;
 //        BlockPos pos = entity.blockPosition();
@@ -358,7 +351,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
 //            info.setReturnValue(((PropulsionGelBlock)state.getBlock()).getSpeedFactor(pos, state, entity));
 //    }
 
-    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, remap = false)
+    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     public void pmAddFlowingGooPhysics(CallbackInfoReturnable<Boolean> cir, double d0, boolean flag) {
         cir.setReturnValue(this.isInWater() || flag || this.updateFluidHeightAndDoFluidPushing(FluidTagInit.GOO, GooBlock.FLOW_PUSH_STRENGTH));
     }

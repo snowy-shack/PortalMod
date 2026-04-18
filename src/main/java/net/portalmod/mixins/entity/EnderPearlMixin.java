@@ -21,8 +21,7 @@ public class EnderPearlMixin implements PortalHandler {
     private final Set<UUID> portalmod_passedPortals = new HashSet<>();
 
     @Inject(
-            remap = false,
-            method = "onHit",
+                        method = "onHit",
             at = @At("HEAD")
     )
     private void pmOnHit(RayTraceResult rtr, CallbackInfo ci) {

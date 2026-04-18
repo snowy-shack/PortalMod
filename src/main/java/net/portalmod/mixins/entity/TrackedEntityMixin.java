@@ -22,8 +22,7 @@ public class TrackedEntityMixin {
     @Shadow @Final private Entity entity;
 
     @Redirect(
-            remap = false,
-            method = "sendChanges",
+                        method = "sendChanges",
             at = @At(
                     value = "INVOKE",
                     target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V",
@@ -48,8 +47,7 @@ public class TrackedEntityMixin {
     }
 
 //    @Inject(
-//            remap = false,
-//            method = "sendChanges",
+//            //            method = "sendChanges",
 //            at = @At(
 //                    value = "INVOKE",
 //                    target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V",

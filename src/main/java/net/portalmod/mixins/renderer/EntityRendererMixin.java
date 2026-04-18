@@ -14,16 +14,15 @@ import net.minecraft.util.math.BlockPos;
 
 @Mixin(EntityRenderer.class)
 public abstract class EntityRendererMixin {
-    @Shadow(remap = false) abstract protected int getBlockLightLevel(Entity entity, BlockPos pos);
-    @Shadow(remap = false) abstract protected int getSkyLightLevel(Entity entity, BlockPos pos);
+    @Shadow abstract protected int getBlockLightLevel(Entity entity, BlockPos pos);
+    @Shadow abstract protected int getSkyLightLevel(Entity entity, BlockPos pos);
 
     // todo only when rendering item in hand i guess
     // todo also teleport eyes instead of moving
 
     // BEWARE: PORTAL RENDERING
     @Inject(
-            remap = false,
-            method = "getPackedLightCoords(Lnet/minecraft/entity/Entity;F)I",
+                        method = "getPackedLightCoords(Lnet/minecraft/entity/Entity;F)I",
             at = @At("RETURN"),
             cancellable = true
     )

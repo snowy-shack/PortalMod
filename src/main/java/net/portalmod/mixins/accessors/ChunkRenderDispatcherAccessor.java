@@ -9,6 +9,6 @@ import java.util.Queue;
 
 @Mixin(ChunkRenderDispatcher.class)
 public interface ChunkRenderDispatcherAccessor {
-    @Accessor(remap = false, value = "freeBuffers")
+    @Accessor(value = "freeBuffers")
     Queue<RegionRenderCacheBuilder> pmGetFreeBuffers();
 }

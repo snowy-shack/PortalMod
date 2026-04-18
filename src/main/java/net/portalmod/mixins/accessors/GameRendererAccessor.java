@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(GameRenderer.class)
 public interface GameRendererAccessor {
-    @Accessor(remap = false, value = "tick")
+    @Accessor(value = "tick")
     int pmGetTick();
 }

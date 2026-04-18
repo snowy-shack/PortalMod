@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-    @Shadow(remap = false) protected int missTime;
+    @Shadow protected int missTime;
     
-    @Inject(remap = false, method = "continueAttack(Z)V", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "continueAttack(Z)V", at = @At(value = "HEAD"), cancellable = true)
     private void pmContinueAttack(CallbackInfo info) {
         if(((Minecraft)(Object)this).player.getMainHandItem().getItem() instanceof PortalGun) {
             this.missTime = 0;
@@ -24,8 +24,7 @@ public class MinecraftMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "handleKeybinds",
+                        method = "handleKeybinds",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V",
