@@ -6,15 +6,15 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(LivingEntity.class)
 public interface LivingEntityAccessor {
-    @Accessor(remap = false, value = "lerpSteps")
+    @Accessor(value = "lerpSteps")
     void pmSetLerpSteps(int value);
 
-    @Accessor(remap = false, value = "lerpX")
+    @Accessor(value = "lerpX")
     void pmSetLerpX(double value);
 
-    @Accessor(remap = false, value = "lerpY")
+    @Accessor(value = "lerpY")
     void pmSetLerpY(double value);
 
-    @Accessor(remap = false, value = "lerpZ")
+    @Accessor(value = "lerpZ")
     void pmSetLerpZ(double value);
 }

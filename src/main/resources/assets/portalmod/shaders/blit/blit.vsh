@@ -1,7 +1,7 @@
-#version 130
+#version 120
 
-in vec3 position;
-out vec2 coords;
+attribute vec3 position;
+varying vec2 coords;
 
 void main() {
     coords = gl_MultiTexCoord0.xy;

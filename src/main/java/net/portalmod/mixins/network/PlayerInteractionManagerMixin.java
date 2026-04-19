@@ -17,8 +17,7 @@ public class PlayerInteractionManagerMixin {
     private BlockPos pmCapturedBlockPos;
 
     @Inject(
-            remap = false,
-            method = "handleBlockBreakAction",
+                        method = "handleBlockBreakAction",
             at = @At("HEAD")
     )
     private void pmCaptureBlockPos(BlockPos pos, CPlayerDiggingPacket.Action action, Direction direction, int buildLimit, CallbackInfo info) {
@@ -26,8 +25,7 @@ public class PlayerInteractionManagerMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "handleBlockBreakAction",
+                        method = "handleBlockBreakAction",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/ai/attributes/ModifiableAttributeInstance;getValue()D"

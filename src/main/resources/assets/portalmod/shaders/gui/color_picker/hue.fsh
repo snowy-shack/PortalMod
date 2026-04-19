@@ -1,16 +1,15 @@
-#version 130
+#version 120
 
 uniform float saturation;
 uniform float value;
 
-in vec2 coords;
-out vec4 color;
+varying vec2 coords;
 
 vec3 hsv2rgb(float h, float s, float v);
 
 void main() {
     float h = (1 - coords.y) * 360;
-    color = vec4(hsv2rgb(h, saturation, value), 1);
+    gl_FragColor = vec4(hsv2rgb(h, saturation, value), 1);
 }
 
 vec3 hsv2rgb(float h, float s, float v) {

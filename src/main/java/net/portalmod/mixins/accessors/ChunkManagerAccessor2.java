@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ChunkManager.class)
 public interface ChunkManagerAccessor2 {
-    @Invoker(remap = false, value = "checkerboardDistance")
+    @Invoker(value = "checkerboardDistance")
     static int pmCheckerboardDistance(ChunkPos pos, int x, int z) {
         throw new AssertionError();
     }

@@ -19,8 +19,7 @@ public class ChunkRenderMixin {
     @Shadow @Final private Map<RenderType, VertexBuffer> buffers;
 
     @Inject(
-            remap = false,
-            method = "<init>",
+                        method = "<init>",
             at = @At("RETURN")
     )
     private void pmInit(ChunkRenderDispatcher crd, CallbackInfo ci) {

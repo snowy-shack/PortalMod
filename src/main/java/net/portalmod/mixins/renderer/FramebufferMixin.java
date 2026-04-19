@@ -11,8 +11,7 @@ public class FramebufferMixin {
 
     // BEWARE: PORTAL RENDERING
     @ModifyVariable(
-            remap = false,
-            method = "bindWrite",
+                        method = "bindWrite",
             at = @At("HEAD"),
             ordinal = 0,
             argsOnly = true

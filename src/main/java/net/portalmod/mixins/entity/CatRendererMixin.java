@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(CatRenderer.class)
 public class CatRendererMixin {
     @Inject(
-            remap = false,
-            method = "getTextureLocation(Lnet/minecraft/entity/passive/CatEntity;)Lnet/minecraft/util/ResourceLocation;",
+                        method = "getTextureLocation(Lnet/minecraft/entity/passive/CatEntity;)Lnet/minecraft/util/ResourceLocation;",
             at = @At("HEAD"),
             cancellable = true
     )

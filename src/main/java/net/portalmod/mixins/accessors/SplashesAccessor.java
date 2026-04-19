@@ -13,19 +13,19 @@ import net.minecraft.util.ResourceLocation;
 
 @Mixin(Splashes.class)
 public interface SplashesAccessor {
-    @Accessor(remap = false, value = "SPLASHES_LOCATION")
+    @Accessor(value = "SPLASHES_LOCATION")
     static void pmSetLocation(ResourceLocation value) {
         throw new AssertionError();
     }
 
-    @Accessor(remap = false, value = "SPLASHES_LOCATION")
+    @Accessor(value = "SPLASHES_LOCATION")
     static ResourceLocation pmGetLocation() {
         throw new AssertionError();
     }
     
-    @Invoker(remap = false, value = "prepare")
+    @Invoker(value = "prepare")
     List<String> pmPrepare(IResourceManager resourceManager, IProfiler profiler);
     
-    @Invoker(remap = false, value = "apply")
+    @Invoker(value = "apply")
     void pmApply(List<String> list, IResourceManager resourceManager, IProfiler profiler);
 }

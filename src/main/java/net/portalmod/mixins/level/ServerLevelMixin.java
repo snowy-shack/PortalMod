@@ -26,8 +26,7 @@ public abstract class ServerLevelMixin {
     @Shadow protected abstract boolean isUUIDUsed(Entity p_217478_1_);
 
     @Redirect(
-            remap = false,
-            method = "tickNonPassenger",
+                        method = "tickNonPassenger",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;tick()V"
@@ -38,8 +37,7 @@ public abstract class ServerLevelMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "tickPassenger",
+                        method = "tickPassenger",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/entity/Entity;rideTick()V"
@@ -50,8 +48,7 @@ public abstract class ServerLevelMixin {
     }
 
 //    @Redirect(
-//            remap = false,
-//            method = "addEntity",
+//            //            method = "addEntity",
 //            at = @At(
 //                    value = "INVOKE",
 //                    target = "Lnet/minecraft/world/chunk/IChunk;addEntity(Lnet/minecraft/entity/Entity;)V"
@@ -63,8 +60,7 @@ public abstract class ServerLevelMixin {
 //    }
 
     @Inject(
-            remap = false,
-            method = "updateChunkPos",
+                        method = "updateChunkPos",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -74,8 +70,7 @@ public abstract class ServerLevelMixin {
     }
 
     @Redirect(
-            remap = false,
-            method = "unload",
+                        method = "unload",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/server/ServerWorld;onEntityRemoved(Lnet/minecraft/entity/Entity;)V"

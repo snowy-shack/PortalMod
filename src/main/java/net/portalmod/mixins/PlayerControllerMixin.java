@@ -26,8 +26,7 @@ import java.util.List;
 public class PlayerControllerMixin {
 
     @Inject(
-            remap = false,
-            method = "sendBlockAction",
+                        method = "sendBlockAction",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"
@@ -41,8 +40,7 @@ public class PlayerControllerMixin {
     }
 
     @Inject(
-            remap = false,
-            method = "useItemOn",
+                        method = "useItemOn",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"

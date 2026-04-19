@@ -49,8 +49,8 @@ public class PistonBlockStructureHelperMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
-            ),
-            remap = false
+            )
+            
     )
     private boolean onAddBlockLineCanStickToEachOther(BlockState state, BlockState behindState) {
         Block block = state.getBlock();
@@ -84,8 +84,8 @@ public class PistonBlockStructureHelperMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
-            ),
-            remap = false
+            )
+            
     )
     private boolean onAddBranchingBlocksCanStickToEachOther(BlockState neighborState, BlockState state, BlockPos pos) {
         Block block = state.getBlock();

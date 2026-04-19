@@ -1,11 +1,10 @@
-#version 130
+#version 120
 
 uniform float hue;
 uniform float valMin;
 uniform float valMax;
 
-in vec2 coords;
-out vec4 color;
+varying vec2 coords;
 
 vec3 hsv2rgb(float h, float s, float v);
 
@@ -13,7 +12,7 @@ void main() {
     float h = hue;
     float s = coords.x;
     float v = coords.y * (valMax - valMin) + valMin;
-    color = vec4(hsv2rgb(h, s, v), 1);
+    gl_FragColor = vec4(hsv2rgb(h, s, v), 1);
 }
 
 vec3 hsv2rgb(float h, float s, float v) {

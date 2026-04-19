@@ -8,8 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(targets = "net/minecraft/client/multiplayer/ClientChunkProvider$ChunkArray")
 public class ChunkArrayMixin {
 //    @Inject(
-//            remap = false,
-//            method = "inRange",
+//            //            method = "inRange",
 //            at = @At("RETURN"),
 //            cancellable = true
 //    )

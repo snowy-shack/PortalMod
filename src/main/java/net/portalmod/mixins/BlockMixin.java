@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Mixin(Block.class)
 public class BlockMixin {
-    @Inject(method = "canSustainPlant", at = @At("HEAD"), cancellable = true, remap=false)
+    @Inject(method = "canSustainPlant", at = @At("HEAD"), cancellable = true, remap = false)
     private void allowArboredPlains(BlockState state, IBlockReader world, BlockPos pos,
                                     Direction facing, IPlantable plantable, CallbackInfoReturnable<Boolean> cir) {
 

@@ -10,21 +10,21 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ActiveRenderInfo.class)
 public interface ActiveRenderInfoAccessor {
-    @Accessor(remap = false, value = "position")
+    @Accessor(value = "position")
     void pmSetPosition(Vector3d value);
     
-    @Accessor(remap = false, value = "position")
+    @Accessor(value = "position")
     Vector3d pmGetPosition();
 
-    @Accessor(remap = false, value = "blockPosition")
+    @Accessor(value = "blockPosition")
     BlockPos.Mutable pmGetBlockPosition();
 
-    @Accessor(remap = false, value = "eyeHeight")
+    @Accessor(value = "eyeHeight")
     float pmGetEyeHeight();
 
-    @Accessor(remap = false, value = "eyeHeightOld")
+    @Accessor(value = "eyeHeightOld")
     float pmGetEyeHeightOld();
 
-    @Invoker(remap = false, value = "setRotation")
+    @Invoker(value = "setRotation")
     void pmSetRotation(float yaw, float pitch);
 }
