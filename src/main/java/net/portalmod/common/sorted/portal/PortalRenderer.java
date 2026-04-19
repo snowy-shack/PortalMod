@@ -15,6 +15,7 @@ import net.minecraft.client.settings.GraphicsFanciness;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
@@ -554,18 +555,46 @@ public class PortalRenderer {
         return new float[]{xMin, yMin, xMax, yMax};
     }
 
+    /** At most one occlusion-debug dust burst per portal per game tick when profiling. */
+    private static final Map<UUID, Long> PROFILER_PORTAL_OCCLUSION_LAST_PARTICLE_TICK = new HashMap<>();
+
+    /** Grid width × height for {@link #portalOpeningControlPoints}; product = sample count. */
+    private static final int PORTAL_OPENING_GRID_W = 8;
+    private static final int PORTAL_OPENING_GRID_H = 16;
+    private static final int PORTAL_OPENING_CONTROL_POINT_COUNT = PORTAL_OPENING_GRID_W * PORTAL_OPENING_GRID_H;
+
     /**
-     * Four corners of the portal opening in world space (source basis: half width 0.5, half height 1).
+     * World-space sample points on the portal opening laid out in a {@link #PORTAL_OPENING_GRID_W}×{@link #PORTAL_OPENING_GRID_H}
+     * grid (row-major: index = row * W + col). Local coords (a,b) in [-1,1]² map to {@code center + a*right + b*up}
+     * (source basis: half width 0.5, half height 1).
+     *
+     * @param out length must be at least {@link #PORTAL_OPENING_CONTROL_POINT_COUNT}
      */
-    private static void portalOpeningFourCorners(PortalEntity portal, Vector3d[] out) {
+    private static void portalOpeningControlPoints(PortalEntity portal, Vector3d[] out) {
         OrthonormalBasis basis = portal.getSourceBasis();
-        Vec3 right = basis.getX().normalize().mul(0.5);
-        Vec3 up = basis.getY().normalize().mul(1.0);
-        Vec3 center = new Vec3(portal.getBoundingBox().getCenter());
-        out[0] = new Vec3(center).sub(right).sub(up).to3d();
-        out[1] = new Vec3(center).add(right).sub(up).to3d();
-        out[2] = new Vec3(center).sub(right).add(up).to3d();
-        out[3] = new Vec3(center).add(right).add(up).to3d();
+        Vec3 rightUnit = basis.getX().normalize();
+        Vec3 upUnit = basis.getY().normalize();
+        double rx = rightUnit.x * 0.5, ry = rightUnit.y * 0.5, rz = rightUnit.z * 0.5;
+        double ux = upUnit.x,         uy = upUnit.y,         uz = upUnit.z;
+        Vector3d center = portal.getBoundingBox().getCenter();
+        int idx = 0;
+        for(int row = 0; row < PORTAL_OPENING_GRID_H; row++) {
+            double b = portalOpeningGridCoord(PORTAL_OPENING_GRID_H, row);
+            for(int col = 0; col < PORTAL_OPENING_GRID_W; col++) {
+                double a = portalOpeningGridCoord(PORTAL_OPENING_GRID_W, col);
+                out[idx++] = new Vector3d(
+                        center.x + a * rx + b * ux,
+                        center.y + a * ry + b * uy,
+                        center.z + a * rz + b * uz);
+            }
+        }
+    }
+
+    /** {@code [-1, 1]} inclusive edge positions for a uniform grid with {@code dim} samples ({@code dim==1} → 0). */
+    private static double portalOpeningGridCoord(int dim, int index) {
+        if(dim <= 1)
+            return 0;
+        return -1.0 + 2.0 * index / (dim - 1);
     }
 
     private static boolean blockCountsAsOpaqueForPortalSight(BlockState state) {
@@ -598,8 +627,9 @@ public class PortalRenderer {
     }
 
     /**
-     * {@code true} if all four opening corners are blocked by opaque geometry from the camera (cheap skip path).
-     * Only meaningful from {@link #renderPortal} when {@code recursion == 1} (main view); nested passes skip this.
+     * {@code true} if every grid sample on the portal opening is blocked by opaque geometry from the camera
+     * (cheap skip path). Only meaningful from {@link #renderPortal} when {@code recursion == 1} (main view);
+     * nested passes skip this.
      */
     public boolean portalOpeningFullyOccluded(PortalEntity portal, ActiveRenderInfo camera) {
         ClientWorld world = Minecraft.getInstance().level;
@@ -611,11 +641,24 @@ public class PortalRenderer {
         if(viewer == null)
             viewer = Minecraft.getInstance().player;
 
-        Vector3d[] corners = new Vector3d[4];
-        portalOpeningFourCorners(portal, corners);
+        Vector3d[] points = new Vector3d[PORTAL_OPENING_CONTROL_POINT_COUNT];
+        portalOpeningControlPoints(portal, points);
 
-        for(Vector3d corner : corners) {
-            if(cornerVisibleAlongRay(world, from, corner, viewer))
+        if(PROFILE.enabled) {
+            long gt = world.getGameTime();
+            UUID id = portal.getUUID();
+            Long lastTick = PROFILER_PORTAL_OCCLUSION_LAST_PARTICLE_TICK.get(id);
+            if(lastTick == null || lastTick != gt) {
+                PROFILER_PORTAL_OCCLUSION_LAST_PARTICLE_TICK.put(id, gt);
+                RedstoneParticleData dust = new RedstoneParticleData(1.0F, 0.0F, 0.0F, 0.2F);
+                for(Vector3d p : points) {
+                    world.addParticle(dust, p.x, p.y, p.z, 0.0D, 0.0D, 0.0D);
+                }
+            }
+        }
+
+        for(Vector3d p : points) {
+            if(cornerVisibleAlongRay(world, from, p, viewer))
                 return false;
         }
         return true;
