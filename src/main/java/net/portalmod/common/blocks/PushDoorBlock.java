@@ -128,6 +128,9 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
     }
 
     private void close(BlockState blockState, World world, BlockPos blockPos) {
+        if (blockState.getValue(POWERED))
+            return;
+
         blockState = blockState.cycle(OPEN); // Close the door
         world.setBlock(blockPos, blockState, 10);
         this.playCloseSound(world, blockPos);
