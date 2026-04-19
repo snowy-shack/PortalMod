@@ -3,6 +3,7 @@ package net.portalmod.mixins.renderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
@@ -184,6 +185,28 @@ public class LevelRendererMixin {
     )
     private void pmUseMainCameraForRebuilding(ChunkRenderDispatcher instance, Vector3d pos) {
         instance.setCamera(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+    }
+
+    /**
+     * Mask the {@code if (options.renderDistance != lastViewDistance) allChanged();} guard
+     * at the top of {@code setupRender} while a nested portal render has intentionally
+     * clamped {@code lastViewDistance}. ordinal = 0 targets exactly this GETFIELD: the
+     * second access of {@code renderDistance} in the same method (which feeds
+     * {@code Entity.setViewScale}) is left alone so entity view scale stays consistent
+     * with the player's real render distance setting.
+     */
+    @Redirect(
+            method = "setupRender",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/client/GameSettings;renderDistance:I",
+                    opcode = org.objectweb.asm.Opcodes.GETFIELD,
+                    ordinal = 0
+            )
+    )
+    private int pmMaskRenderDistanceForAllChangedGuard(GameSettings instance) {
+        int override = PortalRenderer.getInstance().nestedBfsDistanceOverride;
+        return override > 0 ? override : instance.renderDistance;
     }
 
     // BEWARE: PORTAL RENDERING
