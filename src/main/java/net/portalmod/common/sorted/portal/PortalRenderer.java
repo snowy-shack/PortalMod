@@ -73,6 +73,139 @@ public class PortalRenderer {
     public List<PortalEntity> outlineRenderingPortalChain;
     public final Deque<PortalEntity> portalChain = new ArrayDeque<>();
 
+    /**
+     * While &gt; 0 we are inside a nested portal render in which we temporarily lowered
+     * {@code LevelRenderer.lastViewDistance} to reduce the chunk-BFS grid bounds in
+     * {@code setupRender}. The mixin in {@link net.portalmod.mixins.renderer.LevelRendererMixin}
+     * uses this value to mask the {@code options.renderDistance != lastViewDistance}
+     * guard so that the intentional mismatch does not trigger {@code allChanged()} and
+     * rebuild every chunk.
+     *
+     * <p>IMPORTANT: {@code options.renderDistance} is never mutated by this path, so fog,
+     * F3, entity view scale, the options GUI, etc. always see the player's real setting.
+     */
+    public int nestedBfsDistanceOverride = -1;
+
+    /**
+     * Screen-space (NDC) bounding rect of the portal we are currently rendering
+     * <em>through</em>, stored as {@code {xMin, yMin, xMax, yMax}} in NDC coords
+     * ({@code [-1,1]}). At the outer frame it is the full screen; each time we
+     * recurse into a portal, we intersect this rect with the portal's own projected
+     * silhouette and push it, then restore on exit.
+     *
+     * <p>This mirrors Source's portal-edge frustum clipping: even if the child
+     * portal is inside the camera's full frustum, it gets culled when it projects
+     * outside the screen-space region already clipped by the parent portal's
+     * silhouette (equivalently: outside the stencil-mask pixels it could draw into).
+     * Cheap 2D rect-vs-rect, but kills the exponential fan-out when multiple portal
+     * pairs are visible.
+     */
+    private final float[] currentParentNdcRect = new float[]{-1f, -1f, 1f, 1f};
+    private final Deque<float[]> parentNdcRectStack = new ArrayDeque<>();
+    public int portalsCulledByNdcRect = 0;
+    /** Per outer frame: skipped full stencil/mask/border — all four opening-corner rays hit opaque blocks before the corner. */
+    public int portalsStencilSkippedOccludedRays = 0;
+
+    private static final double RAY_CORNER_EPSILON = 0.08;
+
+    // --- profiler ---
+    public static final Profile PROFILE = new Profile();
+
+    /**
+     * Lightweight per-frame profiler for the portal renderer. Use {@link #push}/{@link #pop}
+     * to measure nested regions. Totals are snapshotted each frame into
+     * {@code ClientEvents.debugStrings} and drawn on the HUD.
+     *
+     * <p>Each label accumulates total nanoseconds, total invocations, and max single-call
+     * nanoseconds. Enable with JVM flag {@code -Dportalmod.portalProfiler=true}. Off by default.
+     */
+    public static final class Profile {
+        public boolean enabled = false;
+        public int topN = 12;
+
+        private static final class Entry {
+            long totalNs;
+            long maxNs;
+            long calls;
+        }
+
+        private final LinkedHashMap<String, Entry> entries = new LinkedHashMap<>();
+        private final Deque<String> labelStack = new ArrayDeque<>();
+        private final Deque<Long> startStack = new ArrayDeque<>();
+
+        public int portalsVisited;
+        public int portalsCulled;
+        public int portalsNested;
+        public int maxRecursionReached;
+
+        public void push(String label) {
+            if(!enabled) return;
+            labelStack.push(label);
+            startStack.push(System.nanoTime());
+        }
+
+        public void pop() {
+            if(!enabled) return;
+            if(labelStack.isEmpty() || startStack.isEmpty()) return;
+            long elapsed = System.nanoTime() - startStack.pop();
+            String label = labelStack.pop();
+            Entry e = entries.get(label);
+            if(e == null) {
+                e = new Entry();
+                entries.put(label, e);
+            }
+            e.totalNs += elapsed;
+            e.calls++;
+            if(elapsed > e.maxNs)
+                e.maxNs = elapsed;
+        }
+
+        public void reset() {
+            entries.clear();
+            labelStack.clear();
+            startStack.clear();
+            portalsVisited = 0;
+            portalsCulled = 0;
+            portalsNested = 0;
+            maxRecursionReached = 0;
+        }
+
+        private static String fmt(long ns) {
+            double ms = ns / 1_000_000.0;
+            return String.format(Locale.ROOT, "%6.2fms", ms);
+        }
+
+        public void snapshotInto(List<String> out) {
+            if(!enabled) return;
+            Entry frame = entries.get("frame");
+            long frameNs = frame == null ? 1 : Math.max(1, frame.totalNs);
+
+            PortalRenderer pr = PortalRenderer.getInstance();
+            out.add(String.format(Locale.ROOT,
+                    "PortalProfile %s | portals v=%d c=%d(ndc=%d) nested=%d occ=%d depth=%d/max%d",
+                    fmt(frameNs), portalsVisited, portalsCulled, pr.portalsCulledByNdcRect,
+                    portalsNested, pr.portalsStencilSkippedOccludedRays, maxRecursionReached, PortalModConfigManager.RECURSION.get()));
+
+            List<Map.Entry<String, Entry>> sorted = new ArrayList<>(entries.entrySet());
+            sorted.sort((a, b) -> Long.compare(b.getValue().totalNs, a.getValue().totalNs));
+
+            int shown = 0;
+            for(Map.Entry<String, Entry> kv : sorted) {
+                if(shown++ >= topN) break;
+                Entry e = kv.getValue();
+                double pct = (e.totalNs * 100.0) / frameNs;
+                out.add(String.format(Locale.ROOT,
+                        "%-28s %s x%-3d max %s %5.1f%%",
+                        kv.getKey(), fmt(e.totalNs), e.calls, fmt(e.maxNs), pct));
+            }
+        }
+    }
+
+    /** {@code -Dportalmod.portalProfiler=true} */
+    public static boolean portalProfilerEnabled() {
+        return Boolean.getBoolean("portalmod.portalProfiler");
+    }
+
     static {
         portalMesh.reset();
         portalMesh.data(bufferBuilder -> {
