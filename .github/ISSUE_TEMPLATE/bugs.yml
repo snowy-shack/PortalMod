@@ -17,6 +17,20 @@ body:
         - label: This is the latest version of the mod
           required: true
 
+  - type: input
+    attributes:
+      label: What other mods do you have installed?
+      placeholder: Optifine, ...
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: What's your Operating System?
+      placeholder: Windows 10 / MacOS ... / Linux distro ...
+    validations:
+      required: true
+
   - type: textarea
     attributes:
       label: What happened?
@@ -33,7 +47,7 @@ body:
 
   - type: textarea
     attributes:
-      label: How to reproduce the bug?
+      label: How to reproduce the bug from a **new world**?
       placeholder: Steps to replicate the issue from a blank world
     validations:
       required: true
@@ -43,3 +57,5 @@ body:
       label: Your latest.log
       description: Please give us a URL to your latest.log (we recommend uploading it to https://mclo.gs/)
       placeholder: https://mclo.gs/<id>
+    validations:
+      required: true
