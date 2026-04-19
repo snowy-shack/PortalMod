@@ -1,11 +1,9 @@
 package net.portalmod.core.event;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MainWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.MainMenuScreen;
@@ -419,24 +417,13 @@ public class ClientEvents {
             }
             
         } else if(event.getType() == ElementType.SUBTITLES) {
-            MainWindow window = event.getWindow();
-            float scale = 1.5f;
-            
+            int x = 2;
+            int y = 2;
             int index = 0;
             for(String text : debugStrings) {
-                RenderSystem.pushMatrix();
-                RenderSystem.scalef(scale, scale, 1);
-                RenderSystem.translatef(
-                        window.getGuiScaledWidth() / (2f * scale) - (fontRenderer.width(text)) / 2f,
-                        window.getGuiScaledHeight() / scale - 60 + fontRenderer.lineHeight * index++,
-                        0
-                );
-                
-                fontRenderer.draw(event.getMatrixStack(), text, 0, 0, 0xFF0000);
-                
-                RenderSystem.popMatrix();
+                fontRenderer.drawShadow(event.getMatrixStack(), text, x, y + fontRenderer.lineHeight * index++, 0xFFFFAA00);
             }
-            
+
             debugStrings.clear();
         }
     }
