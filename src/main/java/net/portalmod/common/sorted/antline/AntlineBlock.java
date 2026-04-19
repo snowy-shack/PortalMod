@@ -38,6 +38,9 @@ import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.SideTyp
 public class AntlineBlock extends Block {
 //    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
+    /** While > 0, {@link #recursiveSignalChain} is on the stack — skip heavy work in {@link #neighborChanged} to avoid setBlock/output feedback loops. */
+    private static final ThreadLocal<Integer> SIGNAL_CHAIN_DEPTH = ThreadLocal.withInitial(() -> 0);
+
     private static final int MAX_RECURSION_DEPTH = 256;
     private static final int NO_THRESHOLD = 20;
     public enum ConnectionType {
@@ -124,68 +127,73 @@ public class AntlineBlock extends Block {
     }
 
     public void recursiveSignalChain(World level, AntlineTileEntity.Side side, BlockPos pos, Direction originDirection, boolean active, int depth) {
-        if (depth > MAX_RECURSION_DEPTH) return;
-        Boolean newActive = null;
+        SIGNAL_CHAIN_DEPTH.set(SIGNAL_CHAIN_DEPTH.get() + 1);
+        try {
+            if (depth > MAX_RECURSION_DEPTH) return;
+            Boolean newActive = null;
 
-        // Loop prevention
-        if (active == side.isActive() && originDirection != null) return;
-        side.setActive(active);
+            // Loop prevention
+            if (active == side.isActive() && originDirection != null) return;
+            side.setActive(active);
 
-        // Dead end
-        if (side.countConnections() < 2 && originDirection != null) {
-            sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
-            return;
-        }
+            // Dead end
+            if (side.countConnections() < 2 && originDirection != null) {
+                sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
+                return;
+            }
 
-        boolean becameActive = active;
+            boolean becameActive = active;
 
-        // In all connection directions
-        for (Direction connectDirection : side.absoluteConnections()) {
-            if (connectDirection.getAxis() == side.toDirection().getAxis()  // Rule out relative up / down
-                    || connectDirection == originDirection) continue;       // Prevent signal from going backwards
+            // In all connection directions
+            for (Direction connectDirection : side.absoluteConnections()) {
+                if (connectDirection.getAxis() == side.toDirection().getAxis()  // Rule out relative up / down
+                        || connectDirection == originDirection) continue;       // Prevent signal from going backwards
 
-            // Check direction
-            ConnectionType connectionType = getConnectionType(level, pos, side.toDirection(), connectDirection, NO_THRESHOLD);
-            if (connectionType == ConnectionType.NONE) continue;
+                // Check direction
+                ConnectionType connectionType = getConnectionType(level, pos, side.toDirection(), connectDirection, NO_THRESHOLD);
+                if (connectionType == ConnectionType.NONE) continue;
 
-            Friend friend = new Friend(connectionType, pos, side.toDirection(), connectDirection);
+                Friend friend = new Friend(connectionType, pos, side.toDirection(), connectDirection);
 
-            // If it's an element, (un)power it
-            if (connectionType == ConnectionType.ELEMENT) {
-                BlockState neighborState = level.getBlockState(friend.pos);
-                Block neighborBlock = neighborState.getBlock();
+                // If it's an element, (un)power it
+                if (connectionType == ConnectionType.ELEMENT) {
+                    BlockState neighborState = level.getBlockState(friend.pos);
+                    Block neighborBlock = neighborState.getBlock();
 
-                // Power indicators
-                if (neighborBlock instanceof AntlineActivated)
-                    ((AntlineActivated) neighborBlock).onAntlineActivation(active, neighborState, level, friend.pos);
+                    // Power indicators
+                    if (neighborBlock instanceof AntlineActivated)
+                        ((AntlineActivated) neighborBlock).onAntlineActivation(active, neighborState, level, friend.pos);
 
-                // Hit another input, adopt its signal
-                if (neighborBlock instanceof AntlineActivator) {
-                    newActive = ((AntlineActivator) neighborBlock).isAntlineActive(neighborState);
+                    // Hit another input, adopt its signal
+                    if (neighborBlock instanceof AntlineActivator) {
+                        newActive = ((AntlineActivator) neighborBlock).isAntlineActive(neighborState);
 
-                    if (newActive && !active) {
-                        recursiveSignalChain(level, side, pos, null, newActive, 0);
+                        if (newActive && !active) {
+                            recursiveSignalChain(level, side, pos, null, newActive, 0);
+                        }
+
+                        becameActive = newActive;
+
+                        continue;
                     }
-
-                    becameActive = newActive;
-
                     continue;
                 }
-                continue;
+
+                // It's another Antline. Do a recursive signal call
+                AntlineTileEntity entity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
+                AntlineTileEntity.SideMap sideMap = entity.getSideMap();
+                recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active || becameActive, depth + 1);
+
+                // If the antline we just updated ended up being powered, we set becameActive to true, so we don't unpower the next ones we were supposed to unpower.
+                if (((AntlineTileEntity) level.getBlockEntity(friend.pos)).getSideMap().get(friend.sideDirection).isActive()) {
+                    becameActive = true;
+                }
             }
 
-            // It's another Antline. Do a recursive signal call
-            AntlineTileEntity entity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
-            AntlineTileEntity.SideMap sideMap = entity.getSideMap();
-            recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active || becameActive, depth + 1);
-
-            // If the antline we just updated ended up being powered, we set becameActive to true, so we don't unpower the next ones we were supposed to unpower.
-            if (((AntlineTileEntity) level.getBlockEntity(friend.pos)).getSideMap().get(friend.sideDirection).isActive()) {
-                becameActive = true;
-            }
+            sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
+        } finally {
+            SIGNAL_CHAIN_DEPTH.set(SIGNAL_CHAIN_DEPTH.get() - 1);
         }
-
-        sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
     }
 
     public void sideUpdate(World level, AntlineTileEntity.Side side, BlockPos pos,
@@ -293,6 +301,10 @@ public class AntlineBlock extends Block {
     @Override
     public void neighborChanged(BlockState blockState, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         super.neighborChanged(blockState, level, pos, block, neighborPos, b);
+
+        if (!level.isClientSide && SIGNAL_CHAIN_DEPTH.get() > 0) {
+            return;
+        }
 
         BlockState neighborState = level.getBlockState(neighborPos);
 
