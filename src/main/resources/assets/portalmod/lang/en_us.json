@@ -171,9 +171,10 @@
   "tooltip.portalmod.trigger_4": "- §6Wrench + Crouch§7: Change entity type",
 
   "tooltip.portalmod.autoportal_1": "Can automatically open §9Portals§7, when linked to a §9Portal Gun§7",
-  "tooltip.portalmod.autoportal_2": "- Activated by adjacent §bAntline Indicators§7",
-  "tooltip.portalmod.autoportal_3": "- §6Wrench§7: Change between primary & secondary §9Portal§7",
-  "tooltip.portalmod.autoportal_4": "- §6Wrench + Offhand Portal Gun§7: Link to this §9Portal Gun§7",
+  "tooltip.portalmod.autoportal_2": "- Activates when powered by adjacent §bAntline Indicators§7",
+  "tooltip.portalmod.autoportal_3": "- Deactivates when not powered by adjacent §bAntline Indicators§7",
+  "tooltip.portalmod.autoportal_4": "- §6Wrench§7: Change between primary & secondary §9Portal§7",
+  "tooltip.portalmod.autoportal_5": "- §6Wrench + Offhand Portal Gun§7: Link to this §9Portal Gun§7",
 
   "tooltip.portalmod.chamber_lights_1": "Lights up test chambers",
   "tooltip.portalmod.chamber_lights_2": "- Turns off when powered by §cRedstone§7",
