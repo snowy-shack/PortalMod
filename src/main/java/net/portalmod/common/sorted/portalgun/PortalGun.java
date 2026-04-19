@@ -486,7 +486,7 @@ public class PortalGun extends Item {
 
         PortalPair pair = PortalManager.getInstance().getPair(gunUUID.get());
         if (pair == null) return false;
-        boolean sex = false;
+        boolean fizzledAPortal = false;
 
         String lock = "";
         if (itemStack.hasTag()) {
@@ -497,16 +497,16 @@ public class PortalGun extends Item {
         if (pair.has(PortalEnd.PRIMARY) && !lock.equals("Left")) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
             PortalManager.getInstance().scheduleRemoval(primary);
-            sex = true;
+            fizzledAPortal = true;
         }
         if (pair.has(PortalEnd.SECONDARY) && !lock.equals("Right")) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
             PortalManager.getInstance().scheduleRemoval(secondary);
-            sex = true;
+            fizzledAPortal = true;
         }
 
         itemStack.getOrCreateTag().putInt("LastPortal", 0);
-        return sex;
+        return fizzledAPortal;
     }
 
     @Override
