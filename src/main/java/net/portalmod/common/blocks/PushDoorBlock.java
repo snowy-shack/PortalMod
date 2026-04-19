@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.DoorBlock;
 import net.minecraft.client.util.ITooltipFlag;
@@ -7,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.properties.DoorHingeSide;
+import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
@@ -98,6 +100,27 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
         if (blockState.getValue(OPEN)) close(blockState, world, blockPos);
     }
 
+    @Override
+    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
+        boolean powered = world.hasNeighborSignal(pos) ||
+                world.hasNeighborSignal(pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN));
+
+        if (powered != state.getValue(POWERED)) {
+
+            if (powered != state.getValue(OPEN)) {
+                if (powered) {
+                    playOpenSound(world, pos);
+                } else {
+                    playCloseSound(world, pos);
+                }
+            }
+
+            world.setBlock(pos, state
+                    .setValue(POWERED, powered)
+                    .setValue(OPEN, powered), 2);
+        }
+    }
+
     private void open(BlockState blockState, World world, BlockPos blockPos) {
         blockState = blockState.cycle(OPEN);
         world.setBlock(blockPos, blockState, 10);
@@ -109,6 +132,7 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
         world.setBlock(blockPos, blockState, 10);
         this.playCloseSound(world, blockPos);
     }
+
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
