@@ -195,23 +195,52 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Vec3 positionToCenterVector = new Vec3(entity.getBoundingBox().getCenter()).sub(entity.position());
 
         World level = entity.level;
+
+        // Do all cheap filters FIRST using an over-approximation of the travel path. pmCollide is
+        // very expensive (it sweeps voxel shapes within the entity's expanded AABB) and previously
+        // ran for every non-player entity tick, even ones that had no chance of teleporting. That
+        // made the server hang with a relatively small number of minecarts.
+        //
+        // The conservative AABB (expanded by the raw delta rather than the post-collision delta)
+        // is a superset of the real travel AABB, so any portal that would pass the real filter is
+        // still in this candidate list.
+        AxisAlignedBB conservativeTravelAABB = entity.getBoundingBox().expandTowards(delta);
+        Vec3 entityOldCenter = new Vec3(entity.getBoundingBox().getCenter());
+
+        List<PortalEntity> candidatePortals = getOpenPortals(level, conservativeTravelAABB, portal -> {
+            boolean correctDirection = entity.getDeltaMovement().dot(new Vec3(portal.getNormal()).to3d()) < 0;
+            if(!correctDirection)
+                return false;
+
+            // Already on / past the portal surface - can't "enter" it again this tick.
+            if(portal.canPointEnter(entityOldCenter, true))
+                return false;
+
+            if(!portal.isEntityAlignedToPortal(entity))
+                return false;
+
+            return justExited == null
+                    || new Vec3(portal.position()).sub(justExited.position()).dot(justExited.getNormal()) > 0
+                    || portal == justExited;
+        });
+
+        if(candidatePortals.isEmpty())
+            return delta;
+
+        // Only now pay for the full voxel-shape collision sweep, and only for the tight predicate
+        // that requires the true post-collision endpoint.
         Vector3d tmpDelta = ((EntityAccessor)entity).pmCollide(delta);
         AxisAlignedBB travelAABB = entity.getBoundingBox().expandTowards(tmpDelta);
 
-        List<PortalEntity> portals = getOpenPortals(level, travelAABB, portal -> {
-            Vec3 entityOldPos = new Vec3(entity.getBoundingBox().getCenter());
-            Vec3 entityPos = entityOldPos.clone().add(tmpDelta);
+        List<PortalEntity> portals = new ArrayList<>();
+        for(PortalEntity portal : candidatePortals) {
+            if(!portal.getBoundingBox().intersects(travelAABB))
+                continue;
 
-            boolean entering = !portal.canPointEnter(entityOldPos, true) && portal.canPointEnter(entityPos, false);
-            boolean correctDirection = entity.getDeltaMovement().dot(new Vec3(portal.getNormal()).to3d()) < 0;
-
-            return portal.isEntityAlignedToPortal(entity)
-                    && entering
-                    && correctDirection
-                    && (justExited == null
-                        || new Vec3(portal.position()).sub(justExited.position()).dot(justExited.getNormal()) > 0
-                        || portal == justExited);
-        });
+            Vec3 entityPos = entityOldCenter.clone().add(tmpDelta);
+            if(portal.canPointEnter(entityPos, false))
+                portals.add(portal);
+        }
 
         if(portals.isEmpty())
             return delta;
