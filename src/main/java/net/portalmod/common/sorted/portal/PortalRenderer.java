@@ -804,7 +804,6 @@ public class PortalRenderer {
         Framebuffer mainFBO = mc.getMainRenderTarget();
 
         Matrix4f modelMatrix = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera));
-        Matrix4f modelMatrix2 = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera) * 2);
         Matrix4f viewMatrix = getViewMatrix(camera);
 
         Matrix4f modelView = viewMatrix.copy();
@@ -832,7 +831,7 @@ public class PortalRenderer {
             RenderSystem.stencilFunc(GL_EQUAL, recursion - 1, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_INCR);
             PROFILE.push("mask(INCR)");
-            renderMask(portal, modelMatrix2, viewMatrix, projectionMatrix);
+            renderMask(portal, modelMatrix, viewMatrix, projectionMatrix);
             PROFILE.pop();
 
             RenderSystem.stencilMask(0);
@@ -968,10 +967,7 @@ public class PortalRenderer {
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
             PROFILE.push("border");
-            renderBorder(portal, modelMatrix2, viewMatrix, projectionMatrix);
-            PROFILE.pop();
-            PROFILE.push("depth");
-            renderDepth(modelView);
+            renderBorder(portal, modelMatrix, viewMatrix, projectionMatrix);
             PROFILE.pop();
 
             RenderSystem.stencilMask(0x7F);
