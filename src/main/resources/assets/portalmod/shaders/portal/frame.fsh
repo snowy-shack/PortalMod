@@ -5,8 +5,12 @@ uniform int frameCount;
 uniform int frameIndex;
 
 varying vec2 texCoord;
+varying float clipDistance;
 
 void main() {
+    if(clipDistance < 0.)
+        discard;
+
     vec2 uv = texCoord;
     uv.y /= float(frameCount);
     uv.x = 1. - uv.x;
