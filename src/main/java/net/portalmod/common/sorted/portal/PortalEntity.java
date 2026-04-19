@@ -171,6 +171,16 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(depth > 100 || (!entity.level.isClientSide && entity instanceof PlayerEntity))
             return delta;
 
+        // Guard against broken/extreme movement state. Without this the pmCollide call below
+        // expands the entity's AABB by delta and iterates every voxel shape inside it, which
+        // can hang the server for many seconds (see watchdog crashes with large entity counts).
+        if(!isFiniteVec(delta) || !isFiniteVec(entity.position()) || !isFiniteAABB(entity.getBoundingBox()))
+            return delta;
+
+        final double MAX_TELEPORT_DELTA = 64.0;
+        if(delta.lengthSqr() > MAX_TELEPORT_DELTA * MAX_TELEPORT_DELTA)
+            return delta;
+
         boolean inFluid = entity.isInWater() || entity.isInLava();
         boolean flying = entity instanceof PlayerEntity && ((PlayerEntity)entity).abilities.flying;
 
@@ -368,6 +378,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public static Vector3d teleportEntity(Entity entity, Vector3d delta) {
         ((ITeleportable2)entity).removeJustUsedPortal();
         return recursivelyTeleportEntity(entity, delta, null, 0);
+    }
+
+    private static boolean isFiniteVec(Vector3d v) {
+        return Double.isFinite(v.x) && Double.isFinite(v.y) && Double.isFinite(v.z);
+    }
+
+    private static boolean isFiniteAABB(AxisAlignedBB bb) {
+        return Double.isFinite(bb.minX) && Double.isFinite(bb.minY) && Double.isFinite(bb.minZ)
+                && Double.isFinite(bb.maxX) && Double.isFinite(bb.maxY) && Double.isFinite(bb.maxZ);
     }
 
     public static Vector3d doFunneling(Entity entity, Vector3d delta) {
