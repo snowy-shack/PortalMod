@@ -19,9 +19,7 @@ import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.core.math.Vec3;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class PortalCommand {
@@ -45,6 +43,10 @@ public class PortalCommand {
                         command.getArgument("direction", Direction.class)
                 ))))))))
             )
+            .then(Commands.literal("close")
+                .then(Commands.literal("all")
+                .executes(command -> closeAllPortals(command.getSource()))
+            ))
             .then(Commands.literal("close")
                 .then(Commands.argument("uuid", UUIDArgument.uuid()).suggests(PortalCommand::suggestUUIDs)
                 .executes(command -> closePortal(
@@ -93,6 +95,26 @@ public class PortalCommand {
         }
 
         source.sendSuccess(getText("open.success"), true);
+        return 1;
+    }
+
+    private static int closeAllPortals(CommandSource source) throws CommandSyntaxException {
+        Map<UUID, PortalPair> portalMap = new HashMap<>(PortalManager.getInstance().getPortalMap());
+
+        if(portalMap.isEmpty()) {
+            throw new SimpleCommandExceptionType(getText("close.double.failed.null")).create();
+        }
+
+        for(Map.Entry<UUID, PortalPair> entry : portalMap.entrySet()) {
+            PortalPair pair = entry.getValue();
+
+            if(pair.has(PortalEnd.PRIMARY))
+                pair.get(PortalEnd.PRIMARY).remove();
+            if(pair.has(PortalEnd.SECONDARY))
+                pair.get(PortalEnd.SECONDARY).remove();
+        }
+
+        source.sendSuccess(getText("close.double.success"), true);
         return 1;
     }
 
