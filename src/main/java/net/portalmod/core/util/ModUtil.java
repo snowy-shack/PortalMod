@@ -120,6 +120,49 @@ public class ModUtil {
         return portalChain;
     }
 
+    /**
+     * Block ray that steps through portal pairs the same way as {@code Entity.pick} (see
+     * {@link net.portalmod.mixins.entity.EntityMixin#pmPickThroughPortal}): if the segment crosses
+     * portals, the trace continues from the linked exit. Use for visibility from a
+     * {@link net.minecraft.client.renderer.ActiveRenderInfo} that may already be on the far side of a portal
+     * (nested {@code renderLevel}).
+     */
+    public static BlockRayTraceResult clipThroughPortals(World level, RayTraceContext context) {
+        List<PortalEntity> portalChain = getPortalsAlongRay(level, new Vec3(context.getFrom()), new Vec3(context.getTo()), portal -> true);
+
+        if(portalChain.isEmpty())
+            return level.clip(context);
+
+        BlockRayTraceResult normalRay = level.clip(context);
+        Vector3d positionBeforePortal = normalRay.getLocation();
+        Optional<Vector3d> optionalPositionOnPortal = portalChain.get(0).getBoundingBox().clip(context.getFrom(), context.getTo());
+
+        if(optionalPositionOnPortal.isPresent()) {
+            double distanceBeforePortal = positionBeforePortal.subtract(context.getFrom()).length();
+            double distanceOnPortal = optionalPositionOnPortal.get().subtract(context.getFrom()).length();
+
+            if(distanceBeforePortal < distanceOnPortal)
+                return normalRay;
+        }
+
+        Mat4 portalMatrix = getMatrixFromPortalChain(portalChain);
+        Vector3d to = new Vec3(context.getTo()).transform(portalMatrix).to3d();
+        Vector3d from = new Vec3(context.getFrom()).transform(portalMatrix).to3d();
+
+        PortalEntity last = portalChain.get(portalChain.size() - 1);
+        if(!last.getOtherPortal().isPresent())
+            return level.clip(context);
+
+        Optional<Vector3d> intersection = last.getOtherPortal().get().getBoundingBox().clip(from, to);
+        if(intersection.isPresent())
+            from = intersection.get();
+
+        RayTraceContext transformed = new RayTraceContextWrapper(context);
+        ((RayTraceContextWrapper)transformed).setFrom(from);
+        ((RayTraceContextWrapper)transformed).setTo(to);
+        return level.clip(transformed);
+    }
+
     public static Mat4 getMatrixFromPortalChain(List<PortalEntity> portalChain) {
         Mat4 portalMatrix = Mat4.identity();
 
