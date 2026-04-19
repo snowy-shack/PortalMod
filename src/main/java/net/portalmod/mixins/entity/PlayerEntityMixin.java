@@ -96,9 +96,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
 
     @Override
     public void onTouchingFizzler() {
-        if (this.isSpectator()) return;
+        PlayerEntity player = (PlayerEntity)(Object)this;
 
-        PortalGun.fizzleGunsInInventory((PlayerEntity) (Object) this);
+        if (player.isSpectator()) return;
+        if (!player.isLocalPlayer()) return;
+
+        PortalGun.fizzleGunsInInventory(player);
     }
 
     @Inject(
