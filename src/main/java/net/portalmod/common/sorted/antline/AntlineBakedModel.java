@@ -12,6 +12,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
@@ -28,6 +29,9 @@ import java.util.List;
 import java.util.Random;
 
 public class AntlineBakedModel implements IDynamicBakedModel {
+    /** Used when the block is rendered before the tile entity exists (e.g. chunk build race). */
+    private static final IModelData DEFAULT_MODEL_DATA = new AntlineTileEntity.SideMap().toModelData();
+
 //    public static final ResourceLocation ACTIVE_DOT = new ResourceLocation(PortalMod.MODID, "blocks/antline/active_dot");
 //    public static final ResourceLocation ACTIVE_CORNER = new ResourceLocation(PortalMod.MODID, "blocks/antline/active_corner");
 //    public static final ResourceLocation INACTIVE_DOT = new ResourceLocation(PortalMod.MODID, "blocks/antline/inactive_dot");
@@ -196,7 +200,11 @@ public class AntlineBakedModel implements IDynamicBakedModel {
     @Nonnull
     @Override
     public IModelData getModelData(@Nonnull IBlockDisplayReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
-        return world.getBlockEntity(pos).getModelData();
+        TileEntity te = world.getBlockEntity(pos);
+        if (te instanceof AntlineTileEntity) {
+            return te.getModelData();
+        }
+        return DEFAULT_MODEL_DATA;
     }
 
     @Nonnull
@@ -207,6 +215,9 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         if (sideDir != null) return Collections.emptyList();
 
         AntlineTileEntity.SideMap sideMap = extraData.getData(AntlineTileEntity.SideMap.MODEL_PROPERTY);
+        if (sideMap == null) {
+            return Collections.emptyList();
+        }
 
         sideMap.forEach((direction, side) -> {
             if (!side.isEmpty()) {

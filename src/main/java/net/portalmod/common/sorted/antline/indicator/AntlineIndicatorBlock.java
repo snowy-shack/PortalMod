@@ -36,11 +36,12 @@ public class AntlineIndicatorBlock extends AntlineOutput implements AntlineActiv
 
     @Override
     public void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos) {
-        if (state.getValue(ACTIVATED) == active) return;
+        BlockState current = world.getBlockState(pos);
+        if (current.getValue(ACTIVATED) == active) return;
 
-        world.setBlockAndUpdate(pos, state.setValue(ACTIVATED, active));
+        world.setBlockAndUpdate(pos, current.setValue(ACTIVATED, active));
 
-        this.playActivationSound(active != state.getValue(REVERSED), world, pos);
+        this.playActivationSound(active != current.getValue(REVERSED), world, pos);
     }
 
     @Override
