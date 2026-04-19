@@ -46,6 +46,7 @@
         "accessors.CompiledChunkAccessor",
         "accessors.FlameParticleAccessor",
         "accessors.GameRendererAccessor",
+        "accessors.LevelRendererAccessor",
         "accessors.MainMenuScreenAccessor",
         "accessors.MinecraftAccessor",
         "accessors.SplashesAccessor",
