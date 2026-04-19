@@ -3,18 +3,21 @@ package net.portalmod.core.init;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.portalmod.PortalMod;
-
-import java.awt.event.KeyEvent;
+import org.lwjgl.glfw.GLFW;
 
 public class KeyInit {
-    private KeyInit() {}
-    public static void init() {}
-    
-    public static final KeyBinding PORTALGUN_INTERACT = registerKey("portalgun_interact", KeyEvent.VK_E);
 
-    private static KeyBinding registerKey(String name, int keycode) {
-        final KeyBinding key = new KeyBinding("key." + PortalMod.MODID + "." + name, keycode, "key.category." + PortalMod.MODID);
-        ClientRegistry.registerKeyBinding(key);
-        return key;
+    private KeyInit() {}
+
+    public static KeyBinding PORTALGUN_INTERACT;
+
+    public static void init() {
+        PORTALGUN_INTERACT = new KeyBinding(
+                "key." + PortalMod.MODID + ".portalgun_interact",
+                GLFW.GLFW_KEY_E,
+                "key.category." + PortalMod.MODID
+        );
+
+        ClientRegistry.registerKeyBinding(PORTALGUN_INTERACT);
     }
 }
