@@ -87,15 +87,16 @@ public class PortalPlacer {
                 portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
                         && new Vec3(portal.position()).choose(face.getAxis()) - finalPosition.choose(face.getAxis()) < 0.01
                         && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end));
-        List<PortalEntity> portalsInTheWay2 = PortalEntity.getPortals(level, portalAABB,
-                portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
-                        && new Vec3(portal.position()).choose(face.getAxis()) - finalPosition.choose(face.getAxis()) < 0.01
-                        && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end));
-        List<AxisAlignedBB> bumpingPortals = portalsInTheWay.stream().map(Entity::getBoundingBox).collect(Collectors.toList());
+        // override (autoportal) evicts everything in the way, nothing bumps.
+        // overwriteForeignPortals (player shot with the gamerule on) evicts foreign portals
+        // only -- same-gun portals still bump so self-bumping keeps working.
+        // Neither flag -> every portal in the way bumps (command / default player shot).
+        List<AxisAlignedBB> bumpingPortals = portalsInTheWay.stream()
+                .filter(portal -> !override && (!overwriteForeignPortals || portal.getGunUUID().equals(gunUUID)))
+                .map(Entity::getBoundingBox)
+                .collect(Collectors.toList());
 
-        if(!override) {
-            collision = AABBUtil.addBoxesToVoxelShape(collision, bumpingPortals).optimize();
-        }
+        collision = AABBUtil.addBoxesToVoxelShape(collision, bumpingPortals).optimize();
 
         // get vertices on valid surface
         List<AABBVertex> vertices = Collider.getFaceCorners(face.getOpposite(), portalAABB);
@@ -171,8 +172,23 @@ public class PortalPlacer {
         if(portalCollides(face, portalAABB, collision))
             return null;
 
-        if(override) {
-            portalsInTheWay2.forEach(portal -> PortalManager.getInstance().scheduleRemoval(portal));
+        if(override || overwriteForeignPortals) {
+            // Evict portals that still actually overlap the *final* portal AABB (i.e. after
+            // the bump reaction and texel snapping). Using the pre-reaction set here would
+            // kill portals the placement ended up dodging, and wouldn't catch portals the
+            // bump nudged the placement into.
+            // With override alone (autoportal): evict everything that overlaps.
+            // With overwriteForeignPortals alone (player shot): evict only foreign portals;
+            // same-gun ones stayed in the bump set above and didn't end up overlapping.
+            // The same-gun-same-end portal is always skipped because PortalManager.put
+            // handles that replacement on spawn.
+            AxisAlignedBB finalAABB = portalAABB;
+            PortalEntity.getPortals(level, finalAABB,
+                    portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
+                            && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end)
+                            && (override || !portal.getGunUUID().equals(gunUUID))
+                            && portal.getBoundingBox().intersects(finalAABB))
+                    .forEach(portal -> PortalManager.getInstance().scheduleRemoval(portal));
         }
 
         // Spawn the portal
