@@ -452,6 +452,13 @@ public class PortalGun extends Item {
 
     public static void fizzleGunsInInventory(PlayerEntity player) {
         if (player.level.isClientSide) {
+            // The server does not retain a player's old position or velocity, so it can miss
+            // fast/oblique fizzler traversal where neither the old nor the new bounding box
+            // intersects the fizzler but the swept segment between them does. The local
+            // client has the full movement data and is the one that reliably catches this,
+            // so it asks the server to fizzle on its behalf. The server handler uses
+            // getSender(), so only the sending player's own guns are affected -- and the
+            // PlayerEntityMixin guard makes sure only the LOCAL player sends it.
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.FIZZLE).build());
             return;
         }
