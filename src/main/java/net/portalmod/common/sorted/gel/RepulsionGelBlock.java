@@ -160,12 +160,11 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static void onPreTick(LivingEntity entity) {
         IGelAffected gelAffected = ((IGelAffected) entity);
         if (entity.getDeltaMovement().y < -0.1) {
-            if(entity.level.isClientSide) {
-                gelAffected.setBounced(false);
+            if (entity.level.isClientSide) {
                 if (entity instanceof PlayerEntity) {
                     PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(false));
                 }
-            } else{
+            } else {
                 gelAffected.setBounced(false);
             }
         } else {
