@@ -34,6 +34,22 @@ public class PortalPlacer {
     private static final BinaryOperator<Vec3> selectLeast = (o, n) -> n.magnitude() < o.magnitude() ? n : o;
 
     public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player) {
+        return placePortal(level, end, hue, gunUUID, position, face, upDirection, override, false, lookingDirections, player);
+    }
+
+    /**
+     * @param override                indiscriminately replace every portal in the way, no
+     *                                bumping. Original autoportal semantics -- untouched by
+     *                                this PR.
+     * @param overwriteForeignPortals additionally evict portals belonging to a different gun
+     *                                when they overlap the final placement. Portals from the
+     *                                same gun still bump the placement like normal, so
+     *                                self-bumping your own other-coloured portal keeps working.
+     *                                Driven by the {@code allowPortalOverwrite} gamerule for
+     *                                player shots. Ignored when {@code override} is already
+     *                                true (that's a strict superset).
+     */
+    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player) {
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);

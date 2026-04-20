@@ -51,7 +51,7 @@ public class PortalManager extends WorldSavedData {
         List<Pair<UUID, PortalEnd>> completedPlacements = new ArrayList<>();
         this.scheduledPlacements.forEach((key, info) -> {
             if(--info.tickCountdown <= 0) {
-                PortalEntity portal = PortalPlacer.placePortal(info.level, info.end, info.hue, info.gunUUID, info.position, info.face, info.upDirection, info.override, info.lookingDirections, info.player);
+                PortalEntity portal = PortalPlacer.placePortal(info.level, info.end, info.hue, info.gunUUID, info.position, info.face, info.upDirection, info.override, info.overwriteForeignPortals, info.lookingDirections, info.player);
                 info.onPlace.accept(portal);
 
                 completedPlacements.add(key);
@@ -65,8 +65,12 @@ public class PortalManager extends WorldSavedData {
     }
 
     public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
+        schedulePlacement(level, end, hue, gunUUID, position, face, upDirection, override, false, lookingDirections, player, tickCountdown, onPlace);
+    }
+
+    public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
         Pair<UUID, PortalEnd> key = new Pair<>(gunUUID, end);
-        this.scheduledPlacements.put(key, new PortalPlacementInfo(level, end, hue, gunUUID, position, face, upDirection, override, lookingDirections, player, tickCountdown, onPlace));
+        this.scheduledPlacements.put(key, new PortalPlacementInfo(level, end, hue, gunUUID, position, face, upDirection, override, overwriteForeignPortals, lookingDirections, player, tickCountdown, onPlace));
     }
 
     public void clearScheduledPlacements(UUID gunUUID) {
@@ -237,12 +241,13 @@ public class PortalManager extends WorldSavedData {
         public final Direction face;
         public final Direction upDirection;
         public final boolean override;
+        public final boolean overwriteForeignPortals;
         public final @Nullable Direction[] lookingDirections;
         public final @Nullable ServerPlayerEntity player;
         public long tickCountdown;
         public Consumer<PortalEntity> onPlace;
 
-        public PortalPlacementInfo(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
+        public PortalPlacementInfo(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
             this.level = level;
             this.end = end;
             this.hue = hue;
@@ -251,6 +256,7 @@ public class PortalManager extends WorldSavedData {
             this.face = face;
             this.upDirection = upDirection;
             this.override = override;
+            this.overwriteForeignPortals = overwriteForeignPortals;
             this.lookingDirections = lookingDirections;
             this.player = player;
             this.tickCountdown = tickCountdown;
