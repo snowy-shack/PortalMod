@@ -70,7 +70,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     private Vec3 oldRidingVec;
     private boolean holderJustTeleported;
     private Mat4 holderJustTeleportedMatrix;
-    private int oldPortalChainLength;
+    private Integer oldPortalChainLength;
     private Float eyeHeightOld;
 
     public TestElementEntity(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
@@ -264,7 +264,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             Vec3 from = eyePos;
             Vec3 to = eyePos.clone().add(ridingVec);
             List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(this.level, from, to, portal -> true);
-            boolean passedPortal = portalChain.size() != this.oldPortalChainLength;
+            boolean passedPortal = this.oldPortalChainLength != null && portalChain.size() != this.oldPortalChainLength;
             this.oldPortalChainLength = portalChain.size();
 
             // compute the matrices from them
@@ -291,6 +291,45 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             eyeOldPos = eyeOldPos.transform(portalMatrix);
             ridingVec = ridingVec.transform(portalRotationMatrix);
             ridingVersor = ridingVersor.transform(portalRotationMatrix);
+
+            Vector3d ridingPos = eyePos.clone().add(ridingVec).to3d();
+
+            // check if the new position is free of collision
+            if(passedPortal && !holderJustTeleported) {
+                AxisAlignedBB nextSpace = this.getBoundingBox().move(this.position().reverse()).move(ridingPos);
+                boolean nextSpaceEmpty = true;
+
+                // check for portals in the next position
+                List<PortalEntity> portalsInCube = PortalEntity.getOpenPortals(this.level, nextSpace, portal -> true);
+                if(portalsInCube.isEmpty()) {
+                    dropHeldEntities(player, false, true, player.getMainHandItem());
+                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.RELEASE_ENTITY).build());
+                    return;
+                }
+
+                // temporarily set the hitbox to there for internal stuff
+                AxisAlignedBB oldHitbox = this.getBoundingBox();
+                this.setBoundingBox(nextSpace);
+
+                for(BlockPos pos : AABBUtil.getBlocksWithin(nextSpace)) {
+                    VoxelShape blockShape = level.getBlockState(pos)
+                            .getCollisionShape(this.level, pos, ISelectionContext.of(this))
+                            .move(pos.getX(), pos.getY(), pos.getZ());
+
+                    if(VoxelShapes.joinIsNotEmpty(blockShape, VoxelShapes.create(nextSpace), IBooleanFunction.AND)) {
+                        nextSpaceEmpty = false;
+                    }
+                }
+
+                this.setBoundingBox(oldHitbox);
+
+                // if there's any collision drop it
+                if(!nextSpaceEmpty) {
+                    dropHeldEntities(player, false, true, player.getMainHandItem());
+                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.RELEASE_ENTITY).build());
+                    return;
+                }
+            }
 
             // calculate rotation
             Vec3 lookVec = new Vec3(0, 0, 1)
@@ -331,37 +370,6 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             } else if(passedPortal) {
                 this.yRotO = this.yRot;
                 this.yBodyRotO = this.yBodyRot;
-            }
-
-            Vector3d ridingPos = eyePos.clone().add(ridingVec).to3d();
-
-            // check if the new position is free of collision
-            if(passedPortal) {
-                AxisAlignedBB nextSpace = this.getBoundingBox().move(this.position().reverse()).move(ridingPos);
-                boolean nextSpaceEmpty = true;
-
-                // temporarily set the hitbox to there for internal stuff
-                AxisAlignedBB oldHitbox = this.getBoundingBox();
-                this.setBoundingBox(nextSpace);
-
-                for(BlockPos pos : AABBUtil.getBlocksWithin(nextSpace)) {
-                    VoxelShape blockShape = level.getBlockState(pos)
-                            .getCollisionShape(this.level, pos, ISelectionContext.of(this))
-                            .move(pos.getX(), pos.getY(), pos.getZ());
-
-                    if(VoxelShapes.joinIsNotEmpty(blockShape, VoxelShapes.create(nextSpace), IBooleanFunction.AND)) {
-                        nextSpaceEmpty = false;
-                    }
-                }
-
-                this.setBoundingBox(oldHitbox);
-
-                // if there's any collision drop it
-                if(!nextSpaceEmpty) {
-                    dropHeldEntities(player, false, true, player.getMainHandItem());
-                    PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.RELEASE_ENTITY).build());
-                    return;
-                }
             }
 
             // teleport entity every tick
@@ -431,6 +439,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     @Override
     public boolean startRiding(Entity entity) {
         this.oldRidingVec = null;
+        this.oldPortalChainLength = null;
         return super.startRiding(entity);
     }
 
