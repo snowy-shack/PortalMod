@@ -16,10 +16,15 @@ public class GameRuleInit {
 
     public static GameRules.RuleKey<GameRules.BooleanValue> PORTAL_SLOWSHOT;
     public static GameRules.RuleKey<GameRules.BooleanValue> USE_PORTALABLE_BLACKLIST;
+    public static GameRules.RuleKey<GameRules.BooleanValue> ALLOW_PORTAL_OVERWRITE;
 
     public static void registerAll() {
         PORTAL_SLOWSHOT = registerBoolean("portalSlowShot", GameRules.Category.PLAYER, false);
         USE_PORTALABLE_BLACKLIST = registerBoolean("usePortalableBlacklist", GameRules.Category.PLAYER, false);
+        // Server-only: the client does not need to know this value. The server consults it at
+        // portal-placement time and either evicts the foreign portal in the way or rejects the
+        // shot; no client-side behavior (rendering, UI, prediction) depends on it.
+        ALLOW_PORTAL_OVERWRITE = registerServerBoolean("allowPortalOverwrite", GameRules.Category.PLAYER, true);
     }
 
     private static <T extends GameRules.RuleValue<T>> GameRules.RuleKey<T> register(String name, GameRules.Category category, GameRules.RuleType<T> rule) {
@@ -31,6 +36,10 @@ public class GameRuleInit {
     private static GameRules.RuleKey<GameRules.BooleanValue> registerBoolean(String name, GameRules.Category category, boolean defaultValue) {
         return register(name, category, BooleanValueAccessor.pmCreate(defaultValue, (server, value) ->
                 PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SUpdateBooleanGameRulePacket(name, value.get()))));
+    }
+
+    private static GameRules.RuleKey<GameRules.BooleanValue> registerServerBoolean(String name, GameRules.Category category, boolean defaultValue) {
+        return register(name, category, BooleanValueAccessor.pmCreate(defaultValue, (server, value) -> {}));
     }
 
     @SuppressWarnings("unchecked")
