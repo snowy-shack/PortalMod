@@ -382,6 +382,8 @@
   "stat.portalmod.portals_shot": "Portals Shot",
 
   "gamerule.usePortalableBlacklist": "Use Portalable Blacklist",
+  "gamerule.portalSlowShot": "Portal Slow Shot ",
+  "gamerule.allowPortalOverwrite": "Allow Portal Overwrite ",
 
   "attribute.name.generic.portalmod.button_reach": "Button Press Reach Distance",
   "attribute.name.generic.portalmod.grab_reach":   "Entity Grabbing Reach Distance",
