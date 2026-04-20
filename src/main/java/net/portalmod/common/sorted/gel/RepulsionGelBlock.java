@@ -162,7 +162,11 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         if (entity.getDeltaMovement().y < -0.1) {
             if(entity.level.isClientSide) {
                 gelAffected.setBounced(false);
-                PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(false));
+                if (entity instanceof PlayerEntity) {
+                    PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(false));
+                }
+            } else{
+                gelAffected.setBounced(false);
             }
         } else {
             gelAffected.setLastNeurtalHeight((float) entity.getY());
