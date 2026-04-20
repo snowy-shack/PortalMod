@@ -83,7 +83,7 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     public boolean isPowered() {
-        Stream<BlockPos> boundingBoxPositions = BlockPos.betweenClosedStream(this.getBoundingBox().inflate(0.001));
+        Stream<BlockPos> boundingBoxPositions = BlockPos.betweenClosedStream(this.getBoundingBox().deflate(0.001));
         return boundingBoxPositions.anyMatch(pos -> this.level.hasNeighborSignal(pos));
     }
 
