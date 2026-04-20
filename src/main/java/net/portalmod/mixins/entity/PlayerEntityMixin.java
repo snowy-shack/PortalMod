@@ -96,9 +96,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
 
     @Override
     public void onTouchingFizzler() {
-        if (this.isSpectator()) return;
+        PlayerEntity player = (PlayerEntity)(Object)this;
 
-        PortalGun.fizzleGunsInInventory((PlayerEntity) (Object) this);
+        if (player.isSpectator()) return;
+        // Every connected client ticks remote-player replicas too, so without this guard each
+        // client would send a FIZZLE packet for itself whenever any other player's replica
+        // walked through a fizzler -- cascading into all online players' portals closing.
+        // Only the client controlling this player (local) may send the packet; the server-side
+        // tick (isClientSide=false) still runs as a best-effort fallback.
+        if (player.level.isClientSide && !player.isLocalPlayer()) return;
+
+        PortalGun.fizzleGunsInInventory(player);
     }
 
     @Inject(
