@@ -165,6 +165,10 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     break;
 
                 case FIZZLE:
+                    // Needed for tunneling cases the server-side tick can miss (the server
+                    // doesn't keep old positions/velocity for players). Trusted for the
+                    // SENDER only -- getSender() guarantees we only touch the sending
+                    // player's own guns, not anyone else's.
                     PortalGun.fizzleGunsInInventory(player);
                     break;
             }
