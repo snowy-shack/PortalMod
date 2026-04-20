@@ -381,7 +381,7 @@
   
   "stat.portalmod.portals_shot": "Portals Shot",
 
-  "gamerule.usePortalableBlacklist": "usePortalableBlacklist",
+  "gamerule.usePortalableBlacklist": "Use Portalable Blacklist",
 
   "attribute.name.generic.portalmod.button_reach": "Button Press Reach Distance",
   "attribute.name.generic.portalmod.grab_reach":   "Entity Grabbing Reach Distance",
