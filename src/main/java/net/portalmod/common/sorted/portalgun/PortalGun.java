@@ -282,10 +282,15 @@ public class PortalGun extends Item {
         };
 
         if(!inFizzler) {
+            // Player shots never use the autoportal-style `override` (which would also kill
+            // your own other-coloured portal during a self-bump). Instead the gamerule drives
+            // overwriteForeignPortals, which only evicts portals that belong to a different
+            // gun; same-gun portals keep bumping as before.
+            boolean overwriteForeign = level.getGameRules().getBoolean(GameRuleInit.ALLOW_PORTAL_OVERWRITE);
             if(level.getGameRules().getBoolean(GameRuleInit.PORTAL_SLOWSHOT)) {
-                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player), (ServerPlayerEntity) player, ticks, onPlace);
+                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, overwriteForeign, Direction.orderedByNearest(player), (ServerPlayerEntity) player, ticks, onPlace);
             } else {
-                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, Direction.orderedByNearest(player), (ServerPlayerEntity) player);
+                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, overwriteForeign, Direction.orderedByNearest(player), (ServerPlayerEntity) player);
                 onPlace.accept(portal);
             }
         } else {
