@@ -381,6 +381,10 @@
   
   "stat.portalmod.portals_shot": "Portals Shot",
 
+  "gamerule.usePortalableBlacklist": "Portal Placement Blacklist",
+  "gamerule.portalSlowShot": "Slow Portal Shot Projectiles",
+  "gamerule.allowPortalOverwrite": "Allow Replacing Existing Portals",
+
   "attribute.name.generic.portalmod.button_reach": "Button Press Reach Distance",
   "attribute.name.generic.portalmod.grab_reach":   "Entity Grabbing Reach Distance",
 
