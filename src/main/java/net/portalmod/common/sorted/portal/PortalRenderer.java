@@ -688,24 +688,31 @@ public class PortalRenderer {
         Vector3d[] points = new Vector3d[PORTAL_OPENING_CONTROL_POINT_COUNT];
         portalOpeningControlPoints(portal, points);
 
+        // Rate-limit debug particles to once per game tick per portal so the HUD
+        // stays readable when the occlusion test runs every frame.
+        boolean emitDebugParticles = false;
         if(PROFILE.enabled) {
             long gt = world.getGameTime();
             UUID id = portal.getUUID();
             Long lastTick = PROFILER_PORTAL_OCCLUSION_LAST_PARTICLE_TICK.get(id);
             if(lastTick == null || lastTick != gt) {
                 PROFILER_PORTAL_OCCLUSION_LAST_PARTICLE_TICK.put(id, gt);
-                RedstoneParticleData dust = new RedstoneParticleData(1.0F, 0.0F, 0.0F, 0.2F);
-                for(Vector3d p : points) {
-                    world.addParticle(dust, p.x, p.y, p.z, 0.0D, 0.0D, 0.0D);
-                }
+                emitDebugParticles = true;
             }
         }
 
+        boolean anyVisible = false;
         for(Vector3d p : points) {
-            if(cornerVisibleAlongRay(world, from, p, viewer))
-                return false;
+            boolean v = cornerVisibleAlongRay(world, from, p, viewer, emitDebugParticles);
+            if(v) {
+                anyVisible = true;
+                // Without particles we can early-out on the first visible sample. When
+                // debug particles are on we keep going so every corner gets coloured.
+                if(!emitDebugParticles)
+                    return false;
+            }
         }
-        return true;
+        return !anyVisible;
     }
 
     private static boolean rectsIntersect(float[] a, float[] b) {
