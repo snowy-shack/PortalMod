@@ -24,9 +24,10 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.*;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
@@ -116,6 +117,9 @@ public class PortalRenderer {
     public int portalsStencilSkippedOccludedRays = 0;
 
     private static final double RAY_CORNER_EPSILON = 0.08;
+
+    /** Cached {@code Optional.of(VoxelShapes.empty())} for the portal-sight shape override hot path. */
+    private static final Optional<VoxelShape> EMPTY_SHAPE_OVERRIDE = Optional.of(VoxelShapes.empty());
 
     // --- profiler ---
     public static final Profile PROFILE = new Profile();
@@ -600,30 +604,70 @@ public class PortalRenderer {
     private static boolean blockCountsAsOpaqueForPortalSight(BlockState state) {
         if(state.isAir())
             return false;
-        Material mat = state.getMaterial();
-        if(!mat.blocksMotion())
+        // Blocks that opt out of face-culling occlusion (glass, panes, bars, leaves,
+        // scaffolding, fences, etc.) are visually see-through enough that the portal
+        // surface behind them still needs to draw, so the ray should pass through.
+        if(!state.canOcclude())
             return false;
-        if(mat == Material.WATER || mat == Material.LAVA)
-            return false;
-        if(mat == Material.GLASS)
+        // Defensive fallback for modded blocks that claim canOcclude=true while having
+        // no collider (fluids, decorations). In vanilla this is already covered by
+        // canOcclude, but modded content doesn't always follow the rule.
+        if(!state.getMaterial().blocksMotion())
             return false;
         return true;
     }
 
     /**
      * {@code true} if the ray from {@code from} reaches {@code corner} without an opaque block in front of it.
-     * Uses {@link ModUtil#clipThroughPortals} so nested portal views match {@code Entity.pick} (rays traverse portal pairs).
+     * The shape override collapses every non-sight-blocking block (glass, panes, bars,
+     * leaves, scaffolding, fluids, …) to {@link VoxelShapes#empty()}, so the raycast
+     * keeps traversing through stacks of non-occluders and only reports a hit when it
+     * reaches an actually solid block.
+     *
+     * <p>Only called from {@link #portalOpeningFullyOccluded} at {@code recursion == 1}
+     * with the real main camera, so portal-chain traversal is not needed — a plain
+     * {@link ModUtil#customClip} is faster than {@code clipThroughPortals*} for this
+     * 128-ray-per-frame hot path.
+     *
+     * <p>When {@code emitDebugParticles} is {@code true}, spawns a coloured dust at the
+     * corner sample and (if the ray was blocked) at the exact block-face hit point, so
+     * you can see the ray results ingame.
      */
-    private static boolean cornerVisibleAlongRay(ClientWorld world, Vector3d from, Vector3d corner, @Nullable Entity viewer) {
+    private static boolean cornerVisibleAlongRay(ClientWorld world, Vector3d from, Vector3d corner,
+                                                 @Nullable Entity viewer, boolean emitDebugParticles) {
         RayTraceContext ctx = new RayTraceContext(from, corner, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, viewer);
-        BlockRayTraceResult hit = ModUtil.clipThroughPortals(world, ctx);
-        double distCorner = from.distanceTo(corner);
-        if(hit.getType() == RayTraceResult.Type.MISS)
-            return true;
-        double distHit = from.distanceTo(hit.getLocation());
-        if(distHit >= distCorner - RAY_CORNER_EPSILON)
-            return true;
-        return !blockCountsAsOpaqueForPortalSight(world.getBlockState(hit.getBlockPos()));
+        BlockRayTraceResult hit = ModUtil.customClip(world, ctx, pos ->
+                blockCountsAsOpaqueForPortalSight(world.getBlockState(pos))
+                        ? Optional.empty()
+                        : EMPTY_SHAPE_OVERRIDE);
+
+        boolean visible;
+        if(hit.getType() == RayTraceResult.Type.MISS) {
+            visible = true;
+        } else {
+            double distCorner = from.distanceTo(corner);
+            double distHit = from.distanceTo(hit.getLocation());
+            visible = distHit >= distCorner - RAY_CORNER_EPSILON;
+        }
+
+        if(emitDebugParticles) {
+            // Corner sample: green = ray reached it (portal will render), red = occluded.
+            RedstoneParticleData cornerDust = visible
+                    ? new RedstoneParticleData(0.1F, 1.0F, 0.2F, 0.2F)
+                    : new RedstoneParticleData(1.0F, 0.15F, 0.1F, 0.2F);
+            world.addParticle(cornerDust, corner.x, corner.y, corner.z, 0, 0, 0);
+
+            if(!visible && hit.getType() != RayTraceResult.Type.MISS) {
+                // Yellow dust at the block-face where the ray stopped. If grates/glass
+                // are working correctly, this should be on the solid wall behind them,
+                // not on the grate itself.
+                Vector3d h = hit.getLocation();
+                RedstoneParticleData hitDust = new RedstoneParticleData(1.0F, 0.9F, 0.2F, 0.2F);
+                world.addParticle(hitDust, h.x, h.y, h.z, 0, 0, 0);
+            }
+        }
+
+        return visible;
     }
 
     /**
