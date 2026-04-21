@@ -186,7 +186,7 @@ public class ModUtil {
         }
 
         if (!Screen.hasControlDown()) {
-            list.add(tooltipComponent("tooltip.portalmod.hold_inspect_key", getModifierKeyName()));
+            list.add(tooltipComponent("tooltip.portalmod.hold_control", getModifierKeyName()));
             return;
         }
 

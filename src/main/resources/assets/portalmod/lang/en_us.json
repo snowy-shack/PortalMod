@@ -110,7 +110,7 @@
   "container.faithplate.enabled":  "Enabled",
   "container.faithplate.noTarget": "No Target Selected",
 
-  "tooltip.portalmod.hold_inspect_key": "Hold %s for info",
+  "tooltip.portalmod.hold_control": "Hold %s for info",
 
   "tooltip.portalmod.wrench": "Configures §aTesting Elements§7",
 
