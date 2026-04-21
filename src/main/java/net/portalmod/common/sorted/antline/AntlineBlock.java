@@ -30,6 +30,8 @@ import net.portalmod.core.util.ClientModUtil;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -38,8 +40,13 @@ import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.SideTyp
 public class AntlineBlock extends Block {
 //    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
-    /** While > 0, {@link #recursiveSignalChain} is on the stack — skip heavy work in {@link #neighborChanged} to avoid setBlock/output feedback loops. */
-    private static final ThreadLocal<Integer> SIGNAL_CHAIN_DEPTH = ThreadLocal.withInitial(() -> 0);
+    /**
+     * Antline positions currently being processed by {@link #recursiveSignalChain} on the current thread.
+     * Used by {@link #neighborChanged} to skip re-entrant work for antlines already on the call stack,
+     * preventing setBlock/output feedback loops while still allowing signal to propagate into
+     * physically-separate antline networks (e.g. via an encoder/decoder redstone bridge).
+     */
+    private static final ThreadLocal<Set<BlockPos>> ACTIVE_SIGNAL_POSITIONS = ThreadLocal.withInitial(HashSet::new);
 
     private static final int MAX_RECURSION_DEPTH = 256;
     private static final int NO_THRESHOLD = 20;
@@ -127,7 +134,9 @@ public class AntlineBlock extends Block {
     }
 
     public void recursiveSignalChain(World level, AntlineTileEntity.Side side, BlockPos pos, Direction originDirection, boolean active, int depth) {
-        SIGNAL_CHAIN_DEPTH.set(SIGNAL_CHAIN_DEPTH.get() + 1);
+        BlockPos trackedPos = pos.immutable();
+        Set<BlockPos> activePositions = ACTIVE_SIGNAL_POSITIONS.get();
+        boolean addedToActive = activePositions.add(trackedPos);
         try {
             if (depth > MAX_RECURSION_DEPTH) return;
             Boolean newActive = null;
@@ -192,7 +201,7 @@ public class AntlineBlock extends Block {
 
             sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
         } finally {
-            SIGNAL_CHAIN_DEPTH.set(SIGNAL_CHAIN_DEPTH.get() - 1);
+            if (addedToActive) activePositions.remove(trackedPos);
         }
     }
 
@@ -302,7 +311,7 @@ public class AntlineBlock extends Block {
     public void neighborChanged(BlockState blockState, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         super.neighborChanged(blockState, level, pos, block, neighborPos, b);
 
-        if (!level.isClientSide && SIGNAL_CHAIN_DEPTH.get() > 0) {
+        if (!level.isClientSide && ACTIVE_SIGNAL_POSITIONS.get().contains(pos)) {
             return;
         }
 
