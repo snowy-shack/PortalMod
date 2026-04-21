@@ -10,6 +10,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -185,7 +186,7 @@ public class ModUtil {
         }
 
         if (!Screen.hasControlDown()) {
-            list.add(tooltipComponent("tooltip.portalmod.hold_control"));
+            list.add(tooltipComponent("tooltip.portalmod.hold_inspect_key", getModifierKeyName()));
             return;
         }
 
@@ -207,8 +208,14 @@ public class ModUtil {
         }
     }
 
-    public static IFormattableTextComponent tooltipComponent(String string) {
-        return new TranslationTextComponent(string).setStyle(TOOLTIP_STYLE);
+    public static IFormattableTextComponent tooltipComponent(String key, Object... args) {
+        return new TranslationTextComponent(key, args).setStyle(TOOLTIP_STYLE);
+    }
+
+    private static String getModifierKeyName() {
+        return Util.getPlatform() == Util.OS.OSX
+                ? "Command"
+                : "Ctrl";
     }
 
     public static float symmetricRandom(float width) {
