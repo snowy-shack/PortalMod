@@ -3,6 +3,13 @@ description: Suggest a new feature
 title: "Suggestion: "
 type: Feature
 body:
+  - type: checkboxes
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched [GitHub](https://github.com/snowy-shack/PortalMod/issues?q=sort%3Aupdated-desc%20is%3Aissue) for my suggestion
+          required: true
+        - label: I just clicked all the boxes in the checklist
   - type: textarea
     attributes:
       label: What is your suggestion?
