@@ -1,4 +1,5 @@
 {
+  "replace": false,
   "values": [
     "portalmod:lunecast",
     "portalmod:blackplate",
