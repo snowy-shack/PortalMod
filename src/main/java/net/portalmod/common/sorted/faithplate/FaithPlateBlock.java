@@ -127,6 +127,18 @@ public class FaithPlateBlock extends DoubleBlock {
     }
 
     @Override
+    public void onRemove(BlockState state, World level, BlockPos pos, BlockState newState, boolean b) {
+        if(state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            FaithPlateTileEntity te = ((FaithPlateTileEntity) level.getBlockEntity(pos));
+            if(te != null) {
+                te.endConfiguration();
+            }
+        }
+
+        super.onRemove(state, level, pos, newState, b);
+    }
+
+    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.BLOCK;
     }
