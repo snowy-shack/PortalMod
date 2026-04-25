@@ -225,7 +225,9 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
     
     private boolean isBeingPressed(World level, BlockPos pos) {
-        AxisAlignedBB trigger = this.getTrigger(level.getBlockState(pos), pos);
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof SuperButtonBlock)) return false;
+        AxisAlignedBB trigger = this.getTrigger(state, pos);
 
         List<? extends Entity> entities = level.getEntitiesOfClass(LivingEntity.class, trigger, EntityPredicates.NO_SPECTATORS
                 .and(entity -> !entity.getType().is(EntityTagInit.BUTTON_NO_PRESS))
