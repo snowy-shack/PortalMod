@@ -283,7 +283,7 @@
   "tooltip.portalmod.goo_bucket_1": "Śmiercionośna ciecz",
   "tooltip.portalmod.goo_bucket_2": "Nie zadaje obrażeń, jeśli trzymasz §6Klucz Francuski§7",
   "tooltip.portalmod.goo_bucket_3": "Niszczy nieszczęsne §aKostki§7",
-  "tooltip.portalmod.hold_control": "Przytrzymaj Ctrl aby uzyskać więcej informacji",
+  "tooltip.portalmod.hold_control": "Przytrzymaj %s aby uzyskać więcej informacji",
   "tooltip.portalmod.longfall_boots_1": "Ratuje cię przed nieszczęściem",
   "tooltip.portalmod.panel_1": "§6Kucnij§7 podczas stawiania aby tworzyć większe panele",
   "tooltip.portalmod.platform_1": "Łączy Belkę do Platformy",

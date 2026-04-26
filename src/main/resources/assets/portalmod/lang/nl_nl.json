@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Dodelijke modder",
   "tooltip.portalmod.goo_bucket_2": "- Doet je geen pijn als je een §6Moersleutel§7 vasthebt",
   "tooltip.portalmod.goo_bucket_3": "- Breekt §aKubussen§7 met pech",
-  "tooltip.portalmod.hold_control": "Houd Ctrl ingedrukt voor info",
+  "tooltip.portalmod.hold_control": "Houd %s ingedrukt voor info",
   "tooltip.portalmod.longfall_boots_1": "Beschermt tegen ongelukken",
   "tooltip.portalmod.panel_1": "§Sluip§7 tijdens het plaatsen om grotere panelen te maken",
   "tooltip.portalmod.platform_1": "Verbindt aan Platformbalken",

@@ -221,7 +221,7 @@
   "tooltip.portalmod.fizzler_emitter_1": "ลบส่วน§cประกอบการทดสอบ§7ที่ไม่เกี่ยวข้อง",
   "tooltip.portalmod.fizzler_emitter_2": "- ทำลาย§3ลูกบาศก์§7และ§3ป้อมปืน",
   "tooltip.portalmod.fizzler_emitter_3": "- ปิด§9พอร์ทัล§7ที่ถูกยิงจาก§9ปืนพอร์ทัล§7ทุกกระบอกในช่องเก็บของ",
-  "tooltip.portalmod.hold_control": "กด Ctrl สำหรับข้อมูลเพิ่มเติม",
+  "tooltip.portalmod.hold_control": "กด %s สำหรับข้อมูลเพิ่มเติม",
   "tooltip.portalmod.platform_1": "เชื่อมต่อกับคานรับน้ำหนักแพลตฟอร์ม",
   "tooltip.portalmod.platform_2": "- ย่องระหว่างวางจะทำให้วางแพลตฟอร์มต่ำลง และสามารถสร้างเป็นบันไดได้",
   "tooltip.portalmod.platform_3": "  - ให้พลังงานเรดสโตนเพื่อให้รูปแบบด้านบนปรากฏขี้น",

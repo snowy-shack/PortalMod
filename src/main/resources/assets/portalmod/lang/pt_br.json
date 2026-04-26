@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Líquido Mortal",
   "tooltip.portalmod.goo_bucket_2": "- Não causa dano se estiver segurando uma §6Chave Inglesa§7",
   "tooltip.portalmod.goo_bucket_3": "- Dissolve §aCubos§7 azarados",
-  "tooltip.portalmod.hold_control": "Segure Ctrl para mais informações",
+  "tooltip.portalmod.hold_control": "Segure %s para mais informações",
   "tooltip.portalmod.longfall_boots_1": "Salva você de acidentes",
   "tooltip.portalmod.panel_1": "§6Agache§7 ao colocar para gerar painéis maiores",
   "tooltip.portalmod.platform_1": "Se conecta a Viga de Plataforma",

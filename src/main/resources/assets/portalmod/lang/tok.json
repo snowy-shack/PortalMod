@@ -232,7 +232,7 @@
   "tooltip.portalmod.goo_bucket_1": "telo moli",
   "tooltip.portalmod.goo_bucket_2": "- sina jo e §6ilo ante§7 la ni li pakala ala e sina",
   "tooltip.portalmod.goo_bucket_3": "- ni li weka e §aleko§7",
-  "tooltip.portalmod.hold_control": "o kepeken e nena Ctrl",
+  "tooltip.portalmod.hold_control": "o kepeken e nena %s",
   "tooltip.portalmod.longfall_boots_1": "ni li awen e sina tan pakala",
   "tooltip.portalmod.platform_1": "ni li olin e palisa sinpin",
   "tooltip.portalmod.platform_2": "- sina §6tawa lili§7 la ni li kama lon anpa",

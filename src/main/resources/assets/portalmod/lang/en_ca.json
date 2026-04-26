@@ -177,7 +177,7 @@
   "tooltip.portalmod.fizzler_emitter_1": "Removes unwanted §aTesting Elements§7",
   "tooltip.portalmod.fizzler_emitter_2": "- Fizzles §aCubes§7 and §aTurrets§7",
   "tooltip.portalmod.fizzler_emitter_3": "- Closes §9Portals§7 for each §9Portal Gun§7 in inventory",
-  "tooltip.portalmod.hold_control": "Hold Ctrl for info",
+  "tooltip.portalmod.hold_control": "Hold %s for info",
   "tooltip.portalmod.portalgun.colors": "Portal colors:",
   "tooltip.portalmod.portalgun_1": "Shoots §9Portals§7",
   "tooltip.portalmod.portalgun_2": "- §9Portals§7 are reset when passing through a §aFizzler§7",

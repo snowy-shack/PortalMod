@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Dödlig vätska",
   "tooltip.portalmod.goo_bucket_2": "- Skadar inte dig om du håller en §6Skriftnyckel§7",
   "tooltip.portalmod.goo_bucket_3": "- Går sönder olyckliga §aKuber§7",
-  "tooltip.portalmod.hold_control": "Håll Ctrl för information",
+  "tooltip.portalmod.hold_control": "Håll %s för information",
   "tooltip.portalmod.longfall_boots_1": "Räddar dig från olyckor",
   "tooltip.portalmod.panel_1": "§6Smyga§7 vid placering för att skapa större paneler",
   "tooltip.portalmod.platform_1": "Ansluter till Plattformsbalkar",

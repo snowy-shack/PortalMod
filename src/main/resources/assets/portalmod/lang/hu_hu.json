@@ -281,7 +281,7 @@
   "tooltip.portalmod.goo_bucket_1": "Halálos folyadék",
   "tooltip.portalmod.goo_bucket_2": "- Nem sebez meg, ha §6villáskulcsot§7 tartasz a kezedben",
   "tooltip.portalmod.goo_bucket_3": "- Megsemmisíti a szerencsétlen §akockákat§7",
-  "tooltip.portalmod.hold_control": "Tartsd lenyomva a Ctrl-t az információkért",
+  "tooltip.portalmod.hold_control": "Tartsd lenyomva a %s-t az információkért",
   "tooltip.portalmod.longfall_boots_1": "Megóv a balesetektől",
   "tooltip.portalmod.panel_1": "§6Guggolj§7 lehelyezés közben a nagyobb panelek készítéséhez",
   "tooltip.portalmod.platform_1": "Csatlakozik a platform tartórúdakhoz",

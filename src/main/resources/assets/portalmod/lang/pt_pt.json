@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Líquido letal",
   "tooltip.portalmod.goo_bucket_2": "- Não causa dano se uma §6Chave Inglesa§7 é segurada",
   "tooltip.portalmod.goo_bucket_3": "- Destrói §aCubos§7 infelizes",
-  "tooltip.portalmod.hold_control": "Segura Ctrl para mais informações",
+  "tooltip.portalmod.hold_control": "Segura %s para mais informações",
   "tooltip.portalmod.longfall_boots_1": "Salva-te de acidentes",
   "tooltip.portalmod.panel_1": "§6Agacha§7 ao colocar para criar painéis maiores",
   "tooltip.portalmod.platform_1": "Conecta a Suportes de Plataforma",

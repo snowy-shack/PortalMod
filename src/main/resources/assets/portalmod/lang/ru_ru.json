@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Смертельная жидкость",
   "tooltip.portalmod.goo_bucket_2": "— Не вредит вам, если вы держите §6гаечный ключ§7",
   "tooltip.portalmod.goo_bucket_3": "— Уничтожает неудачные §aкубы§7",
-  "tooltip.portalmod.hold_control": "Удерживайте Ctrl для подробностей",
+  "tooltip.portalmod.hold_control": "Удерживайте %s для подробностей",
   "tooltip.portalmod.longfall_boots_1": "Спасают от досадных травм",
   "tooltip.portalmod.panel_1": "§6Крадучись§7 размещайте панели крупнее",
   "tooltip.portalmod.platform_1": "Подсоединяется к платформенным балкам",

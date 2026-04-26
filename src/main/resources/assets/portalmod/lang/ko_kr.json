@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "치명적인 액체입니다",
   "tooltip.portalmod.goo_bucket_2": "- §6렌치§7를 들고 있다면 피해를 입지 않음",
   "tooltip.portalmod.goo_bucket_3": "- §a큐브들§7을 파괴함",
-  "tooltip.portalmod.hold_control": "Ctrl을 눌러 정보 보기",
+  "tooltip.portalmod.hold_control": "%s을 눌러 정보 보기",
   "tooltip.portalmod.longfall_boots_1": "예기치 못한 낙상 사고를 방지합니다",
   "tooltip.portalmod.panel_1": "§6웅크려서§7 설치하면 더 큰 패널을 만들 수 있습니다",
   "tooltip.portalmod.platform_1": "플랫폼 지지대를 연결합니다",
