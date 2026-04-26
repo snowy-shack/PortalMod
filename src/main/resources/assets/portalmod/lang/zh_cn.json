@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "致命性液体",
   "tooltip.portalmod.goo_bucket_2": "- 手持§6扳手§7时不会受到伤害",
   "tooltip.portalmod.goo_bucket_3": "- 摧毁不幸落入其中的§a方块§7",
-  "tooltip.portalmod.hold_control": "按住\"Ctrl\"显示提示",
+  "tooltip.portalmod.hold_control": "按住\"%s\"显示提示",
   "tooltip.portalmod.longfall_boots_1": "帮助你从事故中脱身",
   "tooltip.portalmod.panel_1": "§6蹲下时放置§7以创造更大的面板",
   "tooltip.portalmod.platform_1": "连接到平台柱",

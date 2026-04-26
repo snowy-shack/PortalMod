@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Tappavaa nestettä",
   "tooltip.portalmod.goo_bucket_2": "- Ei vahingoita sinua, jos pidät kädessäsi §6jakoavainta§7",
   "tooltip.portalmod.goo_bucket_3": "- Tuhoaa epäonniset §akuutiot§7",
-  "tooltip.portalmod.hold_control": "Pidä Ctrl painettuna saadaksesi lisätietoja",
+  "tooltip.portalmod.hold_control": "Pidä %s painettuna saadaksesi lisätietoja",
   "tooltip.portalmod.longfall_boots_1": "Suojaa sinua onnettomuuksilta",
   "tooltip.portalmod.panel_1": "§6Kyykisty§7 asettaaksesi suurempia paneeleja",
   "tooltip.portalmod.platform_1": "Yhdistyy tukipylväisiin",

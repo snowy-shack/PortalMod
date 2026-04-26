@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "致死性の液体",
   "tooltip.portalmod.goo_bucket_2": "- §6レンチ§7を持っているプレイヤーは入ってもダメージを受けません",
   "tooltip.portalmod.goo_bucket_3": "- 不運な§aキューブ§7を破壊します",
-  "tooltip.portalmod.hold_control": "Ctrlを長押しして詳細を見る",
+  "tooltip.portalmod.hold_control": "%sを長押しして詳細を見る",
   "tooltip.portalmod.longfall_boots_1": "事故からあなたを守ります",
   "tooltip.portalmod.panel_1": "設置するときに§6しゃがむ§7ことでさらに大きなパネルを作ることができます",
   "tooltip.portalmod.platform_1": "踏み段の柱に接続します",

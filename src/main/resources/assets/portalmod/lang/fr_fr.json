@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Liquide mortel",
   "tooltip.portalmod.goo_bucket_2": "- Ne vous fais pas de dégâts si vous tenez une §6Clé à Molette§7",
   "tooltip.portalmod.goo_bucket_3": "- Détruit les §aCubes§7 malchanceux",
-  "tooltip.portalmod.hold_control": "§7Maintenez Ctrl pour plus d'infos",
+  "tooltip.portalmod.hold_control": "§7Maintenez %s pour plus d'infos",
   "tooltip.portalmod.longfall_boots_1": "Vous sauve des accidents",
   "tooltip.portalmod.panel_1": "§6S'accroupir§7 en plaçant pour créer un panneau large",
   "tooltip.portalmod.platform_1": "Se connecte aux Poutres de Plateformes",

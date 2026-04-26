@@ -108,7 +108,7 @@
   "tooltip.portalmod.fizzler_emitter_1": "Removes undesired §aTesting Elements§7",
   "tooltip.portalmod.fizzler_emitter_2": "§7- Disintegrates §3Cubes§7 and §3Turrets",
   "tooltip.portalmod.fizzler_emitter_3": "§7- Closes §9Portals§7 from all §9Portal Guns§7 in inventory",
-  "tooltip.portalmod.hold_control": "Hold Ctrl for information",
+  "tooltip.portalmod.hold_control": "Hold %s for information",
   "tooltip.portalmod.portalgun.colors": "§7Portal colours:",
   "tooltip.portalmod.standing_button_1": "§7Can be weighed down by Players",
   "tooltip.portalmod.standing_button_2": "- §6Wrench§7: Cycles through Button Configurations:",

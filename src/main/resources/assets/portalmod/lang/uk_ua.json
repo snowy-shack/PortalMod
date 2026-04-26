@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Смертельна рідина",
   "tooltip.portalmod.goo_bucket_2": "- Не завдає шкоди гравцю, поки той тримає §6гайковий ключ§7",
   "tooltip.portalmod.goo_bucket_3": "- Розчиняє нещасливі §aкуби§7",
-  "tooltip.portalmod.hold_control": "Утримуйте Ctrl для інформації",
+  "tooltip.portalmod.hold_control": "Утримуйте %s для інформації",
   "tooltip.portalmod.longfall_boots_1": "Захищає від пошкоджень",
   "tooltip.portalmod.panel_1": "§6Присядьте§7 під час розміщення, щоб створити більші панелі",
   "tooltip.portalmod.platform_1": "З'єднується зі стовпами платформи",

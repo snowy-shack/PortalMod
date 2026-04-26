@@ -145,7 +145,7 @@
   "tooltip.portalmod.fizzler_emitter_1": "§7İstenmeyen §cTest Elemanlarını§7 kaldırır",
   "tooltip.portalmod.fizzler_emitter_2": "§7- §3Küp§7 ve §3Taretleri§7 yok eder",
   "tooltip.portalmod.fizzler_emitter_3": "§7- Envanterdeki bütün §9Portal Aygıtlarının§7 §9Portallarını§7 kapatır",
-  "tooltip.portalmod.hold_control": "§7Bilgi için Ctrl tuşuna basılı tut",
+  "tooltip.portalmod.hold_control": "§7Bilgi için %s tuşuna basılı tut",
   "tooltip.portalmod.portalgun.colors": "Portal renkleri:",
   "tooltip.portalmod.portalgun_1": "§9Portal§7 ateşler",
   "tooltip.portalmod.portalgun_2": "§7- §3Küpleri§7 ve §3Taretleri§7 taşıyabilir",

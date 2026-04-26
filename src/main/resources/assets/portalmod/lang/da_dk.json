@@ -283,7 +283,7 @@
   "tooltip.portalmod.goo_bucket_1": "Dødelig væske",
   "tooltip.portalmod.goo_bucket_2": "- Skader dig ikke hvis du holder en §6Skruenøgle§7",
   "tooltip.portalmod.goo_bucket_3": "- Nedbryder uheldige §aKasser§7",
-  "tooltip.portalmod.hold_control": "§7Hold Ctrl nede for info",
+  "tooltip.portalmod.hold_control": "§7Hold %s nede for info",
   "tooltip.portalmod.longfall_boots_1": "Redder dig fra ulykker",
   "tooltip.portalmod.panel_1": "§6Snig§7 mens du placerer for at skabe større paneler",
   "tooltip.portalmod.platform_1": "Forbinder til Platformbjælker",

@@ -267,7 +267,7 @@
   "tooltip.portalmod.goo_bucket_1": "Liquido letal",
   "tooltip.portalmod.goo_bucket_2": "- No te daña si sostienes una §6Llave Inglesa§7",
   "tooltip.portalmod.goo_bucket_3": "- Rompe §aCubos§7 desafortunados",
-  "tooltip.portalmod.hold_control": "Mantenga presionada la tecla Ctrl para obtener información",
+  "tooltip.portalmod.hold_control": "Mantenga presionada la tecla %s para obtener información",
   "tooltip.portalmod.longfall_boots_1": "Te salva de accidentes",
   "tooltip.portalmod.panel_1": "§6Agáchese§7 al colocarlo para crear paneles grandes",
   "tooltip.portalmod.platform_1": "Se conecta a las Vigas de Plataforma",

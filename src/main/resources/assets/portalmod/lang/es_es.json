@@ -199,7 +199,7 @@
   "tooltip.portalmod.fizzler_emitter_1": "§7Elimina §cElementos de Prueba §7no deseados",
   "tooltip.portalmod.fizzler_emitter_2": "§7- Desintegra §3Cubos§7 y §3Torretas",
   "tooltip.portalmod.fizzler_emitter_3": "§7- Cierra los §9Portales§7 de todas las §9Pistolas de Portales§7 en el inventario",
-  "tooltip.portalmod.hold_control": "§Mantén presionado Ctrl para más información",
+  "tooltip.portalmod.hold_control": "§Mantén presionado %s para más información",
   "tooltip.portalmod.portalgun.colors": "§7Colores de portal:",
   "tooltip.portalmod.portalgun_1": "§7Dispara §9Portales§7",
   "tooltip.portalmod.portalgun_2": "§7- Puede agarrar §3Cubos§7 y §3Torretas",
