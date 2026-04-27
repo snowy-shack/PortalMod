@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.DamagingProjectileEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
@@ -25,7 +26,9 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.server.TicketType;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.world.ForgeChunkManager;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.fml.network.PacketDistributor;
@@ -86,6 +89,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(level.isClientSide) {
             PortalPhotonParticle.createLivingParticles(this);
         }
+        // todo: send the client the other side of the portal
+        // else {
+        //    List<ServerPlayerEntity> players = ((ServerWorld) level).getPlayers(p ->
+        //            p.distanceToSqr(this) < 128 * 128 // 128 block radius (adjust)
+        //    );
+        //    for (ServerPlayerEntity player : players) {
+        //        forceSendChunkToPlayer(player);
+        //    }
+        //}
 
         this.age++;
     }
@@ -114,6 +126,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.recalculateBoundingBox();
         this.removed = false;
         this.age = 0;
+        if(!this.level.isClientSide){
+            ServerWorld targetWorld = (ServerWorld)this.level;
+            setPortalChunkLoaded(targetWorld, this.blockPosition(), true);
+        }
     }
 
     public Vec3 teleportPoint(Vec3 point) {
@@ -758,8 +774,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void onReplaced() {
         if(this.level.isClientSide)
             return;
+        ServerWorld targetWorld = (ServerWorld)this.level;
+        setPortalChunkLoaded(targetWorld, this.blockPosition(), false);
 
-        ((ServerWorld)this.level).removeEntity(this, false);
+        targetWorld.removeEntity(this, false);
         this.getOtherPortal().ifPresent(PortalEntity::pushEntities);
     }
 
@@ -881,6 +899,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
             level.playSound(null, this.position().x, this.position().y, this.position().z,
                     SoundInit.PORTAL_CLOSE.get(), SoundCategory.NEUTRAL, .8f, ModUtil.randomSlightSoundPitch());
+
+            ServerWorld targetWorld = (ServerWorld)this.level;
+            setPortalChunkLoaded(targetWorld, this.blockPosition(), false);
         }
     }
 
@@ -1030,5 +1051,25 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.up = Direction.valueOf(nbt.getString("up"));
         this.setDirection(Direction.valueOf(nbt.getString("facing")));
         this.hue = nbt.getString("hue");
+    }
+
+    public void setPortalChunkLoaded(ServerWorld world, BlockPos pos, boolean load) {
+        if (world == null) return;
+        if (world.isClientSide()) return;
+        int chunkX = pos.getX() >> 4;
+        int chunkZ = pos.getZ() >> 4;
+
+        ForgeChunkManager.forceChunk(world, PortalMod.MODID, this.getGunUUID(), chunkX, chunkZ, load, true);
+    }
+
+    public void forceSendChunkToPlayer(ServerPlayerEntity player) {
+        ChunkPos chunkPos = new ChunkPos( this.blockPosition());
+        if (((ServerWorld)this.level).isClientSide()) return;
+        ((ServerWorld)this.level).getChunkSource().addRegionTicket(
+                TicketType.POST_TELEPORT,
+                chunkPos,
+                1, // distance (1 = exact chunk)
+                player.getId()
+        );
     }
 }
