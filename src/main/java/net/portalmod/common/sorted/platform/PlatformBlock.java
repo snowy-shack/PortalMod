@@ -23,7 +23,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -31,7 +30,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.portalmod.common.blocks.PortalableBlock;
-import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
@@ -66,8 +64,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
 
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        boolean usedWrench = WrenchItem.usedWrench(player, hand);
-        if (!usedWrench && !isBeamItem(player.getItemInHand(hand).getItem())) {
+        if (!isBeamItem(player.getItemInHand(hand).getItem())) {
             return ActionResultType.PASS;
         }
 
@@ -80,11 +77,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
 
         player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.platform." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
 
-        if (usedWrench) {
-            WrenchItem.playUseSound(world, Vector3d.atCenterOf(pos));
-        } else {
-            player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
-        }
+        player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
 
         return ActionResultType.SUCCESS;
 

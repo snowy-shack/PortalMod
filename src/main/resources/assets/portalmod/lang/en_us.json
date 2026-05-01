@@ -241,7 +241,7 @@
   "tooltip.portalmod.platform_1": "Connects to Platform Beams",
   "tooltip.portalmod.platform_2": "- §6Crouch§7 while placing to lower the Platform — useful for creating stairs",
   "tooltip.portalmod.platform_3": "  - Power with §cRedstone§7 to force the upper variant",
-  "tooltip.portalmod.platform_4": "- Click with a §6Wrench§7 or Platform Beam to manually add a beam to the Platform",
+  "tooltip.portalmod.platform_4": "- Click with a Platform Beam to manually add a beam to the Platform",
 
   "tooltip.portalmod.platform_beam_1": "Connects to Platforms",
   "tooltip.portalmod.platform_beam_2": "- When pulled by a Piston, connected blocks get pulled along",
