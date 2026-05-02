@@ -46,7 +46,8 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
-        CustomRecipeBuilder.special(RecipeInit.PORTAL_GUN.get()).save(c, "portalmod:portalgun_edit");
+        CustomRecipeBuilder.special(RecipeInit.PORTAL_GUN_MODIFY.get()).save(c, "portalmod:portalgun_edit");
+        CustomRecipeBuilder.special(RecipeInit.PORTAL_GUN_DUPLICATE.get()).save(c, "portalmod:portalgun_duplicate");
 
         ShapedRecipeBuilder.shaped(ItemInit.LONGFALL_BOOTS.get())
                 .pattern("i i").define('i', Items.IRON_INGOT)

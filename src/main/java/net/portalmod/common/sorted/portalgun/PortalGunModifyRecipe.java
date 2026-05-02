@@ -12,11 +12,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.portalmod.core.init.RecipeInit;
 
-public class PortalGunRecipe extends SpecialRecipe {
+public class PortalGunModifyRecipe extends SpecialRecipe {
     public static final Ingredient CHAIN_INGREDIENT = Ingredient.of(Items.CHAIN);
 
-    public PortalGunRecipe(ResourceLocation p_i48169_1_) {
-        super(p_i48169_1_);
+    public PortalGunModifyRecipe(ResourceLocation resourceLocation) {
+        super(resourceLocation);
     }
 
     @Override
@@ -86,6 +86,6 @@ public class PortalGunRecipe extends SpecialRecipe {
 
     @Override
     public IRecipeSerializer<?> getSerializer() {
-        return RecipeInit.PORTAL_GUN.get();
+        return RecipeInit.PORTAL_GUN_MODIFY.get();
     }
 }
