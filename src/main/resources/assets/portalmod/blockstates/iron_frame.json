@@ -1,10 +1,16 @@
 {
   "variants": {
-    "facing=down":  {"model": "portalmod:block/iron_frame"},
-    "facing=west":  {"model": "portalmod:block/iron_frame", "x": 90, "y": 90},
-    "facing=north": {"model": "portalmod:block/iron_frame", "x": 90, "y": 180},
-    "facing=east":  {"model": "portalmod:block/iron_frame", "x": 90, "y": 270},
-    "facing=south": {"model": "portalmod:block/iron_frame", "x": 90},
-    "facing=up":    {"model": "portalmod:block/iron_frame", "x": 180}
+    "beam=false,facing=down":  {"model": "portalmod:block/iron_frame"},
+    "beam=false,facing=west":  {"model": "portalmod:block/iron_frame", "x": 90, "y": 90},
+    "beam=false,facing=north": {"model": "portalmod:block/iron_frame", "x": 90, "y": 180},
+    "beam=false,facing=east":  {"model": "portalmod:block/iron_frame", "x": 90, "y": 270},
+    "beam=false,facing=south": {"model": "portalmod:block/iron_frame", "x": 90},
+    "beam=false,facing=up":    {"model": "portalmod:block/iron_frame", "x": 180},
+    "beam=true,facing=down":   {"model": "portalmod:block/iron_frame_beam"},
+    "beam=true,facing=west":   {"model": "portalmod:block/iron_frame_beam", "x": 90, "y": 90},
+    "beam=true,facing=north":  {"model": "portalmod:block/iron_frame_beam", "x": 90, "y": 180},
+    "beam=true,facing=east":   {"model": "portalmod:block/iron_frame_beam", "x": 90, "y": 270},
+    "beam=true,facing=south":  {"model": "portalmod:block/iron_frame_beam", "x": 90},
+    "beam=true,facing=up":     {"model": "portalmod:block/iron_frame_beam", "x": 180}
   }
 }

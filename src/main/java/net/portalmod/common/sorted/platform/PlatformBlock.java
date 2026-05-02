@@ -8,9 +8,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
@@ -29,7 +27,9 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
+import net.portalmod.common.blocks.FrameBlock;
 import net.portalmod.common.blocks.PortalableBlock;
+import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
@@ -38,7 +38,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PlatformBlock extends BreakableBlock implements IWaterLoggable, PortalableBlock {
+public class PlatformBlock extends BreakableBlock implements IWaterLoggable, PortalableBlock, BeamBearer {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
@@ -55,6 +55,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
                 .setValue(BEAM, false)
                 .setValue(WATERLOGGED, false)
         );
+        this.initAABBs();
     }
 
     @Override
@@ -62,9 +63,52 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
         builder.add(FACING, HALF, BEAM, ORIGINAL_HALF, WATERLOGGED);
     }
 
+    private static final BiHashMap<Direction, Boolean, VoxelShapeGroup> SHAPES = new BiHashMap<>();
+
+    private void initAABBs() {
+        VoxelShapeGroup lowerShape = new VoxelShapeGroup.Builder()
+                .add(0, 3, 0, 16, 8, 16)
+                .addPart("beam", 5, 0, 5, 11, 3, 11)
+                .addPart("beam_collision", 4.5, 0, 4.5, 11.5, 3, 11.5)
+                .build();
+        VoxelShapeGroup upperShape = new VoxelShapeGroup.Builder()
+                .add(0, 11, 0, 16, 16, 16)
+                .addPart("beam", 5, 0, 5, 11, 11, 11)
+                .addPart("beam_collision", 4.5, 0, 4.5, 11.5, 11, 11.5)
+                .build();
+
+        for (Direction facing : Direction.values()) {
+            int angleX = facing == Direction.UP
+                    ? 0 : facing == Direction.DOWN
+                          ? 180 : 90;
+            int angleY = facing.get2DDataValue() * 90;
+
+            Mat4 matrix = Mat4.identity();
+            matrix.translate(new Vec3(.5));
+            matrix.rotateDeg(Vector3f.YN, angleY);
+            matrix.rotateDeg(Vector3f.XP, angleX);
+            matrix.translate(new Vec3(-.5));
+
+            SHAPES.put(facing, false, lowerShape.clone().transform(matrix));
+            SHAPES.put(facing, true, upperShape.clone().transform(matrix));
+        }
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+        return SHAPES.get(state.getValue(FACING), state.getValue(HALF) == Half.TOP)
+                .getVariant(state.getValue(BEAM) ? "beam" : "");
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+        return SHAPES.get(state.getValue(FACING), state.getValue(HALF) == Half.TOP)
+                .getVariant(state.getValue(BEAM) ? "beam_collision" : "");
+    }
+
     @Override
     public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
-        if (!isBeamItem(player.getItemInHand(hand).getItem())) {
+        if (!PlatformBeamBlock.isBeamItem(player.getItemInHand(hand).getItem())) {
             return ActionResultType.PASS;
         }
 
@@ -80,35 +124,6 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
         player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
 
         return ActionResultType.SUCCESS;
-
-    }
-
-    @Override
-    public VoxelShape getShape(BlockState blockState, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
-        double raise = blockState.getValue(HALF) == Half.BOTTOM ? 0 : 8;
-        VoxelShapeGroup SHAPE_PLATFORM = new VoxelShapeGroup.Builder()
-                .add(0, 3 + raise, 0, 16, 8 + raise, 16)
-                .build();
-        VoxelShapeGroup SHAPE_BEAM = new VoxelShapeGroup.Builder()
-                .add(5, 0, 5, 11, 3 + raise, 11)
-                .add(0, 3 + raise, 0, 16, 8 + raise, 16)
-                .build();
-
-        VoxelShapeGroup combined = blockState.getValue(BEAM) ? SHAPE_BEAM : SHAPE_PLATFORM;
-
-        // Rotate according to FACING
-        int angleX = blockState.getValue(FACING) == Direction.UP
-                ? 0 : blockState.getValue(FACING) == Direction.DOWN
-                    ? 180 : 90;
-        int angleY = blockState.getValue(FACING).get2DDataValue() * 90;
-
-        Mat4 matrix = Mat4.identity();
-        matrix.translate(new Vec3(.5));
-        matrix.rotateDeg(Vector3f.YN, angleY);
-        matrix.rotateDeg(Vector3f.XP, angleX);
-        matrix.translate(new Vec3(-.5));
-
-        return combined.transform(matrix).getShape();
     }
 
     @Nullable
@@ -127,16 +142,22 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
 
     public Direction getPlacementDirection(BlockItemUseContext context) {
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
+        Block block = clickedState.getBlock();
 
         // Align direction when placed next to each other
-        if (clickedState.getBlock() instanceof PlatformBlock) {
+        if (block instanceof PlatformBlock) {
             Direction facing = clickedState.getValue(PlatformBlock.FACING);
             if (facing.getAxis() != context.getClickedFace().getAxis()) {
                 return facing;
             }
-        } else if (clickedState.getBlock() instanceof PlatformBeamBlock
-                && clickedState.getValue(FACING).equals(context.getClickedFace())) {
-            return context.getClickedFace();
+        }
+
+        // Align with beam
+        if (block instanceof BeamBearer) {
+            Direction beamDirection = ((BeamBearer) block).getBeamDirection(clickedState);
+            if (beamDirection != null && beamDirection.getAxis() == context.getClickedFace().getAxis()) {
+                return context.getClickedFace();
+            }
         }
 
         return context.getNearestLookingDirection().getOpposite();
@@ -180,13 +201,18 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
 
     public static boolean hasBeamBelow(BlockState blockState, IWorld world, BlockPos pos) {
         BlockState belowState = world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite()));
+        Block block = belowState.getBlock();
 
-        return (belowState.getBlock() instanceof PlatformBeamBlock
-                && belowState.getValue(FACING).getAxis() == blockState.getValue(FACING).getAxis());
+        if (!(block instanceof PlatformBeamBlock || block instanceof FrameBlock)) return false;
+
+        Direction beamDirection = ((BeamBearer) block).getBeamDirection(belowState);
+        return beamDirection != null && beamDirection.getAxis() == blockState.getValue(FACING).getAxis();
     }
 
-    public static boolean isBeamItem(Item item) {
-        return item instanceof BlockItem && ((BlockItem) item).getBlock() instanceof PlatformBeamBlock;
+    @Nullable
+    @Override
+    public Direction getBeamDirection(BlockState state) {
+        return state.getValue(FACING);
     }
 
     @Override
