@@ -218,6 +218,7 @@
   "tooltip.portalmod.portalgun_4": "  - §fDye§7 above the §9Portal Gun§7 to change accent color",
   "tooltip.portalmod.portalgun_5": "  - §fDyes§7 to the left or right to change §9Portal§7 colors",
   "tooltip.portalmod.portalgun_6": "  - §fChain§7 instead of a dye to make it single-portaled",
+  "tooltip.portalmod.portalgun_7": "  - §fTwo Guns§7 to create two §9Portal Guns§7 with shared portals",
 
   "tooltip.portalmod.portalgun.colors":  "Portal colors:",
   "tooltip.portalmod.colors.locked":     "<Locked>",
