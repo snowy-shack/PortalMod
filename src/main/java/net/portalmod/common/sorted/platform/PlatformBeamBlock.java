@@ -6,7 +6,9 @@ import net.minecraft.block.IWaterLoggable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
@@ -28,7 +30,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPushBehavior {
+public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPushBehavior, BeamBearer {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 5, 5, 16, 11, 11);
     public static final VoxelShape SHAPE_Y = Block.box(5, 0, 5, 11, 16, 11);
@@ -46,6 +48,10 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(WATERLOGGED, false)
                 .setValue(FACING, Direction.UP));
+    }
+
+    public static boolean isBeamItem(Item item) {
+        return item instanceof BlockItem && ((BlockItem) item).getBlock() instanceof PlatformBeamBlock;
     }
 
     @Override
@@ -81,20 +87,12 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
 
     public Direction getPlacementDirection(BlockItemUseContext context) {
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
+        Block block = clickedState.getBlock();
 
-        // Ensure you don't randomly flip the beam if placing on another
-        if (clickedState.getBlock() instanceof PlatformBeamBlock) {
-            Direction facing = clickedState.getValue(PlatformBeamBlock.FACING);
-            if (facing.getAxis() == context.getClickedFace().getAxis()) {
-                return facing;
-            }
-        }
-
-        // When hitting the underside of a platform, flip the beam the right side up
-        if (clickedState.getBlock() instanceof PlatformBlock) {
-            Direction facing = clickedState.getValue(PlatformBlock.FACING);
-            if (facing.getOpposite() == context.getClickedFace()) {
-                return facing;
+        if (block instanceof BeamBearer) {
+            Direction beamDirection = ((BeamBearer) block).getBeamDirection(clickedState);
+            if (beamDirection != null && beamDirection.getAxis() == context.getClickedFace().getAxis()) {
+                return beamDirection;
             }
         }
 
@@ -127,6 +125,12 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     @Override
     public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
         return dir.getAxis() == state.getValue(FACING).getAxis();
+    }
+
+    @Nullable
+    @Override
+    public Direction getBeamDirection(BlockState state) {
+        return state.getValue(FACING);
     }
 
     @Override

@@ -246,6 +246,9 @@
   "tooltip.portalmod.platform_beam_1": "Connects to Platforms",
   "tooltip.portalmod.platform_beam_2": "- When pulled by a Piston, connected blocks get pulled along",
 
+  "tooltip.portalmod.frame_1": "Decorational Frame",
+  "tooltip.portalmod.frame_2": "- Click with a Platform Beam to add a beam to the Frame",
+
   "tooltip.portalmod.goo_bucket_1": "Deadly liquid",
   "tooltip.portalmod.goo_bucket_2": "- Does not damage you if you're holding a §6Wrench§7",
   "tooltip.portalmod.goo_bucket_3": "- Breaks unfortunate §aCubes§7",
@@ -268,6 +271,8 @@
   "actionbar.portalmod.antline_timer.duration":       "Set Duration to %s seconds",
   "actionbar.portalmod.platform.normal":              "Removed Beam from Platform",
   "actionbar.portalmod.platform.beam":                "Added Beam to Platform",
+  "actionbar.portalmod.iron_frame.normal":            "Removed Beam from Frame",
+  "actionbar.portalmod.iron_frame.beam":              "Added Beam to Frame",
   "actionbar.portalmod.turret.full":                  "This turret is filled to the brim!",
   "actionbar.portalmod.turret.infinite_ammo":         "This turret has infinite ammo",
   "actionbar.portalmod.turret.empty":                 "This turret is already empty",
