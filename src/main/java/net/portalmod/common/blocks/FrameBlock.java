@@ -35,7 +35,7 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class FrameBlock extends Block implements IWaterLoggable, BeamBearer {
+public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehavior, BeamBearer {
     public static Set<Block> FRAME_BLOCKS = new HashSet<>();
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -166,6 +166,21 @@ public class FrameBlock extends Block implements IWaterLoggable, BeamBearer {
     @Override
     public Direction getBeamDirection(BlockState state) {
         return state.getValue(BEAM) ? state.getValue(FACING) : null;
+    }
+
+    @Override
+    public boolean isStickyBlock(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public boolean canStickTo(BlockState state, BlockState other) {
+        return other.isStickyBlock();
+    }
+
+    @Override
+    public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
+        return state.getValue(BEAM) && state.getValue(FACING).getAxis() == dir.getAxis();
     }
 
     @Override
