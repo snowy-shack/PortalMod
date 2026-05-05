@@ -35,7 +35,7 @@ body:
 
   - type: textarea
     attributes:
-      label: How to reproduce the bug from a **new world**?
+      label: How to reproduce the bug from a new world?
       placeholder: Steps to replicate the issue from a blank world
     validations:
       required: true
