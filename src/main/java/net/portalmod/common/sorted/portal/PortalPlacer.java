@@ -260,6 +260,13 @@ public class PortalPlacer {
                     .getShape(level, block)
                     .move(block.getX(), block.getY(), block.getZ());
 
+            if(!frontBlock.getFluidState().isEmpty()) {
+                VoxelShape fluidShape = frontBlock.getFluidState().getShape(level, block)
+                        .move(block.getX(), block.getY(), block.getZ());
+
+                blockShape = VoxelShapes.joinUnoptimized(blockShape, fluidShape, IBooleanFunction.OR);
+            }
+
             if(frontBlock.getBlock() instanceof AbstractGelBlock) {
                 if(frontBlock.getValue(AbstractGelBlock.STATES.get(face.getOpposite()))) {
                     blockShape = AbstractGelBlock.SHAPES.get(face.getOpposite()).getShape()
