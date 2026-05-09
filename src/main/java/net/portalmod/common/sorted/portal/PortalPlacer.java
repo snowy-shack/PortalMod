@@ -163,8 +163,11 @@ public class PortalPlacer {
             portalAABB = AABBUtil.translate(portalAABB, finalReaction);
         }
 
-        // Snap the Portal position to texels
-        position.mul(16).round().div(16);
+        // Snap the Portal position and AABB to texels
+        Vec3 snappedPosition = position.clone().mul(16).round().div(16);
+        Vec3 delta = snappedPosition.clone().sub(position);
+        position = snappedPosition;
+        portalAABB = portalAABB.move(delta.x, delta.y, delta.z);
 
         portalAABB = portalAABB.deflate(.001);
 
@@ -279,6 +282,9 @@ public class PortalPlacer {
             if(!frontNonBlocking)
                 frontCollision = VoxelShapes.joinUnoptimized(frontCollision, blockShape, IBooleanFunction.OR);
         }
+
+        frontCollision = AABBUtil.forEachBox(frontCollision, AABBUtil::roundToTexelsOutwards);
+        backCollision = AABBUtil.forEachBox(backCollision, AABBUtil::roundToTexelsInwards);
 
         backCollision = VoxelShapes.joinUnoptimized(backCollision, VoxelShapes.create(behind), IBooleanFunction.AND);
         frontCollision = VoxelShapes.joinUnoptimized(frontCollision, VoxelShapes.create(front), IBooleanFunction.AND);

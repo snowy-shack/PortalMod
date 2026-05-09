@@ -36,9 +36,13 @@ public class AABBUtil {
     public static VoxelShape forEachBox(VoxelShape shape, Function<AxisAlignedBB, AxisAlignedBB> operation) {
         final VoxelShape[] result = {VoxelShapes.empty()};
         shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) ->
-                result[0] = VoxelShapes.or(result[0], VoxelShapes.create(operation.apply(
-                        new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)))));
-        return result[0];
+                result[0] = VoxelShapes.joinUnoptimized(
+                        result[0],
+                        VoxelShapes.create(operation.apply(new AxisAlignedBB(
+                                minX, minY, minZ,
+                                maxX, maxY, maxZ))),
+                        IBooleanFunction.OR));
+        return result[0].optimize();
     }
 
     public static double getSide(AxisAlignedBB aabb, Direction normal) {
@@ -73,5 +77,27 @@ public class AABBUtil {
 
     public static VoxelShape boxesToVoxelShape(List<AxisAlignedBB> boxes) {
         return addBoxesToVoxelShape(VoxelShapes.empty(), boxes);
+    }
+
+    public static AxisAlignedBB roundToTexelsOutwards(AxisAlignedBB aabb) {
+        return new AxisAlignedBB(
+            Math.floor(16 * aabb.minX) / 16,
+            Math.floor(16 * aabb.minY) / 16,
+            Math.floor(16 * aabb.minZ) / 16,
+            Math.ceil(16 * aabb.maxX) / 16,
+            Math.ceil(16 * aabb.maxY) / 16,
+            Math.ceil(16 * aabb.maxZ) / 16
+        );
+    }
+
+    public static AxisAlignedBB roundToTexelsInwards(AxisAlignedBB aabb) {
+        return new AxisAlignedBB(
+            Math.ceil(16 * aabb.minX) / 16,
+            Math.ceil(16 * aabb.minY) / 16,
+            Math.ceil(16 * aabb.minZ) / 16,
+            Math.floor(16 * aabb.maxX) / 16,
+            Math.floor(16 * aabb.maxY) / 16,
+            Math.floor(16 * aabb.maxZ) / 16
+        );
     }
 }
