@@ -4,6 +4,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.BooleanProperty;
@@ -168,8 +169,8 @@ public class AbstractGelBlock extends BreakableBlock {
     
     @Override
     public boolean canBeReplaced(BlockState state, BlockItemUseContext context) {
-//        return context.getItemInHand().getItem() == this.asItem();
-        return true;
+        Item item = context.getItemInHand().getItem();
+        return !(item instanceof GelContainer) || item.getItem() == state.getBlock().asItem();
     }
     
     @Override
