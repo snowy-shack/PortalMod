@@ -1,15 +1,14 @@
-# Version 1.2
+# Version 1.3
 ### Changes
-- Cubes now drop when held out of sight through a Portal
-- Antline Encoders and Decoders now show all their variants
-- Added fire to tag portal_nonblocking
-- Chamber signs now turn off only when strongly powered by redstone
+- Updated translations
+- Platform Beams can now be placed inside Frames
+- Portal Guns can now be made identical by placing two of them in a crafting grid
+- Portals can no longer be placed in liquids
+- Wrenches no longer toggle Beams on Platforms
+- Gel can no longer be placed where another type of Gel is already present
+- Booster skin is now animated
 
 ### Fixes
-- Fixed Portals not rendering behind translucent geometry
-- Fixed Antline Encoders signal propagation
-- Internal tags now do not override external overrides
-- Fixed memory leak
-- Fixed Faith Plate locking Wrench when destroyed
-- Fixed some language inconsistencies
-- Fixed fireballs teleportation
+- Fixed Super Button crash when not all of its blocks are present
+- Fixed Platform Beams always being sticky with Create
+- Fixed Portal texel snapping causing problems
