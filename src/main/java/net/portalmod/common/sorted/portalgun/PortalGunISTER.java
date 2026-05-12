@@ -197,12 +197,9 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         texture.setupAnimation();
         model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, tint, !animate);
         model.render(gunUUID, model.stripes, matrixStack, ivertexbuilder, packedLight, packedOverlay, stripeColour, !animate);
-        irendertypebuffer$impl.endBatch();
-        texture.endAnimation();
-
-        ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));
         model.render(gunUUID, model.colour, matrixStack, ivertexbuilder, gunLightOn ? LightTexture.pack(15, 15) : packedLight, packedOverlay, lastPortalColor, !animate);
         irendertypebuffer$impl.endBatch();
+        texture.endAnimation();
 
         matrixStack.popPose();
     }
