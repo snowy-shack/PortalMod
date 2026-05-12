@@ -43,14 +43,14 @@ public class ClientSkinManager extends SkinManager {
 
     @Override
     protected void uploadAllSkins(boolean overwrite) {
-        this.getSkinCatalog().forEach((k, v) -> this.uploadSkin(v.skin_id, overwrite));
+        this.getSkinCatalog().forEach((k, v) -> this.uploadSkin(v, overwrite));
     }
 
-    protected void uploadSkin(String id, boolean overwrite) {
-        Texture currentTexture = Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(id));
+    protected void uploadSkin(PortalGunSkin skin, boolean overwrite) {
+        Texture currentTexture = Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(skin.skin_id));
         if(!(currentTexture instanceof PortalGunAnimatedTexture) || overwrite) {
-            PortalGunAnimatedTexture skinTexture = new PortalGunAnimatedTexture(id, this.getSkinCatalog().get(id).framerate);
-            Minecraft.getInstance().textureManager.register(this.getSkinLocation(id), skinTexture);
+            PortalGunAnimatedTexture skinTexture = new PortalGunAnimatedTexture(skin.skin_id, skin.getFilename(), skin.framerate);
+            Minecraft.getInstance().textureManager.register(this.getSkinLocation(skin.skin_id), skinTexture);
         }
     }
 

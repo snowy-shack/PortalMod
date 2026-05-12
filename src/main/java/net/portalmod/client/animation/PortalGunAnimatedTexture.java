@@ -26,12 +26,14 @@ import net.minecraft.util.ResourceLocation;
 public class PortalGunAnimatedTexture extends Texture {
     private static final ResourceLocation DEFAULT_SKIN = new ResourceLocation(PortalMod.MODID, "textures/portalgun/default.png");
     private final String skinId;
+    private final String skinFilename;
     private final RenderMaterial material;
     private final int framerate;
     private NativeImage ni;
     
-    public PortalGunAnimatedTexture(String id, int framerate) {
+    public PortalGunAnimatedTexture(String id, String skinFilename, int framerate) {
         this.skinId = id;
+        this.skinFilename = skinFilename;
         this.material = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ClientSkinManager.getInstance().getSkinLocation(id));
         this.framerate = framerate;
     }
@@ -45,14 +47,13 @@ public class PortalGunAnimatedTexture extends Texture {
     }
     
     public void setupAnimation() {
-        float height = material.sprite().getV1();
         float index = framerate == 0  || this.getFrameCount() == 0
-                ? 0 : (System.currentTimeMillis() / (1000f / framerate) % this.getFrameCount());
+                ? 0 : (System.currentTimeMillis() / (1000L / framerate) % this.getFrameCount());
         RenderSystem.matrixMode(GL11.GL_TEXTURE);
         RenderSystem.pushMatrix();
         RenderSystem.loadIdentity();
-        RenderSystem.translatef(0, height / this.getFrameCount() * index, 0);
         RenderSystem.scalef(1, 1f / this.getFrameCount(), 1);
+        RenderSystem.translatef(0, index, 0);
         RenderSystem.matrixMode(GL11.GL_MODELVIEW);
     }
     
@@ -67,7 +68,7 @@ public class PortalGunAnimatedTexture extends Texture {
         if(ni != null)
             return;
 
-        File skinFile = new File(ClientSkinManager.getInstance().getSkinsFolder(), "textures/" + skinId + ".png");
+        File skinFile = new File(ClientSkinManager.getInstance().getSkinsFolder(), "textures/" + skinFilename + ".png");
 
         if(skinId.equals("default") || !skinFile.exists()) {
             try(IResource iresource = rm.getResource(DEFAULT_SKIN)) {

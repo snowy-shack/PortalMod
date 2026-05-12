@@ -165,23 +165,23 @@ public abstract class SkinManager {
     protected void uploadAllSkins(boolean overwrite) {}
 
     protected void updateSkin(PortalGunSkin skin, File skinFile) throws IOException {
-        if(this.isSkinUpToDate(skin, skinFile) || skin.checksum == null)
+        if(this.isSkinUpToDate(skin, skinFile) || skin.getChecksum() == null)
             return;
 
         byte[] imageData;
 
         try {
-            imageData = DataUtil.makeRequest("https://cdn.portalmod.net/skins/" + skin.skin_id + ".png");
+            imageData = DataUtil.makeRequest("https://cdn.portalmod.net/skins/" + skin.getFilename() + ".png");
             if(!this.isSkinChecksumCorrect(skin, imageData))
                 throw new IOException();
         } catch(IOException e) {
-            throw new IOException("Failed to download skin: " + skin.skin_id);
+            throw new IOException("Failed to download skin: " + skin.getFilename());
         }
 
         try {
             DataUtil.writeFile(skinFile, imageData);
         } catch(IOException e) {
-            throw new IOException("Failed to cache skin: " + skin.skin_id);
+            throw new IOException("Failed to cache skin: " + skin.getFilename());
         }
     }
 
@@ -191,7 +191,7 @@ public abstract class SkinManager {
         for(PortalGunSkin skin : this.getSkinCatalog().values()) {
             if(!skin.skin_id.equals("default")) {
                 try {
-                    this.updateSkin(skin, new File(skinsFolder, skin.skin_id + ".png"));
+                    this.updateSkin(skin, new File(skinsFolder, skin.getFilename() + ".png"));
                 } catch(IOException e) {
                     PortalMod.LOGGER.error(e.getMessage());
                 }
@@ -204,7 +204,7 @@ public abstract class SkinManager {
     }
 
     protected boolean isSkinChecksumCorrect(PortalGunSkin skin, byte[] data) throws IOException {
-        return DataUtil.computeChecksum(data).equals(skin.checksum);
+        return DataUtil.computeChecksum(data).equals(skin.getChecksum());
     }
 
     protected boolean isSkinUpToDate(PortalGunSkin skin, File skinFile) throws IOException {
@@ -212,9 +212,9 @@ public abstract class SkinManager {
             return false;
 
         try {
-            return DataUtil.computeChecksum(this.loadSkin(skinFile)).equals(skin.checksum);
+            return this.isSkinChecksumCorrect(skin, this.loadSkin(skinFile));
         } catch(IOException e) {
-            throw new IOException("Failed to load skin: " + skin.skin_id);
+            throw new IOException("Failed to load skin: " + skin.getFilename());
         }
     }
 
