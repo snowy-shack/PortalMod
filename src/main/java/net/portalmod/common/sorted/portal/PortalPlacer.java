@@ -283,8 +283,8 @@ public class PortalPlacer {
                 frontCollision = VoxelShapes.joinUnoptimized(frontCollision, blockShape, IBooleanFunction.OR);
         }
 
-        frontCollision = AABBUtil.forEachBox(frontCollision, AABBUtil::roundToTexelsOutwards);
-        backCollision = AABBUtil.forEachBox(backCollision, AABBUtil::roundToTexelsInwards);
+        frontCollision = AABBUtil.forEachBox(frontCollision, AABBUtil::roundToTexels);
+        backCollision = AABBUtil.forEachBox(backCollision, AABBUtil::roundToTexels);
 
         backCollision = VoxelShapes.joinUnoptimized(backCollision, VoxelShapes.create(behind), IBooleanFunction.AND);
         frontCollision = VoxelShapes.joinUnoptimized(frontCollision, VoxelShapes.create(front), IBooleanFunction.AND);

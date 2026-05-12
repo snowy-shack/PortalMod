@@ -79,25 +79,14 @@ public class AABBUtil {
         return addBoxesToVoxelShape(VoxelShapes.empty(), boxes);
     }
 
-    public static AxisAlignedBB roundToTexelsOutwards(AxisAlignedBB aabb) {
+    public static AxisAlignedBB roundToTexels(AxisAlignedBB aabb) {
         return new AxisAlignedBB(
-            Math.floor(16 * aabb.minX) / 16,
-            Math.floor(16 * aabb.minY) / 16,
-            Math.floor(16 * aabb.minZ) / 16,
-            Math.ceil(16 * aabb.maxX) / 16,
-            Math.ceil(16 * aabb.maxY) / 16,
-            Math.ceil(16 * aabb.maxZ) / 16
-        );
-    }
-
-    public static AxisAlignedBB roundToTexelsInwards(AxisAlignedBB aabb) {
-        return new AxisAlignedBB(
-            Math.ceil(16 * aabb.minX) / 16,
-            Math.ceil(16 * aabb.minY) / 16,
-            Math.ceil(16 * aabb.minZ) / 16,
-            Math.floor(16 * aabb.maxX) / 16,
-            Math.floor(16 * aabb.maxY) / 16,
-            Math.floor(16 * aabb.maxZ) / 16
+            Math.round(16 * aabb.minX) / 16.0,
+            Math.round(16 * aabb.minY) / 16.0,
+            Math.round(16 * aabb.minZ) / 16.0,
+            Math.round(16 * aabb.maxX) / 16.0,
+            Math.round(16 * aabb.maxY) / 16.0,
+            Math.round(16 * aabb.maxZ) / 16.0
         );
     }
 }
