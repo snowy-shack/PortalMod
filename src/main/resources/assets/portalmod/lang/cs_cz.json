@@ -1,0 +1,20 @@
+{
+  "advancements.portalmod.ender_pearl_portals.title": "Trojitá teleportace",
+  "advancements.portalmod.grab_entity.title": "Wingardium Leviosa",
+  "advancements.portalmod.portal_surface.title": "Standardy kvality",
+  "advancements.portalmod.shoot_portal_far.title": "Ostrostřelec",
+  "advancements.portalmod.turret_defense.title": "Palba do vlastních řad",
+  "block.portalmod.radio": "Rádio",
+  "block.portalmod.wire_mesh": "Drátěné pletivo",
+  "block.portalmod.wire_mesh_block": "Blok drátěného pletiva",
+  "container.faithplate.height": "Výška:",
+  "entity.portalmod.portal": "Portál",
+  "item.portalmod.bullets": "Náboje",
+  "item.portalmod.longfall_boots": "Boty na Dlouhý Pád",
+  "item.portalmod.wrench": "Klíč",
+  "itemGroup.portalmod": "PortalMod",
+  "key.category.portalmod": "PortalMod",
+  "options.portalmod.button": "Možnosti PortalMod...",
+  "tooltip.portalmod.portalgun.colors": "§7Barvy portálů:",
+  "tooltip.portalmod.portalgun_3": "§7- Výroba: "
+}

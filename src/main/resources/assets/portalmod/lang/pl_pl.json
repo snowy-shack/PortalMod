@@ -167,6 +167,7 @@
   "options.portalmod.portal_funneling": "Nakierowywanie do Portalu",
   "options.portalmod.recursion": "Głębokość renderowania portalu",
   "options.portalmod.render_self": "Renderuj własny model gracza",
+  "options.portalmod.separate_gun": "Oddzielne zablokowane przyciski działa",
   "options.portalmod.skins": "Skórka Działa Portalowego",
   "options.portalmod.skins.apply": "Zastosuj",
   "options.portalmod.skins.title": "Wybierz skórkę Działa Portalowego",

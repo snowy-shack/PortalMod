@@ -284,7 +284,7 @@
   "tooltip.portalmod.goo_bucket_1": "Liquido letale",
   "tooltip.portalmod.goo_bucket_2": "- Non ti causa danni se hai in mano una §6Chiave inglese§7",
   "tooltip.portalmod.goo_bucket_3": "- Distrugge §aCubi§7 sfortunati",
-  "tooltip.portalmod.hold_control": "Tieni premuto Ctrl per informazioni",
+  "tooltip.portalmod.hold_control": "Tieni premuto %s per informazioni",
   "tooltip.portalmod.longfall_boots_1": "Ti salva da cadute accidentali",
   "tooltip.portalmod.panel_1": "§6Crouch§7 piazzando per creare pannelli più grandi",
   "tooltip.portalmod.platform_1": "Si connette ai Pilastri",
