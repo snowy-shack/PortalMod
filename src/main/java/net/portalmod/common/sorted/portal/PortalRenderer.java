@@ -1014,11 +1014,12 @@ public class PortalRenderer {
             renderMask(portal, modelMatrix, viewMatrix, projectionMatrix);
             PROFILE.pop();
 
-            GL11.glDisable(GL_STENCIL_TEST);
+            RenderSystem.stencilMask(0);
+            RenderSystem.stencilFunc(GL_LEQUAL, recursion - 1, 0x7F);
+            RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
             PROFILE.push("border");
             renderBorder(portal, modelMatrix, viewMatrix, projectionMatrix);
             PROFILE.pop();
-            GL11.glEnable(GL_STENCIL_TEST);
 
             RenderSystem.stencilMask(0x7F);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
