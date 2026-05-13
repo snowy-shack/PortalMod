@@ -32,7 +32,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
-import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
@@ -78,6 +77,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     @Override
     public void tick() {
+        this.checkAndRemoveDirectionInvalid();
         if(this.getY() < -64.0D)
             this.outOfWorld();
         if(!level.isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
@@ -1029,6 +1029,14 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.gunUUID = nbt.getUUID("gunUUID");
         this.up = Direction.valueOf(nbt.getString("up"));
         this.setDirection(Direction.valueOf(nbt.getString("facing")));
+        this.checkAndRemoveDirectionInvalid(); // recover old worlds with invalid facing direction
         this.hue = nbt.getString("hue");
+    }
+
+    private void checkAndRemoveDirectionInvalid() {
+        if(this.direction == this.up || this.direction == null) {
+            PortalMod.LOGGER.warn("Portal at {} had invalid facing, removing.", this.position());
+            this.remove();
+        }
     }
 }

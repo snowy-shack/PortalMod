@@ -50,6 +50,9 @@ public class PortalPlacer {
      *                                true (that's a strict superset).
      */
     public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player) {
+        if(face == upDirection) {
+            return null;
+        }
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
