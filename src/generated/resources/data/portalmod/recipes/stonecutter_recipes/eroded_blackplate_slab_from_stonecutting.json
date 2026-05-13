@@ -1,0 +1,8 @@
+{
+    "type": "minecraft:stonecutting",
+    "ingredient": {
+        "item": "portalmod:eroded_blackplate"
+    },
+    "result": "portalmod:eroded_blackplate_slab",
+    "count": 2
+}
