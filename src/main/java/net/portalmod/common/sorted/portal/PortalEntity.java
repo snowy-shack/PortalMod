@@ -7,12 +7,14 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.effect.LightningBoltEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.DamagingProjectileEntity;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.*;
@@ -183,8 +185,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         boolean inFluid = entity.isInWater() || entity.isInLava();
         boolean flying = entity instanceof PlayerEntity && ((PlayerEntity)entity).abilities.flying;
+        boolean levitating = entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(Effects.LEVITATION);
+        boolean shouldResetVelocityAtApex = !(entity instanceof FireworkRocketEntity || levitating);
 
-        if(!inFluid && !entity.isOnGround() && !flying) {
+        if(!inFluid && !entity.isOnGround() && !flying && shouldResetVelocityAtApex) {
             if(delta.y > 0 && delta.y * 0.98 - 0.08 < 0) {
                 delta = new Vector3d(delta.x, 0, delta.z);
                 Vector3d dm = entity.getDeltaMovement();
