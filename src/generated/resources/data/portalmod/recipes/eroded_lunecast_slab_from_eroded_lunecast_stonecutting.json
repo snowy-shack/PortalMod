@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "portalmod:eroded_lunecast"
+  },
+  "result": "portalmod:eroded_lunecast_slab",
+  "count": 2
+}

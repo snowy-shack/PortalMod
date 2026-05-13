@@ -414,6 +414,30 @@ public class RecipeGen extends RecipeProvider {
         rustyVariant(c, ItemInit.RUSTY_BARRED_IRON_FRAME.get(), ItemInit.BARRED_IRON_FRAME.get(), "rusty_iron_frame");
         rustyVariant(c, ItemInit.RUSTY_PLATFORM_BEAM.get(), ItemInit.PLATFORM_BEAM.get(), "rusty_beam");
 
+
+
+        // --- Stonecutter --- //
+
+        stonecutting(c, ItemInit.LUNECAST.get(), ItemInit.LUNECAST_SLAB.get(), 2);
+        stonecutting(c, ItemInit.LUNECAST.get(), ItemInit.LUNECAST_STAIRS.get());
+        stonecutting(c, ItemInit.BLACKPLATE.get(), ItemInit.BLACKPLATE_SLAB.get(), 2);
+        stonecutting(c, ItemInit.BLACKPLATE.get(), ItemInit.BLACKPLATE_STAIRS.get());
+        stonecutting(c, ItemInit.ARBORED_LUNECAST.get(), ItemInit.ARBORED_LUNECAST_SLAB.get(), 2);
+        stonecutting(c, ItemInit.ARBORED_LUNECAST.get(), ItemInit.ARBORED_LUNECAST_STAIRS.get());
+        stonecutting(c, ItemInit.ARBORED_BLACKPLATE.get(), ItemInit.ARBORED_BLACKPLATE_SLAB.get(), 2);
+        stonecutting(c, ItemInit.ARBORED_BLACKPLATE.get(), ItemInit.ARBORED_BLACKPLATE_STAIRS.get());
+        stonecutting(c, ItemInit.ERODED_LUNECAST.get(), ItemInit.ERODED_LUNECAST_SLAB.get(), 2);
+        stonecutting(c, ItemInit.ERODED_LUNECAST.get(), ItemInit.ERODED_LUNECAST_STAIRS.get());
+        stonecutting(c, ItemInit.ERODED_BLACKPLATE.get(), ItemInit.ERODED_BLACKPLATE_SLAB.get(), 2);
+        stonecutting(c, ItemInit.ERODED_BLACKPLATE.get(), ItemInit.ERODED_BLACKPLATE_STAIRS.get());
+        stonecutting(c, ItemInit.FRACTURED_LUNECAST.get(), ItemInit.FRACTURED_LUNECAST_SLAB.get(), 2);
+        stonecutting(c, ItemInit.FRACTURED_LUNECAST.get(), ItemInit.FRACTURED_LUNECAST_STAIRS.get());
+        stonecutting(c, ItemInit.FRACTURED_BLACKPLATE.get(), ItemInit.FRACTURED_BLACKPLATE_SLAB.get(), 2);
+        stonecutting(c, ItemInit.FRACTURED_BLACKPLATE.get(), ItemInit.FRACTURED_BLACKPLATE_STAIRS.get());
+        stonecutting(c, ItemInit.VINTAGE_LUNECAST.get(), ItemInit.VINTAGE_LUNECAST_SLAB.get(), 2);
+        stonecutting(c, ItemInit.VINTAGE_LUNECAST.get(), ItemInit.VINTAGE_LUNECAST_STAIRS.get());
+        stonecutting(c, ItemInit.VINTAGE_BLACKPLATE.get(), ItemInit.VINTAGE_BLACKPLATE_SLAB.get(), 2);
+        stonecutting(c, ItemInit.VINTAGE_BLACKPLATE.get(), ItemInit.VINTAGE_BLACKPLATE_STAIRS.get());
     }
 
     public static void lunecastVariant(Consumer<IFinishedRecipe> c, IItemProvider variant, Ingredient ingredient) {
@@ -499,5 +523,15 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("has_item", HAS_CHAMBER_DECORATION)
                 .group(group)
                 .save(c);
+    }
+
+    public static void stonecutting(Consumer<IFinishedRecipe> c, IItemProvider ingredient, IItemProvider output) {
+        stonecutting(c, ingredient, output, 1);
+    }
+
+    public static void stonecutting(Consumer<IFinishedRecipe> c, IItemProvider ingredient, IItemProvider output, int amount) {
+        SingleItemRecipeBuilder.stonecutting(Ingredient.of(ingredient), output, amount)
+                .unlocks("has_item", RecipeProvider.has(ItemInit.LUNECAST.get()))
+                .save(c, "portalmod:" + output.asItem().getRegistryName().getPath() + "_from_" + ingredient.asItem().getRegistryName().getPath() + "_stonecutting");
     }
 }
