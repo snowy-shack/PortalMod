@@ -32,7 +32,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.faithplate.Flingable;
-import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.EntityInit;
 import net.portalmod.core.init.ItemInit;
@@ -1030,5 +1029,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         this.up = Direction.valueOf(nbt.getString("up"));
         this.setDirection(Direction.valueOf(nbt.getString("facing")));
         this.hue = nbt.getString("hue");
+
+        // up must be perpendicular to direction, this in an assumption that's used in the code
+        // if that's not the case, we enforce it to avoid issues
+        Direction.Axis axis = this.up.getAxis();
+        if (axis == this.direction.getAxis()) {
+            this.up = Direction.fromAxisAndDirection(axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X, AxisDirection.POSITIVE);
+        }
     }
 }

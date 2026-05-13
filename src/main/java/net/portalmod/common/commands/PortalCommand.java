@@ -32,7 +32,7 @@ public class PortalCommand {
                 .then(Commands.argument("color", LowercaseEnumArgument.enumArgument(PortalColors.class))
                 .then(Commands.argument("pos", Vec3Argument.vec3())
                 .then(Commands.argument("face", LowercaseEnumArgument.enumArgument(AttachFace.class))
-                .then(Commands.argument("direction", LowercaseEnumArgument.enumArgument(Direction.class))
+                .then(Commands.argument("direction", LowercaseEnumArgument.enumArgument(HorizontalDirection.class))
                 .executes(command -> openPortal(
                         command.getSource(),
                         UUIDArgument.getUuid(command, "uuid"),
@@ -40,7 +40,7 @@ public class PortalCommand {
                         command.getArgument("color", PortalColors.class),
                         Vec3Argument.getVec3(command, "pos"),
                         command.getArgument("face", AttachFace.class),
-                        command.getArgument("direction", Direction.class)
+                        command.getArgument("direction", HorizontalDirection.class)
                 ))))))))
             )
             .then(Commands.literal("close")
@@ -74,7 +74,7 @@ public class PortalCommand {
         return ISuggestionProvider.suggest(uuids.stream().map(UUID::toString), builder);
     }
 
-    private static int openPortal(CommandSource source, UUID uuid, PortalEnd end, PortalColors color, Vector3d position, AttachFace face, Direction direction) throws CommandSyntaxException {
+    private static int openPortal(CommandSource source, UUID uuid, PortalEnd end, PortalColors color, Vector3d position, AttachFace face, HorizontalDirection direction) throws CommandSyntaxException {
         boolean wall = face == AttachFace.WALL;
 
         PortalEntity result = PortalPlacer.placePortal(
@@ -83,8 +83,8 @@ public class PortalCommand {
                 color.name().toLowerCase(),
                 uuid,
                 new Vec3(position),
-                wall ? direction : face == AttachFace.FLOOR ? Direction.UP : Direction.DOWN,
-                wall ? Direction.UP : direction,
+                wall ? direction.toDirection() : face == AttachFace.FLOOR ? Direction.UP : Direction.DOWN,
+                wall ? Direction.UP : direction.toDirection(),
                 false,
                 null,
                 null
@@ -145,5 +145,21 @@ public class PortalCommand {
 
     private static TranslationTextComponent getText(String key) {
         return new TranslationTextComponent("commands." + PortalMod.MODID + ".portal." + key);
+    }
+
+    public enum HorizontalDirection {
+        NORTH,
+        EAST,
+        SOUTH,
+        WEST;
+
+        public Direction toDirection() {
+            switch (this) {
+                case NORTH: return Direction.NORTH;
+                case EAST: return Direction.EAST;
+                case SOUTH: return Direction.SOUTH;
+                default: return Direction.WEST;
+            }
+        }
     }
 }
