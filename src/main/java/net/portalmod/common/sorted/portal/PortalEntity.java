@@ -383,7 +383,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             ((PlayerEntity)entity).abilities.flying = false;
         }
 
-        if(targetPortal.getDirection() == Direction.UP) {
+        if(targetPortal.getDirection() == Direction.UP && portal.getDirection() != Direction.DOWN) {
             float amount = (float) new Vec3(targetPortal.direction).dot(entity.getDeltaMovement());
             float target = 0.7f;
 
