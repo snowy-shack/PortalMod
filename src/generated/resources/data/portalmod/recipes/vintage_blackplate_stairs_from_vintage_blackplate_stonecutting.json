@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "portalmod:vintage_blackplate"
+  },
+  "result": "portalmod:vintage_blackplate_stairs",
+  "count": 1
+}

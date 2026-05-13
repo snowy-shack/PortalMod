@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "portalmod:vintage_lunecast"
+  },
+  "result": "portalmod:vintage_lunecast_stairs",
+  "count": 1
+}
