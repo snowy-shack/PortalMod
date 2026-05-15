@@ -40,20 +40,20 @@ public abstract class FlowingFluidBlockMixin extends Block implements IBucketPic
         for(Direction direction : Direction.values()) {
             if (direction != Direction.UP) {
                 BlockPos relativePos = pos.relative(direction);
-                if (getFluid().is(FluidTagInit.GOO)) {
+                if (this.getFluid().is(FluidTagInit.GOO)) {
                     if (portalMod$handleFluidInteraction(FluidTags.WATER, Blocks.SOUL_SAND, Blocks.SOUL_SOIL, world, relativePos) ||
                             portalMod$handleFluidInteraction(FluidTags.LAVA, Blocks.NETHERRACK, Blocks.OBSIDIAN, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
                     }
                 }
-                if (getFluid().is(FluidTags.WATER)) {
+                if (this.getFluid().is(FluidTags.WATER)) {
                     if (portalMod$handleFluidInteraction(FluidTagInit.GOO, Blocks.SOUL_SAND, Blocks.SOUL_SAND, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
                     }
                 }
-                if (getFluid().is(FluidTags.LAVA)) {
+                if (this.getFluid().is(FluidTags.LAVA)) {
                     if (portalMod$handleFluidInteraction(FluidTagInit.GOO, Blocks.NETHERRACK, Blocks.NETHERRACK, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
@@ -65,7 +65,8 @@ public abstract class FlowingFluidBlockMixin extends Block implements IBucketPic
 
     @Unique
     public boolean portalMod$handleFluidInteraction(ITag<Fluid> fluid1, Block flowingBlock, Block sourceBlock, World world, BlockPos pos) {
-        if (world.getFluidState(pos).is(fluid1)) {
+        // Check both the type of fluid and whether it's not just a waterlogged block
+        if (world.getFluidState(pos).is(fluid1) && world.getBlockState(pos).getBlock() instanceof FlowingFluidBlock) {
             world.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(world, pos, pos, (world.getFluidState(pos).isSource() ? sourceBlock : flowingBlock).defaultBlockState()));
             this.fizz(world, pos);
             return true;
