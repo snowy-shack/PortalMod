@@ -1,14 +1,10 @@
-# Version 1.3
+# Version 1.3.1
 ### Changes
-- Updated translations
-- Platform Beams can now be placed inside Frames
-- Portal Guns can now be made identical by placing two of them in a crafting grid
-- Portals can no longer be placed in liquids
-- Wrenches no longer toggle Beams on Platforms
-- Gel can no longer be placed where another type of Gel is already present
-- Booster skin is now animated
+- Added stonecutter recipes for Lunecast and Blackplate
 
 ### Fixes
-- Fixed Super Button crash when not all of its blocks are present
-- Fixed Platform Beams always being sticky with Create
-- Fixed Portal texel snapping causing problems
+- Fixed recursive Portals rendering outside their frame
+- Fixed Portal placement on lowered Platforms
+- Fixed `/portal` command being able to create broken Portals
+- Fixed levitation effect and firework rockets' flight
+- Removed additional upwards velocity applied from ceiling to floor Portals
