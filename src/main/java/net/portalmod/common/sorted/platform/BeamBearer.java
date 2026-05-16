@@ -8,4 +8,8 @@ import javax.annotation.Nullable;
 public interface BeamBearer {
     @Nullable
     Direction getBeamDirection(BlockState state);
+
+    default boolean canStickTo(BlockState other) {
+        return !(other.getBlock() instanceof BeamBearer) && other.isStickyBlock();
+    }
 }

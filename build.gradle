@@ -22,7 +22,7 @@ version = mod_version
 group = 'net.portalmod'
 
 base {
-    archivesName = 'portalmod'
+    archivesName = 'portalmod' //+ '-test'
 }
 
 java {

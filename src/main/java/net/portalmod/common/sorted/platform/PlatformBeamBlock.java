@@ -122,7 +122,7 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
         // For Create compatibility, we only want to stick to other things if they are sticky too, like slime blocks.
         // Setting this to true means we are able to stick to the other block in all directions, which is not what we want.
         // The sticky functionality on just one axis is handled by ourselves, and does not use this method.
-        return !(other.getBlock() instanceof PlatformBeamBlock) && other.isStickyBlock();
+        return this.canStickTo(other);
     }
 
     @Override

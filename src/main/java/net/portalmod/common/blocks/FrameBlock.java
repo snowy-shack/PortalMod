@@ -175,7 +175,7 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
 
     @Override
     public boolean canStickTo(BlockState state, BlockState other) {
-        return other.isStickyBlock();
+        return this.canStickTo(other);
     }
 
     @Override
