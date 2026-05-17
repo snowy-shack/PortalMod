@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.HorizontalBlock;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.*;
@@ -12,6 +13,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.state.properties.DoubleBlockHalf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -30,6 +32,9 @@ import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import static net.portalmod.core.init.GameRuleInit.DEADLY_DOORS;
+import static net.portalmod.core.init.GameRuleInit.DEADLY_PORTALS;
 
 public class ChamberDoorBlock extends MultiBlock {
     public static final DirectionProperty FACING = HorizontalBlock.FACING;
@@ -234,9 +239,27 @@ public class ChamberDoorBlock extends MultiBlock {
         return true;
     }
 
+    private void applyClosingDamage(BlockState blockState, World world, BlockPos pos) {
+        Direction horizontalExt = blockState.getValue(FACING).getCounterClockWise();
+        BlockPos oppositeCorner = pos.above().relative(horizontalExt);
+
+        AxisAlignedBB killBox = new AxisAlignedBB(pos).minmax(new AxisAlignedBB(oppositeCorner));
+        killBox = killBox.deflate(0.1D);
+
+        List<Entity> entities = world.getEntities(null, killBox);
+        for (Entity entity : entities) {
+            entity.hurt(DamageSource.IN_WALL, 50);
+        }
+    }
+
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
         this.updateAllNeighbors(world, pos, blockState);
+        if (!world.isClientSide() && !open) {
+            if (Objects.requireNonNull(world.getServer()).getGameRules().getBoolean(DEADLY_DOORS)) {
+                this.applyClosingDamage(blockState, world, pos);
+            }
+        }
         playSound(open, blockState, world, pos);
     }
 

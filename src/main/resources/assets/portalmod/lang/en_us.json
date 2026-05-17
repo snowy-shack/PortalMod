@@ -390,6 +390,7 @@
   "gamerule.usePortalableBlacklist": "Portal Placement Blacklist",
   "gamerule.portalSlowShot": "Slow Portal Shot Projectiles",
   "gamerule.allowPortalOverwrite": "Allow Replacing Existing Portals",
+  "gamerule.deadlyDoors": "Allow Doors That Kill",
 
   "attribute.name.generic.portalmod.button_reach": "Button Press Reach Distance",
   "attribute.name.generic.portalmod.grab_reach":   "Entity Grabbing Reach Distance",
