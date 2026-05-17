@@ -33,6 +33,9 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.*;
 
+import static net.portalmod.core.init.GameRuleInit.DEADLY_DOORS;
+import static net.portalmod.core.init.GameRuleInit.DEADLY_PORTALS;
+
 public class ChamberDoorBlock extends MultiBlock {
     public static final DirectionProperty FACING = HorizontalBlock.FACING;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
@@ -236,19 +239,25 @@ public class ChamberDoorBlock extends MultiBlock {
         return true;
     }
 
+    private void applyClosingDamage(BlockState blockState, World world, BlockPos pos) {
+        Direction horizontalExt = blockState.getValue(FACING).getCounterClockWise();
+        BlockPos oppositeCorner = pos.above().relative(horizontalExt);
+
+        AxisAlignedBB killBox = new AxisAlignedBB(pos).minmax(new AxisAlignedBB(oppositeCorner));
+        killBox = killBox.deflate(0.1D);
+
+        List<Entity> entities = world.getEntities(null, killBox);
+        for (Entity entity : entities) {
+            entity.hurt(DamageSource.IN_WALL, 50);
+        }
+    }
+
     public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
         this.updateAllNeighbors(world, pos, blockState);
         if (!world.isClientSide() && !open) {
-            Direction horizontalExt = blockState.getValue(FACING).getCounterClockWise();
-            BlockPos oppositeCorner = pos.above().relative(horizontalExt);
-
-            AxisAlignedBB killBox = new AxisAlignedBB(pos).minmax(new AxisAlignedBB(oppositeCorner));
-            killBox = killBox.deflate(0.1D);
-
-            List<Entity> entities = world.getEntities(null, killBox);
-            for (Entity entity : entities) {
-                entity.hurt(DamageSource.IN_WALL, 100);
+            if (Objects.requireNonNull(world.getServer()).getGameRules().getBoolean(DEADLY_DOORS)) {
+                this.applyClosingDamage(blockState, world, pos);
             }
         }
         playSound(open, blockState, world, pos);

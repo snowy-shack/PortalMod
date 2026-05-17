@@ -17,6 +17,7 @@ public class GameRuleInit {
     public static GameRules.RuleKey<GameRules.BooleanValue> PORTAL_SLOWSHOT;
     public static GameRules.RuleKey<GameRules.BooleanValue> USE_PORTALABLE_BLACKLIST;
     public static GameRules.RuleKey<GameRules.BooleanValue> ALLOW_PORTAL_OVERWRITE;
+    public static GameRules.RuleKey<GameRules.BooleanValue> DEADLY_DOORS;
 
     public static void registerAll() {
         PORTAL_SLOWSHOT = registerBoolean("portalSlowShot", GameRules.Category.PLAYER, false);
@@ -25,6 +26,8 @@ public class GameRuleInit {
         // portal-placement time and either evicts the foreign portal in the way or rejects the
         // shot; no client-side behavior (rendering, UI, prediction) depends on it.
         ALLOW_PORTAL_OVERWRITE = registerServerBoolean("allowPortalOverwrite", GameRules.Category.PLAYER, true);
+        DEADLY_DOORS = registerBoolean("deadlyDoors", GameRules.Category.MISC, false);
+
     }
 
     private static <T extends GameRules.RuleValue<T>> GameRules.RuleKey<T> register(String name, GameRules.Category category, GameRules.RuleType<T> rule) {
