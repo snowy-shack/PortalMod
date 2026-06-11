@@ -33,17 +33,15 @@ import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.render.Shader;
 import net.portalmod.common.sorted.portalgun.PortalGun;
-import net.portalmod.common.sorted.trigger.TriggerTER;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
+import net.portalmod.core.util.PositionTextureVertexRenderer;
 import net.portalmod.core.util.RenderUtil;
-import net.portalmod.core.util.VertexRenderer;
 import net.portalmod.mixins.accessors.LevelRendererAccessor;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL43;
+import org.lwjgl.opengl.*;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -52,15 +50,14 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
 
 public class PortalRenderer {
     private static PortalRenderer instance;
 
-    private static final VertexRenderer portalMesh = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
-    private static final VertexRenderer screenQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
-    private static final VertexRenderer blitQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
+    private static final PositionTextureVertexRenderer portalMesh = new PositionTextureVertexRenderer(GL_QUADS);
+    private static final PositionTextureVertexRenderer screenQuad = new PositionTextureVertexRenderer(GL_QUADS);
+    private static final PositionTextureVertexRenderer blitQuad = new PositionTextureVertexRenderer(GL_QUADS);
 
     private static final Framebuffer tempFBO = new Framebuffer(
             Minecraft.getInstance().getWindow().getWidth(),
@@ -280,7 +277,7 @@ public class PortalRenderer {
         GL11.glEnable(GL_ALPHA_TEST);
         glEnable(GL_DEPTH_CLAMP);
         RenderSystem.depthMask(false);
-        portalMesh.render();
+        portalMesh.render(ShaderInit.PORTAL_MASK.get());
         RenderSystem.depthMask(true);
         glDisable(GL_DEPTH_CLAMP);
         GL11.glDisable(GL_ALPHA_TEST);
@@ -296,7 +293,7 @@ public class PortalRenderer {
         ShaderInit.COLOR.get().bind().setFloat("color", (float)clearColor.x, (float)clearColor.y, (float)clearColor.z, 1);
 
         RenderSystem.depthFunc(GL_ALWAYS);
-        screenQuad.render();
+        screenQuad.render(ShaderInit.COLOR.get());
         RenderSystem.depthFunc(GL_LESS);
 
         RenderSystem.bindTexture(0);
@@ -304,8 +301,14 @@ public class PortalRenderer {
         ShaderInit.COLOR.get().unbind();
     }
 
-    private void renderDepth(Matrix4f modelView) {
-        glUseProgram(0);
+    private void renderDepth(Matrix4f model, Matrix4f view, Matrix4f projectionMatrix) {
+        ShaderInit.PORTAL_SOLID.get().bind()
+                .setMatrix("model", model)
+                .setMatrix("view", view)
+                .setMatrix("projection", projectionMatrix)
+                .setFloat("color", 0, 0, 0, 1);
+
+        this.setupShaderClipPlane(ShaderInit.PORTAL_SOLID.get(), this.portalStack.peekFirst());
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
@@ -314,7 +317,7 @@ public class PortalRenderer {
         glEnable(GL_DEPTH_CLAMP);
         RenderSystem.depthFunc(GL_ALWAYS);
         RenderSystem.colorMask(false, false, false, false);
-        portalMesh.render(new Mat4(modelView));
+        portalMesh.render(ShaderInit.PORTAL_SOLID.get());
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthFunc(GL_LESS);
         glDisable(GL_DEPTH_CLAMP);
@@ -373,7 +376,7 @@ public class PortalRenderer {
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         RenderSystem.depthMask(false);
-        portalMesh.render();
+        portalMesh.render(ShaderInit.PORTAL_FRAME.get());
         RenderSystem.depthMask(true);
         RenderSystem.disableBlend();
 
@@ -794,7 +797,7 @@ public class PortalRenderer {
         RenderSystem.activeTexture(GL_TEXTURE0);
         src.bindRead();
         dest.bindWrite(false);
-        blitQuad.render();
+        blitQuad.render(ShaderInit.ACTUAL_BLIT.get());
 
         RenderSystem.enableDepthTest();
         RenderSystem.depthMask(true);
@@ -1025,7 +1028,7 @@ public class PortalRenderer {
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0x7F);
             RenderSystem.stencilOp(GL_KEEP, GL_KEEP, GL_DECR);
             PROFILE.push("depth(DECR)");
-            renderDepth(modelView);
+            renderDepth(modelMatrix, viewMatrix, projectionMatrix);
             PROFILE.pop();
 
             if(!fabulousGraphics) {
@@ -1111,7 +1114,7 @@ public class PortalRenderer {
             RenderUtil.bindTexture(ShaderInit.PORTAL_HIGHLIGHT.get(), "texture",
                     "textures/portal/highlight_" + portal.getColor() + ".png", 0);
 
-            portalMesh.render();
+            portalMesh.render(ShaderInit.PORTAL_HIGHLIGHT.get());
         }
 
         RenderSystem.enableCull();

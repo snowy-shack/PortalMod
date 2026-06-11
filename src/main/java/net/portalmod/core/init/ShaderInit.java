@@ -35,6 +35,12 @@ public class ShaderInit {
                     .add(GL_FRAGMENT_SHADER, "portal/mask.fsh")
                     .build());
 
+    public static final Registry.Entry<Shader> PORTAL_SOLID = REGISTRY.register("portal_solid",
+            () -> new Shader.Builder()
+                    .add(GL_VERTEX_SHADER, "portal/vertex.vsh")
+                    .add(GL_FRAGMENT_SHADER, "color/color.fsh")
+                    .build());
+
     public static final Registry.Entry<Shader> FAITHPLATE_GUI = REGISTRY.register("faithplate_gui",
             () -> new Shader.Builder()
             .add(GL_VERTEX_SHADER, "gui/vertex.vsh")

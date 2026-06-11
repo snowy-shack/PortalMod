@@ -15,7 +15,7 @@ import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
-import net.portalmod.core.util.VertexRenderer;
+import net.portalmod.core.util.PositionTextureVertexRenderer;
 import org.lwjgl.opengl.GL20;
 
 import java.awt.*;
@@ -35,7 +35,7 @@ public class ColorPickerWidget extends Widget {
     private static final int SV_PICKER_HEIGHT    = 49;
     public static final float SV_PICKER_VAL_MIN = 0.1f;
     public static final float SV_PICKER_VAL_MAX = 0.9f;
-    private final VertexRenderer svPickerColorQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
+    private final PositionTextureVertexRenderer svPickerColorQuad = new PositionTextureVertexRenderer(GL_QUADS);
     private Rectangle svPickerRegion;
 
     private static final int SV_PICKER_CURSOR_WIDTH        = 8;
@@ -47,7 +47,7 @@ public class ColorPickerWidget extends Widget {
     private static final int SV_PICKER_CURSOR_COLOR_Y      = 2;
     private static final int SV_PICKER_CURSOR_COLOR_WIDTH  = 4;
     private static final int SV_PICKER_CURSOR_COLOR_HEIGHT = 4;
-    private final VertexRenderer svPickerCursorColorQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
+    private final PositionTextureVertexRenderer svPickerCursorColorQuad = new PositionTextureVertexRenderer(GL_QUADS);
     private float svPickerCursorX;
     private float svPickerCursorY;
     private boolean svPickerCursorDragging;
@@ -57,7 +57,7 @@ public class ColorPickerWidget extends Widget {
     private static final int HUE_PICKER_Y      = 4;
     private static final int HUE_PICKER_WIDTH  = 7;
     private static final int HUE_PICKER_HEIGHT = 49;
-    private final VertexRenderer huePickerQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
+    private final PositionTextureVertexRenderer huePickerQuad = new PositionTextureVertexRenderer(GL_QUADS);
     private Rectangle huePickerRegion;
 
     private static final int HUE_PICKER_CURSOR_WIDTH        = 15;
@@ -69,7 +69,7 @@ public class ColorPickerWidget extends Widget {
     private static final int HUE_PICKER_CURSOR_COLOR_Y      = 2;
     private static final int HUE_PICKER_CURSOR_COLOR_WIDTH  = 11;
     private static final int HUE_PICKER_CURSOR_COLOR_HEIGHT = 3;
-    private final VertexRenderer huePickerCursorColorQuad = new VertexRenderer(DefaultVertexFormats.POSITION_TEX, GL_QUADS);
+    private final PositionTextureVertexRenderer huePickerCursorColorQuad = new PositionTextureVertexRenderer(GL_QUADS);
     private float huePickerCursorY;
     private boolean huePickerCursorDragging;
     private boolean huePickerCursorHovering;
@@ -155,7 +155,7 @@ public class ColorPickerWidget extends Widget {
         matrixStack.translate(0, 0, 1000 - ForgeHooksClient.getGuiFarPlane());
     }
 
-    private void initQuad(VertexRenderer quad, Rectangle rect) {
+    private void initQuad(PositionTextureVertexRenderer quad, Rectangle rect) {
         int x0 = rect.x;
         int y0 = rect.y;
         int x1 = rect.x + rect.width;
@@ -210,7 +210,7 @@ public class ColorPickerWidget extends Widget {
 
     private void renderSVPickerColor() {
         ShaderInit.COLOR_PICKER_SV.get().bind().setFloat("hue", this.getHue());
-        svPickerColorQuad.render();
+        svPickerColorQuad.render(ShaderInit.COLOR_PICKER_SV.get());
         ShaderInit.COLOR_PICKER_SV.get().unbind();
     }
 
@@ -223,7 +223,7 @@ public class ColorPickerWidget extends Widget {
     private void renderSVPickerCursorColor() {
         this.setSolidShaderColor(this.getHue(), this.getSaturation(), this.getValue());
         ShaderInit.COLOR_PICKER_SOLID.get().bind();
-        svPickerCursorColorQuad.render();
+        svPickerCursorColorQuad.render(ShaderInit.COLOR_PICKER_SOLID.get());
         ShaderInit.COLOR_PICKER_SOLID.get().unbind();
     }
 
@@ -234,7 +234,7 @@ public class ColorPickerWidget extends Widget {
 
     private void renderHuePickerColor() {
         ShaderInit.COLOR_PICKER_HUE.get().bind();
-        huePickerQuad.render();
+        huePickerQuad.render(ShaderInit.COLOR_PICKER_HUE.get());
         ShaderInit.COLOR_PICKER_HUE.get().unbind();
     }
 
@@ -247,7 +247,7 @@ public class ColorPickerWidget extends Widget {
     private void renderHuePickerCursorColor() {
         this.setSolidShaderColor(this.getHue(), 1, .9f);
         ShaderInit.COLOR_PICKER_SOLID.get().bind();
-        huePickerCursorColorQuad.render();
+        huePickerCursorColorQuad.render(ShaderInit.COLOR_PICKER_SOLID.get());
         ShaderInit.COLOR_PICKER_SOLID.get().unbind();
     }
 

@@ -1,13 +1,15 @@
 #version 120
 
+attribute vec3 position;
+attribute vec2 uv;
+
 uniform mat4 modelView;
 uniform mat4 projection;
 
-attribute vec3 position;
 varying vec2 coords;
 
 void main() {
     vec4 pos = projection * modelView * vec4(position, 1);
-    coords = gl_MultiTexCoord0.xy;
+    coords = uv.xy;
     gl_Position = pos;
 }

@@ -11,13 +11,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
+import net.portalmod.client.render.Shader;
 import net.portalmod.client.screens.widgets.IconButton;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.util.Colour;
@@ -27,6 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.portalmod.PortalMod;
+import net.portalmod.core.util.PositionTextureVertexRenderer;
 import org.lwjgl.opengl.GL11;
 
 public class SkinSelectorScreen extends Screen {
@@ -78,10 +78,13 @@ public class SkinSelectorScreen extends Screen {
     private Button applyButton;
     private volatile long lastRefresh = 0;
 
+    private final PositionTextureVertexRenderer loadingBlob = new PositionTextureVertexRenderer(GL11.GL_QUADS);
+
     private SkinSelectorScreen() {
         super(new TranslationTextComponent("options." + PortalMod.MODID + ".skins.title"));
         this.loadingStart = -1;
         this.skinEntryList = new ArrayList<>();
+        this.loadingBlob.reset();
     }
 
     public static SkinSelectorScreen getInstance(Screen lastScreen) {
@@ -283,21 +286,21 @@ public class SkinSelectorScreen extends Screen {
         );
     }
 
-    private void drawTexturedRectangle(MatrixStack matrixStack, Rectangle rectangle) {
+    private void drawTexturedRectangle(MatrixStack matrixStack, Rectangle rectangle, Shader shader) {
         Matrix4f matrix = matrixStack.last().pose();
         int x0 = rectangle.x;
         int y0 = rectangle.y;
         int x1 = rectangle.x + rectangle.width;
         int y1 = rectangle.y + rectangle.height;
 
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
-        bufferbuilder.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-        bufferbuilder.vertex(matrix, x0, y0, 0).uv(0, 1).endVertex();
-        bufferbuilder.vertex(matrix, x0, y1, 0).uv(0, 0).endVertex();
-        bufferbuilder.vertex(matrix, x1, y1, 0).uv(1, 0).endVertex();
-        bufferbuilder.vertex(matrix, x1, y0, 0).uv(1, 1).endVertex();
-        bufferbuilder.end();
-        WorldVertexBufferUploader.end(bufferbuilder);
+        this.loadingBlob.data(bufferBuilder -> {
+            bufferBuilder.vertex(matrix, x0, y0, 0).uv(0, 1).endVertex();
+            bufferBuilder.vertex(matrix, x0, y1, 0).uv(0, 0).endVertex();
+            bufferBuilder.vertex(matrix, x1, y1, 0).uv(1, 0).endVertex();
+            bufferBuilder.vertex(matrix, x1, y0, 0).uv(1, 1).endVertex();
+        });
+
+        this.loadingBlob.render(shader);
     }
 
     private void renderColorPicker(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
@@ -371,7 +374,7 @@ public class SkinSelectorScreen extends Screen {
         combined.last().pose().multiply(projection);
         combined.translate(0, 0, -2000);
         combined.scale(scale, scale, 1);
-        this.drawTexturedRectangle(combined, this.listRegion);
+        this.drawTexturedRectangle(combined, this.listRegion, ShaderInit.LOADER.get());
 
         ShaderInit.LOADER.get().unbind();
     }
