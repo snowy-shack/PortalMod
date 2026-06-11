@@ -8,14 +8,14 @@ const vec3 blue   = vec3(61.  / 255., 122. / 255., 219. / 255.);
 uniform float millis;
 uniform vec2 resolution;
 
-varying vec2 uv;
+varying vec2 coords;
 
 void main() {
     float time = millis * 3. + 4.;
     float c = cos(time);
     float s = sin(time);
 
-    vec2 coordCentered = vec2(ivec2((uv - .5) * resolution / 2.));
+    vec2 coordCentered = vec2(ivec2((coords - .5) * resolution / 2.));
     float x = coordCentered.x * c - coordCentered.y * s;
     float y = coordCentered.x * s + coordCentered.y * c;
 
