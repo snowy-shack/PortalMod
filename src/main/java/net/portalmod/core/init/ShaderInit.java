@@ -83,7 +83,7 @@ public class ShaderInit {
                     .add(GL_FRAGMENT_SHADER, "gui/color_picker/hue.fsh")
                     .build());
 
-    public static final Registry.Entry<Shader> COLOR_PICKER_SOLID = REGISTRY.register("color_picker_hue",
+    public static final Registry.Entry<Shader> COLOR_PICKER_SOLID = REGISTRY.register("color_picker_solid",
             () -> new Shader.Builder()
                     .add(GL_VERTEX_SHADER, "gui/color_picker/vertex.vsh")
                     .add(GL_FRAGMENT_SHADER, "gui/color_picker/solid.fsh")
