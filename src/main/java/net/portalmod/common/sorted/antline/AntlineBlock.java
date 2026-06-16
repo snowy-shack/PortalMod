@@ -98,30 +98,38 @@ public class AntlineBlock extends Block {
         BlockState cornerState   = level.getBlockState(pos.relative(direction).relative(sideDir)); // Face around the corner
 
         AntlineTileEntity selfEntity = ((AntlineTileEntity) level.getBlockEntity(pos));
+        if (selfEntity == null) return ConnectionType.NONE;
 
         boolean cornerIsSolid = adjacentState.isRedstoneConductor(level, pos.relative(direction));
 
         if (adjacentState.getBlock() instanceof AntlineBlock) { // Adjacent block
-            AntlineTileEntity adjacentEntity = ((AntlineTileEntity) level.getBlockEntity(pos.relative(direction)));
+            BlockPos neighborPos = pos.relative(direction);
+            if (level.hasChunkAt(neighborPos)) {
+                AntlineTileEntity adjacentEntity = ((AntlineTileEntity) level.getBlockEntity(neighborPos));
 
-            if (adjacentEntity.getSideMap().hasSide(sideDir)
-                    && adjacentEntity.getSideMap().get(sideDir).isConnectableWith(direction.getOpposite())
-                    && adjacentEntity.getSideMap().get(sideDir).countConnections() <= threshold)
-                return ConnectionType.ADJACENT;
+                if (adjacentEntity != null && adjacentEntity.getSideMap().hasSide(sideDir)
+                        && adjacentEntity.getSideMap().get(sideDir).isConnectableWith(direction.getOpposite())
+                        && adjacentEntity.getSideMap().get(sideDir).countConnections() <= threshold)
+                    return ConnectionType.ADJACENT;
+            }
         }
 
         if (adjacentState.getBlock() instanceof AntlineConnector) { // Adjacent connector
-            if (((AntlineConnector) adjacentState.getBlock()).getHorsedOn(adjacentState) == sideDir)
+            AntlineConnector connector = (AntlineConnector) adjacentState.getBlock();
+            if (connector.getHorsedOn(adjacentState) == sideDir && connector.antlineConnectsInDirection(direction.getOpposite(), adjacentState))
                 return ConnectionType.ELEMENT;
         }
 
         if (!cornerIsSolid && cornerState.getBlock() instanceof AntlineBlock) { // Block around the corner
-            AntlineTileEntity cornerEntity = ((AntlineTileEntity) level.getBlockEntity(pos.relative(direction).relative(sideDir)));
+            BlockPos neighborPos = pos.relative(direction).relative(sideDir);
+            if (level.hasChunkAt(neighborPos)) {
+                AntlineTileEntity cornerEntity = ((AntlineTileEntity) level.getBlockEntity(neighborPos));
 
-            if (cornerEntity.getSideMap().hasSide(direction.getOpposite())
-                    && cornerEntity.getSideMap().get(direction.getOpposite()).isConnectableWith(sideDir.getOpposite())
-                    && cornerEntity.getSideMap().get(direction.getOpposite()).countConnections() <= threshold)
-                return ConnectionType.CORNER;
+                if (cornerEntity != null && cornerEntity.getSideMap().hasSide(direction.getOpposite())
+                        && cornerEntity.getSideMap().get(direction.getOpposite()).isConnectableWith(sideDir.getOpposite())
+                        && cornerEntity.getSideMap().get(direction.getOpposite()).countConnections() <= threshold)
+                    return ConnectionType.CORNER;
+            }
         }
 
         if (selfEntity.getSideMap().hasSide(direction)
@@ -189,17 +197,22 @@ public class AntlineBlock extends Block {
                 }
 
                 // It's another Antline. Do a recursive signal call
-                AntlineTileEntity entity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
-                AntlineTileEntity.SideMap sideMap = entity.getSideMap();
-                recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active || becameActive, depth + 1);
+                if (level.hasChunkAt(friend.pos)) {
+                    AntlineTileEntity entity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
+                    if (entity != null) {
+                        AntlineTileEntity.SideMap sideMap = entity.getSideMap();
+                        recursiveSignalChain(level, sideMap.get(friend.sideDirection), friend.pos, friend.connectDirection, active || becameActive, depth + 1);
 
-                // If the antline we just updated ended up being powered, we set becameActive to true, so we don't unpower the next ones we were supposed to unpower.
-                if (((AntlineTileEntity) level.getBlockEntity(friend.pos)).getSideMap().get(friend.sideDirection).isActive()) {
-                    becameActive = true;
+                        // If the antline we just updated ended up being powered, we set becameActive to true, so we don't unpower the next ones we were supposed to unpower.
+                        if (entity.getSideMap().get(friend.sideDirection).isActive()) {
+                            becameActive = true;
+                        }
+                    }
                 }
             }
 
-            sendUpdatePacket(level, pos, side.toDirection(), (AntlineTileEntity) level.getBlockEntity(pos));
+            AntlineTileEntity entity = (AntlineTileEntity) level.getBlockEntity(pos);
+            if (entity != null) sendUpdatePacket(level, pos, side.toDirection(), entity);
         } finally {
             if (addedToActive) activePositions.remove(trackedPos);
         }
@@ -400,7 +413,10 @@ public class AntlineBlock extends Block {
 
         // Update the neighbors of the blocks around the supporting block of each side, for around-the-corner connections
         for (AntlineTileEntity.Side side : tileEntity.getSideMap().values()) {
-            level.updateNeighborsAtExceptFromFacing(pos.relative(side.toDirection()), state.getBlock(), side.toDirection().getOpposite());
+            BlockPos supportingPos = pos.relative(side.toDirection());
+            if (level.hasChunkAt(supportingPos)) {
+                level.updateNeighborsAtExceptFromFacing(supportingPos, state.getBlock(), side.toDirection().getOpposite());
+            }
         }
 
         level.updateNeighborsAt(pos, state.getBlock());
