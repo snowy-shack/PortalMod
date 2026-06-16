@@ -62,6 +62,11 @@ public class AntlineEncoderBlock extends AntlineIcon implements AntlineActivator
     }
 
     @Override
+    public boolean isAntlineActive(BlockState state, Direction side, Direction connection) {
+        return isAntlineActive(state);
+    }
+
+    @Override
     public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
         ModUtil.addTooltip("antline_encoder", list);
     }

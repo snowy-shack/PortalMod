@@ -175,7 +175,7 @@ public class AntlineBlock extends Block {
 
                     // Hit another input, adopt its signal
                     if (neighborBlock instanceof AntlineActivator) {
-                        newActive = ((AntlineActivator) neighborBlock).isAntlineActive(neighborState);
+                        newActive = ((AntlineActivator) neighborBlock).isAntlineActive(neighborState, side.toDirection(), connectDirection.getOpposite());
 
                         if (newActive && !active) {
                             recursiveSignalChain(level, side, pos, null, newActive, 0);
@@ -236,16 +236,18 @@ public class AntlineBlock extends Block {
 
             BlockState friendState = level.getBlockState(friend.pos);
             if (element && friendState.getBlock() instanceof AntlineActivator) {
-                active = ((AntlineActivator) friendState.getBlock()).isAntlineActive(friendState);
+                active = ((AntlineActivator) friendState.getBlock()).isAntlineActive(friendState, side.toDirection(), connectionDirection.getOpposite());
                 originDirection = connectionDirection;
             }
 
 //            if (connect && !element && friendState.getBlock() instanceof AntlineBlock) {
-//                AntlineTileEntity friendEntity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
+//                if (level.hasChunkAt(friend.pos)) {
+//                    AntlineTileEntity friendEntity = ((AntlineTileEntity) level.getBlockEntity(friend.pos));
 //
-//                if (friendEntity.getSideMap().get(side.toDirection()).isActive()) {
-//                    active = true;
-//                    originDirection = connectionDirection;
+//                    if (friendEntity != null && friendEntity.getSideMap().get(friend.sideDirection).isActive()) {
+//                        active = true;
+//                        originDirection = connectionDirection;
+//                    }
 //                }
 //            }
         }
