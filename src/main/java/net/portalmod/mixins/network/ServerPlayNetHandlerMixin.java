@@ -10,8 +10,10 @@ import net.portalmod.common.sorted.portal.PortalServerProofManager;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayNetHandler.class)
 public class ServerPlayNetHandlerMixin {
@@ -25,10 +27,17 @@ public class ServerPlayNetHandlerMixin {
     private boolean pmAvoidResettingFallDistance(boolean value) {
         IClientTeleportable player = ((IClientTeleportable)((ServerPlayNetHandler)(Object)this).player);
         if(player.getJustPortaled()) {
-            player.setJustPortaled(false);
             return false;
         }
         return value;
+    }
+
+    @Inject(
+                        method = "handleMovePlayer",
+            at = @At("RETURN")
+    )
+    private void pmClearPortalMovementState(CallbackInfo info) {
+        ((IClientTeleportable)((ServerPlayNetHandler)(Object)this).player).setJustPortaled(false);
     }
 
     @Redirect(
