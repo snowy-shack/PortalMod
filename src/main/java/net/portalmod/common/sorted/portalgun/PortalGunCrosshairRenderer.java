@@ -30,6 +30,7 @@ import java.util.UUID;
 
 public class PortalGunCrosshairRenderer {
     private static final String BASE = "textures/gui/crosshair/portalgun_crosshair_";
+    private static final int CROSSHAIR_SIZE = 33;
 
     public static void render(MatrixStack matrixStack) {
         Minecraft mc = Minecraft.getInstance();
@@ -105,29 +106,31 @@ public class PortalGunCrosshairRenderer {
     private static void renderCrosshairPart(MatrixStack matrixStack, PortalEnd end, DyeColor color, boolean filled) {
         ResourceLocation texture = new ResourceLocation(PortalMod.MODID, BASE + color.getName() + ".png");
         MainWindow window = Minecraft.getInstance().getWindow();
-        int x = -17;
-        int y = -17;
-        int size = 33;
+        int x = centeredCrosshairOrigin(window.getGuiScaledWidth(), CROSSHAIR_SIZE);
+        int y = centeredCrosshairOrigin(window.getGuiScaledHeight(), CROSSHAIR_SIZE);
 
         RenderSystem.disableBlend();
         Minecraft.getInstance().getTextureManager().bind(texture);
-        blit(matrixStack, window.getGuiScaledWidth() / 2 + x, window.getGuiScaledHeight() / 2 + y, 0,
-                filled ? size : 0, end == PortalEnd.PRIMARY ? 0 : size, size, size, size * 2, size * 2);
+        blit(matrixStack, x, y, 0,
+                filled ? CROSSHAIR_SIZE : 0, end == PortalEnd.PRIMARY ? 0 : CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE * 2, CROSSHAIR_SIZE * 2);
         RenderSystem.enableBlend();
     }
 
     private static void renderCrosshairDot(MatrixStack matrixStack, PortalEnd end, DyeColor color) {
         ResourceLocation texture = new ResourceLocation(PortalMod.MODID, BASE + "dots_" + color.getName() + ".png");
         MainWindow window = Minecraft.getInstance().getWindow();
-        int x = -17;
-        int y = -17;
-        int size = 33;
+        int x = centeredCrosshairOrigin(window.getGuiScaledWidth(), CROSSHAIR_SIZE);
+        int y = centeredCrosshairOrigin(window.getGuiScaledHeight(), CROSSHAIR_SIZE);
 
         RenderSystem.disableBlend();
         Minecraft.getInstance().getTextureManager().bind(texture);
-        blit(matrixStack, window.getGuiScaledWidth() / 2 + x, window.getGuiScaledHeight() / 2 + y, 0,
-                0, end == PortalEnd.PRIMARY ? 0 : size, size, size, size, size * 2);
+        blit(matrixStack, x, y, 0,
+                0, end == PortalEnd.PRIMARY ? 0 : CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE * 2);
         RenderSystem.enableBlend();
+    }
+
+    static int centeredCrosshairOrigin(int guiSize, int spriteSize) {
+        return (guiSize - spriteSize) / 2;
     }
 
     private static void blit(MatrixStack matrixStack, int x, int y, int z, float u0, float v0, int uw, int uh, int width, int height) {
