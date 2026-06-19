@@ -33,7 +33,7 @@ public interface AntlineActivated extends AntlineConnector {
             if (neighborBlock instanceof AntlineActivator
                     && ((AntlineActivator) neighborBlock).antlineConnectsInDirection(direction.getOpposite(), neighborState)
                     && ((AntlineActivator) neighborBlock).getHorsedOn(neighborState) == horsedOn
-                    && ((AntlineActivator) neighborBlock).isAntlineActive(neighborState)
+                    && ((AntlineActivator) neighborBlock).isAntlineActive(neighborState, horsedOn, direction.getOpposite())
                     && !ignoreAntlineActivationFromBlock(neighborState)
             ) {
                 this.onAntlineActivation(true, state, world, pos);
