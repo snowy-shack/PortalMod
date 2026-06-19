@@ -8,6 +8,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
@@ -21,18 +22,18 @@ import java.util.List;
 
 public class LongFallBoots extends ArmorItem {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/models/armor/longfall_boots.png");
-    
+
     public LongFallBoots(IArmorMaterial armorMaterial, EquipmentSlotType slotType, Properties properties) {
         super(armorMaterial, slotType, properties);
     }
-    
+
     @Nullable
     @Override
     @OnlyIn(Dist.CLIENT)
     public <A extends BipedModel<?>> A getArmorModel(LivingEntity entity, ItemStack itemStack, EquipmentSlotType armorSlot, A originalModel) {
-        return (A)(new LongFallBootsModel(entity));
+        return (A) (new LongFallBootsModel(entity));
     }
-    
+
     @Nullable
     @Override
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
@@ -42,5 +43,10 @@ public class LongFallBoots extends ArmorItem {
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
         ModUtil.addTooltip("longfall_boots", list);
+    }
+
+    @Override
+    public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
+        return repair.getItem() == Items.IRON_INGOT || super.isValidRepairItem(toRepair, repair);
     }
 }
