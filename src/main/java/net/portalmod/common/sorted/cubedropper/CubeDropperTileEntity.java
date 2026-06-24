@@ -141,18 +141,37 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void removeAllEntities() {
-        if (this.level instanceof ServerWorld) {
-            for (UUID uuid : this.entityUUIDs) {
-                Entity entity = ((ServerWorld) this.level).getEntity(uuid);
-                if (entity != null) {
-                    if (entity instanceof TestElementEntity) {
-                        ((TestElementEntity) entity).startFizzling();
-                    } else if (entity.isAlive()) {
-                        entity.remove();
-                    }
-                }
+        if (!(this.level instanceof ServerWorld)) {
+            return;
+        }
+        for (UUID uuid : this.entityUUIDs) {
+            Entity entity = ((ServerWorld) this.level).getEntity(uuid);
+            if (entity == null) {
+                continue;
             }
-            this.entityUUIDs.clear();
+            if (entity instanceof TestElementEntity) {
+                ((TestElementEntity) entity).startFizzling();
+            } else if (entity.isAlive()) {
+                entity.remove();
+            }
+        }
+        this.entityUUIDs.clear();
+    }
+
+    public void fizzleOrRemoveAllEntities() {
+        if (!(this.level instanceof ServerWorld)) {
+            return;
+        }
+        for (UUID uuid : this.entityUUIDs) {
+            Entity entity = ((ServerWorld) this.level).getEntity(uuid);
+            if (entity == null) {
+                continue;
+            }
+            if (entity instanceof TestElementEntity) {
+                ((TestElementEntity) entity).startFizzling();
+            } else if (entity.isAlive()) {
+                entity.remove();
+            }
         }
     }
 
@@ -164,7 +183,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             this.getEntityType().ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
         }
 
-        this.removeAllEntities();
+        this.fizzleOrRemoveAllEntities();
         this.setEntityNBT(spawnEggType);
     }
 
