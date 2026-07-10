@@ -25,6 +25,7 @@ import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalHandler;
+import net.portalmod.common.sorted.portal.PortalMovementAccounting;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
@@ -140,6 +141,19 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
                 VoxelShapes.create(bb), IBooleanFunction.AND);
 
         return noCollision && noCubeCollision && noPortalCollision;
+    }
+
+    @Redirect(
+                        method = "checkMovementStatistics",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/player/PlayerEntity;causeFoodExhaustion(F)V"
+            )
+    )
+    private void pmSuppressPortalTeleportMovementExhaustion(PlayerEntity player, float exhaustion) {
+        if(!PortalMovementAccounting.shouldSuppressMovementExhaustion(this.clientJustPortaled, exhaustion)) {
+            player.causeFoodExhaustion(exhaustion);
+        }
     }
 
     @Unique

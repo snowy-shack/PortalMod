@@ -2,6 +2,8 @@ package net.portalmod.common.sorted.portalgun;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -100,7 +102,8 @@ public class PortalGunClient {
     }
 
     public boolean handleMouseButtons(int button, int action) {
-        boolean isItemFrame = Minecraft.getInstance().getEntityRenderDispatcher().crosshairPickEntity instanceof ItemFrameEntity;
+        Entity crosshairPickEntity = Minecraft.getInstance().getEntityRenderDispatcher().crosshairPickEntity;
+        boolean shouldDeferRightClick = shouldDeferRightClickToVanilla(crosshairPickEntity == null ? null : crosshairPickEntity.getClass());
 
         if(action == GLFW.GLFW_PRESS) {
             if(!Minecraft.getInstance().mouseHandler.isMouseGrabbed()) {
@@ -125,15 +128,15 @@ public class PortalGunClient {
         }
 
         if(button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
-            if(isItemFrame) {
+            if(shouldDeferRightClick) {
                 if(this.lastUnresolvedPress == PressState.PORTALGUN && action == GLFW.GLFW_RELEASE) {
                     this.lastUnresolvedPress = PressState.NONE;
                 } else {
-                    this.lastUnresolvedPress = PressState.ITEM_FRAME;
+                    this.lastUnresolvedPress = PressState.VANILLA_ENTITY;
                     return false;
                 }
             } else {
-                if(this.lastUnresolvedPress == PressState.ITEM_FRAME && action == GLFW.GLFW_RELEASE) {
+                if(this.lastUnresolvedPress == PressState.VANILLA_ENTITY && action == GLFW.GLFW_RELEASE) {
                     this.lastUnresolvedPress = PressState.NONE;
                     return false;
                 } else {
@@ -158,6 +161,12 @@ public class PortalGunClient {
         return false;
     }
 
+    static boolean shouldDeferRightClickToVanilla(Class<? extends Entity> entityClass) {
+        return entityClass != null
+                && (ItemFrameEntity.class.isAssignableFrom(entityClass)
+                || ArmorStandEntity.class.isAssignableFrom(entityClass));
+    }
+
     public void resetPresses() {
         this.leftButtonPressed = false;
         this.rightButtonPressed = false;
@@ -166,6 +175,6 @@ public class PortalGunClient {
     private enum PressState {
         NONE,
         PORTALGUN,
-        ITEM_FRAME
+        VANILLA_ENTITY
     }
 }
