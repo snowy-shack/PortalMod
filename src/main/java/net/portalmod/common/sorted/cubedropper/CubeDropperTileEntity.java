@@ -141,19 +141,87 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void removeAllEntities() {
-        if (this.level instanceof ServerWorld) {
-            for (UUID uuid : this.entityUUIDs) {
-                Entity entity = ((ServerWorld) this.level).getEntity(uuid);
-                if (entity != null) {
-                    if (entity instanceof TestElementEntity) {
-                        ((TestElementEntity) entity).startFizzling();
-                    } else if (entity.isAlive()) {
-                        entity.remove();
-                    }
-                }
-            }
-            this.entityUUIDs.clear();
+        if (!(this.level instanceof ServerWorld)) {
+            return;
         }
+        for (UUID uuid : this.entityUUIDs) {
+            Entity entity = ((ServerWorld) this.level).getEntity(uuid);
+            if (entity == null) {
+                continue;
+            }
+            if (entity instanceof TestElementEntity) {
+                ((TestElementEntity) entity).startFizzling();
+            } else if (entity.isAlive()) {
+                entity.remove();
+            }
+        }
+        this.entityUUIDs.clear();
+    }
+
+    public void fizzleOrRemoveAllEntities() {
+        if (!(this.level instanceof ServerWorld)) {
+            return;
+        }
+        for (UUID uuid : this.entityUUIDs) {
+            Entity entity = ((ServerWorld) this.level).getEntity(uuid);
+            if (entity == null) {
+                continue;
+            }
+            if (entity instanceof TestElementEntity) {
+                ((TestElementEntity) entity).startFizzling();
+            } else if (entity.isAlive()) {
+                entity.remove();
+            }
+        }
+    }
+
+    public void onEggClick(ItemStack egg, PlayerEntity player) {
+        EntityType<?> spawnEggType = ((SpawnEggItem) egg.getItem()).getType(egg.getTag());
+
+        if (!player.isCreative()) {
+            egg.shrink(1);
+            this.getEntityType().ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
+        }
+
+        this.fizzleOrRemoveAllEntities();
+        this.setEntityNBT(spawnEggType);
+    }
+
+    public void onWrenchClick(PlayerEntity player) {
+        if (!this.hasEntityNBT()) return;
+
+        // Remove current spawned cube
+        if (this.entityUUIDs.size() > 1) {
+            this.resetDropper();
+        } else {
+            // Clear entity type of dropper
+            this.removeAllEntities();
+            if (!player.isCreative()) {
+                this.dropEgg();
+            }
+
+            this.removeEntityNBT();
+        }
+    }
+
+    public void onRemove() {
+        this.removeAllEntities();
+        this.dropEgg();
+    }
+
+    public void dropEgg() {
+        if (this.level == null) return;
+
+        this.getEntityType().ifPresent(type -> {
+            BlockPos blockPos = this.getBlockPos();
+            ItemEntity entity = new ItemEntity(this.level,
+                    blockPos.getX() + 1,
+                    blockPos.getY() - 1.4,
+                    blockPos.getZ() + 1,
+                    new ItemStack(ForgeSpawnEggItem.fromEntityType(type)));
+            entity.setDeltaMovement(entity.getDeltaMovement().multiply(1, .5, 1));
+            this.level.addFreshEntity(entity);
+        });
     }
 
     public void onEggClick(ItemStack egg, PlayerEntity player) {
