@@ -1,77 +1,78 @@
 package net.portalmod.mixins.renderer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IWorldReader;
 import net.portalmod.common.sorted.portal.DuplicateEntityRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(EntityRendererManager.class)
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.LevelReader;
+
+@Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRendererManagerMixin {
-    @Shadow private static void renderShadow(MatrixStack p_229096_0_, IRenderTypeBuffer p_229096_1_, Entity p_229096_2_, float p_229096_3_, float p_229096_4_, IWorldReader p_229096_5_, float p_229096_6_) { }
+    @Shadow private static void renderShadow(PoseStack p_229096_0_, MultiBufferSource p_229096_1_, Entity p_229096_2_, float p_229096_3_, float p_229096_4_, LevelReader p_229096_5_, float p_229096_6_) { }
 
     @Redirect(
                         method = "renderShadow",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/MathHelper;lerp(DDD)D",
+                    target = "Lnet/minecraft/util/Mth;lerp(DDD)D",
                     ordinal = 0
             )
     )
     private static double pmOverrideShadowPositionX(double factor, double o, double n) {
         if(DuplicateEntityRenderer.entityPosOverride != null)
             return DuplicateEntityRenderer.entityPosOverride.x;
-        return MathHelper.lerp(factor, o, n);
+        return Mth.lerp(factor, o, n);
     }
 
     @Redirect(
                         method = "renderShadow",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/MathHelper;lerp(DDD)D",
+                    target = "Lnet/minecraft/util/Mth;lerp(DDD)D",
                     ordinal = 1
             )
     )
     private static double pmOverrideShadowPositionY(double factor, double o, double n) {
         if(DuplicateEntityRenderer.entityPosOverride != null)
             return DuplicateEntityRenderer.entityPosOverride.y;
-        return MathHelper.lerp(factor, o, n);
+        return Mth.lerp(factor, o, n);
     }
 
     @Redirect(
                         method = "renderShadow",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/MathHelper;lerp(DDD)D",
+                    target = "Lnet/minecraft/util/Mth;lerp(DDD)D",
                     ordinal = 2
             )
     )
     private static double pmOverrideShadowPositionZ(double factor, double o, double n) {
         if(DuplicateEntityRenderer.entityPosOverride != null)
             return DuplicateEntityRenderer.entityPosOverride.z;
-        return MathHelper.lerp(factor, o, n);
+        return Mth.lerp(factor, o, n);
     }
 
     @Redirect(
                         method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/entity/EntityRendererManager;renderShadow(Lcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;Lnet/minecraft/entity/Entity;FFLnet/minecraft/world/IWorldReader;F)V"
+                    target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
             )
     )
-    private void pmOverrideShadowRendering(MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, Entity entity, float strength, float partialTicks, IWorldReader worldReader, float radius) {
+    private void pmOverrideShadowRendering(PoseStack matrixStack, MultiBufferSource renderTypeBuffer, Entity entity, float strength, float partialTicks, LevelReader worldReader, float radius) {
         if(DuplicateEntityRenderer.entityShadowTransformOverride != null) {
             if(!DuplicateEntityRenderer.shouldRenderShadow)
                 return;
 
-            matrixStack = new MatrixStack();
-            matrixStack.last().pose().multiply(DuplicateEntityRenderer.entityShadowTransformOverride);
+            matrixStack = new PoseStack();
+            matrixStack.last().pose().mul(DuplicateEntityRenderer.entityShadowTransformOverride);
         }
 
         renderShadow(matrixStack, renderTypeBuffer, entity, strength, partialTicks, worldReader, radius);

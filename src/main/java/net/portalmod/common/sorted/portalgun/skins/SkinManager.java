@@ -3,7 +3,6 @@ package net.portalmod.common.sorted.portalgun.skins;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import net.minecraft.util.math.MathHelper;
 import net.portalmod.PortalMod;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.math.Vec3;
@@ -15,6 +14,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
+
+import net.minecraft.util.Mth;
 
 public abstract class SkinManager {
     protected final boolean clientSide;
@@ -432,9 +433,9 @@ public abstract class SkinManager {
         float valueMin = ColorPickerWidget.SV_PICKER_VAL_MIN;
         float valueMax = ColorPickerWidget.SV_PICKER_VAL_MAX;
 
-        hsv.x = MathHelper.clamp(hsv.x, 0, 360);
-        hsv.y = MathHelper.clamp(hsv.y, 0, 1);
-        hsv.z = MathHelper.clamp(hsv.z, valueMin, valueMax);
+        hsv.x = Mth.clamp(hsv.x, 0, 360);
+        hsv.y = Mth.clamp(hsv.y, 0, 1);
+        hsv.z = Mth.clamp(hsv.z, valueMin, valueMax);
         return Colour.fromHSV((float)hsv.x, (float)hsv.y, (float)hsv.z).getRGBValue();
     }
 

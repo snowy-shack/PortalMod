@@ -1,18 +1,8 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
+
+import net.minecraft.core.BlockPos;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.util.ModUtil;
@@ -22,35 +12,47 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AntlineTileEntity extends TileEntity {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+
+public class AntlineTileEntity extends BlockEntity implements RenderAttachmentBlockEntity {
     private final SideMap sideMap = new SideMap();
 
     public SideMap getSideMap() {
         return sideMap;
     }
 
-    public AntlineTileEntity(TileEntityType<?> type) {
-        super(type);
+    public AntlineTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
-    public AntlineTileEntity() {
-        this(TileEntityTypeInit.ANTLINE.get());
+    public AntlineTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.ANTLINE.get(), pos, state);
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(sideMap.isBlank())
             sideMap.makeDefault();
-        return super.save(sideMap.get(nbt));
+        sideMap.get(nbt);
+        super.saveAdditional(nbt);
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT nbt) {
-        super.load(state, nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
         sideMap.set(nbt);
     }
 
-    public void load(CompoundNBT nbt, boolean complete) {
+    public void load(CompoundTag nbt, boolean complete) {
         if (complete)
             sideMap.set(nbt);
         else
@@ -71,9 +73,12 @@ public class AntlineTileEntity extends TileEntity {
 //        this.initialized = true;
 //    }
 //
-    @Override
-    protected void invalidateCaps() { // On removal of entity
-        if (level.isClientSide) return;
+    /**
+     * Drops one item per extra side. Forge called this from invalidateCaps on removal; on Fabric
+     * AntlineBlock#onRemove calls it, because setRemoved() also runs when a chunk unloads.
+     */
+    public void dropExtraSides() {
+        if (level == null || level.isClientSide) return;
 
         SideMap sidemap = this.getSideMap();
         int count = sidemap.getSideCount();
@@ -81,20 +86,18 @@ public class AntlineTileEntity extends TileEntity {
         for (int i = 0; i < count - 1; i++) {
             AntlineBlock.dropResources(getBlock().defaultBlockState(), level, this.getBlockPos());
         }
-
-        super.invalidateCaps();
     }
 
     private static Block getBlock() {
         return BlockInit.ANTLINE.get();
     }
 
+    /** Data for AntlineBakedModel (Fabric Rendering API render attachment). */
     @Override
-    public IModelData getModelData() {
-        return sideMap.toModelData();
+    public Object getRenderAttachmentData() {
+        return sideMap;
     }
 
-    @Override
     public void rotate(Rotation rotation) {
         SideMap initial = (SideMap) this.sideMap.clone();
 
@@ -110,7 +113,6 @@ public class AntlineTileEntity extends TileEntity {
         this.sideMap.get(Direction.DOWN).rotate(ModUtil.getRotationAmount(rotation));
     }
 
-    @Override
     public void mirror(Mirror mirror) {
         if (mirror == Mirror.NONE) return;
 
@@ -132,31 +134,28 @@ public class AntlineTileEntity extends TileEntity {
     // chunk update
 
     @Override
-    public CompoundNBT getUpdateTag() {
-        return this.save(new CompoundNBT());
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
 
-    @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-        load(state, tag);
+    public void handleUpdateTag(BlockState state, CompoundTag tag) {
+        load(tag);
     }
 
     // block update
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
         // TODO sync only needed data
-        return new SUpdateTileEntityPacket(this.getBlockPos(), -1, save(new CompoundNBT()));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         // TODO false with only needed data
         this.load(packet.getTag(), true);
     }
 
     public static class SideMap extends HashMap<Direction, Side> {
-        public static final ModelProperty<SideMap> MODEL_PROPERTY = new ModelProperty<>();
 
         public void makeDefault() {
             for(Direction direction : Direction.values())
@@ -179,22 +178,22 @@ public class AntlineTileEntity extends TileEntity {
             return !get(direction).isEmpty();
         }
 
-        public void set(CompoundNBT nbt) {
-            CompoundNBT data = nbt.getCompound("AntlineSides");
+        public void set(CompoundTag nbt) {
+            CompoundTag data = nbt.getCompound("AntlineSides");
             for (Direction direction : Direction.values())
                 this.put(direction, new Side(direction, data.getByte(direction.getName())));
 //            }
         }
 
-        public CompoundNBT get(CompoundNBT nbt) {
-            CompoundNBT data = new CompoundNBT();
+        public CompoundTag get(CompoundTag nbt) {
+            CompoundTag data = new CompoundTag();
             for(Direction direction : Direction.values())
                 data.putByte(direction.getName(), this.get(direction).value);
             nbt.put("AntlineSides", data);
             return nbt;
         }
 
-        public void merge(CompoundNBT nbt) {
+        public void merge(CompoundTag nbt) {
             for (String s : nbt.getAllKeys())
                 this.put(Direction.valueOf(s.toUpperCase()), new Side(Direction.valueOf(s.toUpperCase()), nbt.getByte(s)));
         }
@@ -205,12 +204,6 @@ public class AntlineTileEntity extends TileEntity {
 
         public void removeSide(Direction direction) {
             this.put(direction, Side.emptySide(direction));
-        }
-
-        public IModelData toModelData() {
-            ModelDataMap.Builder builder = new ModelDataMap.Builder();
-            builder.withInitial(MODEL_PROPERTY, this);
-            return builder.build();
         }
     }
 

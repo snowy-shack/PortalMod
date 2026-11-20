@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.portalgun;
 import org.junit.Assert;
 import org.junit.Test;
 
+
 public class PortalGunCrosshairRendererTest {
     @Test
     public void centersOddSizedCrosshairOnEvenGuiDimensionLikeVanilla() {

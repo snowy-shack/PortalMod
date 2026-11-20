@@ -1,0 +1,19 @@
+accessWidener v2 named
+
+# Fabric replacement for the Forge access transformer (META-INF/accesstransformer.cfg).
+accessible field net/minecraft/client/renderer/LevelRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
+accessible field net/minecraft/client/renderer/LevelRenderer entityRenderDispatcher Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;
+accessible field net/minecraft/client/renderer/LevelRenderer level Lnet/minecraft/client/multiplayer/ClientLevel;
+accessible field net/minecraft/client/renderer/LevelRenderer renderedEntities I
+accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
+accessible field net/minecraft/client/Minecraft overlay Lnet/minecraft/client/gui/screens/Overlay;
+accessible field net/minecraft/client/renderer/GameRenderer lightTexture Lnet/minecraft/client/renderer/LightTexture;
+accessible method net/minecraft/client/renderer/GameRenderer bobHurt (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
+accessible method net/minecraft/client/renderer/GameRenderer bobView (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
+accessible method net/minecraft/world/entity/LivingEntity getCurrentSwingDuration ()I
+accessible method net/minecraft/world/entity/Entity unsetRemoved ()V
+accessible class net/minecraft/client/renderer/texture/SimpleTexture$TextureImage
+accessible method net/minecraft/client/renderer/texture/SimpleTexture$TextureImage load (Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;
+accessible method net/minecraft/client/renderer/texture/SimpleTexture$TextureImage getImage ()Lcom/mojang/blaze3d/platform/NativeImage;
+accessible field net/minecraft/server/level/ServerPlayerGameMode player Lnet/minecraft/server/level/ServerPlayer;
+accessible field net/minecraft/client/renderer/LevelRenderer renderChunksInFrustum Lit/unimi/dsi/fastutil/objects/ObjectArrayList;

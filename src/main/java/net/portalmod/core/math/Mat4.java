@@ -1,11 +1,14 @@
 package net.portalmod.core.math;
 
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Axis;
+
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
+
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class Mat4 {
     public static Mat4 identity() {
@@ -63,11 +66,11 @@ public class Mat4 {
         this.m33 = array[15];
     }
 
-    public Mat4(Quaternion q) {
-       float f = q.i();
-       float f1 = q.j();
-       float f2 = q.k();
-       float f3 = q.r();
+    public Mat4(Quaternionf q) {
+       float f = q.x();
+       float f1 = q.y();
+       float f2 = q.z();
+       float f3 = q.w();
        float f4 = 2.0F * f * f;
        float f5 = 2.0F * f1 * f1;
        float f6 = 2.0F * f2 * f2;
@@ -92,7 +95,7 @@ public class Mat4 {
     private static final FloatBuffer temp = FloatBuffer.allocate(16);
 
     public Mat4(Matrix4f m) {
-        m.store(temp);
+        m.get(temp);
         this.m00 = temp.get(0);
         this.m01 = temp.get(1);
         this.m02 = temp.get(2);
@@ -267,7 +270,7 @@ public class Mat4 {
         return this;
     }
 
-    public Mat4 mul(Quaternion q) {
+    public Mat4 mul(Quaternionf q) {
         return this.mul(new Mat4(q));
     }
 
@@ -289,16 +292,24 @@ public class Mat4 {
         return this.scale(v.x, v.y, v.z);
     }
 
-    public Mat4 rotate(Quaternion q) {
+    public Mat4 rotate(Quaternionf q) {
         return this.mul(q);
     }
 
-    public Mat4 rotateRad(Vector3f axis, float angle) {
+    public Mat4 rotateRad(Axis axis, float angle) {
         return this.mul(axis.rotation((float) (angle % 2 * Math.PI)));
     }
 
+    public Mat4 rotateDeg(Axis axis, float angle) {
+        return this.mul(axis.rotationDegrees(angle % 360));
+    }
+
+    public Mat4 rotateRad(Vector3f axis, float angle) {
+        return this.mul(new Quaternionf().rotateAxis((float) (angle % 2 * Math.PI), axis));
+    }
+
     public Mat4 rotateDeg(Vector3f axis, float angle) {
-        return this.mul(new Quaternion(axis, angle % 360, true));
+        return this.mul(new Quaternionf().rotateAxis((float) Math.toRadians(angle % 360), axis));
     }
 
     public static Mat4 createTranslation(double x, double y, double z) {
@@ -318,12 +329,13 @@ public class Mat4 {
     }
 
     public Matrix4f to4f() {
-        return new Matrix4f(new float[] {
+        // Forge 1.16 read this array row by row; JOML reads column by column, so transpose.
+        return new Matrix4f().set(new float[] {
                 (float)m00, (float)m01, (float)m02, (float)m03,
                 (float)m10, (float)m11, (float)m12, (float)m13,
                 (float)m20, (float)m21, (float)m22, (float)m23,
                 (float)m30, (float)m31, (float)m32, (float)m33
-        });
+        }).transpose();
     }
 
     public FloatBuffer toBuffer() {

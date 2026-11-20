@@ -1,35 +1,25 @@
 package net.portalmod.core.event;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.IModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+
+import net.fabricmc.api.EnvType;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
-import net.portalmod.common.sorted.antline.AntlineLoader;
 import net.portalmod.common.sorted.autoportal.AutoPortalTER;
-import net.portalmod.common.sorted.button.SuperButtonGeometry;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.common.sorted.cube.GabeRenderer;
 import net.portalmod.common.sorted.cube.companion.CompanionCubeRenderer;
@@ -38,7 +28,6 @@ import net.portalmod.common.sorted.cube.vintage.VintageCubeRenderer;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
 import net.portalmod.common.sorted.portal.PortalEntityRenderer;
 import net.portalmod.common.sorted.portalgun.PortalGun;
-import net.portalmod.common.sorted.portalgun.PortalGunGeometry;
 import net.portalmod.common.sorted.portalgun.PortalGunItemColor;
 import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import net.portalmod.common.sorted.sign.ChamberSignRenderer;
@@ -47,109 +36,110 @@ import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
 
-@EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.world.item.Item;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+
+/**
+ * Client setup: render layers, renderers, item properties and custom models.
+ * Forge ran this from FMLClientSetupEvent and other mod-bus events; Fabric runs {@link #register()}
+ * from the client entrypoint.
+ */
+@Environment(EnvType.CLIENT)
 public class ClientModEvents {
 
-    @SubscribeEvent
-    public static void clientSetup(final FMLClientSetupEvent event) {
-        ClientSkinManager.getInstance().onClientStartup();
+    public static void register() {
+        clientSetup();
+        // The window and main framebuffer only exist once the client has fully started.
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+            ((net.portalmod.core.interfaces.StencilTarget) client.getMainRenderTarget()).pmEnableStencil();
+            ShaderInit.REGISTRY.registerAll();
+            // Needs the texture manager, which exists only once the client has started.
+            ClientSkinManager.getInstance().onClientStartup();
+            // Dev check: -Dportalmod.auditMixins=true applies every mixin now, so broken
+            // injection points fail at startup instead of later in game.
+            if (Boolean.getBoolean("portalmod.auditMixins"))
+                org.spongepowered.asm.mixin.MixinEnvironment.getCurrentEnvironment().audit();
+        });
+        ModelLoadingPlugin.register(net.portalmod.client.render.PortalModModels::initialize);
+    }
+
+    private static void registerModelLayers() {
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.autoportal.AutoPortalModel.LAYER, net.portalmod.common.sorted.autoportal.AutoPortalModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.portalgun.PortalGunModel.LAYER, net.portalmod.common.sorted.portalgun.PortalGunModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.faithplate.FaithPlatePlateModel.LAYER, net.portalmod.common.sorted.faithplate.FaithPlatePlateModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.cube.CubeModel.LAYER, net.portalmod.common.sorted.cube.CubeModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.turret.TurretModel.LAYER, net.portalmod.common.sorted.turret.TurretModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.turret.TurretModelOld.LAYER, net.portalmod.common.sorted.turret.TurretModelOld::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.creer.CreerModel.LAYER, () -> net.portalmod.common.sorted.creer.CreerModel.createBodyLayer(CubeDeformation.NONE));
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.creer.CreerModel.ARMOR_LAYER, () -> net.portalmod.common.sorted.creer.CreerModel.createBodyLayer(new CubeDeformation(2.0F)));
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.longfallboots.LongFallBootsModel.LAYER, net.portalmod.common.sorted.longfallboots.LongFallBootsModel::createBodyLayer);
+    }
+
+    private static void clientSetup() {
+        registerModelLayers();
+        net.portalmod.common.sorted.longfallboots.LongFallBootsClient.register();
 
         KeyInit.init();
-        Minecraft.getInstance().getMainRenderTarget().enableStencil();
 
-        RenderTypeLookup.setRenderLayer(BlockInit.ANTLINE.get(),                 RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),           RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_CATCHER.get(),           RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH_BLOCK.get(),         RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH.get(),               RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.IRON_FRAME.get(),              RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.BARRED_IRON_FRAME.get(),       RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.MESHED_IRON_FRAME.get(),       RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_IRON_FRAME.get(),        RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_BARRED_IRON_FRAME.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_MESHED_IRON_FRAME.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.ANTLINE.get(),                 RenderType.cutout());
+//        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.LASER_EMITTER.get(),           RenderType.cutout());
+//        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.LASER_CATCHER.get(),           RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.WIRE_MESH_BLOCK.get(),         RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.WIRE_MESH.get(),               RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.IRON_FRAME.get(),              RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.BARRED_IRON_FRAME.get(),       RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.MESHED_IRON_FRAME.get(),       RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.RUSTY_IRON_FRAME.get(),        RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.RUSTY_BARRED_IRON_FRAME.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.RUSTY_MESHED_IRON_FRAME.get(), RenderType.cutout());
 
         // This is for rendering the vines
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_SLAB.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_STAIRS.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_PLATFORM.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.ARBORED_BLACKPLATE.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.ARBORED_BLACKPLATE_SLAB.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.ARBORED_BLACKPLATE_STAIRS.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.ARBORED_BLACKPLATE_PLATFORM.get(), RenderType.cutout());
 
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),     RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),  RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.CUBE_DROPPER.get(),    RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(), RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_FIELD.get(),   RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.PROPULSION_GEL.get(),  RenderType.translucent()); // Test
-        RenderTypeLookup.setRenderLayer(BlockInit.REPULSION_GEL.get(),   RenderType.translucent()); // Test
-        RenderTypeLookup.setRenderLayer(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.TRIGGER.get(),         RenderType.cutout());
+//        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.LASER_RELAY.get(),     RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CHAMBER_LIGHTS.get(),  RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.CUBE_DROPPER.get(),    RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.FIZZLER_EMITTER.get(), RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.FIZZLER_FIELD.get(),   RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.PROPULSION_GEL.get(),  RenderType.translucent()); // Test
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.REPULSION_GEL.get(),   RenderType.translucent()); // Test
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockInit.TRIGGER.get(),         RenderType.cutout());
 
-        ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
-        ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.TRIGGER.get(), TriggerTER::new);
-        ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.AUTOPORTAL.get(), AutoPortalTER::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.GABE.get(), GabeRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.PORTAL.get(), PortalEntityRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.TURRET.get(), TurretRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
-        Minecraft.getInstance().getItemColors().register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
+        BlockEntityRenderers.register(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
+        BlockEntityRenderers.register(TileEntityTypeInit.TRIGGER.get(), TriggerTER::new);
+        BlockEntityRenderers.register(TileEntityTypeInit.AUTOPORTAL.get(), AutoPortalTER::new);
+        EntityRendererRegistry.register(EntityInit.COMPANION_CUBE.get(), CompanionCubeRenderer::new);
+        EntityRendererRegistry.register(EntityInit.STORAGE_CUBE.get(), StorageCubeRenderer::new);
+        EntityRendererRegistry.register(EntityInit.VINTAGE_CUBE.get(), VintageCubeRenderer::new);
+        EntityRendererRegistry.register(EntityInit.GABE.get(), GabeRenderer::new);
+        EntityRendererRegistry.register(EntityInit.PORTAL.get(), PortalEntityRenderer::new);
+        EntityRendererRegistry.register(EntityInit.TURRET.get(), TurretRenderer::new);
+        EntityRendererRegistry.register(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
+        ColorProviderRegistry.ITEM.register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
+        // Portal gun is drawn in code (its item model has parent builtin/entity).
+        net.portalmod.common.sorted.portalgun.PortalGunISTER portalGunRenderer = new net.portalmod.common.sorted.portalgun.PortalGunISTER();
+        BuiltinItemRendererRegistry.INSTANCE.register(ItemInit.PORTALGUN.get(), portalGunRenderer::renderByItem);
 
-        event.enqueueWork(() -> {
-            registerItemProperty(ItemInit.PORTALGUN.get(), "color",  PortalGun::getColorOverride);
+        registerItemProperty(ItemInit.PORTALGUN.get(), "color", (stack, level, entity, seed) -> PortalGun.getColorOverride(stack, level, entity));
 
-            ShaderInit.REGISTRY.registerAll();
-        });
+        FluidRenderHandlerRegistry.INSTANCE.register(FluidInit.GOO_FLUID.get(), FluidInit.GOO_FLOWING.get(),
+                new SimpleFluidRenderHandler(new ResourceLocation(PortalMod.MODID, "block/goo_still"),
+                        new ResourceLocation(PortalMod.MODID, "block/goo_flow")));
+
     }
 
-    private static void registerItemProperty(Item item, String name, IItemPropertyGetter getter) {
-        ItemModelsProperties.register(item, new ResourceLocation(PortalMod.MODID, name), getter);
-    }
-
-    @SubscribeEvent
-    public static void registerAttributes(final EntityAttributeCreationEvent event) {
-        event.put(EntityInit.COMPANION_CUBE.get(), Cube.createAttributes().build());
-        event.put(EntityInit.STORAGE_CUBE.get(), Cube.createAttributes().build());
-        event.put(EntityInit.VINTAGE_CUBE.get(), Cube.createAttributes().build());
-        event.put(EntityInit.GABE.get(), Cube.createAttributes().build());
-        event.put(EntityInit.TURRET.get(), TurretEntity.createAttributes().build());
-    }
-
-    @SubscribeEvent
-    public static void onRegisterSpawnEggs(RegistryEvent.Register<EntityType<?>> event) {
-        ModSpawnEggItem.register();
-    }
-
-    @SubscribeEvent
-    public static void onLoaderRegister(ModelRegistryEvent event) {
-        registerLoader("antline",           new AntlineLoader());
-        registerLoader("super_button",      new SuperButtonGeometry.Loader());
-        registerLoader("portalgun",         new PortalGunGeometry.Loader());
-    }
-
-    private static void registerLoader(String name, IModelLoader<?> loader) {
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(PortalMod.MODID, name), loader);
-    }
-
-    @SubscribeEvent
-    public static void onTextureStitch(TextureStitchEvent.Pre event) {
-        TextureInit.register(event);
-
-        if(event.getMap().location() == AtlasTexture.LOCATION_BLOCKS) {
-            for(ResourceLocation texture : AntlineBakedModel.getAllTextures())
-                event.addSprite(texture);
-
-            for(ResourceLocation texture : TriggerTER.getAllFieldTextures())
-                event.addSprite(texture);
-
-            event.addSprite(FaithPlateTER.TEXTURE_BLUE);
-            event.addSprite(FaithPlateTER.TEXTURE_ORANGE);
-            event.addSprite(FaithPlateTER.TEXTURE_BLUE_E);
-            event.addSprite(FaithPlateTER.TEXTURE_ORANGE_E);
-
-            event.addSprite(AutoPortalTER.TEXTURE);
-        }
+    private static void registerItemProperty(Item item, String name, ClampedItemPropertyFunction getter) {
+        ItemProperties.register(item, new ResourceLocation(PortalMod.MODID, name), getter);
     }
 }

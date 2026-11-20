@@ -1,5 +1,13 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.portalmod.core.util.RenderUtil;
+
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.portalmod.core.util.MatrixUtil;
+
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import java.awt.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,26 +16,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.client.render.Shader;
 import net.portalmod.client.screens.widgets.IconButton;
 import net.portalmod.core.init.ShaderInit;
 import net.portalmod.core.util.Colour;
-import com.mojang.blaze3d.matrix.MatrixStack;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.portalmod.PortalMod;
 import net.portalmod.core.util.PositionTextureVertexRenderer;
 import org.lwjgl.opengl.GL11;
+
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 public class SkinSelectorScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
@@ -81,7 +88,7 @@ public class SkinSelectorScreen extends Screen {
     private final PositionTextureVertexRenderer loadingBlob = new PositionTextureVertexRenderer(GL11.GL_QUADS);
 
     private SkinSelectorScreen() {
-        super(new TranslationTextComponent("options." + PortalMod.MODID + ".skins.title"));
+        super(Component.translatable("options." + PortalMod.MODID + ".skins.title"));
         this.loadingStart = -1;
         this.skinEntryList = new ArrayList<>();
         this.loadingBlob.reset();
@@ -124,7 +131,7 @@ public class SkinSelectorScreen extends Screen {
 
     private void initSkinList() {
         this.skinEntryList.clear();
-        this.children.removeIf(child -> child instanceof SkinEntryWidget);
+        new java.util.ArrayList<>(this.children()).stream().filter(child -> child instanceof SkinEntryWidget).forEach(this::removeWidget);
 
         List<PortalGunSkin> skins = ClientSkinManager.getInstance().getSkinCatalog().values().stream()
                 .filter(skin -> ClientSkinManager.getInstance().playerHasSkin(null, skin.skin_id))
@@ -179,7 +186,7 @@ public class SkinSelectorScreen extends Screen {
             } catch (URISyntaxException ignored) { }
         });
 
-        this.addButton(this.infoButton);
+        this.addRenderableWidget(this.infoButton);
     }
 
     private void initRefreshButton() {
@@ -201,24 +208,24 @@ public class SkinSelectorScreen extends Screen {
         });
         this.refreshButton.active = System.currentTimeMillis() - this.lastRefresh >= REFRESH_TIMEOUT;
 
-        this.addButton(this.refreshButton);
+        this.addRenderableWidget(this.refreshButton);
     }
 
     private void initApplyButton() {
         int height = 20;
         int x = this.getX() + SKIN_PREVIEW_X - APPLY_BUTTON_WIDTH + 1;
         int y = this.getY() + HEIGHT + 1;
-        TranslationTextComponent text = new TranslationTextComponent("options." + PortalMod.MODID + ".skins.apply");
+        MutableComponent text = Component.translatable("options." + PortalMod.MODID + ".skins.apply");
 
-        this.applyButton = new Button(x, y, APPLY_BUTTON_WIDTH, height, text, button -> {
+        this.applyButton = Button.builder(text, button -> {
             ClientSkinManager.getInstance().onSkinSelected(
                     this.selectedSkin.getSkin().skin_id,
                     this.colorPickerWidget.getTint().getRGBValue()
             );
             this.close(false);
-        });
+        }).bounds(x, y, APPLY_BUTTON_WIDTH, height).build();
 
-        this.addButton(this.applyButton);
+        this.addRenderableWidget(this.applyButton);
     }
 
     private int getX() {
@@ -251,29 +258,31 @@ public class SkinSelectorScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(MatrixStack matrixStack, int i) {
-        super.renderBackground(matrixStack, i);
+    public void renderBackground(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
+        super.renderBackground(graphics);
 
-        this.minecraft.getTextureManager().bind(TEXTURE);
-        blit(matrixStack, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
+        RenderUtil.bindTextureNow(TEXTURE);
+        graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrixStack);
-        this.font.draw(matrixStack, this.title, (float)this.getX() + 8, (float)this.getY() + 6, 4210752);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
+        this.renderBackground(graphics);
+        graphics.drawString(this.font, this.title, (int) ((float)this.getX() + 8), (int) ((float)this.getY() + 6), 4210752, false);
 
         if(!this.isLoading()) {
-            this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
-            this.renderColorPicker(matrixStack, mouseX, mouseY, partialTicks);
-            this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
-            this.renderScrollbar(matrixStack);
+            this.skinPreviewWidget.render(graphics, mouseX, mouseY, partialTicks);
+            this.renderColorPicker(graphics, mouseX, mouseY, partialTicks);
+            this.renderSkinList(graphics, mouseX, mouseY, partialTicks);
+            this.renderScrollbar(graphics);
         } else {
             this.renderLoadingBlob();
         }
 
-        this.infoButton.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.refreshButton.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.applyButton.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.infoButton.render(graphics, mouseX, mouseY, partialTicks);
+        this.refreshButton.render(graphics, mouseX, mouseY, partialTicks);
+        this.applyButton.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     private void setupScissorTest(Rectangle rect) {
@@ -286,7 +295,7 @@ public class SkinSelectorScreen extends Screen {
         );
     }
 
-    private void drawTexturedRectangle(MatrixStack matrixStack, Rectangle rectangle, Shader shader) {
+    private void drawTexturedRectangle(PoseStack matrixStack, Rectangle rectangle, Shader shader) {
         Matrix4f matrix = matrixStack.last().pose();
         int x0 = rectangle.x;
         int y0 = rectangle.y;
@@ -303,64 +312,68 @@ public class SkinSelectorScreen extends Screen {
         this.loadingBlob.render(shader);
     }
 
-    private void renderColorPicker(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    private void renderColorPicker(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         if(!(this.selectedSkin.getSkin().tintable || this.colorPickerWidget.isAnimating()))
             return;
 
         this.setupScissorTest(this.colorPickerMaskRegion);
-        this.colorPickerWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.colorPickerWidget.render(graphics, mouseX, mouseY, partialTicks);
         RenderSystem.disableScissor();
     }
 
-    private void renderSkinList(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    private void renderSkinList(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         matrixStack.pushPose();
         matrixStack.translate(0, -this.scrollOffset * this.getScrollableRange(), 0);
 
         this.setupScissorTest(this.listRegion);
-        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
+        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(graphics, mouseX, mouseY, partialTicks));
         RenderSystem.disableScissor();
 
         matrixStack.popPose();
     }
 
-    private void renderScrollbar(MatrixStack matrixStack) {
+    private void renderScrollbar(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
         if(this.getListHeight() <= this.listRegion.height)
             return;
 
-        Minecraft.getInstance().getTextureManager().bind(TEXTURE);
+        RenderUtil.bindTextureNow(TEXTURE);
 
         int yOffset = 0;
         int vOffset = 0;
 
-        blitScrollbarThumbPart(matrixStack, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
+        blitScrollbarThumbPart(graphics, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
         yOffset += SCROLLBAR_THUMB_EDGE_HEIGHT;
         vOffset += SCROLLBAR_THUMB_EDGE_HEIGHT;
 
         while(yOffset < this.getScrollbarThumbHeight() - SCROLLBAR_THUMB_EDGE_HEIGHT) {
-            blitScrollbarThumbPart(matrixStack, yOffset, vOffset, SCROLLBAR_THUMB_CENTER_HEIGHT);
+            blitScrollbarThumbPart(graphics, yOffset, vOffset, SCROLLBAR_THUMB_CENTER_HEIGHT);
             yOffset += SCROLLBAR_THUMB_CENTER_HEIGHT;
         }
         vOffset += SCROLLBAR_THUMB_CENTER_HEIGHT;
 
-        blitScrollbarThumbPart(matrixStack, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
+        blitScrollbarThumbPart(graphics, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
     }
 
-    private void blitScrollbarThumbPart(MatrixStack matrixStack, int yOffset, int vOffset, int height) {
+    private void blitScrollbarThumbPart(GuiGraphics graphics, int yOffset, int vOffset, int height) {
+        PoseStack matrixStack = graphics.pose();
         Rectangle thumbRegion = this.getScrollbarThumbRegion();
-        blit(matrixStack, thumbRegion.x, thumbRegion.y + yOffset,
+        graphics.blit(TEXTURE, thumbRegion.x, thumbRegion.y + yOffset,
                 SCROLLBAR_THUMB_U, SCROLLBAR_THUMB_V + vOffset,
                 SCROLLBAR_THUMB_WIDTH, height, 512, 512);
     }
 
     private void renderLoadingBlob() {
-        MainWindow mainWindow = Minecraft.getInstance().getWindow();
+        Window mainWindow = Minecraft.getInstance().getWindow();
         float scale = (float)mainWindow.getGuiScale();
 
-        Matrix4f projection = Matrix4f.orthographic(
+        Matrix4f projection = MatrixUtil.orthographic(
                 mainWindow.getWidth(),
                 mainWindow.getHeight(),
                 1000f,
-                net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane()
+                MatrixUtil.GUI_FAR_PLANE
         );
 
         RenderSystem.enableBlend();
@@ -369,9 +382,9 @@ public class SkinSelectorScreen extends Screen {
                 .setFloat("resolution", this.listRegion.width, this.listRegion.height)
                 .setFloat("millis", (float)(System.currentTimeMillis() - this.loadingStart) / 1000f);
 
-        MatrixStack combined = new MatrixStack();
+        PoseStack combined = new PoseStack();
         combined.scale(1, -1, 1);
-        combined.last().pose().multiply(projection);
+        combined.last().pose().mul(projection);
         combined.translate(0, 0, -2000);
         combined.scale(scale, scale, 1);
         this.drawTexturedRectangle(combined, this.listRegion, ShaderInit.LOADER.get());
@@ -428,7 +441,7 @@ public class SkinSelectorScreen extends Screen {
         if(onList)
             y += this.scrollOffset * this.getScrollableRange();
 
-        for(IGuiEventListener child : this.children()) {
+        for(GuiEventListener child : this.children()) {
             if(this.isLoading())
                 return false;
 
@@ -459,7 +472,7 @@ public class SkinSelectorScreen extends Screen {
     public void mouseMoved(double x, double y) {
         if(this.draggingScrollbar) {
             this.scrollOffset = (float)(y - this.scrollbarRegion.y - this.draggingScrollbarRelativeY) / this.getScrollbarThumbRange();
-            this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
+            this.scrollOffset = Mth.clamp(this.scrollOffset, 0, 1);
         }
 
         this.skinPreviewWidget.mouseMoved(x, y);
@@ -471,7 +484,7 @@ public class SkinSelectorScreen extends Screen {
         if(this.listRegion.contains(x, y)) {
             if(this.listRegion.height <= this.getListHeight()) {
                 this.scrollOffset -= (float) amount * SCROLL_AMOUNT / this.getScrollableRange();
-                this.scrollOffset = MathHelper.clamp(this.scrollOffset, 0, 1);
+                this.scrollOffset = Mth.clamp(this.scrollOffset, 0, 1);
             }
         }
 

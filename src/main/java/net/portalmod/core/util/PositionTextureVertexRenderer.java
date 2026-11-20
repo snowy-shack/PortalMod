@@ -1,9 +1,9 @@
 package net.portalmod.core.util;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.portalmod.client.render.GlModes;
+
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import net.portalmod.client.render.Shader;
 import net.portalmod.core.math.Mat4;
 import org.lwjgl.opengl.GL11;
@@ -11,26 +11,32 @@ import org.lwjgl.opengl.GL30;
 
 import java.util.function.Consumer;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+
 public class PositionTextureVertexRenderer {
-    private final int primitive;
+    private final VertexFormat.Mode primitive;
     private VertexBuffer vb;
 
     public PositionTextureVertexRenderer(int primitive) {
-        this.primitive = primitive;
+        this.primitive = GlModes.fromGl(primitive);
     }
 
     public void reset() {
         if(this.vb != null)
             this.vb.close();
-        this.vb = new VertexBuffer(DefaultVertexFormats.POSITION_TEX);
+        this.vb = new VertexBuffer(VertexBuffer.Usage.STATIC);
     }
 
     public void data(Consumer<BufferBuilder> data) {
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
-        bufferbuilder.begin(this.primitive, DefaultVertexFormats.POSITION_TEX);
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        bufferbuilder.begin(this.primitive, DefaultVertexFormat.POSITION_TEX);
         data.accept(bufferbuilder);
-        bufferbuilder.end();
-        this.vb.upload(bufferbuilder);
+        this.vb.bind();
+        this.vb.upload(bufferbuilder.end());
+        VertexBuffer.unbind();
     }
 
     public void render(Shader shader) {
@@ -49,7 +55,8 @@ public class PositionTextureVertexRenderer {
             GL30.glVertexAttribPointer(uvLocation, 2, GL11.GL_FLOAT, false, 20, 12);
         }
 
-        this.vb.draw(Mat4.identity().to4f(), this.primitive);
+        // 1.16 passed an identity model-view here; the mod's own shaders get their matrices as uniforms.
+        this.vb.draw();
 
         if(positionLocation >= 0) {
             GL30.glDisableVertexAttribArray(positionLocation);

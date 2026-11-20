@@ -2,15 +2,16 @@ package net.portalmod.common.triggers;
 
 import com.google.gson.JsonObject;
 
-import net.minecraft.advancements.ICriterionInstance;
-import net.minecraft.advancements.ICriterionTrigger;
-import net.minecraft.advancements.PlayerAdvancements;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.loot.ConditionArraySerializer;
-import net.minecraft.util.ResourceLocation;
 import net.portalmod.PortalMod;
 
-public class ClickMoonCriteriaTrigger implements ICriterionTrigger<ClickMoonCriteriaTrigger.Instance> {
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.server.PlayerAdvancements;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.SerializationContext;
+import net.minecraft.resources.ResourceLocation;
+
+public class ClickMoonCriteriaTrigger implements CriterionTrigger<ClickMoonCriteriaTrigger.Instance> {
     private static final ResourceLocation ID = new ResourceLocation(PortalMod.MODID, "click_moon");
 
     @Override
@@ -34,16 +35,16 @@ public class ClickMoonCriteriaTrigger implements ICriterionTrigger<ClickMoonCrit
     }
 
     @Override
-    public Instance createInstance(JsonObject p_230307_1_, ConditionArrayParser p_230307_2_) {
+    public Instance createInstance(JsonObject p_230307_1_, DeserializationContext p_230307_2_) {
         return null;
     }
 
-    public static class Instance implements ICriterionInstance {
+    public static class Instance implements CriterionTriggerInstance {
         public ResourceLocation getCriterion() {
             return ClickMoonCriteriaTrigger.ID;
         }
 
-        public JsonObject serializeToJson(ConditionArraySerializer p_230240_1_) {
+        public JsonObject serializeToJson(SerializationContext p_230240_1_) {
             return new JsonObject();
         }
     }

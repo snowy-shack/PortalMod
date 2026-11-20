@@ -1,28 +1,9 @@
 package net.portalmod.common.sorted.gel;
 
-import net.minecraft.block.*;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.*;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.portalmod.core.interfaces.CreativeTabFiller;
+import net.portalmod.core.interfaces.CustomPushReaction;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Mat4;
@@ -32,7 +13,37 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.HashMap;
 
-public class AbstractGelBlock extends BreakableBlock {
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Vector3f;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+
+public class AbstractGelBlock extends HalfTransparentBlock implements CustomPushReaction, CreativeTabFiller {
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST =  BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
@@ -83,9 +94,9 @@ public class AbstractGelBlock extends BreakableBlock {
                 matrix.scale(new Vec3(facing.getOpposite().getNormal()).mul(2).add(1));
 
             if(facing.getAxis() == Axis.X)
-                matrix.rotateDeg(Vector3f.ZP, -90);
+                matrix.rotateDeg(com.mojang.math.Axis.ZP, -90);
             if(facing.getAxis() == Axis.Z)
-                matrix.rotateDeg(Vector3f.XP, 90);
+                matrix.rotateDeg(com.mojang.math.Axis.XP, 90);
 
             matrix.translate(new Vec3(-.5));
             SHAPES.put(facing, shape.clone().transform(matrix, true));
@@ -93,13 +104,13 @@ public class AbstractGelBlock extends BreakableBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState blockState, World world, BlockPos pos, Block block, BlockPos neighbor, boolean b) {
+    public void neighborChanged(BlockState blockState, Level world, BlockPos pos, Block block, BlockPos neighbor, boolean b) {
         for (Direction direction : Direction.values()) {
             // Has gel but no supporting block in that direction
             if (blockState.getValue(STATES.get(direction)) && !isValidFace(direction.getOpposite(), world, pos.relative(direction))) {
                 blockState = removeSide(direction, blockState);
                 world.setBlockAndUpdate(pos, blockState);
-                world.playSound(null, pos, SoundInit.GEL_BREAK.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+                world.playSound(null, pos, SoundInit.GEL_BREAK.get(), SoundSource.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
 
                 if (blockState.getBlock() instanceof AirBlock) return;
             }
@@ -109,7 +120,7 @@ public class AbstractGelBlock extends BreakableBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos clickedPos = context.getClickedPos();
         Direction clickedDirection = context.getClickedFace().getOpposite();
         BlockState previousState = context.getLevel().getBlockState(clickedPos);
@@ -118,18 +129,18 @@ public class AbstractGelBlock extends BreakableBlock {
             return previousState;
         }
 
-        if (!previousState.getBlock().is(this)) {
+        if (!previousState.is(this)) {
             previousState = this.emptyBlockState;
         }
 
         return addSide(clickedDirection, previousState);
     }
 
-    public static boolean isValidFace(Direction face, World world, BlockPos pos) {
+    public static boolean isValidFace(Direction face, Level world, BlockPos pos) {
         return Block.isFaceFull(world.getBlockState(pos).getCollisionShape(world, pos), face);
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
     @Override
     public boolean skipRendering(BlockState self, BlockState other, Direction direction) {
         if(other.is(this)) {
@@ -145,35 +156,33 @@ public class AbstractGelBlock extends BreakableBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        VoxelShape shape = VoxelShapes.empty();
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        VoxelShape shape = Shapes.empty();
         for(Direction facing : Direction.values())
             if(state.getValue(STATES.get(facing)))
-                shape = VoxelShapes.or(shape, SHAPES.get(facing).getShape());
+                shape = Shapes.or(shape, SHAPES.get(facing).getShape());
         return shape;
     }
     
     @Override
-    public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-        ItemStack stack = super.getPickBlock(state, target, world, pos, player);
+    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(world, pos, state);
         GelContainer.setAmount(stack, 16);
         return stack;
     }
     
-    @Override
-    public void fillItemCategory(ItemGroup group, NonNullList<ItemStack> stacks) {
+    public void fillCreativeTab(java.util.List<ItemStack> stacks) {
         ItemStack stack = new ItemStack(this);
         GelContainer.setAmount(stack, 16);
         stacks.add(stack);
     }
     
     @Override
-    public boolean canBeReplaced(BlockState state, BlockItemUseContext context) {
+    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
         Item item = context.getItemInHand().getItem();
-        return !(item instanceof GelContainer) || item.getItem() == state.getBlock().asItem();
+        return !(item instanceof GelContainer) || item == state.getBlock().asItem();
     }
     
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.NORMAL;
     }

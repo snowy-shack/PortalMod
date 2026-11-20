@@ -2,6 +2,7 @@ package net.portalmod.core.math;
 
 import java.util.HashMap;
 
+
 public class TriHashMap<K1, K2, K3, V> {
     private final HashMap<K1, HashMap<K2, HashMap<K3, V>>> MAP = new HashMap<>();
     

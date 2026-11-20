@@ -1,18 +1,20 @@
 package net.portalmod.mixins.screen;
 
-import net.minecraft.client.gui.screen.inventory.CreativeScreen;
-import net.minecraft.item.ItemStack;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(CreativeScreen.class)
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.world.item.ItemStack;
+
+@Mixin(CreativeModeInventoryScreen.class)
 public abstract class CreativeScreenMixin {
 
-    @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 1))
-    public ItemStack pmResetGunUUIDOnCopy(ItemStack instance) {
-        ItemStack itemStack = instance.copy();
+    // 1.20.1 middle-click cloning in the creative screen uses copyWithCount.
+    @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;copyWithCount(I)Lnet/minecraft/world/item/ItemStack;"))
+    public ItemStack pmResetGunUUIDOnCopy(ItemStack instance, int count) {
+        ItemStack itemStack = instance.copyWithCount(count);
         if (itemStack.getItem() instanceof PortalGun) {
             PortalGun.onDuplicate(itemStack);
         }

@@ -1,9 +1,10 @@
 package net.portalmod.common.sorted.trigger;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.portalmod.core.init.PacketInit;
+
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
 
 public class TriggerSelectionClient {
     public static final int MAX_FIELD_SIZE = 32;
@@ -83,20 +84,20 @@ public class TriggerSelectionClient {
         BlockPos min = origin.offset(-distance, -distance, -distance);
         BlockPos max = origin.offset(distance, distance, distance);
 
-        BlockPos.Mutable result = pos.mutable();
+        BlockPos.MutableBlockPos result = pos.mutable();
         result.clamp(Direction.Axis.X, min.getX(), max.getX());
         result.clamp(Direction.Axis.Y, min.getY(), max.getY());
         result.clamp(Direction.Axis.Z, min.getZ(), max.getZ());
         return result.immutable();
     }
 
-    public static AxisAlignedBB getBox() {
+    public static AABB getBox() {
         if (isSelectingStart()) {
-            return new AxisAlignedBB(selectingStart);
+            return new AABB(selectingStart);
         }
 
         if (isSelectingEnd()) {
-            return new AxisAlignedBB(selectingStart, selectingEnd).expandTowards(1, 1, 1);
+            return new AABB(selectingStart, selectingEnd).expandTowards(1, 1, 1);
         }
 
         return null;

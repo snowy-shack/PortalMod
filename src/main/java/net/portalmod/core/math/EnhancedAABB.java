@@ -1,11 +1,11 @@
 package net.portalmod.core.math;
 
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-
 import java.util.function.Function;
 
-public class EnhancedAABB extends AxisAlignedBB {
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+
+public class EnhancedAABB extends AABB {
     public EnhancedAABB(double xMin, double yMin, double zMin, double xMax, double yMax, double zMax) {
         super(xMin, yMin, zMin, xMax, yMax, zMax);
     }

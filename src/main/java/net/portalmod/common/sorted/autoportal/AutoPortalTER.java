@@ -1,18 +1,7 @@
 package net.portalmod.common.sorted.autoportal;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.DynamicTextureVertexBuilder;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -22,19 +11,32 @@ import net.portalmod.core.math.Vec3;
 
 import java.util.Optional;
 
-public class AutoPortalTER extends TileEntityRenderer<AutoPortalTileEntity> {
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import org.joml.Vector3f;
+
+public class AutoPortalTER implements BlockEntityRenderer<AutoPortalTileEntity> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "entity/autoportal");
-    public static RenderMaterial MATERIAL;
+    public static Material MATERIAL;
     private final AutoPortalModel model;
 
-    public AutoPortalTER(TileEntityRendererDispatcher terd) {
-        super(terd);
+    public AutoPortalTER(BlockEntityRendererProvider.Context terd) {
         this.model = new AutoPortalModel();
-        MATERIAL = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE);
+        MATERIAL = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE);
     }
 
     @Override
-    public void render(AutoPortalTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
+    public void render(AutoPortalTileEntity be, float partialTicks, PoseStack matrixStack, MultiBufferSource renderBuffer, int light, int overlay) {
         if(be.getBlockState().getBlock() instanceof AutoPortalBlock) {
             AutoPortalBlock block = (AutoPortalBlock)be.getBlockState().getBlock();
             Direction facing = be.getBlockState().getValue(AutoPortalBlock.FACING);
@@ -54,11 +56,11 @@ public class AutoPortalTER extends TileEntityRenderer<AutoPortalTileEntity> {
             matrixStack.translate(up.x, up.y, up.z);
             matrixStack.translate(normal.x, normal.y, normal.z);
             matrixStack.translate(0.5, 0.5, 0.5);
-            matrixStack.last().pose().multiply(matrix.to4f());
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
+            matrixStack.last().pose().mul(matrix.to4f());
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
             matrixStack.translate(0, -1.5, 0);
 
-            IVertexBuilder vertexBuilder = MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);
+            VertexConsumer vertexBuilder = MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);
             DynamicTextureVertexBuilder dtvb = new DynamicTextureVertexBuilder(vertexBuilder);
 
             int closedOffset = be.lastOpenedUUID != null ? 0 : 2;

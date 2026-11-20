@@ -1,15 +1,16 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.core.BlockPos;
 
 public class OmnidirectionalQuadBlock extends QuadBlock {
     public static final DirectionProperty DIRECTION = DirectionProperty.create("direction", Direction.Plane.HORIZONTAL);
@@ -20,7 +21,7 @@ public class OmnidirectionalQuadBlock extends QuadBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getClickedFace();
         Direction horizontalDirection = context.getHorizontalDirection();
         Direction.Axis axis = direction.getAxis();

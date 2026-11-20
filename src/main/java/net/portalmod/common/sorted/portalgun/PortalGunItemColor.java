@@ -1,10 +1,10 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
-public class PortalGunItemColor implements IItemColor {
+public class PortalGunItemColor implements ItemColor {
     private static final int BLUE = 0x3B8BFF;
     private static final int ORANGE = 0xFF833B;
 
@@ -14,7 +14,7 @@ public class PortalGunItemColor implements IItemColor {
         if(layer != 0 || !itemStack.hasTag())
             return -1;
 
-        CompoundNBT nbt = itemStack.getTag();
+        CompoundTag nbt = itemStack.getTag();
         if(!nbt.contains("color"))
             return -1;
 

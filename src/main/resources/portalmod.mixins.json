@@ -1,8 +1,7 @@
 {
     "required": true,
     "package": "net.portalmod.mixins",
-    "compatibilityLevel": "JAVA_8",
-    "refmap": "portalmod.refmap.json",
+    "compatibilityLevel": "JAVA_17",
     "mixins": [
         "AbstractBlockMixin",
         "BlockMixin",
@@ -10,12 +9,9 @@
         "PistonBlockStructureHelperMixin",
         "PistonTileEntityMixin",
         "accessors.AbstractMinecartAccessor",
-        "accessors.BooleanValueAccessor",
         "accessors.ChunkManagerAccessor",
-        "accessors.ChunkManagerAccessor2",
         "accessors.EntityAccessor",
         "accessors.LivingEntityAccessor",
-        "accessors.ServerLevelAccessor",
         "entity.AbstractMinecartMixin",
         "entity.EntityMixin",
         "entity.EntityTypeMixin",
@@ -34,7 +30,14 @@
         "level.chunk.ChunkSerializerMixin",
         "network.PlayerInteractionManagerMixin",
         "network.ServerPlayNetHandlerMixin",
-        "screen.ContainerMixin"
+        "screen.ContainerMixin",
+        "hooks.ItemEntityHooksMixin",
+        "hooks.LivingEntityHooksMixin",
+        "hooks.PlayerHooksMixin",
+        "hooks.BlockStateHooksMixin",
+        "hooks.RedStoneWireHooksMixin",
+        "hooks.ServerPlayerGameModeHooksMixin",
+        "hooks.ServerPlayerHooksMixin"
     ],
     "client": [
         "KeyBindingMixin",
@@ -56,11 +59,9 @@
         "entity.KeyBindingMixin",
         "entity.RabbitRendererMixin",
         "entity.RemoteClientPlayerEntityMixin",
-        "level.ChunkArrayMixin",
         "level.ClientLevelMixin",
         "network.ClientPlayNetHandlerMixin",
         "renderer.ActiveRenderInfoMixin",
-        "renderer.ChunkRenderMixin",
         "renderer.EntityRendererManagerMixin",
         "renderer.EntityRendererMixin",
         "renderer.FramebufferMixin",
@@ -69,10 +70,22 @@
         "renderer.LevelRendererMixin",
         "renderer.LivingRendererMixin",
         "screen.CreativeScreenMixin",
-        "screen.OptionsScreenMixin"
+        "screen.OptionsScreenMixin",
+        "hooks.client.ClientLevelHooksMixin",
+        "hooks.client.EntityHooksMixin",
+        "hooks.client.FogRendererHooksMixin",
+        "hooks.client.GameRendererHooksMixin",
+        "hooks.client.GuiHooksMixin",
+        "hooks.client.LivingEntityRendererHooksMixin",
+        "hooks.client.MinecraftHooksMixin",
+        "hooks.client.MouseHandlerHooksMixin",
+        "hooks.client.PlayerRendererHooksMixin",
+        "hooks.client.ScreenEffectRendererHooksMixin",
+        "accessors.LogoRendererAccessor",
+        "hooks.client.MultiPlayerGameModeHooksMixin"
     ],
     "minVersion": "0.8",
     "injectors": {
         "defaultRequire": 1
-  }
+    }
 }

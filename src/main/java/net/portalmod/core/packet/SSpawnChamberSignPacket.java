@@ -1,14 +1,14 @@
 package net.portalmod.core.packet;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 
 public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSignPacket> {
     public int id;
@@ -28,7 +28,7 @@ public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSign
     }
 
     @Override
-    public SSpawnChamberSignPacket decode(PacketBuffer buffer) {
+    public SSpawnChamberSignPacket decode(FriendlyByteBuf buffer) {
         int id = buffer.readInt();
         UUID uuid = buffer.readUUID();
         BlockPos blockPos = buffer.readBlockPos();
@@ -38,7 +38,7 @@ public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSign
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(this.id);
         buffer.writeUUID(this.uuid);
         buffer.writeBlockPos(this.pos);
@@ -47,10 +47,9 @@ public class SSpawnChamberSignPacket implements AbstractPacket<SSpawnChamberSign
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                    () -> () -> ClientPacketHandler.handleSSpawnChamberSignPacket(this));
+            ClientOnly.run(() -> () -> ClientPacketHandler.handleSSpawnChamberSignPacket(this));
         });
         context.get().setPacketHandled(true);
         return true;

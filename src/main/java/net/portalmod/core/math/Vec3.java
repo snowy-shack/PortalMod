@@ -1,14 +1,13 @@
 package net.portalmod.core.math;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-
 import javax.annotation.Nullable;
 import java.util.function.Function;
+
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+import net.minecraft.core.Vec3i;
 
 public class Vec3 {
     public double x, y, z;
@@ -27,7 +26,7 @@ public class Vec3 {
         this(v.x, v.y, v.z);
     }
 
-    public Vec3(Vector3d v) {
+    public Vec3(net.minecraft.world.phys.Vec3 v) {
         this(v.x, v.y, v.z);
     }
 
@@ -35,7 +34,7 @@ public class Vec3 {
         this(v.x(), v.y(), v.z());
     }
 
-    public Vec3(Vector3i v) {
+    public Vec3(Vec3i v) {
         this(v.getX(), v.getY(), v.getZ());
     }
 
@@ -130,7 +129,7 @@ public class Vec3 {
         return this.add(new Vec3(n));
     }
 
-    public Vec3 add(Vector3d v) {
+    public Vec3 add(net.minecraft.world.phys.Vec3 v) {
         return this.add(new Vec3(v));
     }
 
@@ -138,7 +137,7 @@ public class Vec3 {
         return this.add(new Vec3(v));
     }
 
-    public Vec3 add(Vector3i v) {
+    public Vec3 add(Vec3i v) {
         return this.add(new Vec3(v));
     }
 
@@ -159,7 +158,7 @@ public class Vec3 {
         return this.sub(new Vec3(n));
     }
 
-    public Vec3 sub(Vector3d v) {
+    public Vec3 sub(net.minecraft.world.phys.Vec3 v) {
         return this.sub(new Vec3(v));
     }
 
@@ -167,7 +166,7 @@ public class Vec3 {
         return this.sub(new Vec3(v));
     }
 
-    public Vec3 sub(Vector3i v) {
+    public Vec3 sub(Vec3i v) {
         return this.sub(new Vec3(v));
     }
 
@@ -188,7 +187,7 @@ public class Vec3 {
         return this.mul(new Vec3(n));
     }
 
-    public Vec3 mul(Vector3d v) {
+    public Vec3 mul(net.minecraft.world.phys.Vec3 v) {
         return this.mul(new Vec3(v));
     }
 
@@ -196,7 +195,7 @@ public class Vec3 {
         return this.mul(new Vec3(v));
     }
 
-    public Vec3 mul(Vector3i v) {
+    public Vec3 mul(Vec3i v) {
         return this.mul(new Vec3(v));
     }
     
@@ -225,7 +224,7 @@ public class Vec3 {
         return this.div(new Vec3(n));
     }
 
-    public Vec3 div(Vector3d v) {
+    public Vec3 div(net.minecraft.world.phys.Vec3 v) {
         return this.div(new Vec3(v));
     }
 
@@ -233,7 +232,7 @@ public class Vec3 {
         return this.div(new Vec3(v));
     }
 
-    public Vec3 div(Vector3i v) {
+    public Vec3 div(Vec3i v) {
         return this.div(new Vec3(v));
     }
 
@@ -247,7 +246,7 @@ public class Vec3 {
         return this.dot(new Vec3(x, y, z));
     }
 
-    public double dot(Vector3d v) {
+    public double dot(net.minecraft.world.phys.Vec3 v) {
         return this.dot(new Vec3(v));
     }
 
@@ -255,7 +254,7 @@ public class Vec3 {
         return this.dot(new Vec3(v));
     }
 
-    public double dot(Vector3i v) {
+    public double dot(Vec3i v) {
         return this.dot(new Vec3(v));
     }
 
@@ -275,7 +274,7 @@ public class Vec3 {
         return this.cross(new Vec3(x, y, z));
     }
 
-    public Vec3 cross(Vector3d v) {
+    public Vec3 cross(net.minecraft.world.phys.Vec3 v) {
         return this.cross(new Vec3(v));
     }
 
@@ -283,7 +282,7 @@ public class Vec3 {
         return this.cross(new Vec3(v));
     }
 
-    public Vec3 cross(Vector3i v) {
+    public Vec3 cross(Vec3i v) {
         return this.cross(new Vec3(v));
     }
 
@@ -294,7 +293,7 @@ public class Vec3 {
     }
 
     public double magnitudeInv() {
-        return MathHelper.fastInvSqrt(this.magnitudeSqr());
+        return Mth.fastInvSqrt(this.magnitudeSqr());
     }
 
     public double magnitude() {
@@ -349,7 +348,7 @@ public class Vec3 {
         return this;
     }
 
-    public Vec3 lerp(Vector3d v, double factor) {
+    public Vec3 lerp(net.minecraft.world.phys.Vec3 v, double factor) {
         return this.lerp(new Vec3(v), factor);
     }
 
@@ -357,7 +356,7 @@ public class Vec3 {
         return this.lerp(new Vec3(v), factor);
     }
 
-    public Vec3 lerp(Vector3i v, double factor) {
+    public Vec3 lerp(Vec3i v, double factor) {
         return this.lerp(new Vec3(v), factor);
     }
 
@@ -375,24 +374,24 @@ public class Vec3 {
     
     // adapters
 
-    public Vector3d to3d() {
-        return new Vector3d(this.x, this.y, this.z);
+    public net.minecraft.world.phys.Vec3 to3d() {
+        return new net.minecraft.world.phys.Vec3(this.x, this.y, this.z);
     }
     
     public Vector3f to3f() {
         return new Vector3f((float)this.x, (float)this.y, (float)this.z);
     }
     
-    public Vector3i to3i() {
-        return new Vector3i(this.x, this.y, this.z);
+    public Vec3i to3i() {
+        return new Vec3i(Mth.floor(this.x), Mth.floor(this.y), Mth.floor(this.z));
     }
 
     @Nullable
     public Direction toDirection() {
-        return Direction.fromNormal((int)this.x, (int)this.y, (int)this.z);
+        return Direction.fromDelta((int)this.x, (int)this.y, (int)this.z);
     }
 
     public BlockPos toBlockPos() {
-        return new BlockPos(this.x, this.y, this.z);
+        return BlockPos.containing(this.x, this.y, this.z);
     }
 }

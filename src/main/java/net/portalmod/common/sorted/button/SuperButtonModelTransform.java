@@ -1,14 +1,15 @@
 package net.portalmod.common.sorted.button;
 
-import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.vector.TransformationMatrix;
-import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.core.math.Mat4;
 
-public class SuperButtonModelTransform implements IModelTransform {
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import com.mojang.math.Transformation;
+import org.joml.Vector3f;
+
+public class SuperButtonModelTransform implements ModelState {
     private final Mat4 matrix;
     
     public SuperButtonModelTransform(Direction facing, QuadBlockCorner corner) {
@@ -21,22 +22,22 @@ public class SuperButtonModelTransform implements IModelTransform {
         
         if(facing.getAxisDirection() == AxisDirection.NEGATIVE) {
             if(facing.getAxis() == Axis.Y)
-                matrix.rotateDeg(Vector3f.ZP, 180);
+                matrix.rotateDeg(com.mojang.math.Axis.ZP, 180);
             else
-                matrix.rotateDeg(Vector3f.YP, 180);
+                matrix.rotateDeg(com.mojang.math.Axis.YP, 180);
         }
         
         int axisFactor = axis == Axis.X ? 0 : -90;
         if(axis == Axis.X)
-            matrix.rotateDeg(Vector3f.ZN, 90);
+            matrix.rotateDeg(com.mojang.math.Axis.ZN, 90);
         if(axis == Axis.Z)
-            matrix.rotateDeg(Vector3f.XP, 90);
+            matrix.rotateDeg(com.mojang.math.Axis.XP, 90);
         
-        return matrix.rotateDeg(Vector3f.YP, corner.getRot() + axisFactor);
+        return matrix.rotateDeg(com.mojang.math.Axis.YP, corner.getRot() + axisFactor);
     }
 
     @Override
-    public TransformationMatrix getRotation() {
-        return new TransformationMatrix(matrix.to4f());
+    public Transformation getRotation() {
+        return new Transformation(matrix.to4f());
     }
 }

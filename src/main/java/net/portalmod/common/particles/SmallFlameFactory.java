@@ -1,25 +1,26 @@
 package net.portalmod.common.particles;
 
-import net.minecraft.client.particle.FlameParticle;
-import net.minecraft.client.particle.IAnimatedSprite;
-import net.minecraft.client.particle.IParticleFactory;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
 import net.portalmod.mixins.accessors.FlameParticleAccessor;
 
 import javax.annotation.Nullable;
 
-public class SmallFlameFactory implements IParticleFactory<BasicParticleType> {
-    private final IAnimatedSprite sprite;
+import net.minecraft.client.particle.FlameParticle;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
 
-    public SmallFlameFactory(IAnimatedSprite sprite) {
+public class SmallFlameFactory implements ParticleProvider<SimpleParticleType> {
+    private final SpriteSet sprite;
+
+    public SmallFlameFactory(SpriteSet sprite) {
         this.sprite = sprite;
     }
 
     @Nullable
     @Override
-    public Particle createParticle(BasicParticleType basicParticleType, ClientWorld world, double a, double b, double c, double d, double e, double f) {
+    public Particle createParticle(SimpleParticleType basicParticleType, ClientLevel world, double a, double b, double c, double d, double e, double f) {
         FlameParticle flameParticle = FlameParticleAccessor.pmInit(world, a, b, c, d, e, f);
         flameParticle.pickSprite(this.sprite);
         flameParticle.scale(0.5f);

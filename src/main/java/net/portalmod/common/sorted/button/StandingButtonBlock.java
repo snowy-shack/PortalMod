@@ -1,27 +1,6 @@
 package net.portalmod.common.sorted.button;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.util.RandomSource;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.blocks.InteractKeyInteractable;
 import net.portalmod.common.items.WrenchItem;
@@ -40,6 +19,33 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class StandingButtonBlock extends DoubleBlock implements AntlineActivator, InteractKeyInteractable {
 
@@ -101,12 +107,12 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE.get(state.getValue(FACING), state.getValue(HALF)).getVariant(state.getValue(PRESSED) ? "on" : "off");
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, HALF, PRESSED, ACTIVE, MODE);
     }
 
@@ -119,12 +125,12 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         return !blockState.getValue(PRESSED);
     }
 
-    public void press(BlockState blockState, World world, BlockPos pos) {
+    public void press(BlockState blockState, Level world, BlockPos pos) {
         ButtonMode mode = blockState.getValue(MODE);
         Boolean wasActive = blockState.getValue(ACTIVE);
 
         this.setBlockStateValue(PRESSED, true, blockState, world, pos);
-        world.getBlockTicks().scheduleTick(pos, this, BUTTON_DELAY);
+        world.scheduleTick(pos, this, BUTTON_DELAY);
 
         if (mode == ButtonMode.NORMAL || mode == ButtonMode.PERSISTENT && !wasActive) {
             this.setActivated(true, blockState, world, pos);
@@ -136,13 +142,13 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         this.updateAllNeighbors(world, pos, blockState);
     }
 
-    private void setActivated(boolean activated, BlockState blockState, World world, BlockPos pos) {
+    private void setActivated(boolean activated, BlockState blockState, Level world, BlockPos pos) {
         this.setBlockStateValue(ACTIVE, activated, blockState, world, pos);
-        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+        world.playSound(null, pos, activated ? SoundInit.BUTTON_ACTIVATE.get() : SoundInit.BUTTON_DEACTIVATE.get(), SoundSource.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     @Override
-    public void tick(BlockState blockState, ServerWorld world, BlockPos pos, Random random) {
+    public void tick(BlockState blockState, ServerLevel world, BlockPos pos, RandomSource random) {
         if (blockState.getValue(PRESSED)) {
             this.setBlockStateValue(PRESSED, false, blockState, world, pos);
             world.updateNeighborsAt(pos, this);
@@ -154,7 +160,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
+    public InteractionResult use(BlockState blockState, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult rayTraceResult) {
         if (WrenchItem.usedWrench(player, hand)) {
 
             // Don't cycle when persistent/toggle and active
@@ -162,7 +168,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
             if (shouldCycle) {
                 ButtonMode newMode = cycleMode(blockState, world, pos);
-                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             }
 
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
@@ -170,26 +176,26 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
             WrenchItem.playUseSound(world, rayTraceResult.getLocation());
 
             this.updateAllNeighbors(world, pos, world.getBlockState(pos));
-            return ActionResultType.sidedSuccess(world.isClientSide);
+            return InteractionResult.sidedSuccess(world.isClientSide);
         }
 
         double rayLength = rayTraceResult.getLocation().subtract(player.getEyePosition(1)).length();
         double reach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
         if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canPress(blockState)) {
             if (rayLength > reach) {
-                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.standing_button.too_far_away"), true);
-                return ActionResultType.CONSUME;
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.standing_button.too_far_away"), true);
+                return InteractionResult.CONSUME;
             }
 
             this.press(blockState, world, pos);
-            return ActionResultType.sidedSuccess(world.isClientSide);
+            return InteractionResult.sidedSuccess(world.isClientSide);
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public boolean interactKeyInteract(PlayerEntity player, BlockRayTraceResult rayHit) {
+    public boolean interactKeyInteract(Player player, BlockHitResult rayHit) {
         if (withinInteractRange(player, rayHit)) {
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PRESS_BUTTON).blockHit(rayHit).build());
             return true;
@@ -197,7 +203,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         return false;
     }
 
-    public ButtonMode cycleMode(BlockState blockState, World world, BlockPos pos) {
+    public ButtonMode cycleMode(BlockState blockState, Level world, BlockPos pos) {
         ButtonMode currentMode = blockState.getValue(MODE);
         ButtonMode newMode = currentMode.cycle();
         this.setBlockStateValue(MODE, newMode, blockState, world, pos);
@@ -205,7 +211,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos pos2, boolean b) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos pos2, boolean b) {
         if (level.isClientSide) return;
 
         Direction facing = state.getValue(FACING);
@@ -222,7 +228,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getClickedFace();
 
         BlockPos upperPos = context.getClickedPos().relative(facing);
@@ -234,7 +240,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("standing_button", list);
     }
 

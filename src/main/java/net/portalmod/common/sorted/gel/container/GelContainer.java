@@ -1,22 +1,7 @@
 package net.portalmod.common.sorted.gel.container;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
@@ -25,6 +10,24 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 
 public class GelContainer extends BlockItem {
     private final int color;
@@ -36,33 +39,33 @@ public class GelContainer extends BlockItem {
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
-        PlayerEntity player = context.getPlayer();
+    public InteractionResult useOn(UseOnContext context) {
+        Player player = context.getPlayer();
         ItemStack itemStack = context.getItemInHand();
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = context.getLevel().getBlockState(clickedPos);
-        boolean creative = player.abilities.instabuild;
+        boolean creative = player.getAbilities().instabuild;
         Direction gelSide = context.getClickedFace().getOpposite();
 
         int gelAmount = getAmount(itemStack);
 
         BooleanProperty sideProperty = AbstractGelBlock.STATES.get(gelSide);
-        boolean pickUpGel = clickedState.getBlock().is(this.getBlock())
+        boolean pickUpGel = clickedState.is(this.getBlock())
                 && clickedState.getValue(sideProperty)
                 && (gelAmount < maxAmount || creative);
 
-        ActionResultType result;
+        InteractionResult result;
 
         if (pickUpGel) {
             // Pick up block
             context.getLevel().setBlockAndUpdate(clickedPos, AbstractGelBlock.removeSide(gelSide, clickedState));
-            context.getLevel().playSound(player, clickedPos, SoundInit.GEL_COLLECT.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+            context.getLevel().playSound(player, clickedPos, SoundInit.GEL_COLLECT.get(), SoundSource.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
 
             if (!creative) {
                 increaseAmount(itemStack);
             }
 
-            result = ActionResultType.SUCCESS;
+            result = InteractionResult.SUCCESS;
         } else {
             // Place block
             result = super.useOn(context);
@@ -99,7 +102,7 @@ public class GelContainer extends BlockItem {
     }
 
     public static int getAmount(ItemStack stack) {
-        CompoundNBT nbt = stack.getOrCreateTag();
+        CompoundTag nbt = stack.getOrCreateTag();
         if(nbt.contains("amount"))
             return Math.max(nbt.getInt("amount"), 0);
         return maxAmount;
@@ -110,27 +113,29 @@ public class GelContainer extends BlockItem {
     }
     
     @Override
-    protected SoundEvent getPlaceSound(BlockState state, World world, BlockPos pos, PlayerEntity entity) {
+    protected SoundEvent getPlaceSound(BlockState state) {
         return SoundInit.GEL_PLACE.get();
     }
     
+    // 1.17+ item bar API (was showDurabilityBar / getDurabilityForDisplay / getRGBDurabilityForDisplay).
     @Override
-    public boolean showDurabilityBar(ItemStack stack) {
+    public boolean isBarVisible(ItemStack stack) {
         return getAmount(stack) < maxAmount;
-    }
-    
-    @Override
-    public double getDurabilityForDisplay(ItemStack stack) {
-        return 1f - (double) getAmount(stack) / maxAmount;
-    }
-    
-    @Override
-    public int getRGBDurabilityForDisplay(ItemStack stack) {
-        return color == 0 ? super.getRGBDurabilityForDisplay(stack) : color;
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
-        ModUtil.addTooltip(this.getBlock().getRegistryName().getPath(), list);
+    public int getBarWidth(ItemStack stack) {
+        return Math.round(13.0F * getAmount(stack) / maxAmount);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        // Same as Forge's default bar colour: green when full, red when empty.
+        return color == 0 ? Mth.hsvToRgb(Math.max(0.0F, (float) getAmount(stack) / maxAmount) / 3.0F, 1.0F, 1.0F) : color;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
+        ModUtil.addTooltip(BuiltInRegistries.BLOCK.getKey(this.getBlock()).getPath(), list);
     }
 }

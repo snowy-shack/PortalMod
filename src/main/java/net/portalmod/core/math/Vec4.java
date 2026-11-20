@@ -1,9 +1,8 @@
 package net.portalmod.core.math;
 
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.math.vector.Vector4f;
+import org.joml.Vector3f;
+import net.minecraft.core.Vec3i;
+import org.joml.Vector4f;
 
 public class Vec4 {
     public double x, y, z, w;
@@ -23,7 +22,7 @@ public class Vec4 {
         this(v.x(), v.y(), v.z(), v.w());
     }
 
-    public Vec4(Vector3d v) {
+    public Vec4(net.minecraft.world.phys.Vec3 v) {
         this(new Vec3(v));
     }
 
@@ -31,7 +30,7 @@ public class Vec4 {
         this(new Vec3(v));
     }
 
-    public Vec4(Vector3i v) {
+    public Vec4(Vec3i v) {
         this(new Vec3(v));
     }
 

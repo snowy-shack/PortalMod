@@ -1,44 +1,44 @@
 package net.portalmod.core.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter;
 
-public class RayTraceContextWrapper extends RayTraceContext {
-    private final RayTraceContext wrapped;
-    private Vector3d from;
-    private Vector3d to;
+public class RayTraceContextWrapper extends ClipContext {
+    private final ClipContext wrapped;
+    private Vec3 from;
+    private Vec3 to;
 
-    public RayTraceContextWrapper(RayTraceContext context) {
-        super(Vector3d.ZERO, Vector3d.ZERO, BlockMode.COLLIDER, FluidMode.ANY, null);
+    public RayTraceContextWrapper(ClipContext context) {
+        super(Vec3.ZERO, Vec3.ZERO, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, null);
         this.wrapped = context;
     }
 
-    public void setTo(Vector3d to) {
+    public void setTo(Vec3 to) {
         this.to = to;
     }
 
-    public void setFrom(Vector3d from) {
+    public void setFrom(Vec3 from) {
         this.from = from;
     }
 
-    public Vector3d getTo() {
+    public Vec3 getTo() {
         return this.to != null ? this.to : this.wrapped.getTo();
     }
 
-    public Vector3d getFrom() {
+    public Vec3 getFrom() {
         return this.from != null ? this.from : this.wrapped.getFrom();
     }
 
-    public VoxelShape getBlockShape(BlockState state, IBlockReader level, BlockPos pos) {
+    public VoxelShape getBlockShape(BlockState state, BlockGetter level, BlockPos pos) {
         return this.wrapped.getBlockShape(state, level, pos);
     }
 
-    public VoxelShape getFluidShape(FluidState state, IBlockReader level, BlockPos pos) {
+    public VoxelShape getFluidShape(FluidState state, BlockGetter level, BlockPos pos) {
         return this.wrapped.getFluidShape(state, level, pos);
     }
 }

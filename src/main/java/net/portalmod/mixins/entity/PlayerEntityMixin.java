@@ -1,22 +1,5 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.player.PlayerAbilities;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeMod;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -29,7 +12,7 @@ import net.portalmod.common.sorted.portal.PortalMovementAccounting;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
-import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.DamageTypeInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.interfaces.IGetPose;
 import org.spongepowered.asm.mixin.Final;
@@ -45,14 +28,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-@Mixin(PlayerEntity.class)
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.player.Abilities;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+
+@Mixin(Player.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements IClientTeleportable, IGetPose, PortalHandler, Fizzleable {
-    public PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World level) {
+    public PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
 
-    @Shadow @Final public PlayerAbilities abilities;
-    @Shadow @Nullable private Pose forcedPose;
+    @Shadow @Final public Abilities abilities;
 
     @Unique
     private boolean clientJustPortaled = false;
@@ -97,7 +96,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
 
     @Override
     public void onTouchingFizzler() {
-        PlayerEntity player = (PlayerEntity)(Object)this;
+        Player player = (Player)(Object)this;
 
         if (player.isSpectator()) return;
         // Every connected client ticks remote-player replicas too, so without this guard each
@@ -105,7 +104,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
         // walked through a fizzler -- cascading into all online players' portals closing.
         // Only the client controlling this player (local) may send the packet; the server-side
         // tick (isClientSide=false) still runs as a best-effort fallback.
-        if (player.level.isClientSide && !player.isLocalPlayer()) return;
+        if (player.level().isClientSide && !player.isLocalPlayer()) return;
 
         PortalGun.fizzleGunsInInventory(player);
     }
@@ -116,7 +115,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             cancellable = true
     )
     private void pmUseWrenchSneaking(CallbackInfoReturnable<Boolean> info) {
-        PlayerEntity player = (PlayerEntity)(Object)this;
+        Player player = (Player)(Object)this;
         if(player.getMainHandItem().getItem() instanceof WrenchItem)
             info.setReturnValue(false);
     }
@@ -125,20 +124,20 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
                         method = "maybeBackOffFromEdge",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;noCollision(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/AxisAlignedBB;)Z"
+                    target = "Lnet/minecraft/world/level/Level;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z"
             )
     )
-    private boolean pmMaybeBackOffFromEdgeCube(World level, Entity entity, AxisAlignedBB bb) {
+    private boolean pmMaybeBackOffFromEdgeCube(Level level, Entity entity, AABB bb) {
         boolean noCollision = level.noCollision(entity, bb);
 
         boolean noCubeCollision = level.getEntities(entity, bb.inflate(1.0E-7D), cube ->
                 cube instanceof Cube &&
                 cube.getBoundingBox().intersects(bb) &&
                 !entity.isPassengerOfSameVehicle(cube)
-        ).stream().map(Entity::getBoundingBox).map(VoxelShapes::create).allMatch(VoxelShape::isEmpty);
+        ).stream().map(Entity::getBoundingBox).map(Shapes::create).allMatch(VoxelShape::isEmpty);
 
-        boolean noPortalCollision = !VoxelShapes.joinIsNotEmpty(PortalEntity.getCollisionShape(entity),
-                VoxelShapes.create(bb), IBooleanFunction.AND);
+        boolean noPortalCollision = !Shapes.joinIsNotEmpty(PortalEntity.getCollisionShape(entity),
+                Shapes.create(bb), BooleanOp.AND);
 
         return noCollision && noCubeCollision && noPortalCollision;
     }
@@ -147,10 +146,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
                         method = "checkMovementStatistics",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/PlayerEntity;causeFoodExhaustion(F)V"
+                    target = "Lnet/minecraft/world/entity/player/Player;causeFoodExhaustion(F)V"
             )
     )
-    private void pmSuppressPortalTeleportMovementExhaustion(PlayerEntity player, float exhaustion) {
+    private void pmSuppressPortalTeleportMovementExhaustion(Player player, float exhaustion) {
         if(!PortalMovementAccounting.shouldSuppressMovementExhaustion(this.clientJustPortaled, exhaustion)) {
             player.causeFoodExhaustion(exhaustion);
         }
@@ -164,14 +163,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             at = @At("HEAD")
     )
     private void pmFixStopFlyingVelocity(CallbackInfo info) {
-        PlayerEntity thiss = (PlayerEntity)(Object)this;
+        Player thiss = (Player)(Object)this;
 
-        if(thiss.abilities.flying && !thiss.isPassenger()) {
+        if(thiss.getAbilities().flying && !thiss.isPassenger()) {
             this.pmWasFlying = true;
         } else {
             if(this.pmWasFlying) {
-                double gravity = Objects.requireNonNull(thiss.getAttribute(ForgeMod.ENTITY_GRAVITY.get())).getValue();
-                Vector3d d = thiss.getDeltaMovement();
+                double gravity = 0.08D /* TODO(port): Forge ENTITY_GRAVITY attribute does not exist on Fabric; vanilla default */;
+                Vec3 d = thiss.getDeltaMovement();
                 thiss.setDeltaMovement(d.x, -gravity, d.z);
             }
 
@@ -180,8 +179,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     public Pose pmGetNextPose() {
-        if(this.forcedPose != null)
-            return forcedPose;
+        // (Forge's forcedPose does not exist in vanilla 1.20.1.)
 
         if(this.canEnterPose(Pose.SWIMMING)) {
             Pose pose;
@@ -222,9 +220,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     )
     private void pmGrantFaithPlateElytraAdvancement(CallbackInfo info) {
         // todo readd launched reset
-        if(!this.level.isClientSide) {
-            if(((Flingable)this).isFlinging() && ((PlayerEntity)(Object)this).getDeltaMovement().length() > .7) {
-                CriteriaTriggerInit.FAITH_PLATE_ELYTRA.get().trigger((ServerPlayerEntity)(Object)this);
+        if(!this.level().isClientSide) {
+            if(((Flingable)this).isFlinging() && ((Player)(Object)this).getDeltaMovement().length() > .7) {
+                CriteriaTriggerInit.FAITH_PLATE_ELYTRA.get().trigger((ServerPlayer)(Object)this);
             }
         }
     }
@@ -236,7 +234,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             cancellable = true
     )
     public void pmPlayGooHurtSound(DamageSource damageSource, CallbackInfoReturnable<SoundEvent> cir) {
-        if (damageSource == FluidInit.GOO_DAMAGE) {
+        if (damageSource.is(DamageTypeInit.GOO)) {
             cir.setReturnValue(SoundInit.GOO_DAMAGE.get());
         }
     }
@@ -246,7 +244,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             at = @At("RETURN"),
             cancellable = true
     )
-    private static void pmAddAttributes(CallbackInfoReturnable<AttributeModifierMap.MutableAttribute> cir) {
+    private static void pmAddAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         cir.setReturnValue(cir.getReturnValue()
                 .add(AttributeInit.GRAB_REACH.get())
                 .add(AttributeInit.BUTTON_REACH.get())

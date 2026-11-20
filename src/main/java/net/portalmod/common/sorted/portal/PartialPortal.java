@@ -1,7 +1,8 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.network.PacketBuffer;
 import net.portalmod.core.math.Vec3;
+
+import net.minecraft.network.FriendlyByteBuf;
 
 public class PartialPortal {
     private final Vec3 position;
@@ -36,7 +37,7 @@ public class PartialPortal {
         return new OrthonormalBasis(this.normal.clone().negate(), this.up);
     }
 
-    public void write(PacketBuffer buffer) {
+    public void write(FriendlyByteBuf buffer) {
         buffer
         .writeDouble(position.x)
         .writeDouble(position.y)
@@ -49,7 +50,7 @@ public class PartialPortal {
         .writeDouble(up.z);
     }
 
-    public static PartialPortal read(PacketBuffer buffer) {
+    public static PartialPortal read(FriendlyByteBuf buffer) {
         Vec3 position = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         Vec3 normal = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         Vec3 up = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());

@@ -1,11 +1,9 @@
 package net.portalmod.mixins;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PistonBlockStructureHelper;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.portalmod.core.util.StickyBlocks;
+
+import net.portalmod.core.interfaces.StickyBlock;
+
 import net.portalmod.common.blocks.CustomPushBehavior;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,40 +13,46 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 // Pretty much all copied over from the Carpet mod
-@Mixin(PistonBlockStructureHelper.class)
+@Mixin(PistonStructureResolver.class)
 public class PistonBlockStructureHelperMixin {
 
-    @Shadow @Final private World level;
+    @Shadow @Final private Level level;
     @Shadow @Final private Direction pushDirection;
 
-    // fields that are needed because @Redirects cannot capture locals
+    // Redirects cannot capture locals, so remember the positions as vanilla looks them up.
     @Unique
     private BlockPos pos_addBlockLine;
     @Unique
     private BlockPos behindPos_addBlockLinea;
 
-    @Inject(
+    @Redirect(
             method = "addBlockLine",
-            locals = LocalCapture.CAPTURE_FAILHARD,
             at = @At(
                     value = "INVOKE",
                     ordinal = 1,
-                    target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
+                    target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
             )
     )
-    private void captureBlockLinePositions(BlockPos p_177251_1_, Direction p_177251_2_, CallbackInfoReturnable<Boolean> cir, BlockState blockstate, int i, BlockState oldState, BlockPos blockpos) {
-        pos_addBlockLine = blockpos.relative(pushDirection);
-        behindPos_addBlockLinea = blockpos;
+    private BlockState captureBlockLinePositions(Level level, BlockPos behindPos) {
+        pos_addBlockLine = behindPos.relative(pushDirection);
+        behindPos_addBlockLinea = behindPos;
+        return level.getBlockState(behindPos);
     }
 
     @Redirect(
             method = "addBlockLine",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
+                    target = "Lnet/minecraft/world/level/block/piston/PistonStructureResolver;canStickToEachOther(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;)Z"
             )
     )
     private boolean onAddBlockLineCanStickToEachOther(BlockState state, BlockState behindState) {
@@ -57,32 +61,31 @@ public class PistonBlockStructureHelperMixin {
             return ((CustomPushBehavior) block).isStickyToNeighbor(level, pos_addBlockLine, state, behindPos_addBlockLinea, behindState, pushDirection.getOpposite(), pushDirection);
         }
 
-        return state.canStickTo(behindState);
+        return StickyBlocks.canStickTo(state, behindState);
     }
 
-    // fields that are needed because @Redirects cannot capture locals
     @Unique private Direction dir_addBranchingBlocks;
     @Unique private BlockPos neighborPos_addBranchingBlocks;
 
-    @Inject(
+    @Redirect(
             method = "addBranchingBlocks",
-            locals = LocalCapture.CAPTURE_FAILHARD,
             at = @At(
                     value = "INVOKE",
                     ordinal = 1,
-                    target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
+                    target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
             )
     )
-    private void captureNeighborPositions(BlockPos pos, CallbackInfoReturnable<Boolean> cir, BlockState state, Direction[] dirs, int i, int j, Direction dir, BlockPos neighborPos) {
-        dir_addBranchingBlocks = dir;
+    private BlockState captureNeighborPositions(Level level, BlockPos neighborPos, BlockPos pos) {
         neighborPos_addBranchingBlocks = neighborPos;
+        dir_addBranchingBlocks = Direction.fromDelta(neighborPos.getX() - pos.getX(), neighborPos.getY() - pos.getY(), neighborPos.getZ() - pos.getZ());
+        return level.getBlockState(neighborPos);
     }
 
     @Redirect(
             method = "addBranchingBlocks",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
+                    target = "Lnet/minecraft/world/level/block/piston/PistonStructureResolver;canStickToEachOther(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;)Z"
             )
     )
     private boolean onAddBranchingBlocksCanStickToEachOther(BlockState neighborState, BlockState state, BlockPos pos) {
@@ -91,6 +94,13 @@ public class PistonBlockStructureHelperMixin {
             return ((CustomPushBehavior) block).isStickyToNeighbor(level, pos, state, neighborPos_addBranchingBlocks, neighborState, dir_addBranchingBlocks, pushDirection);
         }
 
-        return neighborState.canStickTo(state);
+        return StickyBlocks.canStickTo(neighborState, state);
+    }
+
+    /** Lets mod blocks be sticky like slime (Forge: IForgeBlock#isStickyBlock). */
+    @Inject(method = "isSticky", at = @At("HEAD"), cancellable = true)
+    private static void pmIsSticky(BlockState state, CallbackInfoReturnable<Boolean> cir) {
+        if (state.getBlock() instanceof StickyBlock sticky)
+            cir.setReturnValue(sticky.isStickyBlock(state));
     }
 }

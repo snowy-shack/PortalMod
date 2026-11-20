@@ -1,28 +1,28 @@
 package net.portalmod.common.sorted.radio;
 
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
-public class RadioBlockTileEntity extends TileEntity implements ITickableTileEntity {
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.Level;
+
+public class RadioBlockTileEntity extends BlockEntity {
 //    private RadioSound sound;
     private int countedTicks = 0;
     private boolean initialized = false;
 
-    public RadioBlockTileEntity() {
-        super(TileEntityTypeInit.RADIO.get());
+    public RadioBlockTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.RADIO.get(), pos, state);
     }
 
     public void setInitialized() {
         initialized = true;
     }
 
-    @Override
     public void tick() {
         if(this.level.isClientSide())
             return;
@@ -52,13 +52,13 @@ public class RadioBlockTileEntity extends TileEntity implements ITickableTileEnt
     }
 
     public void handlePacket(RadioState state) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> RadioBlockClient.handlePacket(this, state));
+        ClientOnly.run(() -> () -> RadioBlockClient.handlePacket(this, state));
     }
 
     public void play() {
         if(this.level.isClientSide() || isPlaying()) return;
 
-        if(this.level.dimension() != null && getLevel().dimension() == World.END)
+        if(this.level.dimension() != null && getLevel().dimension() == Level.END)
             setState(RadioState.ACTIVE);
         else
             setState(RadioState.ON);
@@ -68,7 +68,7 @@ public class RadioBlockTileEntity extends TileEntity implements ITickableTileEnt
     public void stop() {
         if(this.level.isClientSide() || !isPlaying()) return;
 
-        if(this.level.dimension() != null && getLevel().dimension() == World.END)
+        if(this.level.dimension() != null && getLevel().dimension() == Level.END)
             setState(RadioState.INACTIVE);
         else
             setState(RadioState.OFF);

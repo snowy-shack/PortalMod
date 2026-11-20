@@ -1,27 +1,7 @@
 package net.portalmod.common.sorted.faithplate;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.PacketDistributor;
+import com.mojang.math.Axis;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.common.sorted.portal.VolatilePortalHelperManager;
@@ -38,32 +18,51 @@ import java.util.List;
 
 import static net.portalmod.common.sorted.faithplate.FaithPlateBlock.*;
 
-public class FaithPlateTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Vector3f;
+import net.minecraft.world.level.Level;
+
+public class FaithPlateTileEntity extends BlockEntity implements IndicatorActivated {
     private boolean enabled = false;
     private boolean indicatorControlled = false;
     private boolean override = false;
-    private Vector3d targetPos;
+    private net.minecraft.world.phys.Vec3 targetPos;
     private Direction targetFace;
     private Float height;
     private int cooldown = 0;
     public static int COOLDOWN_DURATION = 10;
 
-    private static final HashMap<PlayerEntity, FaithPlateTileEntity> PLATE_PER_PLAYER = new HashMap<>();
-    private PlayerEntity configuringPlayer;
+    private static final HashMap<Player, FaithPlateTileEntity> PLATE_PER_PLAYER = new HashMap<>();
+    private Player configuringPlayer;
 
     private static final VoxelShapeGroup TRIGGER = new VoxelShapeGroup.Builder()
             .add(3, 16, 3, 13, 17, 13)
             .build();
 
-    public FaithPlateTileEntity(TileEntityType<?> type) {
-        super(type);
+    public FaithPlateTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
     
-    public FaithPlateTileEntity() {
-        this(TileEntityTypeInit.FAITHPLATE.get());
+    public FaithPlateTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.FAITHPLATE.get(), pos, state);
     }
     
-    @Override
     public void tick() {
         if(this.level == null)
             return;
@@ -93,9 +92,9 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
             if(entity.isPassenger())
                 continue;
 
-            if(entity instanceof PlayerEntity) {
-                PlayerEntity player = (PlayerEntity)entity;
-                if(player.abilities.flying)
+            if(entity instanceof Player) {
+                Player player = (Player)entity;
+                if(player.getAbilities().flying)
                     continue;
             }
 
@@ -107,7 +106,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         if(this.level == null)
             return;
 
-        Vector3d targetPos = getTargetPos();
+        net.minecraft.world.phys.Vec3 targetPos = getTargetPos();
 
         double offset = getTargetFace().getAxis().isHorizontal() || getTargetFace() == Direction.DOWN
                 ? -0.25 - 0.5 * entity.getBbHeight()
@@ -124,7 +123,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         double velocity = parabola.getVelocity();
         double rotation = parabola.getRotation();
 
-        entity.setDeltaMovement(new Vector3d(
+        entity.setDeltaMovement(new net.minecraft.world.phys.Vec3(
                 velocity * Math.cos(angle) * Math.cos(rotation),
                 velocity * Math.sin(angle),
                 velocity * Math.cos(angle) * Math.sin(rotation)
@@ -135,7 +134,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         this.cooldown = COOLDOWN_DURATION;
 
         if(!this.level.isClientSide) {
-            if(entity.isControlledByLocalInstance() && !(entity instanceof PlayerEntity)) {
+            if(entity.isControlledByLocalInstance() && !(entity instanceof Player)) {
                 PacketInit.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(
                         () -> entity), new SFaithPlateLaunchPacket(getBlockPos()));
             }
@@ -144,7 +143,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         }
     }
 
-    public void startConfiguration(ServerPlayerEntity player) {
+    public void startConfiguration(ServerPlayer player) {
         this.configuringPlayer = player;
         PLATE_PER_PLAYER.put(player, this);
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new SFaithPlateStartConfigPacket(this.getBlockPos()));
@@ -154,13 +153,13 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         endConfigurationForPlayer(this.configuringPlayer);
     }
 
-    public static void endConfigurationForPlayer(PlayerEntity player) {
+    public static void endConfigurationForPlayer(Player player) {
         if(PLATE_PER_PLAYER.containsKey(player))
             PLATE_PER_PLAYER.get(player).configuringPlayer = null;
         PLATE_PER_PLAYER.remove(player);
     }
 
-    public static boolean isPlayerConfiguring(PlayerEntity player) {
+    public static boolean isPlayerConfiguring(Player player) {
         return PLATE_PER_PLAYER.containsKey(player);
     }
 
@@ -169,35 +168,35 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         return this.configuringPlayer != null;
     }
 
-    public AxisAlignedBB getTrigger() {
+    public AABB getTrigger() {
         BlockState state = this.getBlockState();
         VoxelShapeGroup triggerTransformed = TRIGGER.clone();
 
         if(state.getValue(FACE) == Face.WALL) {
             Mat4 matrix = Mat4.identity()
             .translate(new Vec3(.5))
-            .rotateDeg(Vector3f.YP, -state.getValue(FACING).toYRot())
-            .rotateDeg(Vector3f.XP, 90)
+            .rotateDeg(Axis.YP, -state.getValue(FACING).toYRot())
+            .rotateDeg(Axis.XP, 90)
             .translate(new Vec3(-.5));
 
             triggerTransformed.transform(matrix);
         }
 
-        AxisAlignedBB aabb = triggerTransformed.getShape().bounds();
+        AABB aabb = triggerTransformed.getShape().bounds();
 
         FaithPlateBlock block = (FaithPlateBlock) state.getBlock();
         BlockPos mainPosition = block.getMainPosition(state, this.getBlockPos());
 
-        return VoxelShapes.or(
-                VoxelShapes.create(aabb.move(mainPosition)),
-                VoxelShapes.create(aabb.move(mainPosition.relative(block.getUpperDirection(state))))
+        return Shapes.or(
+                Shapes.create(aabb.move(mainPosition)),
+                Shapes.create(aabb.move(mainPosition.relative(block.getUpperDirection(state))))
         ).bounds();
     }
     
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(targetPos != null && targetFace != null) {
-            CompoundNBT target = new CompoundNBT();
+            CompoundTag target = new CompoundTag();
             target.putDouble("x", targetPos.x());
             target.putDouble("y", targetPos.y());
             target.putDouble("z", targetPos.z());
@@ -207,23 +206,23 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         }
         
         nbt.putBoolean("enabled", enabled);
-        return super.save(nbt);
+        super.saveAdditional(nbt);
     }
     
     @Override
-    public void load(BlockState state, CompoundNBT nbt) {
-        super.load(state, nbt);
-        load(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadFields(nbt);
     }
     
-    public void load(CompoundNBT nbt) {
+    public void loadFields(CompoundTag nbt) {
         enabled = false;
         
         if(nbt.contains("enabled"))
             enabled = nbt.getBoolean("enabled");
         
         if(nbt.contains("target")) {
-            CompoundNBT target = nbt.getCompound("target");
+            CompoundTag target = nbt.getCompound("target");
             if(target.contains("x")
                     && target.contains("y")
                     && target.contains("z")
@@ -233,7 +232,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
                 double x = target.getDouble("x");
                 double y = target.getDouble("y");
                 double z = target.getDouble("z");
-                targetPos = new Vector3d(x, y, z);
+                targetPos = new net.minecraft.world.phys.Vec3(x, y, z);
                 targetFace = Direction.from3DDataValue(target.getByte("side"));
                 height = target.getFloat("height");
             }
@@ -244,7 +243,7 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         return override;
     }
     
-    public Vector3d getTargetPos() {
+    public net.minecraft.world.phys.Vec3 getTargetPos() {
         return targetPos;
     }
     
@@ -256,31 +255,29 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
         return height;
     }
 
-    public float getPredictedHeight(Vector3d absoluteTargetPos) {
+    public float getPredictedHeight(net.minecraft.world.phys.Vec3 absoluteTargetPos) {
         if (height != null) return height;
-        return Math.max(1, (float) (new BlockPos(absoluteTargetPos).distManhattan(this.getBlockPos()) / 4.0));
+        return Math.max(1, (float) (BlockPos.containing(absoluteTargetPos).distManhattan(this.getBlockPos()) / 4.0));
     }
 
     public int getCooldown() {
         return cooldown;
     }
 
-    @Override
     public void rotate(Rotation rotation) {
-        Vector3d newTarget = this.targetPos;
+        net.minecraft.world.phys.Vec3 newTarget = this.targetPos;
         switch(rotation) {
             case CLOCKWISE_90:
-                newTarget = new Vector3d(-this.targetPos.z, this.targetPos.y, this.targetPos.x); break;
+                newTarget = new net.minecraft.world.phys.Vec3(-this.targetPos.z, this.targetPos.y, this.targetPos.x); break;
             case CLOCKWISE_180:
-                newTarget = new Vector3d(-this.targetPos.x, this.targetPos.y, -this.targetPos.z); break;
+                newTarget = new net.minecraft.world.phys.Vec3(-this.targetPos.x, this.targetPos.y, -this.targetPos.z); break;
             case COUNTERCLOCKWISE_90:
-                newTarget = new Vector3d(this.targetPos.z, this.targetPos.y, -this.targetPos.x); break;
+                newTarget = new net.minecraft.world.phys.Vec3(this.targetPos.z, this.targetPos.y, -this.targetPos.x); break;
         }
         this.targetPos = newTarget;
         this.targetFace = rotation.rotate(this.targetFace);
     }
 
-    @Override
     public void mirror(Mirror mirror) {
         this.targetPos = new Vec3(this.targetPos).mul(mirror == Mirror.FRONT_BACK ? -1 : 1, 1, mirror == Mirror.LEFT_RIGHT ? -1 : 1).to3d();
         this.targetFace = mirror.mirror(this.targetFace);
@@ -289,39 +286,35 @@ public class FaithPlateTileEntity extends TileEntity implements ITickableTileEnt
     // chunk update
     
     @Override
-    public CompoundNBT getUpdateTag() {
-        return this.save(new CompoundNBT());
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
     
-    @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-        load(state, tag);
+    public void handleUpdateTag(BlockState state, CompoundTag tag) {
+        load(tag);
     }
     
     // block update
     
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(this.getBlockPos(), -1, save(new CompoundNBT()));
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
     
-    @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         this.load(packet.getTag());
     }
     
-    @Override
-    public AxisAlignedBB getRenderBoundingBox() {
-        return new AxisAlignedBB(this.getBlockPos()).inflate(1E30);
+    public AABB getRenderBoundingBox() {
+        return new AABB(this.getBlockPos()).inflate(1E30);
     }
     
-    @Override
     public double getViewDistance() {
         return 256.0D;
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, Level world, BlockPos pos) {
         Direction facing = blockState.getValue(FACING);
 
         Direction up = Direction.UP;

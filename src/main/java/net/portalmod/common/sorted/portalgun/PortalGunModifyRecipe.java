@@ -1,26 +1,30 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+
 import net.portalmod.core.init.RecipeInit;
 
-public class PortalGunModifyRecipe extends SpecialRecipe {
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+
+public class PortalGunModifyRecipe extends CustomRecipe {
     public static final Ingredient CHAIN_INGREDIENT = Ingredient.of(Items.CHAIN);
 
-    public PortalGunModifyRecipe(ResourceLocation resourceLocation) {
-        super(resourceLocation);
+    public PortalGunModifyRecipe(ResourceLocation resourceLocation, CraftingBookCategory category) {
+        super(resourceLocation, category);
     }
 
     @Override
-    public boolean matches(CraftingInventory inventory, World world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         // Check gun
         ItemStack gunItem = inventory.getItem(4);
         if (gunItem.isEmpty() || !(gunItem.getItem() instanceof PortalGun)) {
@@ -52,9 +56,9 @@ public class PortalGunModifyRecipe extends SpecialRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInventory inventory) {
+    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
         ItemStack newGun = inventory.getItem(4).copy();
-        CompoundNBT newNBT = newGun.getOrCreateTag();
+        CompoundTag newNBT = newGun.getOrCreateTag();
 
         ItemStack accentDye = inventory.getItem(1);
         ItemStack leftDye = inventory.getItem(3);
@@ -85,7 +89,7 @@ public class PortalGunModifyRecipe extends SpecialRecipe {
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return RecipeInit.PORTAL_GUN_MODIFY.get();
     }
 }

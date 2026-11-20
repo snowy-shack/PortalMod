@@ -1,7 +1,6 @@
 package net.portalmod.mixins;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.KeyInit;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +9,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -27,14 +29,14 @@ public class MinecraftMixin {
                         method = "handleKeybinds",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V",
+                    target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V",
                     ordinal = 1
             )
     )
     private void pmCancelInventoryOpen(Minecraft minecraft, Screen screen) {
         if (minecraft.player != null
                 && minecraft.player.getMainHandItem().getItem() instanceof PortalGun
-                && KeyInit.PORTALGUN_INTERACT.getKey() == minecraft.options.keyInventory.getKey()) {
+                && KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT) == KeyBindingHelper.getBoundKeyOf(minecraft.options.keyInventory)) {
             return;
         }
 

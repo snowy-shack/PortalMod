@@ -1,16 +1,16 @@
 package net.portalmod.core.packet;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.GameRules;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.init.GameRuleInit;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.GameRules;
 
 public class SUpdateBooleanGameRulePacket implements AbstractPacket<SUpdateBooleanGameRulePacket> {
     private String name;
@@ -24,7 +24,7 @@ public class SUpdateBooleanGameRulePacket implements AbstractPacket<SUpdateBoole
     }
 
     @Override
-    public SUpdateBooleanGameRulePacket decode(PacketBuffer buffer) {
+    public SUpdateBooleanGameRulePacket decode(FriendlyByteBuf buffer) {
         int length = buffer.readInt();
         String rule = buffer.readCharSequence(length, StandardCharsets.UTF_8).toString();
         boolean value = buffer.readBoolean();
@@ -32,17 +32,17 @@ public class SUpdateBooleanGameRulePacket implements AbstractPacket<SUpdateBoole
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(this.name.length());
         buffer.writeCharSequence(this.name, StandardCharsets.UTF_8);
         buffer.writeBoolean(this.value);
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                ClientWorld level = Minecraft.getInstance().level;
+            ClientOnly.run(() -> () -> {
+                ClientLevel level = Minecraft.getInstance().level;
                 if(level == null)
                     return;
 

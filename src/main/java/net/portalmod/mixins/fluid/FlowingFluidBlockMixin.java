@@ -1,15 +1,7 @@
 package net.portalmod.mixins.fluid;
 
-import net.minecraft.block.*;
-import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
+
 import net.portalmod.core.init.FluidTagInit;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,42 +10,57 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(FlowingFluidBlock.class)
-public abstract class FlowingFluidBlockMixin extends Block implements IBucketPickupHandler {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 
-    @Shadow protected abstract void fizz(IWorld p_180688_1_, BlockPos p_180688_2_);
+@Mixin(LiquidBlock.class)
+public abstract class FlowingFluidBlockMixin extends Block implements BucketPickup {
+
+    @Shadow protected abstract void fizz(LevelAccessor p_180688_1_, BlockPos p_180688_2_);
 
     @Shadow public abstract FluidState getFluidState(BlockState p_204507_1_);
 
-    @Shadow public abstract FlowingFluid getFluid();
+    @Shadow @Final protected FlowingFluid fluid;
 
     public FlowingFluidBlockMixin(Properties p_i48440_1_) {
         super(p_i48440_1_);
     }
 
     @Inject(
-            method = "shouldSpreadLiquid(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)Z",
+            method = "shouldSpreadLiquid(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
             at = @At("HEAD"),
             cancellable = true
     )
-    public void pmHandleHorizontalGooReactions(World world, BlockPos pos, BlockState blockState, CallbackInfoReturnable<Boolean> cir) {
+    public void pmHandleHorizontalGooReactions(Level world, BlockPos pos, BlockState blockState, CallbackInfoReturnable<Boolean> cir) {
         for(Direction direction : Direction.values()) {
             if (direction != Direction.UP) {
                 BlockPos relativePos = pos.relative(direction);
-                if (this.getFluid().is(FluidTagInit.GOO)) {
+                if (this.fluid.is(FluidTagInit.GOO)) {
                     if (portalMod$handleFluidInteraction(FluidTags.WATER, Blocks.SOUL_SAND, Blocks.SOUL_SOIL, world, relativePos) ||
                             portalMod$handleFluidInteraction(FluidTags.LAVA, Blocks.NETHERRACK, Blocks.OBSIDIAN, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
                     }
                 }
-                if (this.getFluid().is(FluidTags.WATER)) {
+                if (this.fluid.is(FluidTags.WATER)) {
                     if (portalMod$handleFluidInteraction(FluidTagInit.GOO, Blocks.SOUL_SAND, Blocks.SOUL_SAND, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
                     }
                 }
-                if (this.getFluid().is(FluidTags.LAVA)) {
+                if (this.fluid.is(FluidTags.LAVA)) {
                     if (portalMod$handleFluidInteraction(FluidTagInit.GOO, Blocks.NETHERRACK, Blocks.NETHERRACK, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
@@ -64,10 +71,10 @@ public abstract class FlowingFluidBlockMixin extends Block implements IBucketPic
     }
 
     @Unique
-    public boolean portalMod$handleFluidInteraction(ITag<Fluid> fluid1, Block flowingBlock, Block sourceBlock, World world, BlockPos pos) {
+    public boolean portalMod$handleFluidInteraction(TagKey<Fluid> fluid1, Block flowingBlock, Block sourceBlock, Level world, BlockPos pos) {
         // Check both the type of fluid and whether it's not just a waterlogged block
-        if (world.getFluidState(pos).is(fluid1) && world.getBlockState(pos).getBlock() instanceof FlowingFluidBlock) {
-            world.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(world, pos, pos, (world.getFluidState(pos).isSource() ? sourceBlock : flowingBlock).defaultBlockState()));
+        if (world.getFluidState(pos).is(fluid1) && world.getBlockState(pos).getBlock() instanceof LiquidBlock) {
+            world.setBlockAndUpdate(pos, (world.getFluidState(pos).isSource() ? sourceBlock : flowingBlock).defaultBlockState());
             this.fizz(world, pos);
             return true;
         }

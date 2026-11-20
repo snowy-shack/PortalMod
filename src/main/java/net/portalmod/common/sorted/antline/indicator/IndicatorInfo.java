@@ -1,3 +1,4 @@
+
 package net.portalmod.common.sorted.antline.indicator;
 
 public class IndicatorInfo {

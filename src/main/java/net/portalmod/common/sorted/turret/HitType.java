@@ -1,7 +1,7 @@
 package net.portalmod.common.sorted.turret;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum HitType implements IStringSerializable {
+public enum HitType implements StringRepresentable {
     CLEAR,       // No block hits
     PERMEABLE,   // Went through permeable blocks
     TRANSPARENT, // Hit a solid but transparent block

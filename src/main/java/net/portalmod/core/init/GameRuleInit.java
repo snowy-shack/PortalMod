@@ -1,22 +1,24 @@
 package net.portalmod.core.init;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.GameRules;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.packet.SUpdateBooleanGameRulePacket;
-import net.portalmod.mixins.accessors.BooleanValueAccessor;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
+
 public class GameRuleInit {
     private GameRuleInit() {}
 
-    public static final Map<String, GameRules.RuleKey<?>> REGISTRY = new HashMap<>();
+    public static final Map<String, GameRules.Key<?>> REGISTRY = new HashMap<>();
 
-    public static GameRules.RuleKey<GameRules.BooleanValue> PORTAL_SLOWSHOT;
-    public static GameRules.RuleKey<GameRules.BooleanValue> USE_PORTALABLE_BLACKLIST;
-    public static GameRules.RuleKey<GameRules.BooleanValue> ALLOW_PORTAL_OVERWRITE;
+    public static GameRules.Key<GameRules.BooleanValue> PORTAL_SLOWSHOT;
+    public static GameRules.Key<GameRules.BooleanValue> USE_PORTALABLE_BLACKLIST;
+    public static GameRules.Key<GameRules.BooleanValue> ALLOW_PORTAL_OVERWRITE;
 
     public static void registerAll() {
         PORTAL_SLOWSHOT = registerBoolean("portalSlowShot", GameRules.Category.PLAYER, false);
@@ -27,28 +29,28 @@ public class GameRuleInit {
         ALLOW_PORTAL_OVERWRITE = registerServerBoolean("allowPortalOverwrite", GameRules.Category.PLAYER, true);
     }
 
-    private static <T extends GameRules.RuleValue<T>> GameRules.RuleKey<T> register(String name, GameRules.Category category, GameRules.RuleType<T> rule) {
-        GameRules.RuleKey<T> key = GameRules.register(name, category, rule);
+    private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String name, GameRules.Category category, GameRules.Type<T> rule) {
+        GameRules.Key<T> key = GameRuleRegistry.register(name, category, rule);
         REGISTRY.put(name, key);
         return key;
     }
 
-    private static GameRules.RuleKey<GameRules.BooleanValue> registerBoolean(String name, GameRules.Category category, boolean defaultValue) {
-        return register(name, category, BooleanValueAccessor.pmCreate(defaultValue, (server, value) ->
+    private static GameRules.Key<GameRules.BooleanValue> registerBoolean(String name, GameRules.Category category, boolean defaultValue) {
+        return register(name, category, GameRuleFactory.createBooleanRule(defaultValue, (server, value) ->
                 PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SUpdateBooleanGameRulePacket(name, value.get()))));
     }
 
-    private static GameRules.RuleKey<GameRules.BooleanValue> registerServerBoolean(String name, GameRules.Category category, boolean defaultValue) {
-        return register(name, category, BooleanValueAccessor.pmCreate(defaultValue, (server, value) -> {}));
+    private static GameRules.Key<GameRules.BooleanValue> registerServerBoolean(String name, GameRules.Category category, boolean defaultValue) {
+        return register(name, category, GameRuleFactory.createBooleanRule(defaultValue, (server, value) -> {}));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends GameRules.RuleValue<T>> GameRules.RuleKey<T> getRule(String name) {
-        return (GameRules.RuleKey<T>)REGISTRY.get(name);
+    public static <T extends GameRules.Value<T>> GameRules.Key<T> getRule(String name) {
+        return (GameRules.Key<T>)REGISTRY.get(name);
     }
 
-    public static void sendBooleanRule(ServerPlayerEntity player, GameRules.RuleKey<GameRules.BooleanValue> key) {
+    public static void sendBooleanRule(ServerPlayer player, GameRules.Key<GameRules.BooleanValue> key) {
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                new SUpdateBooleanGameRulePacket(key.getId(), player.level.getGameRules().getBoolean(key)));
+                new SUpdateBooleanGameRulePacket(key.getId(), player.level().getGameRules().getBoolean(key)));
     }
 }

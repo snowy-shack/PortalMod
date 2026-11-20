@@ -1,14 +1,14 @@
 package net.portalmod.common.entities;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.function.Supplier;
+
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHoldingPacket> {
     private int id;
@@ -28,7 +28,7 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(this.id);
         buffer.writeDouble(this.oldPosition.x);
         buffer.writeDouble(this.oldPosition.y);
@@ -41,7 +41,7 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
     }
 
     @Override
-    public CTestElementHoldingPacket decode(PacketBuffer buffer) {
+    public CTestElementHoldingPacket decode(FriendlyByteBuf buffer) {
         int id = buffer.readInt();
         Vec3 oldPosition = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
         Vec3 position = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
@@ -52,13 +52,13 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            ServerPlayerEntity sender = context.get().getSender();
+            ServerPlayer sender = context.get().getSender();
             if(sender == null)
                 return;
 
-            Entity entity = sender.level.getEntity(this.id);
+            Entity entity = sender.level().getEntity(this.id);
             if(!(entity instanceof TestElementEntity))
                 return;
 
@@ -69,7 +69,7 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
             tee.serverOldPos = oldPosition;
             tee.setPos(this.position.x, this.position.y, this.position.z);
 
-            tee.yRot = this.rotation;
+            tee.setYRot(this.rotation);
             tee.yRotO = this.oldRotation;
             tee.yBodyRot = this.rotation;
             tee.yBodyRotO = this.oldRotation;

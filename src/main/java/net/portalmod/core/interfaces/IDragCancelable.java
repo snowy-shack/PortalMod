@@ -1,3 +1,4 @@
+
 package net.portalmod.core.interfaces;
 
 public interface IDragCancelable {

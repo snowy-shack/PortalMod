@@ -1,20 +1,21 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+
 public class CameraRotator {
     public static void rotate(Entity entity, PortalEntity portal, PortalEntity targetPortal) {
-        boolean isLocalPlayer = entity instanceof ClientPlayerEntity;
+        boolean isLocalPlayer = entity instanceof LocalPlayer;
 
-        float xRotOld = entity.xRot;
-        float yRotOld = entity.yRot;
-        float pitch = entity.xRot;
-        float yaw = entity.yRot;
+        float xRotOld = entity.getXRot();
+        float yRotOld = entity.getYRot();
+        float pitch = entity.getXRot();
+        float yaw = entity.getYRot();
 
         OrthonormalBasis portalBasis = portal.getSourceBasis();
         OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
@@ -27,7 +28,7 @@ public class CameraRotator {
         float absPitch = Math.abs(anglesUnbound.getPitch());
 
         if(absPitch >= 90 && absPitch <= 135) {
-            pitch = MathHelper.clamp(anglesUnbound.getPitch(), -90, 90);
+            pitch = Mth.clamp(anglesUnbound.getPitch(), -90, 90);
             yaw = anglesUnbound.getYaw();
 
             if(targetPortal.getDirection().getAxis().isHorizontal()) {
@@ -62,13 +63,13 @@ public class CameraRotator {
             }
         }
 
-        entity.xRot = entity.xRotO = pitch;
-        entity.yRot = entity.yRotO = yaw;
+        entity.setXRot(entity.xRotO = pitch);
+        entity.setYRot(entity.yRotO = yaw);
 
         if(isLocalPlayer) {
-            ClientPlayerEntity player = (ClientPlayerEntity)entity;
-            float xRotDelta = player.xRot - xRotOld;
-            float yRotDelta = player.yRot - yRotOld;
+            LocalPlayer player = (LocalPlayer)entity;
+            float xRotDelta = player.getXRot() - xRotOld;
+            float yRotDelta = player.getYRot() - yRotOld;
 
             player.xBob  += xRotDelta;
             player.xBobO += xRotDelta;

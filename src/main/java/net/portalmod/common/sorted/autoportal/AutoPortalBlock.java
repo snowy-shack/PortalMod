@@ -1,29 +1,8 @@
 package net.portalmod.common.sorted.autoportal;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.common.blocks.OmnidirectionalQuadBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -43,7 +22,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class AutoPortalBlock extends OmnidirectionalQuadBlock {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Tuple;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+
+public class AutoPortalBlock extends OmnidirectionalQuadBlock implements EntityBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final BiHashMap<String, QuadBlockCorner, VoxelShapeGroup> SHAPES = new BiHashMap<>();
 
@@ -59,7 +62,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, CORNER, DIRECTION, POWERED);
     }
 
@@ -106,7 +109,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
         }
     }
 
-    public void setAntlinePowered(boolean powered, BlockState blockState, World world, BlockPos pos) {
+    public void setAntlinePowered(boolean powered, BlockState blockState, Level world, BlockPos pos) {
         this.setBlockStateValue(POWERED, powered, blockState, world, pos);
         this.updateAllNeighbors(world, pos, blockState);
     }
@@ -116,23 +119,23 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     }
 
     @Override
-    public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult rayTraceResult) {
         if(!WrenchItem.usedWrench(player, hand))
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
 
         if(level.isClientSide)
-            return ActionResultType.CONSUME;
+            return InteractionResult.CONSUME;
 
         Block block = state.getBlock();
         if(!(block instanceof AutoPortalBlock))
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
 
         BlockPos tePos = ((AutoPortalBlock)block).getOtherBlock(pos, state.getValue(CORNER), QuadBlockCorner.DOWN_LEFT,
                 state.getValue(FACING), state.getValue(DIRECTION));
 
-        TileEntity te = level.getBlockEntity(tePos);
+        BlockEntity te = level.getBlockEntity(tePos);
         if(!(te instanceof AutoPortalTileEntity))
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
 
         AutoPortalTileEntity autoPortal = (AutoPortalTileEntity)te;
 
@@ -141,13 +144,13 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
             Optional<UUID> uuid = PortalGun.getUUID(itemStack);
 
             if(!uuid.isPresent() || !itemStack.hasTag())
-                return ActionResultType.PASS;
+                return InteractionResult.PASS;
 
-            CompoundNBT nbt = itemStack.getTag();
+            CompoundTag nbt = itemStack.getTag();
 
             if(nbt != null) {
                 if(!nbt.contains("LeftColor") || !nbt.contains("RightColor"))
-                    return ActionResultType.PASS;
+                    return InteractionResult.PASS;
 
                 int primaryColor = PortalColors.getIndex(nbt.getString("LeftColor"));
                 int secondaryColor = PortalColors.getIndex(nbt.getString("RightColor"));
@@ -156,46 +159,46 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
 
                 autoPortal.link(uuid.get(), end, primaryColor, secondaryColor);
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-                player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal.set"), true);
-                return ActionResultType.SUCCESS;
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.autoportal.set"), true);
+                return InteractionResult.SUCCESS;
             }
         } else {
             if(autoPortal.end == null) {
                 WrenchItem.playFailSound(level, rayTraceResult.getLocation());
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
             if(autoPortal.lastOpenedUUID != null) {
                 autoPortal.closePortal();
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
             autoPortal.swapEnd();
             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
 
-            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.autoportal."
+            player.displayClientMessage(Component.translatable("actionbar.portalmod.autoportal."
                     + (autoPortal.end == PortalEnd.PRIMARY ? "primary" : "secondary")), true);
 
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         VoxelShape shape = this.getShapeGroup(state).getShape();
-        return shape != null ? shape : VoxelShapes.empty();
+        return shape != null ? shape : Shapes.empty();
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return this.getShape(state, level, pos, context);
     }
 
     @Override
-    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+    public boolean isCornerPlaceable(BlockPlaceContext context, QuadBlockCorner corner) {
         Direction direction = context.getClickedFace();
         return this.getAllBlocks(context.getClickedPos(), corner, direction, context.getHorizontalDirection()).stream()
                 .allMatch(pos ->
@@ -206,7 +209,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         if(level.isClientSide)
             return;
 
@@ -217,7 +220,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
                 .filter(blockPos -> level.getBlockState(blockPos).getBlock() instanceof AutoPortalBlock)
                 .anyMatch(checkingPos -> level.hasSignal(checkingPos.relative(facing.getOpposite()), facing));
 
-        TileEntity te = level.getBlockEntity(getOtherBlock(pos, state.getValue(CORNER), QuadBlockCorner.DOWN_LEFT, facing, state.getValue(DIRECTION)));
+        BlockEntity te = level.getBlockEntity(getOtherBlock(pos, state.getValue(CORNER), QuadBlockCorner.DOWN_LEFT, facing, state.getValue(DIRECTION)));
 
         if(te instanceof AutoPortalTileEntity) {
             ((AutoPortalTileEntity) te).setPowered(isPowered);
@@ -228,19 +231,26 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
         }
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return state.getValue(CORNER) == QuadBlockCorner.DOWN_LEFT;
     }
 
     @Nullable
+
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        return TileEntityTypeInit.AUTOPORTAL.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return TileEntityTypeInit.AUTOPORTAL.get().create(pos, state);
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.AUTOPORTAL.get() ? (lvl, pos, st, be) -> ((AutoPortalTileEntity) be).tick() : null;
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("autoportal", list);
     }
 }

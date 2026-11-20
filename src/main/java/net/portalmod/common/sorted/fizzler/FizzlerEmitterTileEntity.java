@@ -1,16 +1,5 @@
 package net.portalmod.common.sorted.fizzler;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.core.init.BlockInit;
@@ -22,21 +11,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
+
+public class FizzlerEmitterTileEntity extends BlockEntity implements IndicatorActivated {
 
     public static final int MAX_DISTANCE = 16;
 
-    public FizzlerEmitterTileEntity() {
-        super(TileEntityTypeInit.FIZZLER_EMITTER.get());
+    public FizzlerEmitterTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.FIZZLER_EMITTER.get(), pos, state);
     }
 
-    @Override
     public void tick() {
         handleAntlineActivation();
     }
 
     private void handleAntlineActivation() {
-        World world = this.level;
+        Level world = this.level;
         BlockState state = this.getBlockState();
         BlockPos pos = this.getBlockPos();
 
@@ -79,7 +78,7 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
 
             SoundEvent soundEvent = active ? SoundInit.FIZZLER_ACTIVATE.get() : SoundInit.FIZZLER_DEACTIVATE.get();
             float pitch = (ModUtil.randomSoundPitch() + 2) / 3; // 3x lower random pitch
-            this.level.playSound(null, this.getBlockPos().relative(facing, distance / 2), soundEvent, SoundCategory.BLOCKS, 1, pitch);
+            this.level.playSound(null, this.getBlockPos().relative(facing, distance / 2), soundEvent, SoundSource.BLOCKS, 1, pitch);
 
             ((FizzlerEmitterBlock) oppositeEmitterState.getBlock()).setBlockStateValue(FizzlerEmitterBlock.ACTIVE, active, oppositeEmitterState, this.level, oppositeEmitterPos);
 
@@ -129,7 +128,7 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
                     || upper != (state.getValue(FizzlerFieldBlock.HALF) == DoubleBlockHalf.UPPER);
         }
 
-        return !state.getMaterial().isReplaceable();
+        return !state.canBeReplaced();
     }
 
     public boolean isOtherSide(BlockState state, Direction direction, boolean upper) {
@@ -142,12 +141,12 @@ public class FizzlerEmitterTileEntity extends TileEntity implements ITickableTil
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState state, World world, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState state, Level world, BlockPos pos) {
         Direction up = ((FizzlerEmitterBlock) state.getBlock()).getUpperDirection(state);
         Direction backwards = state.getValue(FizzlerEmitterBlock.FACING).getOpposite();
 
-        Vector3i perpendicular = up.getNormal().cross(backwards.getNormal());
-        Direction side = Direction.fromNormal(perpendicular.getX(), perpendicular.getY(), perpendicular.getZ());
+        Vec3i perpendicular = up.getNormal().cross(backwards.getNormal());
+        Direction side = Direction.fromDelta(perpendicular.getX(), perpendicular.getY(), perpendicular.getZ());
 
         return new ArrayList<>(Arrays.asList(
                 pos.relative(side),

@@ -1,22 +1,27 @@
 package net.portalmod.core.util;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.GameRenderer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.HashMap;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Matrix4f;
+
 public class DebugRenderer {
     private static final HashMap<String, Tuple<VoxelShape, Color>> SHAPES = new HashMap<>();
-    private static final VertexBuffer debugVG = new VertexBuffer(DefaultVertexFormats.POSITION_COLOR);
+    private static final VertexBuffer debugVG = new VertexBuffer(VertexBuffer.Usage.STATIC);
     private static final BufferBuilder builder = new BufferBuilder(7 * 240000);
 
     public static void putShape(String key, VoxelShape shape, Color color) {
@@ -27,18 +32,18 @@ public class DebugRenderer {
         SHAPES.remove(key);
     }
 
-    public static void renderAllShapes(MatrixStack matrixStack) {
+    public static void renderAllShapes(PoseStack matrixStack) {
         HashMap<String, Tuple<VoxelShape, Color>> temp = new HashMap<>(SHAPES);
 
         for(Tuple<VoxelShape, Color> shape : temp.values())
-            for(AxisAlignedBB aabb : shape.getA().toAabbs())
+            for(AABB aabb : shape.getA().toAabbs())
                 renderBox(matrixStack.last().pose(), aabb, shape.getB());
     }
 
-    private static void renderBox(Matrix4f matrix, AxisAlignedBB aabb, Color color) {
+    private static void renderBox(Matrix4f matrix, AABB aabb, Color color) {
         aabb = aabb.move(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().reverse());
 
-        builder.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+        builder.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
 
         builder.vertex(matrix, (float)aabb.minX, (float)aabb.minY, (float)aabb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), 255).endVertex();
         builder.vertex(matrix, (float)aabb.maxX, (float)aabb.minY, (float)aabb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), 255).endVertex();
@@ -132,13 +137,9 @@ public class DebugRenderer {
             builder.vertex(matrix, (float)aabb.minX + x1, (float)aabb.maxY, (float)aabb.minZ + z1).color(color.getRed(), color.getGreen(), color.getBlue(), 255).endVertex();
         }
 
-        builder.end();
-        debugVG.upload(builder);
-
         debugVG.bind();
-        DefaultVertexFormats.POSITION_COLOR.setupBufferState(0L);
-        debugVG.draw(Matrix4f.createScaleMatrix(1, 1, 1), GL11.GL_LINES);
-        DefaultVertexFormats.POSITION_COLOR.clearBufferState();
+        debugVG.upload(builder.end());
+        debugVG.drawWithShader(new Matrix4f(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionColorShader());
         VertexBuffer.unbind();
     }
 }

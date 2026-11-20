@@ -1,26 +1,6 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.IPacket;
-import net.minecraft.particles.BlockParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -30,7 +10,7 @@ import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.turret.TurretEntity;
-import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.DamageTypeInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
@@ -50,11 +30,36 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Deque;
 
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+import net.minecraft.world.level.Level;
+
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements Flingable, IDragCancelable, IGelAffected {
     private boolean pmLaunched = false;
 
-    public LivingEntityMixin(EntityType<?> entityType, World level) {
+    public LivingEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
 
@@ -70,13 +75,12 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Shadow protected abstract boolean isAffectedByFluids();
 
-    @Shadow public abstract boolean canStandOnFluid(Fluid p_230285_1_);
+    @Shadow public abstract boolean canStandOnFluid(FluidState fluidState);
 
     @Shadow public abstract Iterable<ItemStack> getArmorSlots();
 
-    @Shadow public abstract EntitySize getDimensions(Pose p_213305_1_);
+    @Shadow public abstract EntityDimensions getDimensions(Pose p_213305_1_);
 
-    @Shadow public abstract IPacket<?> getAddEntityPacket();
 
     @Shadow public abstract void stopRiding();
 
@@ -87,11 +91,11 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
             at = @At("HEAD")
     )
     private void pmLerpPosWithPortal(CallbackInfo info) {
-        Deque<Tuple<Vector3d, Vector3d>> lerpPositions = ((ITeleportLerpable)this).getLerpPositions();
-        if(lerpPositions.isEmpty() || !this.level.isClientSide)
+        Deque<Tuple<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3>> lerpPositions = ((ITeleportLerpable)this).getLerpPositions();
+        if(lerpPositions.isEmpty() || !this.level().isClientSide)
             return;
 
-        Tuple<Vector3d, Vector3d> currentLerpPos = lerpPositions.pop();
+        Tuple<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3> currentLerpPos = lerpPositions.pop();
         this.setPos(currentLerpPos.getB().x, currentLerpPos.getB().y, currentLerpPos.getB().z);
         this.xo = currentLerpPos.getA().x;
         this.yo = currentLerpPos.getA().y;
@@ -106,7 +110,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
                         method = "baseTick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;isInWall()Z"
+                    target = "Lnet/minecraft/world/entity/LivingEntity;isInWall()Z"
             )
     )
     private boolean pmAvoidSuffocationInPortal(LivingEntity entity) {
@@ -117,7 +121,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
                         method = "checkFallDamage",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/Entity;checkFallDamage(DZLnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;)V"
+                    target = "Lnet/minecraft/world/entity/Entity;checkFallDamage(DZLnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"
             )
     )
     private void pmCheckPortalFallDamage(Entity entity, double heightDelta, boolean onGround, BlockState state, BlockPos pos) {
@@ -129,9 +133,9 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     private boolean pmHasNearbyPortals(Entity entity) {
-        Vector3d delta = new Vector3d(entity.xo, entity.yo, entity.zo).subtract(entity.position());
-        AxisAlignedBB aabb = entity.getBoundingBox().expandTowards(delta).inflate(2);
-        return !PortalEntity.getPortals(entity.level, aabb, portal -> true).isEmpty();
+        net.minecraft.world.phys.Vec3 delta = new net.minecraft.world.phys.Vec3(entity.xo, entity.yo, entity.zo).subtract(entity.position());
+        AABB aabb = entity.getBoundingBox().expandTowards(delta).inflate(2);
+        return !PortalEntity.getPortals(entity.level(), aabb, portal -> true).isEmpty();
     }
 
     // has to redirect setPos after lerping
@@ -139,7 +143,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
                         method = "aiStep",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;setPos(DDD)V",
+                    target = "Lnet/minecraft/world/entity/LivingEntity;setPos(DDD)V",
                     ordinal = 0
             )
     )
@@ -171,7 +175,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 //            lerpPosQueue.poll();
 //        }
 
-        PortalEntity portal = (PortalEntity)instance.level.getEntity(((ITeleportable)instance).getLastUsedPortal());
+        PortalEntity portal = (PortalEntity)instance.level().getEntity(((ITeleportable)instance).getLastUsedPortal());
 
         if(!((ITeleportable)instance).hasLastUsedPortal() || portal == null) {
             instance.setPos(x, y, z);
@@ -194,26 +198,26 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         Vector3f normal2 = new Vec3(portal.getDirection().getNormal()).to3f();
         normal.mul(.5f);
         normal2.mul(PortalEntityRenderer.OFFSET * 10);
-        Vector3d portalPos = Vector3d.atCenterOf(portal.blockPosition())
-                .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
+        net.minecraft.world.phys.Vec3 portalPos = net.minecraft.world.phys.Vec3.atCenterOf(portal.blockPosition())
+                .subtract(new net.minecraft.world.phys.Vec3(normal)).add(new net.minecraft.world.phys.Vec3(normal2));
 
         Vector3f targetnormal = new Vec3(targetPortal.getDirection().getNormal()).to3f();
         Vector3f targetnormal2 = new Vec3(targetPortal.getDirection().getNormal()).to3f();
         targetnormal.mul(.5f);
         targetnormal2.mul(PortalEntityRenderer.OFFSET * 10);
-        Vector3d targetPortalPos = Vector3d.atCenterOf(targetPortal.blockPosition())
-                .subtract(new Vector3d(targetnormal)).add(new Vector3d(targetnormal2));
+        net.minecraft.world.phys.Vec3 targetPortalPos = net.minecraft.world.phys.Vec3.atCenterOf(targetPortal.blockPosition())
+                .subtract(new net.minecraft.world.phys.Vec3(targetnormal)).add(new net.minecraft.world.phys.Vec3(targetnormal2));
 
-        Vector3d offset = targetPortalPos.subtract(portalPos);
-        Vector3d portalToEntity = new Vector3d(x, y, z).subtract(portalPos);
+        net.minecraft.world.phys.Vec3 offset = targetPortalPos.subtract(portalPos);
+        net.minecraft.world.phys.Vec3 portalToEntity = new net.minecraft.world.phys.Vec3(x, y, z).subtract(portalPos);
         if(portalToEntity.dot(new Vec3(portal.getDirection().getNormal()).to3d()) >= 0) {
             instance.setPos(x, y, z);
             return;
         }
 
-        AxisAlignedBB bb = instance.getBoundingBox();
-        Vector3d delta = new Vector3d(x, y, z).subtract(instance.xo, instance.yo, instance.zo);
-        AxisAlignedBB travelAABB = bb.expandTowards(delta);
+        AABB bb = instance.getBoundingBox();
+        net.minecraft.world.phys.Vec3 delta = new net.minecraft.world.phys.Vec3(x, y, z).subtract(instance.xo, instance.yo, instance.zo);
+        AABB travelAABB = bb.expandTowards(delta);
         Vec3 projected = portal.projectPointOnPortalSurface(new Vec3(bb.getCenter().add(delta)));
 
         boolean isInside = projected.x > -.5
@@ -259,48 +263,47 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         return this.pmCancelDrag;
     }
 
+    // Ground movement: vanilla sets (x * friction, y * 0.98, z * friction). When drag is cancelled we
+    // undo only the vertical 0.98 factor, like 1.16 did. In 1.20.1 this is the 4th setDeltaMovement(DDD)
+    // in travel (the 3rd is the new "discard friction" branch).
     @Inject(
                         method = "travel",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;setDeltaMovement(DDD)V",
-                    ordinal = 2,
+                    target = "Lnet/minecraft/world/entity/LivingEntity;setDeltaMovement(DDD)V",
+                    ordinal = 3,
                     shift = At.Shift.AFTER
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
+            )
     )
-    private void pmCancelApplyDrag(Vector3d delta, CallbackInfo info, double d0, ModifiableAttributeInstance gravity, boolean flag, FluidState fluidstate, BlockPos blockpos, float f3, float f4, Vector3d vector3d5, double d2) {
+    private void pmCancelApplyDrag(net.minecraft.world.phys.Vec3 delta, CallbackInfo info) {
         if(this.pmCancelDrag) {
-//            double gravity = Objects.requireNonNull(entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get())).getValue();
-//            entity.setDeltaMovement(x, entity.getDeltaMovement().y - gravity, z);
-//            entity.setDeltaMovement(x, y / 0.98, z);
-            ((LivingEntity)(Object)this).setDeltaMovement(vector3d5.x * (double)f4, d2, vector3d5.z * (double)f4);
-//        } else {
-////            entity.setDeltaMovement(x, y, z);
+            LivingEntity self = (LivingEntity)(Object)this;
+            net.minecraft.world.phys.Vec3 v = self.getDeltaMovement();
+            self.setDeltaMovement(v.x, v.y / (double)0.98F, v.z);
         }
     }
 
     @Redirect(
-                        method = "travel(Lnet/minecraft/util/math/vector/Vector3d;)V",
+                        method = "travel(Lnet/minecraft/world/phys/Vec3;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;setDeltaMovement(DDD)V"),
+                    target = "Lnet/minecraft/world/entity/LivingEntity;setDeltaMovement(DDD)V"),
             slice = @Slice(
                     from = @At(
                             value = "INVOKE",
-                            target = "Lnet/minecraft/entity/LivingEntity;handleRelativeFrictionAndCalculateMovement(Lnet/minecraft/util/math/vector/Vector3d;F)Lnet/minecraft/util/math/vector/Vector3d;"
+                            target = "Lnet/minecraft/world/entity/LivingEntity;handleRelativeFrictionAndCalculateMovement(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"
                     )
             )
     )
     private void pmDoLaunchedMovement(LivingEntity entity, double x, double y, double z) {
-        Vector3d velocity = entity.getDeltaMovement();
+        net.minecraft.world.phys.Vec3 velocity = entity.getDeltaMovement();
         entity.setDeltaMovement(x, velocity.y - 0.08, z);
 //        entity.setDeltaMovement(velocity.x, velocity.y - 0.08, velocity.z);
 
 //        if(true)
 //            return;
 
-//        Vector3d velocity = entity.getDeltaMovement();
+//        net.minecraft.world.phys.Vec3 velocity = entity.getDeltaMovement();
 
         if(!pmLaunched) {
             entity.setDeltaMovement(x, y, z);
@@ -308,21 +311,21 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         }
 
         LivingEntity thiss = (LivingEntity)(Object)this;
-        Vector3d deltaMovementFromLastTick = entity.position().subtract(new Vector3d(entity.xo, entity.yo, entity.zo));
-        double momentumFromLastTick = Math.sqrt(LivingEntity.getHorizontalDistanceSqr(deltaMovementFromLastTick));
+        net.minecraft.world.phys.Vec3 deltaMovementFromLastTick = entity.position().subtract(new net.minecraft.world.phys.Vec3(entity.xo, entity.yo, entity.zo));
+        double momentumFromLastTick = Math.sqrt(deltaMovementFromLastTick.horizontalDistanceSqr());
 
         if(entity.horizontalCollision || entity.verticalCollision)
             entity.setDeltaMovement(x, y, z);
         else
             entity.setDeltaMovement(velocity.x, velocity.y - 0.08, velocity.z);
 
-        if(entity.horizontalCollision && !entity.verticalCollision && !entity.level.isClientSide
-                && thiss.getItemBySlot(EquipmentSlotType.FEET).getItem() != ItemInit.LONGFALL_BOOTS.get()) {
+        if(entity.horizontalCollision && !entity.verticalCollision && !entity.level().isClientSide
+                && thiss.getItemBySlot(EquipmentSlot.FEET).getItem() != ItemInit.LONGFALL_BOOTS.get()) {
 
             float slamDamage = (float)(momentumFromLastTick * 3 - 10);
             if(slamDamage > .1F) {
                 entity.playSound(this.getFallDamageSound((int)slamDamage), 1.0F, ModUtil.randomSlightSoundPitch());
-                entity.hurt(new DamageSource("faithplate_wall"), slamDamage);
+                entity.hurt(DamageTypeInit.source(entity.level(), DamageTypeInit.FAITHPLATE_WALL), slamDamage);
             }
         }
     }
@@ -334,10 +337,10 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
 //    @Inject(method = "lerpTo", at = @At("HEAD"), cancellable = true)
 //    private void pmLerpTo(double x, double y, double z, float yRot, float xRot, int steps, boolean b, CallbackInfo info) {
-//        World level = this.level;
+//        Level level = this.level;
 //
-//        AxisAlignedBB bb = this.getBoundingBox();
-//        AxisAlignedBB travelAABB = bb.expandTowards(this.getDeltaMovement());
+//        AABB bb = this.getBoundingBox();
+//        AABB travelAABB = bb.expandTowards(this.getDeltaMovement());
 //
 //        List<PortalEntity> portalsInEntity = level.getEntitiesOfClass(PortalEntity.class, travelAABB, portal -> {
 //            if(!portal.isOpen())
@@ -376,13 +379,13 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 //        Vector3f normal2 = portal.getDirection().step();
 //        normal.mul(.5f);
 //        normal2.mul(PortalRenderer.OFFSET * 10);
-//        Vector3d portalPos = Vector3d.atCenterOf(portal.blockPosition())
-//                .subtract(new Vector3d(normal)).add(new Vector3d(normal2));
+//        net.minecraft.world.phys.Vec3 portalPos = net.minecraft.world.phys.Vec3.atCenterOf(portal.blockPosition())
+//                .subtract(new net.minecraft.world.phys.Vec3(normal)).add(new net.minecraft.world.phys.Vec3(normal2));
 //
-//        Vector3d entityPos = bb.getCenter().add(this.getDeltaMovement());
-//        Vector3d distance = entityPos.subtract(portalPos);
+//        net.minecraft.world.phys.Vec3 entityPos = bb.getCenter().add(this.getDeltaMovement());
+//        net.minecraft.world.phys.Vec3 distance = entityPos.subtract(portalPos);
 //
-//        if(distance.dot(new Vector3d(portal.getDirection().step())) >= 0)
+//        if(distance.dot(new net.minecraft.world.phys.Vec3(portal.getDirection().step())) >= 0)
 //            return;
 //
 //        this.setPos(x, y, z);
@@ -406,8 +409,8 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     private boolean horizontalBounced = false;
     private boolean wasOnGround = true;
     private boolean leftGround = false;
-    private Vector3d lastDeltaMovement = Vector3d.ZERO;
-    private Vector3d lastLastDeltaMovement = Vector3d.ZERO;
+    private net.minecraft.world.phys.Vec3 lastDeltaMovement = net.minecraft.world.phys.Vec3.ZERO;
+    private net.minecraft.world.phys.Vec3 lastLastDeltaMovement = net.minecraft.world.phys.Vec3.ZERO;
     private int propulsionTicks = 0;
 
     @Override
@@ -472,22 +475,22 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     }
 
     @Override
-    public void setLastDeltaMovement(Vector3d newLastDeltaMovement) {
+    public void setLastDeltaMovement(net.minecraft.world.phys.Vec3 newLastDeltaMovement) {
         lastDeltaMovement = newLastDeltaMovement;
     }
 
     @Override
-    public Vector3d getLastDeltaMovement() {
+    public net.minecraft.world.phys.Vec3 getLastDeltaMovement() {
         return lastDeltaMovement;
     }
 
     @Override
-    public void setLastLastDeltaMovement(Vector3d newLastLastDeltaMovement) {
+    public void setLastLastDeltaMovement(net.minecraft.world.phys.Vec3 newLastLastDeltaMovement) {
         lastLastDeltaMovement = newLastLastDeltaMovement;
     }
 
     @Override
-    public Vector3d getLastLastDeltaMovement() {
+    public net.minecraft.world.phys.Vec3 getLastLastDeltaMovement() {
         return lastLastDeltaMovement;
     }
 
@@ -503,22 +506,22 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Override
     protected void spawnSprintParticle() {
-        World level = this.level;
-        BlockPos pos = new BlockPos(this.position());
+        Level level = this.level();
+        BlockPos pos = BlockPos.containing(this.position());
         BlockState state = level.getBlockState(pos);
 
         if (!(state.getBlock() instanceof AbstractGelBlock)) {
             super.spawnSprintParticle();
         } else {
-            int i = MathHelper.floor(this.getX());
-            int j = MathHelper.floor(this.getY() + (double)0.8F);
-            int k = MathHelper.floor(this.getZ());
+            int i = Mth.floor(this.getX());
+            int j = Mth.floor(this.getY() + (double)0.8F);
+            int k = Mth.floor(this.getZ());
             BlockPos blockpos = new BlockPos(i, j, k);
-            BlockState blockstate = this.level.getBlockState(blockpos);
-            if(!blockstate.addRunningEffects(level, blockpos, this)) {
-                if (blockstate.getRenderShape() != BlockRenderType.INVISIBLE) {
-                    Vector3d vector3d = this.getDeltaMovement();
-                    this.level.addParticle(new BlockParticleData(ParticleTypes.BLOCK, blockstate).setPos(blockpos),
+            BlockState blockstate = this.level().getBlockState(blockpos);
+            if(true) { // Forge addRunningEffects hook: vanilla always spawns the particles
+                if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
+                    net.minecraft.world.phys.Vec3 vector3d = this.getDeltaMovement();
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate),
                             this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             vector3d.x * -4.0D, 1.5D, vector3d.z * -4.0D);
@@ -529,23 +532,23 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
-        World level = this.level;
-        BlockPos nPos = new BlockPos(this.position());
+        Level level = this.level();
+        BlockPos nPos = BlockPos.containing(this.position());
         BlockState nState = level.getBlockState(nPos);
 
         if (!(nState.getBlock() instanceof AbstractGelBlock)) {
             super.playStepSound(pos, state);
         } else {
-            SoundType soundtype = nState.getSoundType(level, nPos, this);
+            SoundType soundtype = nState.getSoundType();
             this.playSound(soundtype.getStepSound(), soundtype.getVolume() * 0.15F, ModUtil.randomSoundPitch());
         }
     }
 
-    @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getFluidState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/fluid/FluidState;"))
-    public void pmAddGooResistance(Vector3d p_213352_1_, CallbackInfo ci) {
-        FluidState fluidState = this.level.getFluidState(this.blockPosition());
+    @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
+    public void pmAddGooResistance(net.minecraft.world.phys.Vec3 p_213352_1_, CallbackInfo ci) {
+        FluidState fluidState = this.level().getFluidState(this.blockPosition());
 
-        if (GooBlock.isInGoo(this) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
+        if (GooBlock.isInGoo(this) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState)) {
             GooBlock.applyGooResistance(this);
         }
     }
@@ -557,28 +560,29 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         }
     }
 
-    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;broadcastEntityEvent(Lnet/minecraft/entity/Entity;B)V", ordinal = 2))
-    public void pmHandleGooDamage(World world, Entity entity, byte b, DamageSource damageSource) {
-        if (damageSource == FluidInit.GOO_DAMAGE && b == 2 && entity instanceof LivingEntity) {
+    // 1.19.4+: the hurt effect is sent with broadcastDamageEvent instead of entity event 2.
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastDamageEvent(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)V"))
+    public void pmHandleGooDamage(Level world, Entity entity, DamageSource damageSource) {
+        if (damageSource.is(DamageTypeInit.GOO) && entity instanceof LivingEntity) {
             GooBlock.handleGooDamage((LivingEntity) entity, damageSource);
         } else {
-            this.level.broadcastEntityEvent(this, b);
+            world.broadcastDamageEvent(entity, damageSource);
         }
     }
 
-    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getFluidJumpThreshold()D"))
+    @Inject(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getFluidJumpThreshold()D"))
     public void pmJumpInGoo(CallbackInfo ci) {
         if (GooBlock.isInGoo(this) && WrenchItem.holdingWrench(this)) {
             GooBlock.applyVerticalSwimSpeed((LivingEntity)(Object)this);
         }
     }
 
-    @Redirect(method = "baseTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;stopRiding()V"))
+    @Redirect(method = "baseTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;stopRiding()V"))
     public void avoidTestElementEntityDismount(LivingEntity instance){
         if (!(instance instanceof TestElementEntity)) stopRiding();
     }
 
-    @Inject(method = "canSee", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "hasLineOfSight", at = @At("HEAD"), cancellable = true)
     public void pmCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof TurretEntity && !((TurretEntity) entity).getState().isStanding()) {
             cir.setReturnValue(false);

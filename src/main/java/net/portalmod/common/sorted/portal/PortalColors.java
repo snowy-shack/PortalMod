@@ -1,9 +1,10 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.item.DyeColor;
 import net.portalmod.core.util.Colour;
 
 import java.awt.*;
+
+import net.minecraft.world.item.DyeColor;
 
 public enum PortalColors {
     black      (0x37363a),

@@ -1,30 +1,8 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.registry.DefaultedRegistry;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.portalmod.core.interfaces.StickyBlock;
+import net.minecraft.core.registries.BuiltInRegistries;
+import com.mojang.math.Axis;
 import net.portalmod.common.sorted.platform.BeamBearer;
 import net.portalmod.common.sorted.platform.PlatformBeamBlock;
 import net.portalmod.core.math.Mat4;
@@ -35,7 +13,37 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehavior, BeamBearer {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3f;
+import net.minecraft.core.DefaultedRegistry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+
+public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomPushBehavior, BeamBearer, StickyBlock {
     public static Set<Block> FRAME_BLOCKS = new HashSet<>();
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -55,12 +63,12 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, IBlockReader level, BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, BEAM, WATERLOGGED);
     }
 
@@ -88,10 +96,10 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
 
             if(facing.getAxis() == Direction.Axis.Y) {
                 int angle = (facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE) ? 90 : -90;
-                matrix.rotateDeg(Vector3f.ZP, angle);
+                matrix.rotateDeg(Axis.ZP, angle);
             } else {
                 int angle = facing.get2DDataValue() * -90 + 90;
-                matrix.rotateDeg(Vector3f.YP, angle);
+                matrix.rotateDeg(Axis.YP, angle);
             }
 
             matrix.translate(new Vec3(-.5));
@@ -102,9 +110,9 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (FRAME_BLOCKS.isEmpty()) {
-            DefaultedRegistry.BLOCK.stream().filter(this::holdingCausesFullHitbox).forEach(block -> FRAME_BLOCKS.add(block));
+            BuiltInRegistries.BLOCK.stream().filter(this::holdingCausesFullHitbox).forEach(block -> FRAME_BLOCKS.add(block));
         }
 
         // Sadly we can't access the held item itself, we can only test whether a particular item is held.
@@ -119,40 +127,40 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         boolean hasBeam = state.getValue(BEAM);
         return (this.isFilled ? FILLED_SHAPE : HOLLOW_SHAPE).get(state.getValue(FACING)).getVariant(hasBeam ? "beam_collision" : "");
     }
 
     @Override
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockRayTraceResult) {
         if (!PlatformBeamBlock.isBeamItem(player.getItemInHand(hand).getItem())) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
 
         BlockState cycled = state.cycle(BEAM);
         world.setBlockAndUpdate(pos, cycled);
 
-        player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.iron_frame." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
+        player.displayClientMessage(Component.translatable("actionbar.portalmod.iron_frame." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
 
         player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction nearestLookingDirection = context.getNearestLookingDirection();
-        PlayerEntity player = context.getPlayer();
+        Player player = context.getPlayer();
         return this.defaultBlockState()
                 .setValue(FACING, player != null && player.isShiftKeyDown() ? nearestLookingDirection.getOpposite() : nearestLookingDirection)
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
-            world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
         return state;
     }
@@ -168,18 +176,16 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
         return state.getValue(BEAM) ? state.getValue(FACING) : null;
     }
 
-    @Override
     public boolean isStickyBlock(BlockState state) {
         return true;
     }
 
-    @Override
     public boolean canStickTo(BlockState state, BlockState other) {
         return this.canStickTo(other);
     }
 
     @Override
-    public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
+    public boolean isStickyToNeighbor(Level level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
         return state.getValue(BEAM) && state.getValue(FACING).getAxis() == dir.getAxis();
     }
 
@@ -194,7 +200,7 @@ public class FrameBlock extends Block implements IWaterLoggable, CustomPushBehav
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("frame", list);
     }
 }

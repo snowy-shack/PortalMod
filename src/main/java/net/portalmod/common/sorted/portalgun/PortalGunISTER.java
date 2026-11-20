@@ -1,19 +1,8 @@
 package net.portalmod.common.sorted.portalgun;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.world.item.ItemDisplayContext;
+
+import com.mojang.math.Axis;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import net.portalmod.core.init.AnimationInit;
@@ -21,13 +10,28 @@ import net.portalmod.core.util.Colour;
 
 import java.util.UUID;
 
-public class PortalGunISTER extends ItemStackTileEntityRenderer {
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import org.joml.Vector3f;
+
+/** Draws the portal gun item (registered with Fabric's BuiltinItemRendererRegistry). */
+public class PortalGunISTER {
     public static UUID renderingPortalGunOwner;
 
     public PortalGunISTER() {}
     
-    @Override
-    public void renderByItem(ItemStack itemStack, TransformType transformType, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int packedLight, int packedOverlay) {
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
         
         switch(transformType) {
@@ -48,8 +52,8 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             
         case GUI:
             matrixStack.translate(.55, .3, 0);
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(30));
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(-135));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(30));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(-135));
             break;
             
         case HEAD:
@@ -67,8 +71,8 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
             
         case FIXED:
             matrixStack.translate(.5, .3, .45);
-//            matrixStack.mulPose(Vector3f.XP.rotationDegrees(30));
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(90));
+//            matrixStack.mulPose(Axis.XP.rotationDegrees(30));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(90));
             matrixStack.scale(1.3f, 1.3f, 1.3f);
             break;
             
@@ -78,7 +82,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         
         boolean animate = true;
         
-        if (transformType == TransformType.FIRST_PERSON_RIGHT_HAND || transformType == TransformType.FIRST_PERSON_LEFT_HAND) {
+        if (transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
 //            if (InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_G)) {
 //                PORTALGUN_MODEL.startAnimation(itemStack, "shoot");
 //                AnimationInit.RECOIL_X.start();
@@ -97,9 +101,9 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
                     + .5 * AnimationInit.LIFT.compute(System.currentTimeMillis()));
             
             matrixStack.translate(0, 0, .5);
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(yRot));
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(xRot));
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(yRot));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(xRot));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(zRot));
             matrixStack.translate(0, 0, -.5);
         } else {
             animate = false;
@@ -112,7 +116,7 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
 
         boolean gunLightOn = false;
 
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        CompoundTag nbt = itemStack.getOrCreateTag();
 //        if(nbt.contains("portalHue")) {
 //            int color = DyeColor.valueOf(nbt.getString("portalHue").toUpperCase()).getColorValue();
 //            float[] hsv = new float[3];
@@ -183,16 +187,16 @@ public class PortalGunISTER extends ItemStackTileEntityRenderer {
         matrixStack.popPose();
     }
 
-    public static void renderGun(MatrixStack matrixStack, UUID gunUUID, PortalGunModel model, IRenderTypeBuffer renderTypeBuffer, PortalGunAnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, Colour tint, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
+    public static void renderGun(PoseStack matrixStack, UUID gunUUID, PortalGunModel model, MultiBufferSource renderTypeBuffer, PortalGunAnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, Colour tint, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
 
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
+        MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
         irendertypebuffer$impl.endBatch();
 
-        IVertexBuilder ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));
+        VertexConsumer ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));
 
         texture.setupAnimation();
         model.render(gunUUID, model.gun, matrixStack, ivertexbuilder, packedLight, packedOverlay, tint, !animate);

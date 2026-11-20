@@ -1,14 +1,5 @@
 package net.portalmod.common.sorted.door;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -18,13 +9,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
-    public ChamberDoorTileEntity() {
-        super(TileEntityTypeInit.CHAMBER_DOOR.get());
+public class ChamberDoorTileEntity extends BlockEntity implements IndicatorActivated {
+
+    public ChamberDoorTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.CHAMBER_DOOR.get(), pos, state);
     }
 
-    @Override
     public void tick() {
         BlockState blockState = this.getBlockState();
         if (!(blockState.getBlock() instanceof ChamberDoorBlock)) {
@@ -32,7 +30,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
         }
         ChamberDoorBlock doorBlock = (ChamberDoorBlock) blockState.getBlock();
         BlockPos pos = this.getBlockPos();
-        World world = this.level;
+        Level world = this.level;
         Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
 
         IndicatorInfo indicatorInfo = this.checkIndicators(blockState, world, pos);
@@ -46,12 +44,12 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
             return;
         }
 
-        Vector3d middlePos = ChamberDoorBlock.getExactMiddlePos(blockState, pos);
+        net.minecraft.world.phys.Vec3 middlePos = ChamberDoorBlock.getExactMiddlePos(blockState, pos);
         int changeProximity = isOpen ? 4 : 3;  // Open in 3 blocks, close in 4
 
         // Powered by nearby player
         boolean hasNearbyPlayer = false;
-        for (PlayerEntity player : world.players()) {
+        for (Player player : world.players()) {
             if (player.isSpectator()) {
                 continue;
             }
@@ -74,7 +72,7 @@ public class ChamberDoorTileEntity extends TileEntity implements ITickableTileEn
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, Level world, BlockPos pos) {
         Direction facing = blockState.getValue(ChamberDoorBlock.FACING);
         boolean isLower = blockState.getValue(ChamberDoorBlock.HALF) == DoubleBlockHalf.LOWER;
         boolean isLeft = blockState.getValue(ChamberDoorBlock.SIDE) == ChamberDoorBlock.Side.LEFT;

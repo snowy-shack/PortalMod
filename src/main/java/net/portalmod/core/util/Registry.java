@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+
 public class Registry<T> {
     public Registry() {}
 

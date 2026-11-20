@@ -1,40 +1,40 @@
 package net.portalmod.client.animation;
 
+import org.joml.Matrix4f;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Function;
 
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.NativeImage;
-import net.minecraft.client.renderer.texture.Texture;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import com.mojang.blaze3d.platform.TextureUtil;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.resources.ResourceLocation;
 
-public class PortalGunAnimatedTexture extends Texture {
+public class PortalGunAnimatedTexture extends AbstractTexture {
     private static final ResourceLocation DEFAULT_SKIN = new ResourceLocation(PortalMod.MODID, "textures/portalgun/default.png");
     private final String skinId;
     private final String skinFilename;
-    private final RenderMaterial material;
+    private final Material material;
     private final int framerate;
     private NativeImage ni;
     
     public PortalGunAnimatedTexture(String id, String skinFilename, int framerate) {
         this.skinId = id;
         this.skinFilename = skinFilename;
-        this.material = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, ClientSkinManager.getInstance().getSkinLocation(id));
+        this.material = new Material(TextureAtlas.LOCATION_BLOCKS, ClientSkinManager.getInstance().getSkinLocation(id));
         this.framerate = framerate;
     }
 
@@ -42,37 +42,35 @@ public class PortalGunAnimatedTexture extends Texture {
         return this.material.texture();
     }
     
-    public IVertexBuilder buffer(IRenderTypeBuffer renderTypeBuffer, Function<ResourceLocation, RenderType> renderType) {
+    public VertexConsumer buffer(MultiBufferSource renderTypeBuffer, Function<ResourceLocation, RenderType> renderType) {
         return material.buffer(renderTypeBuffer, renderType);
     }
     
     public void setupAnimation() {
         float index = framerate == 0  || this.getFrameCount() == 0
                 ? 0 : (System.currentTimeMillis() / (1000L / framerate) % this.getFrameCount());
-        RenderSystem.matrixMode(GL11.GL_TEXTURE);
-        RenderSystem.pushMatrix();
-        RenderSystem.loadIdentity();
-        RenderSystem.scalef(1, 1f / this.getFrameCount(), 1);
-        RenderSystem.translatef(0, index, 0);
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        // 1.16 used the fixed-function GL texture matrix. 1.17+ only has the TextureMat shader uniform,
+        // which vanilla uses for glint shaders only.
+        // TODO(port): check in game; entity shaders ignore TextureMat, so this may need UV offsets
+        // instead (see DynamicTextureVertexBuilder).
+        float frames = this.getFrameCount() == 0 ? 1 : this.getFrameCount();
+        RenderSystem.setTextureMatrix(new Matrix4f().scale(1, 1f / frames, 1).translate(0, index, 0));
     }
-    
+
     public void endAnimation() {
-        RenderSystem.matrixMode(GL11.GL_TEXTURE);
-        RenderSystem.popMatrix();
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        RenderSystem.resetTextureMatrix();
     }
 
     @Override
-    public void load(IResourceManager rm) throws IOException {
+    public void load(ResourceManager rm) throws IOException {
         if(ni != null)
             return;
 
         File skinFile = new File(ClientSkinManager.getInstance().getSkinsFolder(), "textures/" + skinFilename + ".png");
 
         if(skinId.equals("default") || !skinFile.exists()) {
-            try(IResource iresource = rm.getResource(DEFAULT_SKIN)) {
-                ni = NativeImage.read(iresource.getInputStream());
+            try(java.io.InputStream stream = rm.getResourceOrThrow(DEFAULT_SKIN).open()) {
+                ni = NativeImage.read(stream);
             }
         } else {
             if(!skinFile.exists())

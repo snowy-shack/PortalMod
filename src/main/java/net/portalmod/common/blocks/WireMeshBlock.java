@@ -1,24 +1,24 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BreakableBlock;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.Environment;
 
-public class WireMeshBlock extends BreakableBlock {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+
+public class WireMeshBlock extends HalfTransparentBlock {
     public WireMeshBlock(Properties properties) {
         super(properties);
     }
 
-    public float getShadeBrightness(BlockState state, IBlockReader level, BlockPos pos) {
+    public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
        return 1.0F;
     }
     
     @Override
-    public boolean propagatesSkylightDown(BlockState state, IBlockReader level, BlockPos pos) {
+    public boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
     }
 }

@@ -1,14 +1,14 @@
 package net.portalmod.common.sorted.trigger;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.IStringSerializable;
-
 import java.util.function.Predicate;
 
-public enum TriggerType implements IStringSerializable {
-    PLAYER("player", entity -> entity instanceof PlayerEntity),
-    MOB("mob", entity -> !(entity instanceof PlayerEntity));
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.util.StringRepresentable;
+
+public enum TriggerType implements StringRepresentable {
+    PLAYER("player", entity -> entity instanceof Player),
+    MOB("mob", entity -> !(entity instanceof Player));
 
     private final String name;
     private final Predicate<LivingEntity> predicate;

@@ -1,15 +1,5 @@
 package net.portalmod.mixins;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.play.client.CPlayerDiggingPacket;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.portalmod.common.sorted.portal.CThroughPortalProofPacket;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalRenderer;
@@ -22,34 +12,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Mixin(PlayerController.class)
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+
+@Mixin(MultiPlayerGameMode.class)
 public class PlayerControllerMixin {
 
-    @Inject(
-                        method = "sendBlockAction",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"
-            )
-    )
-    private void pmSendBreakProof(CPlayerDiggingPacket.Action action, BlockPos pos, Direction direction, CallbackInfo info) {
+    // 1.19+ sends block actions through startPrediction (sendBlockAction is gone); send the proof first.
+    @Inject(method = "startPrediction", at = @At("HEAD"))
+    private void pmSendBreakProof(net.minecraft.client.multiplayer.ClientLevel level, net.minecraft.client.multiplayer.prediction.PredictiveAction action, CallbackInfo info) {
         List<PortalEntity> portalChain = PortalRenderer.getInstance().outlineRenderingPortalChain;
 
         if(portalChain != null)
             PacketInit.INSTANCE.sendToServer(new CThroughPortalProofPacket(portalChain.stream().mapToInt(Entity::getId).toArray()));
     }
 
-    @Inject(
-                        method = "useItemOn",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"
-            )
-    )
-    private void pmSendPlaceProof(ClientPlayerEntity player, ClientWorld level, Hand hand, BlockRayTraceResult rayTrace, CallbackInfoReturnable<ActionResultType> info) {
-        List<PortalEntity> portalChain = PortalRenderer.getInstance().outlineRenderingPortalChain;
-
-        if(portalChain != null)
-            PacketInit.INSTANCE.sendToServer(new CThroughPortalProofPacket(portalChain.stream().mapToInt(Entity::getId).toArray()));
-    }
+    // useItemOn also goes through startPrediction in 1.19+, so pmSendBreakProof covers it.
 }

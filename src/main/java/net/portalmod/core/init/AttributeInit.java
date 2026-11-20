@@ -1,14 +1,15 @@
 package net.portalmod.core.init;
 
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.RangedAttribute;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.portalmod.core.registry.RegistryObject;
+import net.portalmod.core.registry.DeferredRegister;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.PortalMod;
 
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+
 public class AttributeInit {
-    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, PortalMod.MODID);
+    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(BuiltInRegistries.ATTRIBUTE, PortalMod.MODID);
 
     private AttributeInit() {}
 

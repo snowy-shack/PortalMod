@@ -1,14 +1,5 @@
 package net.portalmod.common.sorted.gel;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
@@ -18,13 +9,23 @@ import net.portalmod.core.util.ModUtil;
 
 import static net.portalmod.common.sorted.faithplate.FaithPlateParabola.GRAVITY;
 
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+
 public class RepulsionGelBlock extends AbstractGelBlock {
     public static float minBounceHeight = 4; // blocks
 
     @Override
-    public void fallOn(World world, BlockPos blockPos, Entity entity, float fallDistance) {
+    public void fallOn(Level world, BlockState fallState, BlockPos blockPos, Entity entity, float fallDistance) {
         if (!entity.isShiftKeyDown()) {
-            super.fallOn(world, blockPos, entity, fallDistance); // Negate fall damage unless shifting
+            super.fallOn(world, fallState, blockPos, entity, fallDistance); // Negate fall damage unless shifting
         }
     }
 
@@ -50,7 +51,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     }
 
     public static double checkSpeedInDirection(Entity entity, Direction direction) {
-        Vector3d deltaMovement = ((IGelAffected) entity).getLastDeltaMovement();
+        Vec3 deltaMovement = ((IGelAffected) entity).getLastDeltaMovement();
         switch (direction) {
             case NORTH: return -deltaMovement.z;
             case EAST:  return  deltaMovement.x;
@@ -61,7 +62,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     }
 
     public static void horizontalBounce(BlockPos pos, Entity entity, Direction direction) {
-        Vector3d deltaMovement = ((IGelAffected)entity).getLastDeltaMovement();
+        Vec3 deltaMovement = ((IGelAffected)entity).getLastDeltaMovement();
 
         if (entity.isSpectator() || ((IGelAffected) entity).getHorizontalBounced()) return;
 
@@ -70,11 +71,11 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         float speedBounceBonusAmount = 1.4F;
         float maxSpeedBoostAmount = 2.0F;
 
-        Vector3d bounceDir = new Vector3d(direction.getOpposite().getStepX(), 0, direction.getOpposite().getStepZ());
-        Vector3d parallel = new Vector3d(Math.abs(bounceDir.z), 0, Math.abs(bounceDir.x));
+        Vec3 bounceDir = new Vec3(direction.getOpposite().getStepX(), 0, direction.getOpposite().getStepZ());
+        Vec3 parallel = new Vec3(Math.abs(bounceDir.z), 0, Math.abs(bounceDir.x));
 
-        Vector3d bounceSurface = Vector3d.atCenterOf(pos).add(bounceDir.scale(-.5F));
-        Vector3d distance = entity.position().subtract(bounceSurface);
+        Vec3 bounceSurface = Vec3.atCenterOf(pos).add(bounceDir.scale(-.5F));
+        Vec3 distance = entity.position().subtract(bounceSurface);
 
         // Check whether the player is nearby enough
         if (direction.getAxis() == Direction.Axis.X) {
@@ -103,7 +104,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
         }
     }
 
-    public static void calculateBounce(World level, BlockState state, BlockPos pos, Entity entity) {
+    public static void calculateBounce(Level level, BlockState state, BlockPos pos, Entity entity) {
         IGelAffected gelAffected = ((IGelAffected) entity);
         float playerFallHeight = (float) Math.floor(gelAffected.getLastNeutralHeight() - pos.getY());
 
@@ -120,8 +121,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             if (state.getValue(WEST))  horizontalBounce(pos, entity, Direction.WEST);
         }
 
-        boolean bounceFromAbove = playerFallHeight > 0.1 && entity.isOnGround();
-        boolean bounceFromSpeed = entity.getDeltaMovement().length() > 0.2 && entity.isOnGround();
+        boolean bounceFromAbove = playerFallHeight > 0.1 && entity.onGround();
+        boolean bounceFromSpeed = entity.getDeltaMovement().length() > 0.2 && entity.onGround();
         boolean bounceFromJump = gelAffected.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
 
         double heightInBlock = entity.position().y % 1;
@@ -133,8 +134,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
 
             entity.fallDistance = 0;
 
-            if (entity instanceof PlayerEntity && !entity.level.isClientSide && playerFallHeight >= 100) {
-                CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayerEntity) entity); // Leap of Faith advancement
+            if (entity instanceof Player && !entity.level().isClientSide && playerFallHeight >= 100) {
+                CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayer) entity); // Leap of Faith advancement
             }
 
             float x = Math.max(playerFallHeight, minBounceHeight);
@@ -160,8 +161,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static void onPreTick(LivingEntity entity) {
         IGelAffected gelAffected = ((IGelAffected) entity);
         if (entity.getDeltaMovement().y < -0.1) {
-            if (entity.level.isClientSide) {
-                if (entity instanceof PlayerEntity) {
+            if (entity.level().isClientSide) {
+                if (entity instanceof Player) {
                     gelAffected.setBounced(false);
                     PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(false));
                 }
@@ -174,8 +175,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     }
 
     public static void onPostTick(LivingEntity entity) {
-        World level = entity.level;
-        BlockPos pos = new BlockPos(entity.position());
+        Level level = entity.level();
+        BlockPos pos = BlockPos.containing(entity.position());
 
         BlockState state = level.getBlockState(pos);
         BlockState stateAbove = level.getBlockState(pos.above());

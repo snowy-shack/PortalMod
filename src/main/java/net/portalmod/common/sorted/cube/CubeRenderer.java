@@ -1,19 +1,22 @@
 package net.portalmod.common.sorted.cube;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.common.entities.TestElementEntityRenderer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+
 public abstract class CubeRenderer extends TestElementEntityRenderer<Cube, CubeModel<Cube>> {
-    public CubeRenderer(EntityRendererManager erm) {
+    public CubeRenderer(EntityRendererProvider.Context erm) {
         super(erm, new CubeModel<>(), 0.5f);
     }
     
 //    private static final float[] projectionBuffer = new float[16];
     
     @Override
-    public void render(Cube cube, float f, float f2, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int i) {
+    public void render(Cube cube, float f, float f2, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int i) {
 //        glGetFloatv(GL_PROJECTION_MATRIX, projectionBuffer);
 //        
 //        Minecraft minecraft = Minecraft.getInstance();
@@ -25,12 +28,12 @@ public abstract class CubeRenderer extends TestElementEntityRenderer<Cube, CubeM
 //        AbstractCubeModel.shader.bind();
 //        PortalShaders.uniformMatrix("projection", projectionBuffer);
 //        RenderSystem.activeTexture(GL_TEXTURE0);
-//        minecraft.textureManager.bind(minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
+//        minecraft.RenderSystem.setShaderTexture(0, minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
 //        PortalShaders.uniform1i("texture", 0);
         
         super.render(cube, f, f2, matrixStack, renderTypeBuffer, i);
 
-//        IRenderTypeBuffer.Impl irendertypebuffer$impl = minecraft.levelRenderer.renderBuffers.bufferSource();
+//        MultiBufferSource.BufferSource irendertypebuffer$impl = minecraft.levelRenderer.renderBuffers.bufferSource();
 //        irendertypebuffer$impl.endBatch(renderType);
 //        
 //        AbstractCubeModel.shader.unbind();

@@ -4,18 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
 import net.portalmod.core.util.Colour;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
 
 public class AnimatedModel extends Model {
     private final Map<String, AnimationSet> animations = new HashMap<>();
-    private final Map<ModelRenderer, InitialValuesHolder> initialValues = new HashMap<>();
+    private final Map<ModelPart, InitialValuesHolder> initialValues = new HashMap<>();
     private final Map<Object, AnimationState> animationStates = new HashMap<>();
 
     public static final Target X = (model, x) -> model.x = x;
@@ -25,13 +25,16 @@ public class AnimatedModel extends Model {
     public static final Target YROT = (model, yRot) -> model.yRot = yRot;
     public static final Target ZROT = (model, zRot) -> model.zRot = zRot;
 
-    public AnimatedModel(int texWidth, int texHeight) {
+    public AnimatedModel() {
         super(RenderType::entityCutoutNoCull);
-        this.texWidth = texWidth;
-        this.texHeight = texHeight;
     }
 
-    protected void attachAnimation(String name, ModelRenderer model, Target target, Animation animation) {
+    /** Texture size is part of the LayerDefinition since 1.17; kept for old callers. */
+    public AnimatedModel(int texWidth, int texHeight) {
+        this();
+    }
+
+    protected void attachAnimation(String name, ModelPart model, Target target, Animation animation) {
         initialValues.put(model, new InitialValuesHolder(model));
         animations.putIfAbsent(name, new AnimationSet());
         animations.get(name).putIfAbsent(model, new HashMap<>());
@@ -79,7 +82,7 @@ public class AnimatedModel extends Model {
         });
     }
 
-    public void render(Object entity, ModelRenderer model, MatrixStack matrixStack, IVertexBuilder vertexBuilder, int light, int overlay, Colour colour, boolean skipAnimation) {
+    public void render(Object entity, ModelPart model, PoseStack matrixStack, VertexConsumer vertexBuilder, int light, int overlay, Colour colour, boolean skipAnimation) {
         if(skipAnimation)
             skipAnimation();
         else
@@ -93,7 +96,7 @@ public class AnimatedModel extends Model {
         float x, y, z;
         float xRot, yRot, zRot;
 
-        private InitialValuesHolder(ModelRenderer model) {
+        private InitialValuesHolder(ModelPart model) {
             this.x = model.x;
             this.y = model.y;
             this.z = model.z;
@@ -104,11 +107,11 @@ public class AnimatedModel extends Model {
     }
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder vertexBuilder, int light, int overlay, float r, float g, float b, float a) {}
+    public void renderToBuffer(PoseStack matrixStack, VertexConsumer vertexBuilder, int light, int overlay, float r, float g, float b, float a) {}
 
-    private interface Target extends BiConsumer<ModelRenderer, Float> {}
+    private interface Target extends BiConsumer<ModelPart, Float> {}
 
-    private static final class AnimationSet extends HashMap<ModelRenderer, HashMap<Target, Animation>> {}
+    private static final class AnimationSet extends HashMap<ModelPart, HashMap<Target, Animation>> {}
 
     private static final class AnimationState {
         public AnimationSet animationSet;

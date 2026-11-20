@@ -1,12 +1,5 @@
 package net.portalmod.core.datagen;
 
-import net.minecraft.advancements.criterion.*;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.*;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IItemProvider;
 import net.minecraftforge.common.Tags;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.ItemTagInit;
@@ -14,25 +7,45 @@ import net.portalmod.core.init.RecipeInit;
 
 import java.util.function.Consumer;
 
+import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.KilledTrigger;
+import net.minecraft.advancements.critereon.LocationPredicate;
+import net.minecraft.advancements.critereon.ItemUsedOnBlockTrigger;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SingleItemRecipeBuilder;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.level.ItemLike;
+
 public class RecipeGen extends RecipeProvider {
-    public static final CriterionInstance ROOT_CRITERION = RightClickBlockWithItemTrigger.Instance.itemUsedOnBlock(
+    public static final AbstractCriterionTriggerInstance ROOT_CRITERION = ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
             LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.CRAFTING_TABLE).build()),
             ItemPredicate.Builder.item());
-    public static final CriterionInstance CAKE_CRITERION = KilledTrigger.Instance.playerKilledEntity();
+    public static final AbstractCriterionTriggerInstance CAKE_CRITERION = KilledTrigger.TriggerInstance.playerKilledEntity();
 
-    public static final CriterionInstance HAS_CUBE = RecipeProvider.has(ItemTagInit.CUBES);
-    public static final CriterionInstance HAS_INDICATOR = RecipeProvider.has(ItemTagInit.INDICATORS);
-    public static final CriterionInstance HAS_LUNECAST = RecipeProvider.has(ItemTagInit.LUNECAST);
-    public static final CriterionInstance HAS_BLACKPLATE = RecipeProvider.has(ItemTagInit.BLACKPLATE);
-    public static final CriterionInstance HAS_CHAMBER_DECORATION = RecipeProvider.has(ItemTagInit.CHAMBER_DECORATION);
-    public static final CriterionInstance HAS_ELEMENT = RecipeProvider.has(ItemTagInit.TESTING_ELEMENTS);
+    public static final AbstractCriterionTriggerInstance HAS_CUBE = RecipeProvider.has(ItemTagInit.CUBES);
+    public static final AbstractCriterionTriggerInstance HAS_INDICATOR = RecipeProvider.has(ItemTagInit.INDICATORS);
+    public static final AbstractCriterionTriggerInstance HAS_LUNECAST = RecipeProvider.has(ItemTagInit.LUNECAST);
+    public static final AbstractCriterionTriggerInstance HAS_BLACKPLATE = RecipeProvider.has(ItemTagInit.BLACKPLATE);
+    public static final AbstractCriterionTriggerInstance HAS_CHAMBER_DECORATION = RecipeProvider.has(ItemTagInit.CHAMBER_DECORATION);
+    public static final AbstractCriterionTriggerInstance HAS_ELEMENT = RecipeProvider.has(ItemTagInit.TESTING_ELEMENTS);
 
     public RecipeGen(DataGenerator generator) {
         super(generator);
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> c) {
+    protected void buildShapelessRecipes(Consumer<FinishedRecipe> c) {
 
         // --- Basic Items --- //
 
@@ -46,8 +59,8 @@ public class RecipeGen extends RecipeProvider {
                 .unlockedBy("has_item", ROOT_CRITERION)
                 .save(c);
 
-        CustomRecipeBuilder.special(RecipeInit.PORTAL_GUN_MODIFY.get()).save(c, "portalmod:portalgun_edit");
-        CustomRecipeBuilder.special(RecipeInit.PORTAL_GUN_DUPLICATE.get()).save(c, "portalmod:portalgun_duplicate");
+        SpecialRecipeBuilder.special(RecipeInit.PORTAL_GUN_MODIFY.get()).save(c, "portalmod:portalgun_edit");
+        SpecialRecipeBuilder.special(RecipeInit.PORTAL_GUN_DUPLICATE.get()).save(c, "portalmod:portalgun_duplicate");
 
         ShapedRecipeBuilder.shaped(ItemInit.LONGFALL_BOOTS.get())
                 .pattern("i i").define('i', Items.IRON_INGOT)
@@ -299,13 +312,13 @@ public class RecipeGen extends RecipeProvider {
         blackplateVariant(c, ItemInit.ERODED_BLACKPLATE.get(), Ingredient.of(Items.DIRT, Items.COARSE_DIRT, Items.GRAVEL));
         blackplateVariant(c, ItemInit.VINTAGE_BLACKPLATE.get(), Ingredient.of(ItemTags.PLANKS));
 
-        CookingRecipeBuilder.smelting(Ingredient.of(ItemInit.LUNECAST.get()),
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemInit.LUNECAST.get()),
                         ItemInit.FRACTURED_LUNECAST.get(),
                         0.1f, 200)
                 .unlockedBy("has_item", HAS_LUNECAST)
                 .save(c);
 
-        CookingRecipeBuilder.smelting(Ingredient.of(ItemInit.BLACKPLATE.get()),
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemInit.BLACKPLATE.get()),
                         ItemInit.FRACTURED_BLACKPLATE.get(),
                         0.1f, 200)
                 .unlockedBy("has_item", HAS_BLACKPLATE)
@@ -440,7 +453,7 @@ public class RecipeGen extends RecipeProvider {
         stonecutting(c, ItemInit.VINTAGE_BLACKPLATE.get(), ItemInit.VINTAGE_BLACKPLATE_STAIRS.get());
     }
 
-    public static void lunecastVariant(Consumer<IFinishedRecipe> c, IItemProvider variant, Ingredient ingredient) {
+    public static void lunecastVariant(Consumer<FinishedRecipe> c, ItemLike variant, Ingredient ingredient) {
         ShapelessRecipeBuilder.shapeless(variant)
                 .requires(ItemInit.LUNECAST.get())
                 .requires(ingredient)
@@ -449,7 +462,7 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
     }
 
-    public static void blackplateVariant(Consumer<IFinishedRecipe> c, IItemProvider variant, Ingredient ingredient) {
+    public static void blackplateVariant(Consumer<FinishedRecipe> c, ItemLike variant, Ingredient ingredient) {
         ShapelessRecipeBuilder.shapeless(variant)
                 .requires(ItemInit.BLACKPLATE.get())
                 .requires(ingredient)
@@ -458,15 +471,15 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
     }
 
-    public static void lunecastSlab(Consumer<IFinishedRecipe> c, IItemProvider slab, IItemProvider baseBlock) {
+    public static void lunecastSlab(Consumer<FinishedRecipe> c, ItemLike slab, ItemLike baseBlock) {
         slab(c, slab, baseBlock, "lunecast_slab");
     }
 
-    public static void blackplateSlab(Consumer<IFinishedRecipe> c, IItemProvider slab, IItemProvider baseBlock) {
+    public static void blackplateSlab(Consumer<FinishedRecipe> c, ItemLike slab, ItemLike baseBlock) {
         slab(c, slab, baseBlock, "blackplate_slab");
     }
 
-    public static void slab(Consumer<IFinishedRecipe> c, IItemProvider slab, IItemProvider baseBlock, String group) {
+    public static void slab(Consumer<FinishedRecipe> c, ItemLike slab, ItemLike baseBlock, String group) {
         ShapedRecipeBuilder.shaped(slab, 6)
                 .pattern("###").define('#', baseBlock)
                 .group(group)
@@ -474,15 +487,15 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
     }
 
-    public static void lunecastStairs(Consumer<IFinishedRecipe> c, IItemProvider stairs, IItemProvider baseBlock) {
+    public static void lunecastStairs(Consumer<FinishedRecipe> c, ItemLike stairs, ItemLike baseBlock) {
         stairs(c, stairs, baseBlock, "lunecast_stairs");
     }
 
-    public static void blackplateStairs(Consumer<IFinishedRecipe> c, IItemProvider stairs, IItemProvider baseBlock) {
+    public static void blackplateStairs(Consumer<FinishedRecipe> c, ItemLike stairs, ItemLike baseBlock) {
         stairs(c, stairs, baseBlock, "blackplate_stairs");
     }
 
-    public static void stairs(Consumer<IFinishedRecipe> c, IItemProvider stairs, IItemProvider baseBlock, String group) {
+    public static void stairs(Consumer<FinishedRecipe> c, ItemLike stairs, ItemLike baseBlock, String group) {
         ShapedRecipeBuilder.shaped(stairs, 4)
                 .pattern("#  ").define('#', baseBlock)
                 .pattern("## ")
@@ -492,15 +505,15 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
     }
 
-    public static void lunecastPlatform(Consumer<IFinishedRecipe> c, IItemProvider platform, IItemProvider baseBlock) {
+    public static void lunecastPlatform(Consumer<FinishedRecipe> c, ItemLike platform, ItemLike baseBlock) {
         platform(c, platform, baseBlock, "lunecast_platform");
     }
 
-    public static void blackplatePlatform(Consumer<IFinishedRecipe> c, IItemProvider platform, IItemProvider baseBlock) {
+    public static void blackplatePlatform(Consumer<FinishedRecipe> c, ItemLike platform, ItemLike baseBlock) {
         platform(c, platform, baseBlock, "blackplate_platform");
     }
 
-    public static void platform(Consumer<IFinishedRecipe> c, IItemProvider platform, IItemProvider baseBlock, String group) {
+    public static void platform(Consumer<FinishedRecipe> c, ItemLike platform, ItemLike baseBlock, String group) {
         ShapedRecipeBuilder.shaped(platform)
                 .pattern("s").define('s', baseBlock)
                 .pattern("i").define('i', ItemTagInit.IRON_FRAMES)
@@ -509,7 +522,7 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
     }
 
-    public static void rustyVariant(Consumer<IFinishedRecipe> c, IItemProvider rusty, IItemProvider regular, String group) {
+    public static void rustyVariant(Consumer<FinishedRecipe> c, ItemLike rusty, ItemLike regular, String group) {
         ShapelessRecipeBuilder.shapeless(rusty, 8)
                 .requires(regular)
                 .requires(regular)
@@ -525,11 +538,11 @@ public class RecipeGen extends RecipeProvider {
                 .save(c);
     }
 
-    public static void stonecutting(Consumer<IFinishedRecipe> c, IItemProvider ingredient, IItemProvider output) {
+    public static void stonecutting(Consumer<FinishedRecipe> c, ItemLike ingredient, ItemLike output) {
         stonecutting(c, ingredient, output, 1);
     }
 
-    public static void stonecutting(Consumer<IFinishedRecipe> c, IItemProvider ingredient, IItemProvider output, int amount) {
+    public static void stonecutting(Consumer<FinishedRecipe> c, ItemLike ingredient, ItemLike output, int amount) {
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(ingredient), output, amount)
                 .unlocks("has_item", RecipeProvider.has(ItemInit.LUNECAST.get()))
                 .save(c, "portalmod:" + output.asItem().getRegistryName().getPath() + "_from_" + ingredient.asItem().getRegistryName().getPath() + "_stonecutting");

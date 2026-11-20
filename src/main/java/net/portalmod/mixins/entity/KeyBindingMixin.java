@@ -1,14 +1,15 @@
 package net.portalmod.mixins.entity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
 import net.portalmod.common.sorted.faithplate.Flingable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(KeyBinding.class)
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.world.entity.player.Player;
+
+@Mixin(KeyMapping.class)
 public class KeyBindingMixin {
 
     // Prevent player movement while launched (#42)
@@ -21,12 +22,12 @@ public class KeyBindingMixin {
             cancellable = true
     )
     private void onIsDown(CallbackInfoReturnable<Boolean> cir) {
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
 
         if (!(player instanceof Flingable)) return;
         if (!((Flingable) player).isFlinging()) return;
 
-        KeyBinding self = (KeyBinding) (Object) this;
+        KeyMapping self = (KeyMapping) (Object) this;
 
         boolean cancel = false;
         if (self.equals(Minecraft.getInstance().options.keyLeft))  cancel = true;

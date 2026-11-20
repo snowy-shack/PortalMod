@@ -1,9 +1,9 @@
 package net.portalmod.common.sorted.button;
 
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum ButtonMode implements IStringSerializable {
+public enum ButtonMode implements StringRepresentable {
     NORMAL,
     PERSISTENT,
     TOGGLE;

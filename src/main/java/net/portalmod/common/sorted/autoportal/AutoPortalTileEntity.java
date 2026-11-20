@@ -1,18 +1,5 @@
 package net.portalmod.common.sorted.autoportal;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
 import net.portalmod.common.sorted.portal.PortalColors;
@@ -26,7 +13,20 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 
-public class AutoPortalTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+
+public class AutoPortalTileEntity extends BlockEntity implements IndicatorActivated {
     public UUID gunUUID;
     public PortalEnd end;
     public Integer primaryColor;
@@ -37,12 +37,12 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
 
     private final ChangeDetector powerChangeDetector = new ChangeDetector();
 
-    public AutoPortalTileEntity(TileEntityType<?> type) {
-        super(type);
+    public AutoPortalTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
-    public AutoPortalTileEntity() {
-        this(TileEntityTypeInit.AUTOPORTAL.get());
+    public AutoPortalTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.AUTOPORTAL.get(), pos, state);
     }
 
     public void link(UUID gunUUID, PortalEnd end, int primaryColor, int secondaryColor) {
@@ -64,9 +64,9 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
 
     public void closePortal() {
         if(this.level != null) {
-            PortalEntity portal = (PortalEntity)((ServerWorld) this.level).getEntity(this.lastOpenedUUID);
+            PortalEntity portal = (PortalEntity)((ServerLevel) this.level).getEntity(this.lastOpenedUUID);
             if(portal != null) {
-                portal.remove();
+                portal.discard();
             }
         }
 
@@ -80,7 +80,6 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         }
     }
     
-    @Override
     public void tick() {
         if(this.level == null || this.level.isClientSide)
             return;
@@ -147,7 +146,7 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
         if(this.level == null || this.lastOpenedUUID == null)
             return;
 
-        PortalEntity portal = (PortalEntity)((ServerWorld)this.level).getEntity(this.lastOpenedUUID);
+        PortalEntity portal = (PortalEntity)((ServerLevel)this.level).getEntity(this.lastOpenedUUID);
 
         if(portal == null || !portal.isAlive()) {
             this.lastOpenedUUID = null;
@@ -156,7 +155,7 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, Level world, BlockPos pos) {
         Direction facing = blockState.getValue(AutoPortalBlock.FACING);
         Direction direction = blockState.getValue(AutoPortalBlock.DIRECTION);
 
@@ -187,7 +186,7 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     }
     
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(this.gunUUID != null && this.end != null && this.primaryColor != null && this.secondaryColor != null) {
             nbt.putUUID("gunUUID", this.gunUUID);
             nbt.putString("end", this.end.toString().toLowerCase());
@@ -197,16 +196,16 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
             if(this.lastOpenedUUID != null)
                 nbt.putUUID("lastOpenedPortal", this.lastOpenedUUID);
         }
-        return super.save(nbt);
+        super.saveAdditional(nbt);
     }
     
     @Override
-    public void load(BlockState state, CompoundNBT nbt) {
-        super.load(state, nbt);
-        load(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadFields(nbt);
     }
     
-    public void load(CompoundNBT nbt) {
+    public void loadFields(CompoundTag nbt) {
         if(!nbt.contains("gunUUID") || !nbt.contains("end"))
             return;
         if(!nbt.contains("primaryColor") || !nbt.contains("secondaryColor"))
@@ -225,33 +224,29 @@ public class AutoPortalTileEntity extends TileEntity implements ITickableTileEnt
     // chunk update
     
     @Override
-    public CompoundNBT getUpdateTag() {
-        return this.save(new CompoundNBT());
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
     
-    @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-        load(state, tag);
+    public void handleUpdateTag(BlockState state, CompoundTag tag) {
+        load(tag);
     }
     
     // block update
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(this.getBlockPos(), -1, save(new CompoundNBT()));
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
     
-    @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         this.load(packet.getTag());
     }
     
-    @Override
-    public AxisAlignedBB getRenderBoundingBox() {
-        return new AxisAlignedBB(this.getBlockPos()).inflate(1);
+    public AABB getRenderBoundingBox() {
+        return new AABB(this.getBlockPos()).inflate(1);
     }
     
-    @Override
     public double getViewDistance() {
         return 256.0D;
     }

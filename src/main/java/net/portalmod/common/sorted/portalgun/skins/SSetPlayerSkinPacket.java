@@ -1,14 +1,14 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import net.minecraft.network.FriendlyByteBuf;
 
 public class SSetPlayerSkinPacket implements AbstractPacket<SSetPlayerSkinPacket> {
     private UUID player;
@@ -36,7 +36,7 @@ public class SSetPlayerSkinPacket implements AbstractPacket<SSetPlayerSkinPacket
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeUUID(this.player);
         buffer.writeInt(this.skin.length());
         buffer.writeCharSequence(this.skin, StandardCharsets.UTF_8);
@@ -44,7 +44,7 @@ public class SSetPlayerSkinPacket implements AbstractPacket<SSetPlayerSkinPacket
     }
 
     @Override
-    public SSetPlayerSkinPacket decode(PacketBuffer buffer) {
+    public SSetPlayerSkinPacket decode(FriendlyByteBuf buffer) {
         UUID player = buffer.readUUID();
         int strlen = buffer.readInt();
         String skin = buffer.readCharSequence(strlen, StandardCharsets.UTF_8).toString();
@@ -53,9 +53,8 @@ public class SSetPlayerSkinPacket implements AbstractPacket<SSetPlayerSkinPacket
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                () -> () -> ClientSkinManager.getInstance().onClientReceivedPacket(this)));
+    public boolean handle(Supplier<PacketContext> context) {
+        context.get().enqueueWork(() -> ClientOnly.run(() -> () -> ClientSkinManager.getInstance().onClientReceivedPacket(this)));
 
         context.get().setPacketHandled(true);
         return true;

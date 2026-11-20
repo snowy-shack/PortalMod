@@ -14,10 +14,11 @@ import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.PortalMod;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
 
 public class Shader {
     private static final String BASE_PATH = "shaders/";
@@ -98,8 +99,8 @@ public class Shader {
             try {
                 StringBuilder sourceBuilder = new StringBuilder();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        Minecraft.getInstance().getResourceManager().getResource(
-                                new ResourceLocation(PortalMod.MODID, BASE_PATH + path)).getInputStream()));
+                        Minecraft.getInstance().getResourceManager().getResourceOrThrow(
+                                new ResourceLocation(PortalMod.MODID, BASE_PATH + path)).open()));
 
                 String line;
                 while((line = reader.readLine()) != null)
@@ -201,7 +202,7 @@ public class Shader {
     }
     
     public Shader setMatrix(String name, Matrix4f matrix) {
-        matrix.store(MATRIX_BUFFER);
+        matrix.get(MATRIX_BUFFER);
         setMatrix(name, MATRIX_BUFFER);
         return this;
     }

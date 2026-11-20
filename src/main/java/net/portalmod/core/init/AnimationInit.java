@@ -3,6 +3,7 @@ package net.portalmod.core.init;
 import net.portalmod.client.animation.Animation;
 import net.portalmod.client.animation.Animation.Curve;
 
+
 public class AnimationInit {
     private AnimationInit() {}
     

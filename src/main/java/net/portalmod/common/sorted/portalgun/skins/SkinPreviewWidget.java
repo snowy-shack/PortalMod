@@ -1,17 +1,12 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.network.chat.Component;
+import com.mojang.math.Axis;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.StringTextComponent;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunModel;
 import net.portalmod.common.sorted.portalgun.PortalGunModelManager;
@@ -19,7 +14,18 @@ import net.portalmod.core.util.Colour;
 
 import java.util.Optional;
 
-public class SkinPreviewWidget extends Widget {
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.platform.Lighting;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+
+public class SkinPreviewWidget extends AbstractWidget {
     private final SkinSelectorScreen parent;
 
     private boolean dragging;
@@ -44,7 +50,7 @@ public class SkinPreviewWidget extends Widget {
     private String nextSelectedSkin;
 
     public SkinPreviewWidget(int x, int y, int width, int height, SkinSelectorScreen parent) {
-        super(x, y, width, height, StringTextComponent.EMPTY);
+        super(x, y, width, height, Component.empty());
         this.parent = parent;
 
         this.xRot = 30;
@@ -55,46 +61,44 @@ public class SkinPreviewWidget extends Widget {
         this.yRotMomentum = 0;
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         partialTicks = Minecraft.getInstance().getFrameTime();
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
         Colour lastPortalColor = new Colour(64, 59, 75, 255);
         Colour stripeColour = new Colour(255, 255, 255, 0);
         Colour tint = Optional.ofNullable(parent.getSkinTint()).orElse(Colour.WHITE);
 
-        Minecraft.getInstance().textureManager.bind(AtlasTexture.LOCATION_BLOCKS);
-        Minecraft.getInstance().textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS).setFilter(false, false);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
 
-        RenderSystem.pushMatrix();
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.enableAlphaTest();
-        RenderSystem.defaultAlphaFunc();
+        // 1.16 used the fixed-function matrix stack here; 1.17+ only has the PoseStack.
+        matrixStack.pushPose();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.translatef((float)this.x + this.width / 2f, (float)this.y + this.width / 2f, 100.0F);
-        RenderSystem.scalef(5, 5, 5);
-        RenderSystem.scalef(16.0F, -16.0F, 16.0F);
-        RenderHelper.setupFor3DItems();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        matrixStack.translate((float)this.getX() + this.width / 2f, (float)this.getY() + this.width / 2f, 100.0F);
+        matrixStack.scale(5, 5, 5);
+        matrixStack.scale(16.0F, -16.0F, 16.0F);
+        Lighting.setupFor3DItems();
 
         matrixStack.pushPose();
 
         this.computeAnimation();
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(MathHelper.lerp(partialTicks, this.xRotOld, this.xRot)));
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, this.yRotOld, this.yRot)));
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(this.zRot));
+        matrixStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, this.xRotOld, this.xRot)));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, this.yRotOld, this.yRot)));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(this.zRot));
         matrixStack.translate(0, -.2, 0);
 
         PortalGunISTER.renderGun(matrixStack, null, this.getModel(), irendertypebuffer$impl,
                 ClientSkinManager.getInstance().getSkinTexture(selectedSkin),
                 stripeColour, lastPortalColor, tint, false, false, 15728880, OverlayTexture.NO_OVERLAY);
+        irendertypebuffer$impl.endBatch();
 
         matrixStack.popPose();
 
         RenderSystem.enableDepthTest();
-        RenderSystem.disableAlphaTest();
-        RenderSystem.disableRescaleNormal();
-        RenderSystem.popMatrix();
+        matrixStack.popPose();
     }
 
     public void tick() {
@@ -141,7 +145,7 @@ public class SkinPreviewWidget extends Widget {
     }
 
     private void clampXRot() {
-        this.xRot = MathHelper.clamp(this.xRot, -90, 90);
+        this.xRot = Mth.clamp(this.xRot, -90, 90);
     }
 
     private float getDeltaTicks() {
@@ -213,13 +217,18 @@ public class SkinPreviewWidget extends Widget {
         this.clampXRot();
 
         float delta = this.getDeltaTicks();
-        this.xRotMomentum = MathHelper.clamp(deltaXRot / delta, -MOMENTUM_LIMIT, MOMENTUM_LIMIT);
-        this.yRotMomentum = MathHelper.clamp(deltaYRot / delta, -MOMENTUM_LIMIT, MOMENTUM_LIMIT);
+        this.xRotMomentum = Mth.clamp(deltaXRot / delta, -MOMENTUM_LIMIT, MOMENTUM_LIMIT);
+        this.yRotMomentum = Mth.clamp(deltaYRot / delta, -MOMENTUM_LIMIT, MOMENTUM_LIMIT);
 
         if(this.yRotMomentum != 0) {
             this.clockwise = this.yRotMomentum < 0;
         }
 
         this.setPrevInput(x, y);
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        this.defaultButtonNarrationText(output);
     }
 }

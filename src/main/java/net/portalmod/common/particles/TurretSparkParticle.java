@@ -1,28 +1,33 @@
 package net.portalmod.common.particles;
 
-import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
 
 import java.util.Random;
 
-public class TurretSparkParticle extends SpriteTexturedParticle {
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+
+public class TurretSparkParticle extends TextureSheetParticle {
 
     public int u;
     public int v;
 
-    protected TurretSparkParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
+    protected TurretSparkParticle(ClientLevel world, double x, double y, double z, double dx, double dy, double dz) {
         super(world, x, y, z, 0, 0, 0);
         this.lifetime = 3;
         this.gravity = 0;
     }
 
     @Override
-    public IParticleRenderType getRenderType() { return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
+    public ParticleRenderType getRenderType() { return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
     @Override
     protected int getLightColor(float idk) { return 15728880; } // See WorldRenderer:2714
 
@@ -52,13 +57,13 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
         return this.sprite.getV((this.v + 1) * 8);
     }
 
-    public static void createGlowParticles(World world, LivingEntity entity, Vector3d direction) {
+    public static void createGlowParticles(Level world, LivingEntity entity, Vec3 direction) {
         double heightMid = entity.getBbHeight() * 0.5;
-        Vector3d middle = entity.position().add(0, heightMid, 0);
+        Vec3 middle = entity.position().add(0, heightMid, 0);
 
-        Vector3d front = middle.add(direction.normalize().multiply(0.25F, 0F, 0.25F));
+        Vec3 front = middle.add(direction.normalize().multiply(0.25F, 0F, 0.25F));
 
-        Vector3d side = new Vector3d(-direction.normalize().z, 0, direction.normalize().x);
+        Vec3 side = new Vec3(-direction.normalize().z, 0, direction.normalize().x);
 //        boolean leftSide = new Random().nextBoolean();
 //        boolean upperSide = new Random().nextBoolean();
 
@@ -69,7 +74,7 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
         float verticalOffset = upperSide ? 0.12F : 0;
         side = side.multiply(leftSide ? -0.25F : 0.25F, 0, leftSide ? -0.25F : 0.25F);
 
-        Vector3d particlePos = front.add(0F, 0.08F, 0F);
+        Vec3 particlePos = front.add(0F, 0.08F, 0F);
 
         world.addParticle(ParticleInit.TURRET_SPARK.get(),
                 particlePos.x + side.x, particlePos.y + verticalOffset, particlePos.z + side.z,
@@ -80,12 +85,12 @@ public class TurretSparkParticle extends SpriteTexturedParticle {
         return (new Random().nextFloat() - 0.5) * 2 * i;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
 
-        public Factory(IAnimatedSprite p_i50823_1_) { this.sprite = p_i50823_1_; }
+        public Factory(SpriteSet p_i50823_1_) { this.sprite = p_i50823_1_; }
 
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double dx, double dy, double dz) {
             TurretSparkParticle particle = new TurretSparkParticle(world, x, y, z, 0, 0, 0);
             particle.setSpriteFromAge(this.sprite);
             return particle;

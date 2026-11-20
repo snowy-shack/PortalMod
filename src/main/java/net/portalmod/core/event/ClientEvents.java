@@ -1,48 +1,23 @@
 package net.portalmod.core.event;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
+import net.portalmod.common.sorted.portal.ClientPortalManager;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.portalmod.client.event.CameraSetupEvent;
+
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.entity.model.BipedModel.ArmPose;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.PlayerTickEvent;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.fabricmc.api.EnvType;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
@@ -81,118 +56,165 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = Dist.CLIENT)
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.HumanoidModel.ArmPose;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.level.ClipContext;
+import org.joml.Vector3f;
+import net.minecraft.world.level.Level;
+
+/**
+ * Client game event handlers. Forge called these through its event bus; on Fabric they are wired up
+ * in {@link #register()} to Fabric API callbacks, or called from hook mixins in
+ * {@code net.portalmod.mixins.hooks.client}.
+ */
+@Environment(EnvType.CLIENT)
 public class ClientEvents {
 
-    @SubscribeEvent
-    public static void onClientLogin(final ClientPlayerNetworkEvent.LoggedInEvent event) {
+    public static void register() {
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> onClientLogin());
+        ClientEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (entity instanceof PortalEntity portal) portal.onAddedToWorld();
+        });
+        ClientEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
+            if (entity instanceof PortalEntity portal) portal.onRemovedFromWorld();
+        });
+        ClientTickEvents.START_CLIENT_TICK.register(client -> clientTick(true));
+        ClientTickEvents.END_CLIENT_TICK.register(client -> clientTick(false));
+        WorldRenderEvents.LAST.register(ctx -> onRenderWorldLast(ctx.matrixStack()));
+        HudRenderCallback.EVENT.register((graphics, tickDelta) -> renderDebugStrings(graphics));
+    }
+
+    /** Client side of Forge's WorldEvent.Load; called when a ClientLevel is created. */
+    public static void onClientLevelLoad() {
+        ClientPortalManager.getInstance().clear();
+    }
+
+    public static void onClientLogin() {
         ClientSkinManager.getInstance().onClientLogin();
     }
 
-    @SubscribeEvent
-    public static void onPlayerRender(final RenderPlayerEvent.Pre event) {
-        BipedModel.ArmPose mainHand;
-        BipedModel.ArmPose offHand;
+    /** Called after PlayerRenderer#setModelProperties (Forge: RenderPlayerEvent.Pre). */
+    public static void onPlayerRender(AbstractClientPlayer player, PlayerRenderer renderer) {
+        HumanoidModel.ArmPose mainHand;
+        HumanoidModel.ArmPose offHand;
         
-        if(event.getEntityLiving().getMainArm() == HandSide.RIGHT) {
-            mainHand = event.getRenderer().getModel().rightArmPose;
-            offHand = event.getRenderer().getModel().leftArmPose;
+        if(player.getMainArm() == HumanoidArm.RIGHT) {
+            mainHand = renderer.getModel().rightArmPose;
+            offHand = renderer.getModel().leftArmPose;
         } else {
-            offHand = event.getRenderer().getModel().rightArmPose;
-            mainHand = event.getRenderer().getModel().leftArmPose;
+            offHand = renderer.getModel().rightArmPose;
+            mainHand = renderer.getModel().leftArmPose;
         }
         
-        if(event.getPlayer().getItemInHand(Hand.MAIN_HAND).getItem() instanceof PortalGun)
+        if(player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof PortalGun)
             mainHand = ArmPose.BOW_AND_ARROW;
-        if(event.getPlayer().getItemInHand(Hand.OFF_HAND).getItem() instanceof PortalGun)
+        if(player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof PortalGun)
             offHand = ArmPose.BOW_AND_ARROW;
         
         if(mainHand.isTwoHanded())
-            offHand = event.getEntityLiving().getOffhandItem().isEmpty() ? BipedModel.ArmPose.EMPTY : BipedModel.ArmPose.ITEM;
+            offHand = player.getOffhandItem().isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
         
-        if(event.getEntityLiving().getMainArm() == HandSide.RIGHT) {
-            event.getRenderer().getModel().rightArmPose = mainHand;
-            event.getRenderer().getModel().leftArmPose = offHand;
+        if(player.getMainArm() == HumanoidArm.RIGHT) {
+            renderer.getModel().rightArmPose = mainHand;
+            renderer.getModel().leftArmPose = offHand;
         } else {
-            event.getRenderer().getModel().rightArmPose = offHand;
-            event.getRenderer().getModel().leftArmPose = mainHand;
+            renderer.getModel().rightArmPose = offHand;
+            renderer.getModel().leftArmPose = mainHand;
         }
     }
 
-    @SubscribeEvent
-    public static void screenOpen(final GuiOpenEvent event) {
-        if(!(event.getGui() instanceof MainMenuScreen)) return;
+    /** Lets the mod swap the title screen (Forge: GuiOpenEvent). Returns the screen to open. */
+    public static Screen screenOpen(Screen screen) {
+        if(!(screen instanceof TitleScreen)) return screen;
 
-        event.setGui(MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading));
+        Screen replacement = MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading);
         MainMenuInjector.needsUpdate = false;
         MainMenuInjector.fading = false;
+        return replacement;
     }
     
     private static final ChangeDetector creerNameDetector = new ChangeDetector();
     
-    @SubscribeEvent
-    public static void renderLiving(final RenderLivingEvent.Pre<?, ?> event) {
-        if(event.getRenderer() instanceof CreerRenderer)
-            return;
+    /** Called before LivingEntityRenderer#render; returns true to cancel vanilla rendering (Forge: RenderLivingEvent.Pre). */
+    public static boolean renderLiving(LivingEntityRenderer<?, ?> renderer, LivingEntity livingEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int light) {
+        if(renderer instanceof CreerRenderer)
+            return false;
         
-        if(!CreerRenderer.isCreer(event.getEntity())) {
+        if(!CreerRenderer.isCreer(livingEntity)) {
             creerNameDetector.trigger(false);
-            return;
+            return false;
         }
         
         creerNameDetector.trigger(true);
         
-        CreeperEntity entity = (CreeperEntity)event.getEntity();
-        float partialTicks = event.getPartialRenderTick();
-        MatrixStack matrixStack = event.getMatrixStack();
-        int light = event.getLight();
-        IRenderTypeBuffer renderTypeBuffer = event.getBuffers();
+        Creeper entity = (Creeper)livingEntity;
         
         if(creerNameDetector.get())
             entity.refreshDimensions();
         
-        event.setCanceled(true);
         CreerRenderer.INSTANCE.get().render(entity, 0, partialTicks, matrixStack, renderTypeBuffer, light);
+        return true;
     }
 
-    @SubscribeEvent
-    public static void fogDensity(final EntityViewRenderEvent.FogDensity event) {
-        ActiveRenderInfo info = event.getInfo();
-        if (info.getFluidInCamera().is(FluidTagInit.GOO)) {
-            event.setDensity(GooBlock.getFogDensity(info.getEntity()));
-            event.setCanceled(true);
-        }
+    /**
+     * Fog density inside goo, or null for vanilla fog (Forge: EntityViewRenderEvent.FogDensity).
+     * 1.17+ only has linear fog, so FogRendererHooksMixin turns this density into a fog distance.
+     */
+    public static Float fogDensity(Camera info) {
+        if (isCameraInGoo(info))
+            return GooBlock.getFogDensity(info.getEntity());
+        return null;
     }
 
-    @SubscribeEvent
-    public static void fogColor(final EntityViewRenderEvent.FogColors event) {
-        ActiveRenderInfo info = event.getInfo();
-        if (info.getFluidInCamera().is(FluidTagInit.GOO)) {
-            Vector3f color = GooBlock.getFogColor().to3f();
-            event.setRed(color.x());
-            event.setGreen(color.y());
-            event.setBlue(color.z());
-        }
+    private static boolean isCameraInGoo(Camera info) {
+        return info.getEntity().level().getFluidState(info.getBlockPosition()).is(FluidTagInit.GOO);
     }
 
-    @SubscribeEvent
-    public static void entitySize(final EntityEvent.Size event) {
-        if(!CreerRenderer.isCreer(event.getEntity()))
-            return;
-        
-        EntitySize size = event.getOldSize();
-        event.setNewSize(EntitySize.scalable(size.width, 1f), true);
+    /** Fog colour inside goo, or null for vanilla (Forge: EntityViewRenderEvent.FogColors). */
+    public static Vector3f fogColor(Camera info) {
+        if (isCameraInGoo(info))
+            return GooBlock.getFogColor().to3f();
+        return null;
+    }
+
+    /** Changes the size of "creer" creepers (Forge: EntityEvent.Size). */
+    public static EntityDimensions entitySize(Entity entity, EntityDimensions size) {
+        if(!CreerRenderer.isCreer(entity))
+            return size;
+
+        return EntityDimensions.scalable(size.width, 1f);
     }
     
     private static boolean wasPressed = false;
     
-    @SubscribeEvent
-    public static void clientTick(final TickEvent.ClientTickEvent event) {
-        if(event.phase == TickEvent.Phase.END) {
+    public static void clientTick(boolean start) {
+        if(!start) {
             PortalFirstPersonRenderer.updateSwingTime();
-        }
-
-        if(event.phase != TickEvent.Phase.START) {
             return;
         }
 
@@ -202,18 +224,18 @@ public class ClientEvents {
         // 🔥
 
         Minecraft mc = Minecraft.getInstance();
-        PlayerEntity player = Minecraft.getInstance().player;
-        World level = Minecraft.getInstance().level;
+        Player player = Minecraft.getInstance().player;
+        Level level = Minecraft.getInstance().level;
 
         if(player != null && level != null && Minecraft.getInstance().gameMode != null) {
             if(TriggerSelectionClient.isSelecting()) {
                 float rayLength = Minecraft.getInstance().gameMode.getPickRange();
-                Vector3d rayPath = player.getViewVector(0).scale(rayLength);
-                Vector3d from = player.getEyePosition(0);
-                Vector3d to = from.add(rayPath);
+                net.minecraft.world.phys.Vec3 rayPath = player.getViewVector(0).scale(rayLength);
+                net.minecraft.world.phys.Vec3 from = player.getEyePosition(0);
+                net.minecraft.world.phys.Vec3 to = from.add(rayPath);
 
-                RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
-                BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
+                ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null);
+                BlockHitResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
 
                 BlockPos pos = rayHit.getBlockPos();
                 BlockState state = level.getBlockState(pos);
@@ -244,35 +266,35 @@ public class ClientEvents {
         if (wasPressed) return;
         wasPressed = true;
 
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (player == null) return;
 
         if (player.isSpectator()) return;
 
         float rayLength = Minecraft.getInstance().gameMode.getPickRange();
-        Vector3d playerRotation = player.getViewVector(0);
-        Vector3d rayPath = playerRotation.scale(rayLength);
+        net.minecraft.world.phys.Vec3 playerRotation = player.getViewVector(0);
+        net.minecraft.world.phys.Vec3 rayPath = playerRotation.scale(rayLength);
 
-        Vector3d from = player.getEyePosition(0);
-        Vector3d to = from.add(rayPath);
+        net.minecraft.world.phys.Vec3 from = player.getEyePosition(0);
+        net.minecraft.world.phys.Vec3 to = from.add(rayPath);
 
-        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.OUTLINE, RayTraceContext.FluidMode.NONE, null);
-        BlockRayTraceResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
+        ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null);
+        BlockHitResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
 
         // Drop entity
         ItemStack itemStack = player.getMainHandItem();
-        if (player.hasPassenger(TestElementEntity.class)) {
+        if (player.hasPassenger(e -> e instanceof TestElementEntity)) {
             TestElementEntity.dropHeldEntities(player, false, false, itemStack);
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
-            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            consumeAllKeyPresses(KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT));
             return;
         }
 
         // Press block
         Block block = Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock();
         if (block instanceof InteractKeyInteractable && ((InteractKeyInteractable) block).interactKeyInteract(player, rayHit)) {
-            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            consumeAllKeyPresses(KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT));
             return;
         }
 
@@ -282,18 +304,18 @@ public class ClientEvents {
 
             // Use collision shapes to target the entity instead of visual shapes
             // todo: this increases the throwing lag even more ugh
-//            RayTraceContext collisionRayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
-//            BlockRayTraceResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
+//            ClipContext collisionRayCtx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+//            BlockHitResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
 
-            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(player.level, new Vec3(from), new Vec3(to), portal -> true);
+            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(player.level(), new Vec3(from), new Vec3(to), portal -> true);
             Mat4 portalMatrix = ModUtil.getMatrixFromPortalChain(portalChain);
-            Pair<Vector3d, Vector3d> ray = ModUtil.teleportRay(portalChain, from, to);
-            AxisAlignedBB aabb = player.getBoundingBox().expandTowards(rayPath);
+            Pair<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3> ray = ModUtil.teleportRay(portalChain, from, to);
+            AABB aabb = player.getBoundingBox().expandTowards(rayPath);
             aabb = AABBUtil.transform(aabb, portalMatrix);
 
-            EntityRayTraceResult realWorldEntityRayTraceResult = ProjectileHelper.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), TestElementEntity::isHoldable, rayLength * rayLength);
-            EntityRayTraceResult teleportedEntityRayTraceResult = ProjectileHelper.getEntityHitResult(player, ray.getFirst(), ray.getSecond(), aabb, TestElementEntity::isHoldable, rayLength * rayLength);
-            EntityRayTraceResult entityRayTraceResult;
+            EntityHitResult realWorldEntityRayTraceResult = ProjectileUtil.getEntityHitResult(player, from, to, player.getBoundingBox().expandTowards(rayPath), TestElementEntity::isHoldable, rayLength * rayLength);
+            EntityHitResult teleportedEntityRayTraceResult = ProjectileUtil.getEntityHitResult(player, ray.getFirst(), ray.getSecond(), aabb, TestElementEntity::isHoldable, rayLength * rayLength);
+            EntityHitResult entityRayTraceResult;
 
             if(realWorldEntityRayTraceResult == null && teleportedEntityRayTraceResult == null) {
                 return;
@@ -309,7 +331,7 @@ public class ClientEvents {
                 realWorld = false;
 
             } else {
-                Vector3d teleportedFrom = new Vec3(from).transform(portalMatrix).to3d();
+                net.minecraft.world.phys.Vec3 teleportedFrom = new Vec3(from).transform(portalMatrix).to3d();
                 double realWorldDistance = realWorldEntityRayTraceResult.getLocation().subtract(from).lengthSqr();
                 double teleportedDistance = teleportedEntityRayTraceResult.getLocation().subtract(teleportedFrom).lengthSqr();
                 entityRayTraceResult = realWorldDistance <= teleportedDistance ? realWorldEntityRayTraceResult : teleportedEntityRayTraceResult;
@@ -319,60 +341,54 @@ public class ClientEvents {
             Entity entity = entityRayTraceResult.getEntity();
 
             // Set reach origin to feet so it is possible to pick things up from above further than from below
-            Vector3d reachPosition = player.position().add(0, 0.2, 0);
+            net.minecraft.world.phys.Vec3 reachPosition = player.position().add(0, 0.2, 0);
             double grabReach = player.getAttributeValue(AttributeInit.GRAB_REACH.get());
             Vec3 distance = new Vec3(entity.position()).sub(new Vec3(reachPosition).transform(realWorld ? Mat4.identity() : portalMatrix));
 
             if (entity instanceof TestElementEntity && distance.magnitude() < grabReach + entity.getBbWidth() / 2) {
                 ((TestElementEntity) entity).pickUp(player);
 
-                consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+                consumeAllKeyPresses(KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT));
             }
         } catch (Exception e) {
             PortalMod.LOGGER.error("Error while picking up entity", e);
         }
     }
 
-    private static void consumeAllKeyPresses(InputMappings.Input k) {
-        KeyBinding[] keys = Minecraft.getInstance().options.keyMappings;
-        for(KeyBinding key : keys)
-            if(key.getKey() == k)
+    private static void consumeAllKeyPresses(InputConstants.Key k) {
+        KeyMapping[] keys = Minecraft.getInstance().options.keyMappings;
+        for(KeyMapping key : keys)
+            if(KeyBindingHelper.getBoundKeyOf(key) == k)
                 while(key.consumeClick());
     }
 
-    @SubscribeEvent
-    public static void onMouseClick(final InputEvent.RawMouseEvent event) {
+    /** Returns true to swallow the click (Forge: InputEvent.RawMouseEvent). */
+    public static boolean onMouseClick(int button, int action) {
         Minecraft mc = Minecraft.getInstance();
-        PlayerEntity player = mc.player;
+        Player player = mc.player;
         if(player == null)
-            return;
+            return false;
 
         if(mc.overlay == null && mc.screen == null) {
             if(player.getMainHandItem().getItem() instanceof PortalGun) {
-                boolean handled = PortalGunClient.getInstance().handleMouseButtons(event.getButton(), event.getAction());
-
-                if(handled) {
-                    event.setCanceled(true);
-                }
+                return PortalGunClient.getInstance().handleMouseButtons(button, action);
             } else {
                 PortalGunClient.getInstance().resetPresses();
             }
         }
+        return false;
     }
     
-    @SubscribeEvent
-    public static void onRenderBlockOverlay(final RenderBlockOverlayEvent event) {
-        if(!PortalEntity.shouldRenderBlockOverlay(event.getPlayer().level, event.getBlockPos()))
-            event.setCanceled(true);
+    /** Returns false to hide the in-wall block overlay (Forge: RenderBlockOverlayEvent). */
+    public static boolean shouldRenderBlockOverlay(Player player, BlockPos pos) {
+        return PortalEntity.shouldRenderBlockOverlay(player.level(), pos);
     }
 
-    @SubscribeEvent
-    public static void onRenderWorldLast(final RenderWorldLastEvent event) {
-        DebugRenderer.renderAllShapes(event.getMatrixStack());
+    public static void onRenderWorldLast(PoseStack matrixStack) {
+        DebugRenderer.renderAllShapes(matrixStack);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onCameraSetup(final EntityViewRenderEvent.CameraSetup event) {
+    public static void onCameraSetup(final CameraSetupEvent event) {
         PMState.cameraPosOverrideForRenderingSelf = null;
 
         if(Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
@@ -397,34 +413,31 @@ public class ClientEvents {
         PMState.cameraRoll = event.getRoll();
     }
 
-    @SubscribeEvent
-    public static void onFogSetup(final EntityViewRenderEvent.FogColors event) {
-        PortalRenderer.getInstance().clearColor = new Vec3(event.getRed(), event.getGreen(), event.getBlue());
+    /** Called with the final fog colour each frame. */
+    public static void onFogSetup(float red, float green, float blue) {
+        PortalRenderer.getInstance().clearColor = new Vec3(red, green, blue);
     }
 
     public static final List<String> debugStrings = new ArrayList<>();
-    
-    @SubscribeEvent
-    public static void onRenderOverlay(final RenderGameOverlayEvent.Post event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        FontRenderer fontRenderer = minecraft.font;
 
-        if(event.getType() == ElementType.CROSSHAIRS) {
-            PortalGunCrosshairRenderer.render(event.getMatrixStack());
+    /** Called after the vanilla crosshair is drawn (Forge: RenderGameOverlayEvent.Post CROSSHAIRS). */
+    public static void onRenderCrosshair(GuiGraphics graphics) {
+        PortalGunCrosshairRenderer.render(graphics.pose());
 
-            if(PortalMod.WATERMARK) {
-                WatermarkRenderer.render(event.getMatrixStack());
-            }
-            
-        } else if(event.getType() == ElementType.SUBTITLES) {
-            int x = 2;
-            int y = 2;
-            int index = 0;
-            for(String text : debugStrings) {
-                fontRenderer.drawShadow(event.getMatrixStack(), text, x, y + fontRenderer.lineHeight * index++, 0xFFFFAA00);
-            }
-
-            debugStrings.clear();
+        if(PortalMod.WATERMARK) {
+            WatermarkRenderer.render(graphics.pose());
         }
+    }
+
+    private static void renderDebugStrings(GuiGraphics graphics) {
+        Font fontRenderer = Minecraft.getInstance().font;
+        int x = 2;
+        int y = 2;
+        int index = 0;
+        for(String text : debugStrings) {
+            graphics.drawString(fontRenderer, text, x, y + fontRenderer.lineHeight * index++, 0xFFFFAA00);
+        }
+
+        debugStrings.clear();
     }
 }

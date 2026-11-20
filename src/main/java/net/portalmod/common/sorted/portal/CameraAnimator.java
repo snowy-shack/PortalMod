@@ -1,9 +1,10 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.util.math.MathHelper;
 import net.portalmod.core.math.Vec3;
 
 import java.util.Optional;
+
+import net.minecraft.util.Mth;
 
 public class CameraAnimator {
     private static CameraAnimator instance;
@@ -115,17 +116,17 @@ public class CameraAnimator {
 
     public Optional<Float> getRelativePitch() {
         return getFactor(this.pitchStartTime, pitchAnimationDuration)
-                .map(x -> MathHelper.lerp(x, this.pitchStart - this.pitchEnd, 0));
+                .map(x -> Mth.lerp(x, this.pitchStart - this.pitchEnd, 0));
     }
 
     public Optional<Float> getRelativeYaw() {
         return getFactor(this.yawStartTime, yawAnimationDuration)
-                .map(x -> MathHelper.lerp(x, this.yawStart - this.yawEnd, 0));
+                .map(x -> Mth.lerp(x, this.yawStart - this.yawEnd, 0));
     }
 
     public Optional<Float> getRelativeRoll() {
         return getFactor(this.rollStartTime, rollAnimationDuration)
-                .map(x -> MathHelper.lerp(x, this.rollStart - this.rollEnd, 0));
+                .map(x -> Mth.lerp(x, this.rollStart - this.rollEnd, 0));
     }
 
     public Optional<Vec3> getRelativePos() {

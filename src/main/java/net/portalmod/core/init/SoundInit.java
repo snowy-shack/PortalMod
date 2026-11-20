@@ -1,16 +1,21 @@
 package net.portalmod.core.init;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.portalmod.core.registry.RegistryObject;
+import net.portalmod.core.registry.DeferredRegister;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.PortalMod;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+
 public class SoundInit {
-    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, PortalMod.MODID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, PortalMod.MODID);
 
     private SoundInit() {}
+
+    // BUCKET (Forge set these on the fluid attributes)
+    public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
+    public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
 
     // BLOCKS
     public static final RegistryObject<SoundEvent> RADIO_LOOP = register("block.radio.loop");
@@ -85,6 +90,6 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CHAMBER_SIGN_PLACE = register("entity.chamber_sign.place");
 
     private static RegistryObject<SoundEvent> register(String id) {
-        return SOUNDS.register(id, () -> new SoundEvent(new ResourceLocation(PortalMod.MODID, id)));
+        return SOUNDS.register(id, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(PortalMod.MODID, id)));
     }
 }

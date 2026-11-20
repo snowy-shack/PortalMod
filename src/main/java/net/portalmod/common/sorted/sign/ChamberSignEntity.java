@@ -1,30 +1,7 @@
 package net.portalmod.common.sorted.sign;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RedstoneDiodeBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.HangingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.portalmod.core.network.NetworkDirection;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
 import net.portalmod.core.init.EntityInit;
@@ -37,28 +14,53 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.stream.Stream;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+
 public class ChamberSignEntity extends HangingEntity {
 
-    public static final DataParameter<Integer> DATA_LEFT_DIGIT = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.INT);
-    public static final DataParameter<Integer> DATA_RIGHT_DIGIT = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.INT);
-    public static final DataParameter<Integer> DATA_PROGRESS = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.INT);
-    public static final DataParameter<Boolean> DATA_ICON_1 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_2 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_3 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_4 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_5 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_6 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_7 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ICON_8 = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Boolean> DATA_ENABLED = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
-//    public static final DataParameter<Boolean> VERT_ALIGNED = EntityDataManager.defineId(ChamberSignEntity.class, DataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> DATA_LEFT_DIGIT = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> DATA_RIGHT_DIGIT = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> DATA_PROGRESS = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_1 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_2 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_3 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_4 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_5 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_6 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_7 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ICON_8 = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Boolean> DATA_ENABLED = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
+//    public static final EntityDataAccessor<Boolean> VERT_ALIGNED = SynchedEntityData.defineId(ChamberSignEntity.class, EntityDataSerializers.BOOLEAN);
     private boolean verticallyAligned;
 
-    public ChamberSignEntity(EntityType<? extends HangingEntity> p_i48561_1_, World p_i48561_2_) {
+    public ChamberSignEntity(EntityType<? extends HangingEntity> p_i48561_1_, Level p_i48561_2_) {
         super(p_i48561_1_, p_i48561_2_);
     }
 
-    public ChamberSignEntity(World world, BlockPos pos, Direction direction, boolean verticallyAligned) {
+    public ChamberSignEntity(Level world, BlockPos pos, Direction direction, boolean verticallyAligned) {
         super(EntityInit.CHAMBER_SIGN.get(), world, pos);
         this.setDirection(direction);
         this.setVerticallyAligned(verticallyAligned);
@@ -84,11 +86,11 @@ public class ChamberSignEntity extends HangingEntity {
 
     public boolean isPowered() {
         Stream<BlockPos> boundingBoxPositions = BlockPos.betweenClosedStream(this.getBoundingBox().deflate(0.001));
-        return boundingBoxPositions.anyMatch(pos -> this.level.hasNeighborSignal(pos));
+        return boundingBoxPositions.anyMatch(pos -> this.level().hasNeighborSignal(pos));
     }
 
     @Override
-    public ActionResultType interactAt(PlayerEntity player, Vector3d pos, Hand hand) {
+    public InteractionResult interactAt(Player player, Vec3 pos, InteractionHand hand) {
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
 
             int inverted = this.direction == Direction.NORTH || this.direction == Direction.EAST ? -1 : 1;
@@ -115,10 +117,10 @@ public class ChamberSignEntity extends HangingEntity {
                 this.toggleIcon(x + y * 4);
             }
 
-            WrenchItem.playUseSound(this.level, this.position().add(pos));
-            return ActionResultType.SUCCESS;
+            WrenchItem.playUseSound(this.level(), this.position().add(pos));
+            return InteractionResult.SUCCESS;
         }
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     public void toggleIcon(int index) {
@@ -142,14 +144,14 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     @Override
-    public ItemStack getPickedResult(RayTraceResult target) {
+    public ItemStack getPickResult() {
         return new ItemStack(ItemInit.CHAMBER_SIGN.get());
     }
 
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
         Entity entity = damageSource.getEntity();
-        if (entity instanceof PlayerEntity && !((PlayerEntity) entity).isCreative() && !(((PlayerEntity) entity).getMainHandItem().getItem() instanceof WrenchItem)) {
+        if (entity instanceof Player && !((Player) entity).isCreative() && !(((Player) entity).getMainHandItem().getItem() instanceof WrenchItem)) {
             return false;
         }
 
@@ -207,7 +209,7 @@ public class ChamberSignEntity extends HangingEntity {
             dy = dy / 32.0D;
             dz = dz / 32.0D;
 
-            this.setBoundingBox(new AxisAlignedBB(x - dx, y - dy, z - dz, x + dx, y + dy, z + dz));
+            this.setBoundingBox(new AABB(x - dx, y - dy, z - dz, x + dx, y + dy, z + dz));
         }
     }
 
@@ -242,12 +244,12 @@ public class ChamberSignEntity extends HangingEntity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        return !(entity instanceof Cube || entity instanceof BoatEntity) && super.canCollideWith(entity);
+        return !(entity instanceof Cube || entity instanceof Boat) && super.canCollideWith(entity);
     }
 
     public boolean isValidWall(BlockPos pos) {
-        BlockState blockstate = this.level.getBlockState(pos);
-        return Block.canSupportCenter(this.level, pos, this.direction) || blockstate.getMaterial().isSolid() || RedstoneDiodeBlock.isDiode(blockstate);
+        BlockState blockstate = this.level().getBlockState(pos);
+        return Block.canSupportCenter(this.level(), pos, this.direction) || blockstate.isSolid() || DiodeBlock.isDiode(blockstate);
     }
 
     public double offs(int p_190202_1_) {
@@ -268,8 +270,8 @@ public class ChamberSignEntity extends HangingEntity {
     public void dropItem(@Nullable Entity entity) {
         this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1.0F, ModUtil.randomSlightSoundPitch() * 0.9f);
 
-        if (entity instanceof PlayerEntity && ((PlayerEntity) entity).isCreative()
-                || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) return;
+        if (entity instanceof Player && ((Player) entity).isCreative()
+                || !this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) return;
 
         this.spawnAtLocation(ItemInit.CHAMBER_SIGN.get());
     }
@@ -280,14 +282,14 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return PacketInit.INSTANCE.toVanillaPacket(
                 new SSpawnChamberSignPacket(this.getId(), this.getUUID(), this.getPos(), this.direction, this.verticallyAligned),
                 NetworkDirection.PLAY_TO_CLIENT);
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putByte("Facing", (byte) this.direction.get2DDataValue());
         nbt.putInt("LeftDigit", this.getLeftDigit());
@@ -305,7 +307,7 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         this.setDirection(Direction.from2DDataValue(nbt.getByte("Facing")));
         this.setLeftDigit(nbt.getInt("LeftDigit"));

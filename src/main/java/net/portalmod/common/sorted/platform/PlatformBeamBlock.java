@@ -1,36 +1,38 @@
 package net.portalmod.common.sorted.platform;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.portalmod.core.interfaces.StickyBlock;
 import net.portalmod.common.blocks.CustomPushBehavior;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPushBehavior, BeamBearer {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+
+public class PlatformBeamBlock extends Block implements SimpleWaterloggedBlock, CustomPushBehavior, BeamBearer, StickyBlock {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 5, 5, 16, 11, 11);
     public static final VoxelShape SHAPE_Y = Block.box(5, 0, 5, 11, 16, 11);
@@ -55,12 +57,12 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(WATERLOGGED, FACING);
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter blockReader, BlockPos pos, CollisionContext context) {
         switch (state.getValue(FACING).getAxis()) {
             case X: return COLLISION_SHAPE_X;
             case Y: return COLLISION_SHAPE_Y;
@@ -69,7 +71,7 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter blockReader, BlockPos pos, CollisionContext context) {
         switch (state.getValue(FACING).getAxis()) {
             case X: return SHAPE_X;
             case Y: return SHAPE_Y;
@@ -79,13 +81,13 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER)
                 .setValue(FACING, this.getPlacementDirection(context));
     }
 
-    public Direction getPlacementDirection(BlockItemUseContext context) {
+    public Direction getPlacementDirection(BlockPlaceContext context) {
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
         Block block = clickedState.getBlock();
 
@@ -100,9 +102,9 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     }
 
     @Override
-    public BlockState updateShape(BlockState blockState, Direction direction, BlockState state, IWorld world, BlockPos pos, BlockPos pos2) {
+    public BlockState updateShape(BlockState blockState, Direction direction, BlockState state, LevelAccessor world, BlockPos pos, BlockPos pos2) {
         if (blockState.getValue(WATERLOGGED)) {
-            world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
         return blockState;
     }
@@ -112,12 +114,10 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
-    @Override
     public boolean isStickyBlock(BlockState state) {
         return true;
     }
 
-    @Override
     public boolean canStickTo(BlockState state, BlockState other) {
         // For Create compatibility, we only want to stick to other things if they are sticky too, like slime blocks.
         // Setting this to true means we are able to stick to the other block in all directions, which is not what we want.
@@ -126,7 +126,7 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     }
 
     @Override
-    public boolean isStickyToNeighbor(World level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
+    public boolean isStickyToNeighbor(Level level, BlockPos pos, BlockState state, BlockPos neighborPos, BlockState neighborState, Direction dir, Direction moveDir) {
         return dir.getAxis() == state.getValue(FACING).getAxis();
     }
 
@@ -147,7 +147,7 @@ public class PlatformBeamBlock extends Block implements IWaterLoggable, CustomPu
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("platform_beam", list);
     }
 }

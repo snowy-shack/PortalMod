@@ -1,11 +1,5 @@
 package net.portalmod.core.datagen;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
@@ -17,6 +11,13 @@ import net.portalmod.core.init.BlockInit;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 
 public class BlockStateGen extends BlockStateProvider {
 
@@ -226,7 +227,7 @@ public class BlockStateGen extends BlockStateProvider {
 
     public void genPanelStairs(Block block, String name) {
         this.stairsBlock(
-                (StairsBlock) block,
+                (StairBlock) block,
                 blockPath(name + "_tiles"),
                 blockPath(name + "_bottom"),
                 blockPath(name + "_top")
@@ -234,7 +235,7 @@ public class BlockStateGen extends BlockStateProvider {
     }
 
     public void genPanelStairsFull(Block block, String name) {
-        this.stairsBlock((StairsBlock) block, blockPath(name + "_tiles"));
+        this.stairsBlock((StairBlock) block, blockPath(name + "_tiles"));
     }
 
     @Nonnull

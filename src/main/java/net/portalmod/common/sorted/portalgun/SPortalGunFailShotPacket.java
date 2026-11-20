@@ -1,15 +1,15 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.packet.AbstractPacket;
 import net.portalmod.core.packet.ClientPacketHandler;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
+
+import net.minecraft.network.FriendlyByteBuf;
 
 public class SPortalGunFailShotPacket implements AbstractPacket<SPortalGunFailShotPacket> {
     public Vec3 position;
@@ -27,7 +27,7 @@ public class SPortalGunFailShotPacket implements AbstractPacket<SPortalGunFailSh
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeFloat((float)this.position.x);
         buffer.writeFloat((float)this.position.y);
         buffer.writeFloat((float)this.position.z);
@@ -42,7 +42,7 @@ public class SPortalGunFailShotPacket implements AbstractPacket<SPortalGunFailSh
     }
 
     @Override
-    public SPortalGunFailShotPacket decode(PacketBuffer buffer) {
+    public SPortalGunFailShotPacket decode(FriendlyByteBuf buffer) {
         Vec3 position = new Vec3(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
         Vec3 normal = new Vec3(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
         Vec3 upVector = new Vec3(buffer.readFloat(), buffer.readFloat(), buffer.readFloat());
@@ -52,9 +52,8 @@ public class SPortalGunFailShotPacket implements AbstractPacket<SPortalGunFailSh
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
-                () -> () -> ClientPacketHandler.handleSPortalGunFailShotPacket(this)));
+    public boolean handle(Supplier<PacketContext> context) {
+        context.get().enqueueWork(() -> ClientOnly.run(() -> () -> ClientPacketHandler.handleSPortalGunFailShotPacket(this)));
 
         context.get().setPacketHandled(true);
         return true;

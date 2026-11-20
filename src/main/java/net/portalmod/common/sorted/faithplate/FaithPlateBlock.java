@@ -1,24 +1,9 @@
 package net.portalmod.common.sorted.faithplate;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.portalmod.core.interfaces.CustomPushReaction;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -27,7 +12,32 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class FaithPlateBlock extends DoubleBlock {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+
+public class FaithPlateBlock extends DoubleBlock implements EntityBlock, CustomPushReaction {
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final EnumProperty<Face> FACE = EnumProperty.create("face", Face.class);
     
@@ -51,7 +61,7 @@ public class FaithPlateBlock extends DoubleBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction face = context.getNearestLookingDirection().getOpposite();
         BlockPos pos = context.getClickedPos();
 
@@ -90,44 +100,51 @@ public class FaithPlateBlock extends DoubleBlock {
         return this.getMainPosition(state, pos).relative(this.getUpperDirection(state));
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return state.getValue(HALF) == DoubleBlockHalf.UPPER;
     }
     
     @Nullable
+    
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        return TileEntityTypeInit.FAITHPLATE.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return TileEntityTypeInit.FAITHPLATE.get().create(pos, state);
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.FAITHPLATE.get() ? (lvl, pos, st, be) -> ((FaithPlateTileEntity) be).tick() : null;
     }
     
     @Override
-    public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult rayTraceResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult rayTraceResult) {
         if (level.isClientSide)
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
 
-        TileEntity tileEntity = level.getBlockEntity(this.getUpperPos(state, pos));
+        BlockEntity tileEntity = level.getBlockEntity(this.getUpperPos(state, pos));
 
-        if (!(tileEntity instanceof FaithPlateTileEntity)) return ActionResultType.PASS;
+        if (!(tileEntity instanceof FaithPlateTileEntity)) return InteractionResult.PASS;
 
         FaithPlateTileEntity faithPlate = (FaithPlateTileEntity)tileEntity;
 
         if(WrenchItem.usedWrench(player, hand) && !FaithPlateTileEntity.isPlayerConfiguring(player)) {
             if(!faithPlate.isBeingConfigured()) {
-                faithPlate.startConfiguration((ServerPlayerEntity)player);
+                faithPlate.startConfiguration((ServerPlayer)player);
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());
             } else {
                 WrenchItem.playFailSound(level, rayTraceResult.getLocation());
             }
 
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public void onRemove(BlockState state, World level, BlockPos pos, BlockState newState, boolean b) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean b) {
         if(state.getValue(HALF) == DoubleBlockHalf.UPPER) {
             FaithPlateTileEntity te = ((FaithPlateTileEntity) level.getBlockEntity(pos));
             if(te != null) {
@@ -138,7 +155,6 @@ public class FaithPlateBlock extends DoubleBlock {
         super.onRemove(state, level, pos, newState, b);
     }
 
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.BLOCK;
     }
@@ -154,11 +170,11 @@ public class FaithPlateBlock extends DoubleBlock {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("faithplate", list);
     }
     
-    public enum Face implements IStringSerializable {
+    public enum Face implements StringRepresentable {
         FLOOR("floor"),
         WALL("wall");
         

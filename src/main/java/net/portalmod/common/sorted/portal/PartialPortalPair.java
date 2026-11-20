@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.portal;
 
 import javax.annotation.Nullable;
 
+
 public class PartialPortalPair {
     private PartialPortal blue, orange;
 

@@ -1,11 +1,11 @@
 package net.portalmod.core.chunkviewer;
 
-import net.minecraft.util.math.ChunkPos;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.world.level.ChunkPos;
 
 public class ChunkViewer {
     private static final ChunkViewer INSTANCE = new ChunkViewer();

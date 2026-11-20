@@ -1,41 +1,40 @@
 package net.portalmod.common.sorted.trigger;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.portalmod.core.init.TileEntityTypeInit;
 
 import java.util.List;
 
-public class TriggerTileEntity extends TileEntity implements ITickableTileEntity {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+
+public class TriggerTileEntity extends BlockEntity {
     private BlockPos fieldStart;
     private BlockPos fieldEnd;
     private TriggerType type = TriggerType.PLAYER;
 
     private int entityCount = 0;
 
-    private PlayerEntity configuringPlayer;
+    private Player configuringPlayer;
 
-    public TriggerTileEntity(TileEntityType<?> type) {
-        super(type);
+    public TriggerTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
-    public TriggerTileEntity() {
-        this(TileEntityTypeInit.TRIGGER.get());
+    public TriggerTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.TRIGGER.get(), pos, state);
     }
     
-    @Override
     public void tick() {
         if(this.level == null)
             return;
@@ -50,7 +49,7 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
             return;
         }
 
-        AxisAlignedBB aabb = this.getField();
+        AABB aabb = this.getField();
         aabb = aabb.move(this.worldPosition);
 
         List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, aabb,
@@ -68,7 +67,7 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         }
     }
 
-    public void startConfiguration(ServerPlayerEntity player) {
+    public void startConfiguration(ServerPlayer player) {
         this.configuringPlayer = player;
     }
 
@@ -80,7 +79,7 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         return this.configuringPlayer != null;
     }
 
-    public PlayerEntity getConfiguringPlayer() {
+    public Player getConfiguringPlayer() {
         return this.configuringPlayer;
     }
 
@@ -93,10 +92,10 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         return this.fieldStart != null && this.fieldEnd != null;
     }
 
-    public AxisAlignedBB getField() {
+    public AABB getField() {
         if(!this.hasField())
             return null;
-        return new AxisAlignedBB(this.fieldStart, this.fieldEnd).expandTowards(1, 1, 1);
+        return new AABB(this.fieldStart, this.fieldEnd).expandTowards(1, 1, 1);
     }
 
     public TriggerType getTriggerType() {
@@ -109,36 +108,36 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(this.fieldStart != null && this.fieldEnd != null) {
-            CompoundNBT start = new CompoundNBT();
+            CompoundTag start = new CompoundTag();
             start.putInt("x", this.fieldStart.getX());
             start.putInt("y", this.fieldStart.getY());
             start.putInt("z", this.fieldStart.getZ());
             nbt.put("start", start);
 
-            CompoundNBT end = new CompoundNBT();
+            CompoundTag end = new CompoundTag();
             end.putInt("x", this.fieldEnd.getX());
             end.putInt("y", this.fieldEnd.getY());
             end.putInt("z", this.fieldEnd.getZ());
             nbt.put("end", end);
         }
 
-        return super.save(nbt);
+        super.saveAdditional(nbt);
     }
     
     @Override
-    public void load(BlockState state, CompoundNBT nbt) {
-        super.load(state, nbt);
-        load(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadFields(nbt);
 
         updateTriggerType();
     }
     
-    public void load(CompoundNBT nbt) {
+    public void loadFields(CompoundTag nbt) {
         if(nbt.contains("start") && nbt.contains("end")) {
-            CompoundNBT start = nbt.getCompound("start");
-            CompoundNBT end = nbt.getCompound("end");
+            CompoundTag start = nbt.getCompound("start");
+            CompoundTag end = nbt.getCompound("end");
 
             if(!start.contains("x") || !start.contains("y") || !start.contains("z"))
                 return;
@@ -150,13 +149,11 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
         }
     }
 
-    @Override
     public void rotate(Rotation rotation) {
         this.fieldStart = this.fieldStart.rotate(rotation);
         this.fieldEnd = this.fieldEnd.rotate(rotation);
     }
 
-    @Override
     public void mirror(Mirror mirror) {
         int flipX = mirror == Mirror.FRONT_BACK ? -1 : 1;
         int flipZ = mirror == Mirror.LEFT_RIGHT ? -1 : 1;
@@ -167,33 +164,29 @@ public class TriggerTileEntity extends TileEntity implements ITickableTileEntity
     // chunk update
     
     @Override
-    public CompoundNBT getUpdateTag() {
-        return this.save(new CompoundNBT());
+    public CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
     
-    @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-        load(state, tag);
+    public void handleUpdateTag(BlockState state, CompoundTag tag) {
+        load(tag);
     }
     
     // block update
     
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
-        return new SUpdateTileEntityPacket(this.getBlockPos(), -1, save(new CompoundNBT()));
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
     
-    @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         this.load(packet.getTag());
     }
     
-    @Override
-    public AxisAlignedBB getRenderBoundingBox() {
-        return new AxisAlignedBB(this.getBlockPos()).inflate(1E30);
+    public AABB getRenderBoundingBox() {
+        return new AABB(this.getBlockPos()).inflate(1E30);
     }
     
-    @Override
     public double getViewDistance() {
         return 256.0D;
     }

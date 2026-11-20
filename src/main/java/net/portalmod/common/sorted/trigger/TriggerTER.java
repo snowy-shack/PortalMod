@@ -1,35 +1,38 @@
 package net.portalmod.common.sorted.trigger;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+
+public class TriggerTER implements BlockEntityRenderer<TriggerTileEntity> {
     private final TriggerFieldBakedModel triggerFieldBakedModel;
 
-    public TriggerTER(TileEntityRendererDispatcher terd) {
-        super(terd);
+    public TriggerTER(BlockEntityRendererProvider.Context terd) {
         this.triggerFieldBakedModel = new TriggerFieldBakedModel();
     }
 
     @Override
-    public void render(TriggerTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
+    public void render(TriggerTileEntity be, float partialTicks, PoseStack matrixStack, MultiBufferSource renderBuffer, int light, int overlay) {
         if(Minecraft.getInstance().player == null || !WrenchItem.holdingWrench(Minecraft.getInstance().player))
             return;
 
         this.triggerFieldBakedModel.bakeQuadsOnce();
 
-        AxisAlignedBB aabb = null;
+        AABB aabb = null;
 
         if (TriggerSelectionClient.isSelecting(be)) {
             aabb = TriggerSelectionClient.getBox();
@@ -65,7 +68,7 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         return textures;
     }
 
-    private void renderTriggerField(TriggerType type, AxisAlignedBB aabb, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
+    private void renderTriggerField(TriggerType type, AABB aabb, PoseStack matrixStack, MultiBufferSource renderBuffer, int light, int overlay) {
         float x0 = (float)aabb.minX;
         float y0 = (float)aabb.minY;
         float z0 = (float)aabb.minZ;
@@ -104,7 +107,7 @@ public class TriggerTER extends TileEntityRenderer<TriggerTileEntity> {
         }
     }
 
-    private void renderQuad(IRenderTypeBuffer renderBuffer, MatrixStack matrixStack, int light, int overlay, float x, float y, float z, Direction face, ResourceLocation texture, boolean inside) {
+    private void renderQuad(MultiBufferSource renderBuffer, PoseStack matrixStack, int light, int overlay, float x, float y, float z, Direction face, ResourceLocation texture, boolean inside) {
         matrixStack.pushPose();
         matrixStack.translate(x, y, z);
 

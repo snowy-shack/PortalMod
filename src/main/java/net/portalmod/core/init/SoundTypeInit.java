@@ -1,10 +1,10 @@
 package net.portalmod.core.init;
 
-import net.minecraft.block.SoundType;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-
 import java.util.function.Supplier;
+
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 
 public class SoundTypeInit {
     private SoundTypeInit() {}

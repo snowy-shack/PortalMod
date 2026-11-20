@@ -1,26 +1,28 @@
 package net.portalmod.common.sorted.fizzler;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import com.mojang.math.Axis;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.math.VoxelShapeGroup;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Vector3f;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
@@ -40,8 +42,8 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
-        return VoxelShapes.empty();
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return Shapes.empty();
     }
 
     @Override
@@ -57,15 +59,15 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
         matrix.translate(new Vec3(.5));
 
         if (axis == Direction.Axis.X) {
-            matrix.rotateDeg(Vector3f.YP, 90);
+            matrix.rotateDeg(Axis.YP, 90);
         }
 
         if (axis == Direction.Axis.Y) {
-            matrix.rotateDeg(Vector3f.XP, 90);
+            matrix.rotateDeg(Axis.XP, 90);
         }
 
         if (rotated) {
-            matrix.rotateDeg(Vector3f.ZP, 90);
+            matrix.rotateDeg(Axis.ZP, 90);
         }
 
         matrix.translate(new Vec3(-.5));
@@ -90,7 +92,7 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
+    public boolean isInsideField(AABB box, BlockPos pos, BlockState state) {
         return this.getFieldShape(state).bounds().move(pos).intersects(box);
     }
 
@@ -100,7 +102,7 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         Direction facing = Direction.fromAxisAndDirection(state.getValue(AXIS), Direction.AxisDirection.POSITIVE);
         BlockState leftBlock = world.getBlockState(pos.relative(facing));
         BlockState rightBlock = world.getBlockState(pos.relative(facing.getOpposite()));

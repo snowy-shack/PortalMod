@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.portal;
 import org.junit.Assert;
 import org.junit.Test;
 
+
 public class PortalMovementAccountingTest {
     @Test
     public void suppressesMovementExhaustionForPortalTeleportDistance() {

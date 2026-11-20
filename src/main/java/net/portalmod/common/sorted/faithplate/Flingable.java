@@ -1,3 +1,4 @@
+
 package net.portalmod.common.sorted.faithplate;
 
 public interface Flingable {

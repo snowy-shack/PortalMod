@@ -1,20 +1,11 @@
 package net.portalmod.core.init;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.DispenserBlock;
-import net.minecraft.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.dispenser.IBlockSource;
-import net.minecraft.dispenser.IDispenseItemBehavior;
-import net.minecraft.entity.EntityType;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.ArmorItem;
+
+import net.portalmod.core.registry.RegistryObject;
+import net.portalmod.core.registry.DeferredRegister;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.PortalMod;
-import net.portalmod.common.blocks.ISTERWrapper;
 import net.portalmod.common.items.BulletsItem;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.items.PanelBlockItem;
@@ -25,12 +16,29 @@ import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.common.sorted.goo.GooBucketItem;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
 import net.portalmod.common.sorted.portalgun.PortalGun;
-import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.sign.ChamberSignItem;
 import net.portalmod.core.PortalModTab;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.DispenseItemBehavior;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.RecordItem;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
 public class ItemInit {
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, PortalMod.MODID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, PortalMod.MODID);
 //    public static final Registry<SpawnEggItem> SPAWN_EGGS = new Registry<>();
 
     private ItemInit() {}
@@ -38,10 +46,10 @@ public class ItemInit {
 
     // Fundamental Items
     public static final RegistryObject<Item> PORTALGUN = ITEMS.register("portalgun",
-            () -> new PortalGun(properties().stacksTo(1).fireResistant().setISTER(() -> PortalGunISTER::new)));
+            () -> new PortalGun(properties().stacksTo(1).fireResistant()));
 
     public static final RegistryObject<Item> LONGFALL_BOOTS = ITEMS.register("longfall_boots",
-            () -> new LongFallBoots(ArmorMaterialInit.LONGFALL_BOOTS, EquipmentSlotType.FEET, properties().fireResistant()));
+            () -> new LongFallBoots(ArmorMaterialInit.LONGFALL_BOOTS, ArmorItem.Type.BOOTS, properties().fireResistant()));
 
     public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench",
             () -> new WrenchItem(properties().stacksTo(1)));
@@ -80,11 +88,10 @@ public class ItemInit {
     public static final RegistryObject<Item> CHAMBER_SIGN = ITEMS.register("chamber_sign", () -> new ChamberSignItem(properties()));
 
     public static final RegistryObject<Item> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
-            () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),
-                    properties().setISTER(() -> ISTERWrapper::new))); // todo remove ister
+            () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(), properties()));
 
     public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
-            () -> new GooBucketItem(FluidInit.GOO_FLUID, properties().stacksTo(1)));
+            () -> new GooBucketItem(FluidInit.GOO_FLUID.get(), properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CONTAINER = ITEMS.register("container",
             () -> new EmptyGelContainer(properties().stacksTo(16)));
@@ -104,7 +111,7 @@ public class ItemInit {
 
     // Discs
     public static final RegistryObject<Item> DISC_RAIN = ITEMS.register("music_disc_rain",
-            () -> new MusicDiscItem(1, SoundInit.DISC_RAIN, properties().stacksTo(1).rarity(Rarity.RARE)));
+            () -> new RecordItem(1, SoundInit.DISC_RAIN.get(), properties().stacksTo(1).rarity(Rarity.RARE), 185)); // 185 s = length of disc/rain.ogg
 
     public static final RegistryObject<Item> FOREST_CAKE = ITEMS.register("forest_cake",
             () -> new BlockItem(BlockInit.FOREST_CAKE.get(), properties().stacksTo(1)));
@@ -194,17 +201,17 @@ public class ItemInit {
         return registerSpawnEgg(name, entity, null);
     }
 
-    // net.minecraft.dispenser.IDispenseItemBehavior:343
+    // net.minecraft.core.dispenser.DispenseItemBehavior:343
     public static void registerFluidDispenserBehavior() {
-        IDispenseItemBehavior bucketDispense = new DefaultDispenseItemBehavior() {
+        DispenseItemBehavior bucketDispense = new DefaultDispenseItemBehavior() {
             private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
 
-            public ItemStack execute(IBlockSource p_82487_1_, ItemStack p_82487_2_) {
+            public ItemStack execute(BlockSource p_82487_1_, ItemStack p_82487_2_) {
                 BucketItem bucketitem = (BucketItem)p_82487_2_.getItem();
                 BlockPos blockpos = p_82487_1_.getPos().relative(p_82487_1_.getBlockState().getValue(DispenserBlock.FACING));
-                World world = p_82487_1_.getLevel();
-                if (bucketitem.emptyBucket(null, world, blockpos, null)) {
-                    bucketitem.checkExtraContent(world, p_82487_2_, blockpos);
+                Level world = p_82487_1_.getLevel();
+                if (bucketitem.emptyContents(null, world, blockpos, null)) {
+                    bucketitem.checkExtraContent(null, world, p_82487_2_, blockpos);
                     return new ItemStack(Items.BUCKET);
                 } else {
                     return this.defaultDispenseItemBehavior.dispense(p_82487_1_, p_82487_2_);
@@ -215,6 +222,6 @@ public class ItemInit {
     }
 
     public static Item.Properties properties() {
-        return new Item.Properties().tab(PortalModTab.INSTANCE);
+        return new Item.Properties();
     }
 }

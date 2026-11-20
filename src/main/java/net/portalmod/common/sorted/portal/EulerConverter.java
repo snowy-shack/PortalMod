@@ -1,9 +1,11 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Axis;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
+
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 
 public class EulerConverter {
     public static class EulerAngles {
@@ -34,7 +36,7 @@ public class EulerConverter {
         Vec3 look = basis.getZ();
         Vec3 up = basis.getY();
 
-        float pitch = (float)(Math.acos(MathHelper.clamp(look.dot(Vec3.yAxis()), -1, 1)) * 180 / Math.PI - 90);
+        float pitch = (float)(Math.acos(Mth.clamp(look.dot(Vec3.yAxis()), -1, 1)) * 180 / Math.PI - 90);
 
         Vec3 yawVec = Vec3.yAxis().cross(look.clone().cross(Vec3.yAxis())).normalize();
         float yawSin = (float)Vec3.zAxis().cross(yawVec).y;
@@ -42,8 +44,8 @@ public class EulerConverter {
         float yaw = -(float)(Math.atan2(yawSin, yawCos) * 180 / Math.PI);
 
         Vec3 upUnrotated = up.clone()
-                .transform(new Mat4(Vector3f.YN.rotationDegrees(-yaw)))
-                .transform(new Mat4(Vector3f.XP.rotationDegrees(-pitch)));
+                .transform(new Mat4(Axis.YN.rotationDegrees(-yaw)))
+                .transform(new Mat4(Axis.XP.rotationDegrees(-pitch)));
         float rollSin = (float)Vec3.yAxis().cross(upUnrotated).dot(Vec3.zAxis());
         float rollCos = (float)Vec3.yAxis().dot(upUnrotated);
         float roll = (float)(Math.atan2(rollSin, rollCos) * 180 / Math.PI);
@@ -56,9 +58,9 @@ public class EulerConverter {
 
         if(angles.roll > 90 || angles.roll < -90) {
             return new EulerAngles(
-                    180 - MathHelper.positiveModulo(angles.pitch, 360),
-                    MathHelper.positiveModulo(angles.yaw, 360) + 180,
-                    MathHelper.positiveModulo(angles.roll, 360) - 180
+                    180 - Mth.positiveModulo(angles.pitch, 360),
+                    Mth.positiveModulo(angles.yaw, 360) + 180,
+                    Mth.positiveModulo(angles.roll, 360) - 180
             );
         }
 
@@ -75,9 +77,9 @@ public class EulerConverter {
 
     public static OrthonormalBasis toVectors(Vec3 orientation) {
         Mat4 rotation = Mat4.identity()
-            .mul(new Mat4(Vector3f.YP.rotationDegrees(-(float)orientation.y)))
-            .mul(new Mat4(Vector3f.XP.rotationDegrees( (float)orientation.x)))
-            .mul(new Mat4(Vector3f.ZP.rotationDegrees( (float)orientation.z)));
+            .mul(new Mat4(Axis.YP.rotationDegrees(-(float)orientation.y)))
+            .mul(new Mat4(Axis.XP.rotationDegrees( (float)orientation.x)))
+            .mul(new Mat4(Axis.ZP.rotationDegrees( (float)orientation.z)));
 
         return new OrthonormalBasis(Vec3.xAxis().transform(rotation), Vec3.yAxis().transform(rotation));
     }

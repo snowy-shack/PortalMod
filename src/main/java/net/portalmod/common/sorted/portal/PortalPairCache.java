@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public final class PortalPairCache extends HashMap<UUID, PortalPair> {
     private static final long serialVersionUID = 4606521387923682753L;
@@ -18,7 +18,7 @@ public final class PortalPairCache extends HashMap<UUID, PortalPair> {
         return isClientSide ? CLIENT : SERVER;
     }
     
-    public static PortalPairCache select(World level) {
+    public static PortalPairCache select(Level level) {
         return select(level.isClientSide);
     }
     

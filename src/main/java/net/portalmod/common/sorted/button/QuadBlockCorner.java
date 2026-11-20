@@ -1,8 +1,8 @@
 package net.portalmod.common.sorted.button;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum QuadBlockCorner implements IStringSerializable {
+public enum QuadBlockCorner implements StringRepresentable {
     UP_LEFT("up_left", 0, 1, 90, true, true),
     UP_RIGHT("up_right", 1, 1, 0, true, false),
     DOWN_RIGHT("down_right", 1, 0, -90, false, false),

@@ -1,19 +1,21 @@
 package net.portalmod.core.math;
 
+import net.portalmod.core.util.ModUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
 
 public class VoxelShapeGroup {
     private VoxelShape shape;
     private final Map<String, VoxelShape> parts = new HashMap<>();
     
     private VoxelShapeGroup(VoxelShape shape, Map<String, VoxelShape> parts) {
-        this.shape = VoxelShapes.or(shape);
+        this.shape = Shapes.or(shape);
         parts.forEach((name, part) -> {
-            this.parts.put(name, VoxelShapes.or(part));
+            this.parts.put(name, Shapes.or(part));
         });
     }
     
@@ -33,24 +35,24 @@ public class VoxelShapeGroup {
     }
     
     private VoxelShape transformShape(VoxelShape shape, Mat4 matrix) {
-        VoxelShape transformed[] = { VoxelShapes.empty() };
+        VoxelShape transformed[] = { Shapes.empty() };
         shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
             Vec3 min = new Vec3(minX, minY, minZ).transform(matrix);
             Vec3 max = new Vec3(maxX, maxY, maxZ).transform(matrix);
-            VoxelShape box = VoxelShapes.box(min.x, min.y, min.z, max.x, max.y, max.z);
-            transformed[0] = VoxelShapes.or(transformed[0], box);
+            VoxelShape box = ModUtil.box(min.x, min.y, min.z, max.x, max.y, max.z);
+            transformed[0] = Shapes.or(transformed[0], box);
         });
         return transformed[0];
     }
     
     public VoxelShape getVariant(String key) {
-        return VoxelShapes.or(this.shape, this.getPart(key));
+        return Shapes.or(this.shape, this.getPart(key));
     }
     
     public VoxelShape getPart(String key) {
         if(this.parts.containsKey(key))
-            return VoxelShapes.or(this.parts.get(key));
-        return VoxelShapes.empty();
+            return Shapes.or(this.parts.get(key));
+        return Shapes.empty();
     }
     
     public VoxelShape getShape() {
@@ -58,17 +60,17 @@ public class VoxelShapeGroup {
     }
     
     public static class Builder {
-        private VoxelShape shape = VoxelShapes.empty();
+        private VoxelShape shape = Shapes.empty();
         private Map<String, VoxelShape> parts = new HashMap<>();
         
         public Builder() {}
         
         public Builder(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-            this.add(VoxelShapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+            this.add(ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
         }
         
         public Builder add(VoxelShape shape) {
-            this.shape = VoxelShapes.or(this.shape, shape);
+            this.shape = Shapes.or(this.shape, shape);
             return this;
         }
         
@@ -77,7 +79,7 @@ public class VoxelShapeGroup {
         }
         
         public Builder add(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-            return this.add(VoxelShapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+            return this.add(ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
         }
         
         public Builder addPart(String key, VoxelShape part) {
@@ -86,7 +88,7 @@ public class VoxelShapeGroup {
         }
         
         public Builder addPart(String key, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-            return this.addPart(key, VoxelShapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+            return this.addPart(key, ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
         }
         
         public VoxelShapeGroup build() {

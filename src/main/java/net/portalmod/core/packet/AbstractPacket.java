@@ -1,12 +1,13 @@
 package net.portalmod.core.packet;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.network.PacketContext;
 
 import java.util.function.Supplier;
 
+import net.minecraft.network.FriendlyByteBuf;
+
 public interface AbstractPacket<T extends AbstractPacket<T>> {
-    void encode(PacketBuffer buffer);
-    T decode(PacketBuffer buffer);
-    boolean handle(Supplier<NetworkEvent.Context> context);
+    void encode(FriendlyByteBuf buffer);
+    T decode(FriendlyByteBuf buffer);
+    boolean handle(Supplier<PacketContext> context);
 }

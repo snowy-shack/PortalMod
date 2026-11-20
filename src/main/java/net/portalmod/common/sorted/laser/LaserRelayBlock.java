@@ -1,17 +1,19 @@
 package net.portalmod.common.sorted.laser;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
+import net.portalmod.core.interfaces.CustomPushReaction;
 import net.portalmod.core.math.VoxelShapeBuilder;
 
-public class LaserRelayBlock extends Block {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
+
+public class LaserRelayBlock extends Block implements CustomPushReaction {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     
 //    private static final HashMap<Direction, VoxelShapeGroup> SHAPES = new HashMap<>();
@@ -47,12 +49,12 @@ public class LaserRelayBlock extends Block {
 ////                matrix.scale(new Vec3(facing.step()).mul(2).add(1));
 ////
 ////            if(facing.getAxis() == Axis.X)
-////                matrix.rotateDeg(Vector3f.ZP, -90);
+////                matrix.rotateDeg(com.mojang.math.Axis.ZP, -90);
 ////
 ////            if(facing.getAxis() == Axis.Z)
-////                matrix.rotateDeg(Vector3f.XP, 90);
+////                matrix.rotateDeg(com.mojang.math.Axis.XP, 90);
 ////
-//////            matrix.rotateDeg(Vector3f.YP, 90);
+//////            matrix.rotateDeg(com.mojang.math.Axis.YP, 90);
 ////            matrix.translate(new Vec3(-.5));
 ////
 ////            SHAPES.put(facing, shape.clone().transform(matrix));
@@ -65,11 +67,10 @@ public class LaserRelayBlock extends Block {
     }
     
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter blockReader, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
     
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.DESTROY;
     }
