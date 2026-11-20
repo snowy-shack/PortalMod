@@ -24,6 +24,6 @@ public class ChunkRenderMixin {
             at = @At("RETURN")
     )
     private void pmInit(ChunkRenderDispatcher crd, CallbackInfo ci) {
-        this.buffers.put(PortalTransparencyHandler.PORTAL_TRANSLUCENT, new VertexBuffer(DefaultVertexFormat.BLOCK));
+        this.buffers.put(PortalTransparencyHandler.PORTAL_TRANSLUCENT, new VertexBuffer(VertexBuffer.Usage.STATIC));
     }
 }

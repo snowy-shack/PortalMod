@@ -99,8 +99,8 @@ public class Shader {
             try {
                 StringBuilder sourceBuilder = new StringBuilder();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        Minecraft.getInstance().getResourceManager().getResource(
-                                new ResourceLocation(PortalMod.MODID, BASE_PATH + path)).getInputStream()));
+                        Minecraft.getInstance().getResourceManager().getResourceOrThrow(
+                                new ResourceLocation(PortalMod.MODID, BASE_PATH + path)).open()));
 
                 String line;
                 while((line = reader.readLine()) != null)

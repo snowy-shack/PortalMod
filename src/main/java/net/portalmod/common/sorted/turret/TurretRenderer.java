@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.turret;
 
+import net.minecraft.client.renderer.GameRenderer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import net.portalmod.core.util.RenderUtil;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -28,7 +31,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png"),
             new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret_off.png"),
     };
-    private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR);
+    private static final VertexBuffer LASER_BUFFER = new VertexBuffer(VertexBuffer.Usage.STATIC);
     public static TurretState state = TurretState.RESTING;
 
     public TurretRenderer(EntityRendererProvider.Context erm) {
@@ -146,27 +149,27 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         matrixStack.last().pose().mul(laserMatrix.to4f());
 
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
-        bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
         bufferBuilder.vertex( 1/32f, 0, 0).uv(0, 0).color(1, 1, 1, opacity).endVertex();
         bufferBuilder.vertex(-1/32f, 0, 0).uv(0, 1).color(1, 1, 1, opacity).endVertex();
         bufferBuilder.vertex(-1/32f, 0, laserLen).uv(laserLen / 4f, 1).color(1, 1, 1, opacity).endVertex();
         bufferBuilder.vertex( 1/32f, 0, laserLen).uv(laserLen / 4f, 0).color(1, 1, 1, opacity).endVertex();
 
-        bufferBuilder.end();
-        LASER_BUFFER.upload(bufferBuilder);
+        LASER_BUFFER.bind();
+        LASER_BUFFER.upload(bufferBuilder.end());
+        VertexBuffer.unbind();
 
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
 //        RenderSystem.disableCull(); // Causes transparent texture issues
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
+        RenderUtil.bindTextureNow(new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
         LASER_BUFFER.bind();
-        DefaultVertexFormat.POSITION_TEX_COLOR.setupBufferState(0L);
-        if (turretState.isStanding() && turret.getHurtTime() == 0) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
+        if (turretState.isStanding() && turret.getHurtTime() == 0)
+            LASER_BUFFER.drawWithShader(matrixStack.last().pose(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionTexColorShader());
         VertexBuffer.unbind();
-        DefaultVertexFormat.POSITION_TEX_COLOR.clearBufferState();
 
         matrixStack.popPose();
 

@@ -176,7 +176,7 @@ public class PortalGun extends Item implements CreativeTabFiller {
             return d0 <= d1 ? blockraytraceresult : blockraytraceresult1;
         }, ctx -> {
             net.minecraft.world.phys.Vec3 vector3d = ctx.getFrom().subtract(ctx.getTo());
-            return BlockHitResult.miss(ctx.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(ctx.getTo()));
+            return BlockHitResult.miss(ctx.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), BlockPos.containing(ctx.getTo()));
         });
     }
 

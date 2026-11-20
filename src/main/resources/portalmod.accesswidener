@@ -16,3 +16,4 @@ accessible class net/minecraft/client/renderer/texture/SimpleTexture$TextureImag
 accessible method net/minecraft/client/renderer/texture/SimpleTexture$TextureImage load (Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;
 accessible method net/minecraft/client/renderer/texture/SimpleTexture$TextureImage getImage ()Lcom/mojang/blaze3d/platform/NativeImage;
 accessible field net/minecraft/server/level/ServerPlayerGameMode player Lnet/minecraft/server/level/ServerPlayer;
+accessible field net/minecraft/client/renderer/LevelRenderer renderChunksInFrustum Lit/unimi/dsi/fastutil/objects/ObjectArrayList;

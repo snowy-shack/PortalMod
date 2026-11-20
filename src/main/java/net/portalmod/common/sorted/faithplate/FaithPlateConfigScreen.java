@@ -1,5 +1,9 @@
 package net.portalmod.common.sorted.faithplate;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
+
+import net.portalmod.core.util.RenderUtil;
+
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 
 import net.minecraft.client.gui.components.Button;
@@ -207,7 +211,7 @@ public class FaithPlateConfigScreen extends Screen {
         super.renderBackground(graphics);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderUtil.bindTextureNow(TEXTURE);
 
         glEnable(GL_BLEND);
         graphics.blit(TEXTURE, getX(), getY(), 0, 0, 330, 179, 512, 512);
@@ -257,20 +261,21 @@ public class FaithPlateConfigScreen extends Screen {
 
             if (vbo != null) vbo.close();
 
-            vbo = new VertexBuffer(DefaultVertexFormat.POSITION_TEX);
+            vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
             float fbx = (float)((parent.width - getWidth() - 100) / 2f * guiScale);
             float fby = (float)((parent.height - (y + getHeight())) * guiScale);
             float fbw = fbx + (int)(getWidth() * guiScale);
             float fbh = fby + (int)(getHeight() * guiScale);
 
             BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-            bufferbuilder.begin(GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
             bufferbuilder.vertex(fbx, fby, 0).uv(0.0F, 1).endVertex();
             bufferbuilder.vertex(fbw, fby, 0).uv(1, 1).endVertex();
             bufferbuilder.vertex(fbw, fbh, 0).uv(1, 0.0F).endVertex();
             bufferbuilder.vertex(fbx, fbh, 0).uv(0.0F, 0.0F).endVertex();
-            bufferbuilder.end();
-            vbo.upload(bufferbuilder);
+            vbo.bind();
+            vbo.upload(bufferbuilder.end());
+            VertexBuffer.unbind();
         }
         
         public void setEnabled(boolean enabled) {
@@ -279,7 +284,7 @@ public class FaithPlateConfigScreen extends Screen {
 
         // Hours wasted here: 6
         @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         PoseStack matrixStack = graphics.pose();
             if (!this.enabled) return;
 
@@ -301,7 +306,7 @@ public class FaithPlateConfigScreen extends Screen {
 
             glViewport(fbX, fbY, fbW, fbH);
             RenderSystem.activeTexture(GL_TEXTURE0);
-            RenderSystem.setShaderTexture(0, TEXTURE);
+            RenderUtil.bindTextureNow(TEXTURE);
 
             RenderSystem.enableBlend();
             ShaderInit.FAITHPLATE_GRID.get().bind()

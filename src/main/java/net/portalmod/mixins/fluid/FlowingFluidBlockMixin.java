@@ -72,7 +72,7 @@ public abstract class FlowingFluidBlockMixin extends Block implements BucketPick
     public boolean portalMod$handleFluidInteraction(TagKey<Fluid> fluid1, Block flowingBlock, Block sourceBlock, Level world, BlockPos pos) {
         // Check both the type of fluid and whether it's not just a waterlogged block
         if (world.getFluidState(pos).is(fluid1) && world.getBlockState(pos).getBlock() instanceof LiquidBlock) {
-            world.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(world, pos, pos, (world.getFluidState(pos).isSource() ? sourceBlock : flowingBlock).defaultBlockState()));
+            world.setBlockAndUpdate(pos, (world.getFluidState(pos).isSource() ? sourceBlock : flowingBlock).defaultBlockState());
             this.fizz(world, pos);
             return true;
         }

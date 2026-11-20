@@ -1,5 +1,7 @@
 package net.portalmod.client.render;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
 
@@ -25,8 +27,6 @@ public class WatermarkRenderer {
 
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
-        RenderSystem.disableAlphaTest();
-
         RenderSystem.setShaderTexture(0, WM_LEFT);
         blit(matrixStack, 0, 0, 0,
                 0, 0, width, height, width, height);
@@ -56,12 +56,12 @@ public class WatermarkRenderer {
 
     private static void innerBlit(Matrix4f matrix, int x0, int x1, int y0, int y1, int z, float u0, float u1, float v0, float v1) {
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX);
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
         bufferbuilder.vertex(matrix, (float)x0, (float)y1, (float)z).color(1f, 1f, 1f, 1f).uv(u0, v1).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)z).color(1f, 1f, 1f, 1f).uv(u1, v1).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y0, (float)z).color(1f, 1f, 1f, 1f).uv(u1, v0).endVertex();
         bufferbuilder.vertex(matrix, (float)x0, (float)y0, (float)z).color(1f, 1f, 1f, 1f).uv(u0, v0).endVertex();
         bufferbuilder.end();
-        BufferUploader.end(bufferbuilder);
+        BufferUploader.drawWithShader(bufferbuilder.end());
     }
 }

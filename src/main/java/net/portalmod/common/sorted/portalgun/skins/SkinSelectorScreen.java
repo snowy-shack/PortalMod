@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.portalmod.core.util.RenderUtil;
+
 import net.minecraft.client.gui.GuiGraphics;
 
 import net.portalmod.core.util.MatrixUtil;
@@ -129,7 +131,7 @@ public class SkinSelectorScreen extends Screen {
 
     private void initSkinList() {
         this.skinEntryList.clear();
-        this.children.removeIf(child -> child instanceof SkinEntryWidget);
+        new java.util.ArrayList<>(this.children()).stream().filter(child -> child instanceof SkinEntryWidget).forEach(this::removeWidget);
 
         List<PortalGunSkin> skins = ClientSkinManager.getInstance().getSkinCatalog().values().stream()
                 .filter(skin -> ClientSkinManager.getInstance().playerHasSkin(null, skin.skin_id))
@@ -260,7 +262,7 @@ public class SkinSelectorScreen extends Screen {
         PoseStack matrixStack = graphics.pose();
         super.renderBackground(graphics);
 
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderUtil.bindTextureNow(TEXTURE);
         graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
     }
 
@@ -271,8 +273,8 @@ public class SkinSelectorScreen extends Screen {
 
         if(!this.isLoading()) {
             this.skinPreviewWidget.render(graphics, mouseX, mouseY, partialTicks);
-            this.renderColorPicker(matrixStack, mouseX, mouseY, partialTicks);
-            this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
+            this.renderColorPicker(graphics, mouseX, mouseY, partialTicks);
+            this.renderSkinList(graphics, mouseX, mouseY, partialTicks);
             this.renderScrollbar(graphics);
         } else {
             this.renderLoadingBlob();
@@ -310,7 +312,8 @@ public class SkinSelectorScreen extends Screen {
         this.loadingBlob.render(shader);
     }
 
-    private void renderColorPicker(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    private void renderColorPicker(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         if(!(this.selectedSkin.getSkin().tintable || this.colorPickerWidget.isAnimating()))
             return;
 
@@ -319,7 +322,8 @@ public class SkinSelectorScreen extends Screen {
         RenderSystem.disableScissor();
     }
 
-    private void renderSkinList(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    private void renderSkinList(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         matrixStack.pushPose();
         matrixStack.translate(0, -this.scrollOffset * this.getScrollableRange(), 0);
 
@@ -335,25 +339,26 @@ public class SkinSelectorScreen extends Screen {
         if(this.getListHeight() <= this.listRegion.height)
             return;
 
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderUtil.bindTextureNow(TEXTURE);
 
         int yOffset = 0;
         int vOffset = 0;
 
-        blitScrollbarThumbPart(matrixStack, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
+        blitScrollbarThumbPart(graphics, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
         yOffset += SCROLLBAR_THUMB_EDGE_HEIGHT;
         vOffset += SCROLLBAR_THUMB_EDGE_HEIGHT;
 
         while(yOffset < this.getScrollbarThumbHeight() - SCROLLBAR_THUMB_EDGE_HEIGHT) {
-            blitScrollbarThumbPart(matrixStack, yOffset, vOffset, SCROLLBAR_THUMB_CENTER_HEIGHT);
+            blitScrollbarThumbPart(graphics, yOffset, vOffset, SCROLLBAR_THUMB_CENTER_HEIGHT);
             yOffset += SCROLLBAR_THUMB_CENTER_HEIGHT;
         }
         vOffset += SCROLLBAR_THUMB_CENTER_HEIGHT;
 
-        blitScrollbarThumbPart(matrixStack, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
+        blitScrollbarThumbPart(graphics, yOffset, vOffset, SCROLLBAR_THUMB_EDGE_HEIGHT);
     }
 
-    private void blitScrollbarThumbPart(PoseStack matrixStack, int yOffset, int vOffset, int height) {
+    private void blitScrollbarThumbPart(GuiGraphics graphics, int yOffset, int vOffset, int height) {
+        PoseStack matrixStack = graphics.pose();
         Rectangle thumbRegion = this.getScrollbarThumbRegion();
         graphics.blit(TEXTURE, thumbRegion.x, thumbRegion.y + yOffset,
                 SCROLLBAR_THUMB_U, SCROLLBAR_THUMB_V + vOffset,

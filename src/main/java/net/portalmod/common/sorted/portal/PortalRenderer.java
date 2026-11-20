@@ -278,7 +278,7 @@ public class PortalRenderer {
 
         glEnable(GL_TEXTURE_2D);
         RenderSystem.activeTexture(GL_TEXTURE0);
-        RenderSystem.setShaderTexture(0, new ResourceLocation(PortalMod.MODID, path));
+        RenderUtil.bindTextureNow(new ResourceLocation(PortalMod.MODID, path));
 
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.enableDepthTest();
@@ -800,7 +800,6 @@ public class PortalRenderer {
                 .setInt("texture", 0);
 
         RenderSystem.disableBlend();
-        RenderSystem.disableAlphaTest();
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
 
@@ -940,7 +939,7 @@ public class PortalRenderer {
 
                 PROFILE.push("saveRenderChunks");
                 ObjectList<LevelRenderer.RenderChunkInfo> renderChunks = new ObjectArrayList<>();
-                renderChunks.addAll(mc.levelRenderer.renderChunks);
+                renderChunks.addAll(mc.levelRenderer.renderChunksInFrustum);
                 PROFILE.pop();
 
                 boolean renderOutline = this.shouldRenderOutline(portalChain);
@@ -983,11 +982,11 @@ public class PortalRenderer {
                 }
 
                 PROFILE.push("restoreRenderChunks");
-                mc.levelRenderer.needsUpdate = true;
-                mc.levelRenderer.renderChunks.clear();
-                mc.levelRenderer.renderChunks.addAll(renderChunks);
+                mc.levelRenderer.needsUpdate();
+                mc.levelRenderer.renderChunksInFrustum.clear();
+                mc.levelRenderer.renderChunksInFrustum.addAll(renderChunks);
 
-                Minecraft.getInstance().getBlockEntityRenderDispatcher().prepare(portal.level(), mc.getTextureManager(), mc.font, camera, mc.hitResult);
+                Minecraft.getInstance().getBlockEntityRenderDispatcher().prepare(portal.level(), camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level(), camera, mc.crosshairPickEntity);
                 PROFILE.pop();
 

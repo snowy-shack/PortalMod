@@ -9,7 +9,6 @@
         "PistonBlockStructureHelperMixin",
         "PistonTileEntityMixin",
         "accessors.AbstractMinecartAccessor",
-        "accessors.BooleanValueAccessor",
         "accessors.ChunkManagerAccessor",
         "accessors.EntityAccessor",
         "accessors.LivingEntityAccessor",

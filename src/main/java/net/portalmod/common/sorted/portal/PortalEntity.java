@@ -894,7 +894,9 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         boolean isPortalStillUsed = PortalManager.getInstance().get(this.gunUUID, this.end) == this;
 
-        if(!PortalManager.getInstance().unloadingChunk && isPortalStillUsed) {
+        // 1.17+: entities unload separately from chunks; an unload (not a real removal) keeps the portal.
+        boolean unloading = this.getRemovalReason() != null && !this.getRemovalReason().shouldDestroy();
+        if(!unloading && !PortalManager.getInstance().unloadingChunk && isPortalStillUsed) {
             PortalManager.getInstance().remove(this.gunUUID, this);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SForgetPortalPacket(this.gunUUID, this.end));
 

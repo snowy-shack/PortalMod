@@ -340,7 +340,7 @@ public class Mat4 {
 
     public FloatBuffer toBuffer() {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        this.get(buffer);
+        this.store(buffer);
         return buffer;
     }
 }

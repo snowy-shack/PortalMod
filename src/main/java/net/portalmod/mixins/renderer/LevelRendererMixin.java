@@ -35,9 +35,9 @@ import net.minecraft.world.level.BlockGetter;
 @Mixin(LevelRenderer.class)
 public class LevelRendererMixin {
 
-    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isAir(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Z"))
-    public boolean fizzlerIsAirToo(BlockState instance, BlockGetter blockReader, BlockPos pos) {
-        return instance.isAir(blockReader, pos) || instance.getBlock() instanceof FizzlerFieldBlock;
+    @Redirect(method = "levelEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isAir()Z"))
+    public boolean fizzlerIsAirToo(BlockState instance) {
+        return instance.isAir() || instance.getBlock() instanceof FizzlerFieldBlock;
     }
 
     // BEWARE: PORTAL RENDERING

@@ -2,7 +2,8 @@ package net.portalmod.core.init;
 
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.packet.SUpdateBooleanGameRulePacket;
-import net.portalmod.mixins.accessors.BooleanValueAccessor;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,18 +30,18 @@ public class GameRuleInit {
     }
 
     private static <T extends GameRules.Value<T>> GameRules.Key<T> register(String name, GameRules.Category category, GameRules.Type<T> rule) {
-        GameRules.Key<T> key = GameRules.register(name, category, rule);
+        GameRules.Key<T> key = GameRuleRegistry.register(name, category, rule);
         REGISTRY.put(name, key);
         return key;
     }
 
     private static GameRules.Key<GameRules.BooleanValue> registerBoolean(String name, GameRules.Category category, boolean defaultValue) {
-        return register(name, category, BooleanValueAccessor.pmCreate(defaultValue, (server, value) ->
+        return register(name, category, GameRuleFactory.createBooleanRule(defaultValue, (server, value) ->
                 PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SUpdateBooleanGameRulePacket(name, value.get()))));
     }
 
     private static GameRules.Key<GameRules.BooleanValue> registerServerBoolean(String name, GameRules.Category category, boolean defaultValue) {
-        return register(name, category, BooleanValueAccessor.pmCreate(defaultValue, (server, value) -> {}));
+        return register(name, category, GameRuleFactory.createBooleanRule(defaultValue, (server, value) -> {}));
     }
 
     @SuppressWarnings("unchecked")

@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.portalmod.core.util.RenderUtil;
+
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -193,27 +195,29 @@ public class ColorPickerWidget extends AbstractWidget {
         this.initQuad(huePickerCursorColorQuad, this.getHuePickerCursorColorRegion());
     }
 
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         PoseStack matrixStack = graphics.pose();
         matrixStack.pushPose();
         matrixStack.translate(0, this.computeAnimation(), 0);
 
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderUtil.bindTextureNow(TEXTURE);
         graphics.blit(TEXTURE, this.getX(), this.getY(), COLOR_PICKER_U, COLOR_PICKER_V, this.width, this.height, 512, 512);
 
         this.setShadersModelViewMatrix(matrixStack);
-        this.renderSVPicker(matrixStack);
-        this.renderHuePicker(matrixStack);
+        this.renderSVPicker(graphics);
+        this.renderHuePicker(graphics);
         matrixStack.popPose();
     }
 
-    private void blitRect(PoseStack matrixStack, Rectangle rect, int u, int v) {
+    private void blitRect(GuiGraphics graphics, Rectangle rect, int u, int v) {
+        PoseStack matrixStack = graphics.pose();
         graphics.blit(TEXTURE, rect.x, rect.y, u, v, rect.width, rect.height, 512, 512);
     }
 
-    private void renderSVPicker(PoseStack matrixStack) {
+    private void renderSVPicker(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
         this.renderSVPickerColor();
-        this.renderSVPickerCursor(matrixStack);
+        this.renderSVPickerCursor(graphics);
     }
 
     private void renderSVPickerColor() {
@@ -222,8 +226,9 @@ public class ColorPickerWidget extends AbstractWidget {
         ShaderInit.COLOR_PICKER_SV.get().unbind();
     }
 
-    private void renderSVPickerCursor(PoseStack matrixStack) {
-        this.blitRect(matrixStack, this.getSVPickerCursorRegion(),
+    private void renderSVPickerCursor(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
+        this.blitRect(graphics, this.getSVPickerCursorRegion(),
                 this.svPickerCursorHovering ? SV_PICKER_CURSOR_FOCUSED_U : SV_PICKER_CURSOR_U, SV_PICKER_CURSOR_V);
         this.renderSVPickerCursorColor();
     }
@@ -235,9 +240,10 @@ public class ColorPickerWidget extends AbstractWidget {
         ShaderInit.COLOR_PICKER_SOLID.get().unbind();
     }
 
-    private void renderHuePicker(PoseStack matrixStack) {
+    private void renderHuePicker(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
         this.renderHuePickerColor();
-        this.renderHuePickerCursor(matrixStack);
+        this.renderHuePickerCursor(graphics);
     }
 
     private void renderHuePickerColor() {
@@ -246,8 +252,9 @@ public class ColorPickerWidget extends AbstractWidget {
         ShaderInit.COLOR_PICKER_HUE.get().unbind();
     }
 
-    private void renderHuePickerCursor(PoseStack matrixStack) {
-        this.blitRect(matrixStack, this.getHuePickerCursorRegion(),
+    private void renderHuePickerCursor(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
+        this.blitRect(graphics, this.getHuePickerCursorRegion(),
                 this.huePickerCursorHovering ? HUE_PICKER_CURSOR_FOCUSED_U : HUE_PICKER_CURSOR_U, HUE_PICKER_CURSOR_V);
         this.renderHuePickerCursorColor();
     }

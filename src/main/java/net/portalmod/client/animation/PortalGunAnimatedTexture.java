@@ -1,5 +1,6 @@
 package net.portalmod.client.animation;
 
+import org.joml.Matrix4f;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -48,18 +49,16 @@ public class PortalGunAnimatedTexture extends AbstractTexture {
     public void setupAnimation() {
         float index = framerate == 0  || this.getFrameCount() == 0
                 ? 0 : (System.currentTimeMillis() / (1000L / framerate) % this.getFrameCount());
-        RenderSystem.matrixMode(GL11.GL_TEXTURE);
-        RenderSystem.pushMatrix();
-        RenderSystem.loadIdentity();
-        RenderSystem.scalef(1, 1f / this.getFrameCount(), 1);
-        RenderSystem.translatef(0, index, 0);
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        // 1.16 used the fixed-function GL texture matrix. 1.17+ only has the TextureMat shader uniform,
+        // which vanilla uses for glint shaders only.
+        // TODO(port): check in game; entity shaders ignore TextureMat, so this may need UV offsets
+        // instead (see DynamicTextureVertexBuilder).
+        float frames = this.getFrameCount() == 0 ? 1 : this.getFrameCount();
+        RenderSystem.setTextureMatrix(new Matrix4f().scale(1, 1f / frames, 1).translate(0, index, 0));
     }
-    
+
     public void endAnimation() {
-        RenderSystem.matrixMode(GL11.GL_TEXTURE);
-        RenderSystem.popMatrix();
-        RenderSystem.matrixMode(GL11.GL_MODELVIEW);
+        RenderSystem.resetTextureMatrix();
     }
 
     @Override
@@ -70,8 +69,8 @@ public class PortalGunAnimatedTexture extends AbstractTexture {
         File skinFile = new File(ClientSkinManager.getInstance().getSkinsFolder(), "textures/" + skinFilename + ".png");
 
         if(skinId.equals("default") || !skinFile.exists()) {
-            try(Resource iresource = rm.getResource(DEFAULT_SKIN)) {
-                ni = NativeImage.read(iresource.getInputStream());
+            try(java.io.InputStream stream = rm.getResourceOrThrow(DEFAULT_SKIN).open()) {
+                ni = NativeImage.read(stream);
             }
         } else {
             if(!skinFile.exists())

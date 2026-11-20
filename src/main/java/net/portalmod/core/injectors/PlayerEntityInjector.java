@@ -37,8 +37,8 @@ public class PlayerEntityInjector {
             wasFlying = true;
 
             double d5 = player.getDeltaMovement().y;
-            float f = player.flyingSpeed;
-            player.flyingSpeed = player.getAbilities().getFlyingSpeed() * (float)(player.isSprinting() ? 2 : 1);
+            // 1.16 temporarily set player.flyingSpeed here; in 1.20.1 Player#getFlyingSpeed already
+            // returns the abilities speed (doubled when sprinting), so nothing to set.
 
 
 
@@ -46,7 +46,7 @@ public class PlayerEntityInjector {
 
             if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
                 BlockPos blockpos = BlockPos.containing(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
-                float f3 = player.level().getBlockState(blockpos).getSlipperiness(player.level(), blockpos, player);
+                float f3 = player.level().getBlockState(blockpos).getBlock().getFriction();
                 float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
                 Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
                 double d2 = vector3d5.y;
@@ -83,7 +83,6 @@ public class PlayerEntityInjector {
 
             Vec3 vector3d = player.getDeltaMovement();
             player.setDeltaMovement(vector3d.x, d5 * 0.6D, vector3d.z);
-            player.flyingSpeed = f;
             player.fallDistance = 0.0F;
 //            player.setSharedFlag(7, false);
         } else {
@@ -96,7 +95,7 @@ public class PlayerEntityInjector {
 
             if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
                 BlockPos blockpos = BlockPos.containing(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
-                float f3 = player.level().getBlockState(blockpos).getSlipperiness(player.level(), blockpos, player);
+                float f3 = player.level().getBlockState(blockpos).getBlock().getFriction();
                 float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
                 Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
                 double d2 = vector3d5.y;

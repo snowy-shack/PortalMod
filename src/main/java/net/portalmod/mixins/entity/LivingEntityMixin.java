@@ -314,7 +314,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
         LivingEntity thiss = (LivingEntity)(Object)this;
         net.minecraft.world.phys.Vec3 deltaMovementFromLastTick = entity.position().subtract(new net.minecraft.world.phys.Vec3(entity.xo, entity.yo, entity.zo));
-        double momentumFromLastTick = Math.sqrt(LivingEntity.getHorizontalDistanceSqr(deltaMovementFromLastTick));
+        double momentumFromLastTick = Math.sqrt(deltaMovementFromLastTick.horizontalDistanceSqr());
 
         if(entity.horizontalCollision || entity.verticalCollision)
             entity.setDeltaMovement(x, y, z);
@@ -520,10 +520,10 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
             int k = Mth.floor(this.getZ());
             BlockPos blockpos = new BlockPos(i, j, k);
             BlockState blockstate = this.level().getBlockState(blockpos);
-            if(!blockstate.addRunningEffects(level, blockpos, this)) {
+            if(true) { // Forge addRunningEffects hook: vanilla always spawns the particles
                 if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
                     net.minecraft.world.phys.Vec3 vector3d = this.getDeltaMovement();
-                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate).setPos(blockpos),
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate),
                             this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             vector3d.x * -4.0D, 1.5D, vector3d.z * -4.0D);
@@ -541,7 +541,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         if (!(nState.getBlock() instanceof AbstractGelBlock)) {
             super.playStepSound(pos, state);
         } else {
-            SoundType soundtype = nState.getSoundType(level, nPos, this);
+            SoundType soundtype = nState.getSoundType();
             this.playSound(soundtype.getStepSound(), soundtype.getVolume() * 0.15F, ModUtil.randomSoundPitch());
         }
     }

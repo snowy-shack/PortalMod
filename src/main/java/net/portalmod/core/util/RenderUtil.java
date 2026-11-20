@@ -26,19 +26,19 @@ import net.minecraft.core.Vec3i;
 
 public class RenderUtil {
     public static void bindTexture(Shader shader, String uniform, String path, int index) {
+        // The mod's own shaders sample the texture bound to this GL unit (like 1.16 TextureManager#bind).
         RenderSystem.activeTexture(GL_TEXTURE0 + index);
-        RenderSystem.setShaderTexture(0, new ResourceLocation(PortalMod.MODID, path));
+        Minecraft.getInstance().getTextureManager().getTexture(new ResourceLocation(PortalMod.MODID, path)).bind();
         shader.setInt(uniform, index);
     }
 
+    /**
+     * TODO(port): 1.16 clipped the world behind a portal with fixed-function glClipPlane. Minecraft
+     * 1.17+ runs a core-profile GL context where glClipPlane does not exist, so clipping has to move
+     * into shaders (gl_ClipDistance). Until the portal renderer is redesigned this does nothing, and
+     * geometry behind the portal surface may show through.
+     */
     public static void setClipPlane(int index, Matrix4f matrix, Vec3 normal) {
-        glEnable(GL_CLIP_PLANE0 + index);
-        RenderSystem.matrixMode(GL_MODELVIEW);
-        RenderSystem.pushMatrix();
-        RenderSystem.loadIdentity();
-        RenderSystem.multMatrix(matrix);
-        glClipPlane(GL_CLIP_PLANE0 + index, new double[] { normal.x, normal.y, normal.z, 0 });
-        RenderSystem.popMatrix();
     }
 
     public static void setStandardClipPlane(Matrix4f matrix) {
@@ -66,5 +66,14 @@ public class RenderUtil {
     /** 1.16 Vector3f#rotationDegrees: a rotation of {@code degrees} around {@code axis}. */
     public static org.joml.Quaternionf rotationDegrees(org.joml.Vector3f axis, float degrees) {
         return new org.joml.Quaternionf().rotationAxis((float) Math.toRadians(degrees), axis);
+    }
+
+    /**
+     * Replacement for 1.16 TextureManager#bind: records the texture for vanilla shaders and also
+     * binds it to the active GL unit for the mod's own shaders.
+     */
+    public static void bindTextureNow(ResourceLocation texture) {
+        RenderSystem.setShaderTexture(0, texture);
+        Minecraft.getInstance().getTextureManager().getTexture(texture).bind();
     }
 }

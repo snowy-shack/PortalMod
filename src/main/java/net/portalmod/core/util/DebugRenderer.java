@@ -1,5 +1,9 @@
 package net.portalmod.core.util;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.GameRenderer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -17,7 +21,7 @@ import org.joml.Matrix4f;
 
 public class DebugRenderer {
     private static final HashMap<String, Tuple<VoxelShape, Color>> SHAPES = new HashMap<>();
-    private static final VertexBuffer debugVG = new VertexBuffer(DefaultVertexFormat.POSITION_COLOR);
+    private static final VertexBuffer debugVG = new VertexBuffer(VertexBuffer.Usage.STATIC);
     private static final BufferBuilder builder = new BufferBuilder(7 * 240000);
 
     public static void putShape(String key, VoxelShape shape, Color color) {
@@ -39,7 +43,7 @@ public class DebugRenderer {
     private static void renderBox(Matrix4f matrix, AABB aabb, Color color) {
         aabb = aabb.move(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().reverse());
 
-        builder.begin(GL11.GL_LINES, DefaultVertexFormat.POSITION_COLOR);
+        builder.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
 
         builder.vertex(matrix, (float)aabb.minX, (float)aabb.minY, (float)aabb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), 255).endVertex();
         builder.vertex(matrix, (float)aabb.maxX, (float)aabb.minY, (float)aabb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), 255).endVertex();
@@ -133,13 +137,9 @@ public class DebugRenderer {
             builder.vertex(matrix, (float)aabb.minX + x1, (float)aabb.maxY, (float)aabb.minZ + z1).color(color.getRed(), color.getGreen(), color.getBlue(), 255).endVertex();
         }
 
-        builder.end();
-        debugVG.upload(builder);
-
         debugVG.bind();
-        DefaultVertexFormat.POSITION_COLOR.setupBufferState(0L);
-        debugVG.draw(new Matrix4f().scaling(1, 1, 1), GL11.GL_LINES);
-        DefaultVertexFormat.POSITION_COLOR.clearBufferState();
+        debugVG.upload(builder.end());
+        debugVG.drawWithShader(new Matrix4f(), RenderSystem.getProjectionMatrix(), GameRenderer.getPositionColorShader());
         VertexBuffer.unbind();
     }
 }

@@ -61,7 +61,7 @@ public class SkinPreviewWidget extends AbstractWidget {
         this.yRotMomentum = 0;
     }
 
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         PoseStack matrixStack = graphics.pose();
         partialTicks = Minecraft.getInstance().getFrameTime();
         MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -72,16 +72,14 @@ public class SkinPreviewWidget extends AbstractWidget {
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
         Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
 
-        RenderSystem.pushMatrix();
-        RenderSystem.enableRescaleNormal();
-        RenderSystem.enableAlphaTest();
-        RenderSystem.defaultAlphaFunc();
+        // 1.16 used the fixed-function matrix stack here; 1.17+ only has the PoseStack.
+        matrixStack.pushPose();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.translatef((float)this.getX() + this.width / 2f, (float)this.getY() + this.width / 2f, 100.0F);
-        RenderSystem.scalef(5, 5, 5);
-        RenderSystem.scalef(16.0F, -16.0F, 16.0F);
+        matrixStack.translate((float)this.getX() + this.width / 2f, (float)this.getY() + this.width / 2f, 100.0F);
+        matrixStack.scale(5, 5, 5);
+        matrixStack.scale(16.0F, -16.0F, 16.0F);
         Lighting.setupFor3DItems();
 
         matrixStack.pushPose();
@@ -95,13 +93,12 @@ public class SkinPreviewWidget extends AbstractWidget {
         PortalGunISTER.renderGun(matrixStack, null, this.getModel(), irendertypebuffer$impl,
                 ClientSkinManager.getInstance().getSkinTexture(selectedSkin),
                 stripeColour, lastPortalColor, tint, false, false, 15728880, OverlayTexture.NO_OVERLAY);
+        irendertypebuffer$impl.endBatch();
 
         matrixStack.popPose();
 
         RenderSystem.enableDepthTest();
-        RenderSystem.disableAlphaTest();
-        RenderSystem.disableRescaleNormal();
-        RenderSystem.popMatrix();
+        matrixStack.popPose();
     }
 
     public void tick() {

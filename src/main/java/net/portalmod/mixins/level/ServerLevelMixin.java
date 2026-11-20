@@ -69,17 +69,4 @@ public abstract class ServerLevelMixin {
         if(entity instanceof PortalEntity)
             info.cancel();
     }
-
-    @Redirect(
-                        method = "unload",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/level/ServerLevel;onEntityRemoved(Lnet/minecraft/world/entity/Entity;)V"
-            )
-    )
-    private void pmWrapUnloadEntity(ServerLevel level, Entity entity) {
-        PortalManager.getInstance().unloadingChunk = true;
-        level.onEntityRemoved(entity);
-        PortalManager.getInstance().unloadingChunk = false;
-    }
 }

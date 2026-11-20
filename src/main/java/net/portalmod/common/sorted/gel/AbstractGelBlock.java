@@ -180,7 +180,7 @@ public class AbstractGelBlock extends HalfTransparentBlock implements CustomPush
     @Override
     public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
         Item item = context.getItemInHand().getItem();
-        return !(item instanceof GelContainer) || item.getItem() == state.getBlock().asItem();
+        return !(item instanceof GelContainer) || item == state.getBlock().asItem();
     }
     
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {

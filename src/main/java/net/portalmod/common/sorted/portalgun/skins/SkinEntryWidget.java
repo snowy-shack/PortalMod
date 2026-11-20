@@ -51,7 +51,7 @@ public class SkinEntryWidget extends AbstractWidget {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         PoseStack matrixStack = graphics.pose();
         this.renderBackground(graphics);
         Font font = Minecraft.getInstance().font;

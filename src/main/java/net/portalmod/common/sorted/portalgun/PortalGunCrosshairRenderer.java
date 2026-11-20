@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun;
 
+import com.mojang.blaze3d.vertex.VertexFormat;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
 import net.portalmod.common.blocks.PortalableBlock;
@@ -154,13 +156,12 @@ public class PortalGunCrosshairRenderer {
     
     private static void innerBlit(Matrix4f matrix, int x0, int x1, int y0, int y1, int z, float u0, float u1, float v0, float v1) {
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-        bufferbuilder.begin(7, DefaultVertexFormat.POSITION_COLOR_TEX);
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
         bufferbuilder.vertex(matrix, (float)x0, (float)y1, (float)z).color(1f, 1f, 1f, 1f).uv(u0, v1).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y1, (float)z).color(1f, 1f, 1f, 1f).uv(u1, v1).endVertex();
         bufferbuilder.vertex(matrix, (float)x1, (float)y0, (float)z).color(1f, 1f, 1f, 1f).uv(u1, v0).endVertex();
         bufferbuilder.vertex(matrix, (float)x0, (float)y0, (float)z).color(1f, 1f, 1f, 1f).uv(u0, v0).endVertex();
         bufferbuilder.end();
-        RenderSystem.enableAlphaTest();
-        BufferUploader.end(bufferbuilder);
+        BufferUploader.drawWithShader(bufferbuilder.end());
     }
 }

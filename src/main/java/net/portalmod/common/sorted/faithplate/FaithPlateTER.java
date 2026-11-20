@@ -235,7 +235,7 @@ public class FaithPlateTER implements BlockEntityRenderer<FaithPlateTileEntity> 
     }
 
     private int getTargetLight(Level level, net.minecraft.world.phys.Vec3 pos, Direction face) {
-        return LevelRenderer.getLightColor(level, new BlockPos(
+        return LevelRenderer.getLightColor(level, BlockPos.containing(
                 pos.add(net.minecraft.world.phys.Vec3.atLowerCornerOf(face.getNormal()))
         ));
     }
