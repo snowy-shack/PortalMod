@@ -23,7 +23,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 
-public class AntlineTileEntity extends BlockEntity {
+public class AntlineTileEntity extends BlockEntity implements RenderAttachmentBlockEntity {
     private final SideMap sideMap = new SideMap();
 
     public SideMap getSideMap() {
@@ -34,8 +34,8 @@ public class AntlineTileEntity extends BlockEntity {
         super(type, pos, state);
     }
 
-    public AntlineTileEntity() {
-        this(TileEntityTypeInit.ANTLINE.get());
+    public AntlineTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.ANTLINE.get(), pos, state);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class AntlineTileEntity extends BlockEntity {
     }
 
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
-        load(state, tag);
+        load(tag);
     }
 
     // block update

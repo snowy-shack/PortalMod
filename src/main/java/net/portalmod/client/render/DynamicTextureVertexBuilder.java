@@ -11,6 +11,16 @@ public class DynamicTextureVertexBuilder implements VertexConsumer {
         this.real = real;
     }
 
+    @Override
+    public void defaultColor(int r, int g, int b, int a) {
+        real.defaultColor(r, g, b, a);
+    }
+
+    @Override
+    public void unsetDefaultColor() {
+        real.unsetDefaultColor();
+    }
+
     public void setOffset(float u, float v) {
         this.offsetU = u;
         this.offsetV = v;

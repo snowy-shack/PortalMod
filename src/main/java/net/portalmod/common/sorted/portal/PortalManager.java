@@ -33,8 +33,13 @@ public class PortalManager extends SavedData {
     private final Deque<PortalEntity> pendingRemovals = new ArrayDeque<>();
     public boolean unloadingChunk = false;
 
-    private PortalManager() {
-        super(PATH);
+    private PortalManager() {}
+
+    /** Reads the saved portals into the singleton (1.17+ SavedData loads through a factory). */
+    public static PortalManager load(CompoundTag nbt) {
+        PortalManager manager = getInstance();
+        manager.loadFrom(nbt);
+        return manager;
     }
 
     public static PortalManager getInstance() {
@@ -80,8 +85,7 @@ public class PortalManager extends SavedData {
         removedScheduledPlacements.forEach(this.scheduledPlacements::remove);
     }
 
-    @Override
-    public void load(CompoundTag nbt) {
+    private void loadFrom(CompoundTag nbt) {
         for(String key : nbt.getAllKeys()) {
             CompoundTag pair = nbt.getCompound(key);
             PortalPair portalPair = new PortalPair();
@@ -154,7 +158,7 @@ public class PortalManager extends SavedData {
     }
 
     private static void getStorageAndSetDirty() {
-        ((ServerLevel)getOverworld()).getDataStorage().computeIfAbsent(PortalManager::getInstance, PATH).setDirty();
+        ((ServerLevel)getOverworld()).getDataStorage().computeIfAbsent(PortalManager::load, PortalManager::getInstance, PATH).setDirty();
     }
 
     public HashMap<ResourceKey<Level>, HashMap<ChunkPos, List<PortalEntity>>> getPortalsPerChunk() {
@@ -176,7 +180,6 @@ public class PortalManager extends SavedData {
 
         pair.computeIfPresent(end, PortalEntity::onReplaced);
         pair.set(end, portal);
-        portal.inChunk = true;
         portalMap.put(gunUUID, pair);
 
         ChunkPos chunkPos = new ChunkPos(Mth.floor(portal.getX()) >> 4, Mth.floor(portal.getZ()) >> 4);
@@ -194,7 +197,6 @@ public class PortalManager extends SavedData {
     public void remove(UUID gunUUID, PortalEntity portal) {
         portalMap.computeIfPresent(gunUUID, (uuid, pair) -> {
             pair.remove(portal);
-            portal.inChunk = false;
 
             ResourceKey<Level> dimension = portal.level().dimension();
             ChunkPos chunkPos = new ChunkPos(Mth.floor(portal.getX()) >> 4, Mth.floor(portal.getZ()) >> 4);

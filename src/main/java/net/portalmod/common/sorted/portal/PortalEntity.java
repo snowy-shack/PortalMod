@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.damagesource.DamageTypes;
 
@@ -115,7 +116,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public boolean saveGlobal(CompoundTag nbt) {
-        this.removed = false;
+        this.unsetRemoved();
         return super.save(nbt);
     }
 
@@ -127,11 +128,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return this.age;
     }
 
-    @Override
+    /** Called when the portal is added to a level (Forge: onAddedToWorld; see CommonEvents/ClientEvents). */
     public void onAddedToWorld() {
-        super.onAddedToWorld();
         this.recalculateBoundingBox();
-        this.removed = false;
+        this.unsetRemoved();
         this.age = 0;
     }
 
@@ -567,7 +567,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public static boolean shouldSkipCollision(BlockGetter blockReader, BlockPos pos, CollisionContext selectionContext) {
-        Entity entity = selectionContext.getEntity();
+        Entity entity = selectionContext instanceof EntityCollisionContext ecc ? ecc.getEntity() : null;
         if(entity == null || blockReader.getBlockState(pos).isAir())
             return false;
 
@@ -886,9 +886,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         return Optional.ofNullable(PortalManager.getInstance().get(this.gunUUID, this.end.other()));
     }
 
-    @Override
+    /** Called when the portal leaves a level (Forge: onRemovedFromWorld; see CommonEvents/ClientEvents). */
     public void onRemovedFromWorld() {
-        super.onRemovedFromWorld();
 
         if(this.level().isClientSide)
             return;
@@ -940,7 +939,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public void move(MoverType moverType, net.minecraft.world.phys.Vec3 delta) {
-        if(!this.level().isClientSide && !this.removed && delta.lengthSqr() > 0.0D)
+        if(!this.level().isClientSide && !this.isRemoved() && delta.lengthSqr() > 0.0D)
             this.discard();
     }
 

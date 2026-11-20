@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.turret;
 
+import net.portalmod.core.util.RenderUtil;
+
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
@@ -67,7 +69,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             );
 
             matrixStack.translate(-lookAngle.z() * tipOffset * tipDir, 0, lookAngle.x() * tipOffset * tipDir);
-            matrixStack.mulPose(lookAngle.rotationDegrees(fallAmount));
+            matrixStack.mulPose(RenderUtil.rotationDegrees(lookAngle, fallAmount));
             matrixStack.translate(lookAngle.z() * tipOffset * tipDir, 0, -lookAngle.x() * tipOffset * tipDir);
         }
 

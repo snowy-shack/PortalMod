@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.util.RandomSource;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
@@ -77,7 +78,7 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
     }
 
     public PushDoorBlock(Properties p_i48413_1_) {
-        super(p_i48413_1_);
+        super(p_i48413_1_, BlockSetType.IRON); // 1.19.4+: doors take a block set (sounds, who can open)
     }
 
     @Override

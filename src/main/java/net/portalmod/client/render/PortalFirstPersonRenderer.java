@@ -24,7 +24,7 @@ public class PortalFirstPersonRenderer {
 
     public static void renderItem(LivingEntity p_228397_1_, ItemStack p_228397_2_, ItemDisplayContext p_228397_3_, boolean p_228397_4_, PoseStack p_228397_5_, MultiBufferSource p_228397_6_, int p_228397_7_) {
         if (!p_228397_2_.isEmpty()) {
-            Minecraft.getInstance().getItemRenderer().renderStatic(p_228397_1_, p_228397_2_, p_228397_3_, p_228397_4_, p_228397_5_, p_228397_6_, p_228397_1_.level(), p_228397_7_, OverlayTexture.NO_OVERLAY);
+            Minecraft.getInstance().getItemRenderer().renderStatic(p_228397_1_, p_228397_2_, p_228397_3_, p_228397_4_, p_228397_5_, p_228397_6_, p_228397_1_.level(), p_228397_7_, OverlayTexture.NO_OVERLAY, p_228397_1_.getId());
         }
     }
 

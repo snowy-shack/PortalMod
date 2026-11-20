@@ -1,5 +1,6 @@
 package net.portalmod.core.event;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.portalmod.common.sorted.portal.ClientPortalManager;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.api.EnvType;
@@ -96,6 +97,12 @@ public class ClientEvents {
 
     public static void register() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> onClientLogin());
+        ClientEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (entity instanceof PortalEntity portal) portal.onAddedToWorld();
+        });
+        ClientEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
+            if (entity instanceof PortalEntity portal) portal.onRemovedFromWorld();
+        });
         ClientTickEvents.START_CLIENT_TICK.register(client -> clientTick(true));
         ClientTickEvents.END_CLIENT_TICK.register(client -> clientTick(false));
         WorldRenderEvents.LAST.register(ctx -> onRenderWorldLast(ctx.matrixStack()));

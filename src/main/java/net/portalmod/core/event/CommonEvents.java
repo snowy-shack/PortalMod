@@ -63,8 +63,14 @@ public class CommonEvents {
         ServerWorldEvents.LOAD.register((server, level) -> onLevelLoad(level));
         ServerTickEvents.START_SERVER_TICK.register(server -> onServerTickStart());
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onServerLogin(handler.getPlayer()));
-        ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> onEntityJoin(entity, level));
-        ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> onEntityLeave(entity));
+        ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (entity instanceof PortalEntity portal) portal.onAddedToWorld();
+            onEntityJoin(entity, level);
+        });
+        ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
+            if (entity instanceof PortalEntity portal) portal.onRemovedFromWorld();
+            onEntityLeave(entity);
+        });
         ServerChunkEvents.CHUNK_LOAD.register(CommonEvents::onChunkLoad);
         ServerChunkEvents.CHUNK_UNLOAD.register(CommonEvents::onChunkUnload);
     }
@@ -77,7 +83,7 @@ public class CommonEvents {
             return;
 
         PortalManager.getInstance().clear();
-        level.getDataStorage().get(PortalManager::load, PortalManager.PATH);
+        level.getDataStorage().computeIfAbsent(PortalManager::load, PortalManager::getInstance, PortalManager.PATH);
     }
 
     /** Called at the start of LivingEntity#tick (Forge: LivingUpdateEvent). */

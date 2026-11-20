@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 
 import net.portalmod.core.init.RecipeInit;
@@ -31,7 +32,7 @@ public class PortalGunDuplicateRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack item = inventory.getItem(i);
             if (!item.isEmpty()) {

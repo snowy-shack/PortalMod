@@ -576,7 +576,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
     public void applyDamage(DamageSource source, float damage, boolean swing, boolean creative) {
         if (swing) {
-            this.setHurtDir(-this.getHurtDir());
+            this.setElementHurtDir(-this.getElementHurtDir());
             this.setHurtTime(10);
         }
         this.setDamage(this.getDamage() + damage * 10.0F);
@@ -591,7 +591,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
     @Override
     public void animateHurt(float yaw) {
-        this.setHurtDir(-this.getHurtDir());
+        this.setElementHurtDir(-this.getElementHurtDir());
         this.setHurtTime(10);
         this.setDamage(this.getDamage() + this.getDamage() * 10.0F);
     }
@@ -665,11 +665,11 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         return this.entityData.get(DATA_ID_HURT);
     }
 
-    public void setHurtDir(int hurtDir) {
+    public void setElementHurtDir(int hurtDir) {
         this.entityData.set(DATA_ID_HURTDIR, hurtDir);
     }
 
-    public int getHurtDir() {
+    public int getElementHurtDir() {
         return this.entityData.get(DATA_ID_HURTDIR);
     }
 

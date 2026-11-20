@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.platform;
 
+import net.portalmod.core.util.StickyBlocks;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.level.block.state.BlockState;
@@ -10,6 +11,6 @@ public interface BeamBearer {
     Direction getBeamDirection(BlockState state);
 
     default boolean canStickTo(BlockState other) {
-        return !(other.getBlock() instanceof BeamBearer) && other.isStickyBlock();
+        return !(other.getBlock() instanceof BeamBearer) && StickyBlocks.isSticky(other);
     }
 }

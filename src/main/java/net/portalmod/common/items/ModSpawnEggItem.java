@@ -1,5 +1,6 @@
 package net.portalmod.common.items;
 
+import net.minecraft.world.entity.Mob;
 import net.portalmod.core.registry.RegistryObject;
 import net.portalmod.core.util.ModUtil;
 
@@ -30,11 +31,17 @@ public class ModSpawnEggItem extends SpawnEggItem {
     public ModSpawnEggItem(RegistryObject<? extends EntityType<?>> supplier, Properties properties, String tooltipName) {
         // Entity types are registered before items (see PortalMod), so the type is ready here.
         // The vanilla constructor also adds this egg to SpawnEggItem's lookup map.
-        super(supplier.get(), 0xFFFFFF, 0xFFFFFF, properties);
+        super(asMobType(supplier.get()), 0xFFFFFF, 0xFFFFFF, properties);
         UNADDED.add(this);
         this.tooltipName = tooltipName;
     }
     
+    // SpawnEggItem is typed for Mob, but spawns any entity type at runtime; cubes and turrets are not Mobs.
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static EntityType<? extends Mob> asMobType(EntityType<?> type) {
+        return (EntityType) type;
+    }
+
     public static void register() {
         ModDefaultDispenseItemBehavior behaviour = new ModDefaultDispenseItemBehavior();
         

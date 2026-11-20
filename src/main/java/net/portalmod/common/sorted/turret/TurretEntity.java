@@ -450,7 +450,7 @@ public class TurretEntity extends TestElementEntity {
 
             if (!this.level().isClientSide) {
                 this.setWiggle(10);
-                this.setHurtDir(-this.getHurtDir());
+                this.setElementHurtDir(-this.getElementHurtDir());
                 this.playSound(SoundInit.TURRET_STOCK.get(), 1, ModUtil.randomSlightSoundPitch());
             }
 
@@ -478,7 +478,7 @@ public class TurretEntity extends TestElementEntity {
 
             if (!this.level().isClientSide) {
                 this.setWiggle(10);
-                this.setHurtDir(-this.getHurtDir());
+                this.setElementHurtDir(-this.getElementHurtDir());
                 this.playSound(SoundInit.TURRET_STOCK.get(), 1, ModUtil.randomSlightSoundPitch());
             }
 

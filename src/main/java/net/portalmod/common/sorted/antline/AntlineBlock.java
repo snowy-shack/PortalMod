@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline;
 
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.portalmod.core.interfaces.PlayerRemovableBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.core.util.ClientOnly;
@@ -516,7 +517,7 @@ public class AntlineBlock extends Block implements EntityBlock, PlayerRemovableB
         if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
             return Shapes.empty();
 
-        AtomicReference<Entity> entity = new AtomicReference<>(context.getEntity());
+        AtomicReference<Entity> entity = new AtomicReference<>(context instanceof EntityCollisionContext ecc ? ecc.getEntity() : null);
 
         if (entity.get() == null) {
             if (!((Level)level).isClientSide)

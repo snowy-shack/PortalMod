@@ -41,8 +41,8 @@ public class AutoPortalTileEntity extends BlockEntity implements IndicatorActiva
         super(type, pos, state);
     }
 
-    public AutoPortalTileEntity() {
-        this(TileEntityTypeInit.AUTOPORTAL.get());
+    public AutoPortalTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.AUTOPORTAL.get(), pos, state);
     }
 
     public void link(UUID gunUUID, PortalEnd end, int primaryColor, int secondaryColor) {
@@ -229,7 +229,7 @@ public class AutoPortalTileEntity extends BlockEntity implements IndicatorActiva
     }
     
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
-        load(state, tag);
+        load(tag);
     }
     
     // block update

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.gel.container;
 
+import net.minecraft.util.Mth;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.ItemInit;
@@ -112,23 +113,25 @@ public class GelContainer extends BlockItem {
     }
     
     @Override
-    protected SoundEvent getPlaceSound(BlockState state, Level world, BlockPos pos, Player entity) {
+    protected SoundEvent getPlaceSound(BlockState state) {
         return SoundInit.GEL_PLACE.get();
     }
     
+    // 1.17+ item bar API (was showDurabilityBar / getDurabilityForDisplay / getRGBDurabilityForDisplay).
     @Override
-    public boolean showDurabilityBar(ItemStack stack) {
+    public boolean isBarVisible(ItemStack stack) {
         return getAmount(stack) < maxAmount;
     }
-    
+
     @Override
-    public double getDurabilityForDisplay(ItemStack stack) {
-        return 1f - (double) getAmount(stack) / maxAmount;
+    public int getBarWidth(ItemStack stack) {
+        return Math.round(13.0F * getAmount(stack) / maxAmount);
     }
-    
+
     @Override
-    public int getRGBDurabilityForDisplay(ItemStack stack) {
-        return color == 0 ? super.getRGBDurabilityForDisplay(stack) : color;
+    public int getBarColor(ItemStack stack) {
+        // Same as Forge's default bar colour: green when full, red when empty.
+        return color == 0 ? Mth.hsvToRgb(Math.max(0.0F, (float) getAmount(stack) / maxAmount) / 3.0F, 1.0F, 1.0F) : color;
     }
 
     @Override

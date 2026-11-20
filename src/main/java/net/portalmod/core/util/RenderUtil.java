@@ -62,4 +62,9 @@ public class RenderUtil {
 
         setClipPlane(0, clipMatrix.last().pose(), new Vec3(0, 0, reversed ? 1 : -1));
     }
+
+    /** 1.16 Vector3f#rotationDegrees: a rotation of {@code degrees} around {@code axis}. */
+    public static org.joml.Quaternionf rotationDegrees(org.joml.Vector3f axis, float degrees) {
+        return new org.joml.Quaternionf().rotationAxis((float) Math.toRadians(degrees), axis);
+    }
 }

@@ -1,5 +1,9 @@
 package net.portalmod.common.entities;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+
+import net.portalmod.core.util.RenderUtil;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,7 +16,7 @@ import org.joml.Vector3f;
 import net.minecraft.world.level.LightLayer;
 
 public abstract class TestElementEntityRenderer<T extends TestElementEntity, M extends EntityModel<T>> extends LivingEntityRenderer<T, M> {
-    public TestElementEntityRenderer(EntityRenderDispatcher manager, M model, float v) {
+    public TestElementEntityRenderer(EntityRendererProvider.Context manager, M model, float v) {
         super(manager, model, v);
     }
 
@@ -29,12 +33,12 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
         matrixStack.pushPose();
 
         if (f5 > 0.0F) {
-            matrixStack.mulPose(entity.getLookAngle().multiply(1, 0, 1).normalize().toVector3f().rotationDegrees(Mth.sin(f5) * f5 * f6 / 10.0F * (float)entity.getHurtDir()));
+            matrixStack.mulPose(RenderUtil.rotationDegrees(entity.getLookAngle().multiply(1, 0, 1).normalize().toVector3f(), Mth.sin(f5) * f5 * f6 / 10.0F * (float)entity.getElementHurtDir()));
         }
 
         float wiggle = entity.getWiggle() - p_225623_3_;
         if (wiggle > 0.0F) {
-            matrixStack.mulPose(entity.getLookAngle().multiply(1, 0, 1).normalize().toVector3f().rotationDegrees(Mth.sin(wiggle * 1.5f) * wiggle * 0.5f * (float)entity.getHurtDir()));
+            matrixStack.mulPose(RenderUtil.rotationDegrees(entity.getLookAngle().multiply(1, 0, 1).normalize().toVector3f(), Mth.sin(wiggle * 1.5f) * wiggle * 0.5f * (float)entity.getElementHurtDir()));
         }
 
         super.render(entity, p_225623_2_, p_225623_3_, matrixStack, p_225623_5_, entity.getFizzleLight(light));

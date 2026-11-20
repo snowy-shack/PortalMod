@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 
 import net.portalmod.core.init.RecipeInit;
@@ -55,7 +56,7 @@ public class PortalGunModifyRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory, RegistryAccess registryAccess) {
         ItemStack newGun = inventory.getItem(4).copy();
         CompoundTag newNBT = newGun.getOrCreateTag();
 
