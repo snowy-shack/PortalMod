@@ -1,17 +1,5 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.entity.*;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.ReuseableStream;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
@@ -45,20 +33,36 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.RewindableStream;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.Level;
+
 @Mixin(Entity.class)
 public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDiscontinuouslyLerpable, ITeleportLerpable {
-    @Shadow protected abstract Vector3d maybeBackOffFromEdge(Vector3d p_225514_1_, MoverType p_225514_2_);
+    @Shadow protected abstract net.minecraft.world.phys.Vec3 maybeBackOffFromEdge(net.minecraft.world.phys.Vec3 p_225514_1_, MoverType p_225514_2_);
 
-    @Shadow public World level;
+    @Shadow public Level level;
     @Shadow protected boolean onGround;
 
-//    @Shadow protected abstract AxisAlignedBB getBoundingBoxForPose(Pose pose);
+//    @Shadow protected abstract AABB getBoundingBoxForPose(Pose pose);
 
-    @Shadow public abstract EntitySize getDimensions(Pose p_213305_1_);
+    @Shadow public abstract EntityDimensions getDimensions(Pose p_213305_1_);
 
     @Shadow public abstract boolean isInWater();
 
-    @Shadow public abstract boolean updateFluidHeightAndDoFluidPushing(ITag<Fluid> p_210500_1_, double p_210500_2_);
+    @Shadow public abstract boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> p_210500_1_, double p_210500_2_);
 
     private int lastUsedPortal = -1;
 
@@ -93,13 +97,13 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @Unique
-    private final Deque<Tuple<Vector3d, Vector3d>> lerpPositions = new ArrayDeque<>();
+    private final Deque<Tuple<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3>> lerpPositions = new ArrayDeque<>();
 
     @Unique
     private boolean hasUsedPortal = false;
 
     @Override
-    public Deque<Tuple<Vector3d, Vector3d>> getLerpPositions() {
+    public Deque<Tuple<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3>> getLerpPositions() {
         return this.lerpPositions;
     }
 
@@ -139,10 +143,10 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
                         method = "move",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/Entity;maybeBackOffFromEdge(Lnet/minecraft/util/math/vector/Vector3d;Lnet/minecraft/entity/MoverType;)Lnet/minecraft/util/math/vector/Vector3d;"
+                    target = "Lnet/minecraft/world/entity/Entity;maybeBackOffFromEdge(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/MoverType;)Lnet/minecraft/world/phys/Vec3;"
             )
     )
-    private Vector3d pmTeleport(Entity instance, Vector3d delta, MoverType moverType) {
+    private net.minecraft.world.phys.Vec3 pmTeleport(Entity instance, net.minecraft.world.phys.Vec3 delta, MoverType moverType) {
 //        if((Entity)(Object)this instanceof AbstractMinecartEntity)
 //            return this.maybeBackOffFromEdge(delta, moverType);
 //        if(instance instanceof ServerPlayerEntity)
@@ -155,26 +159,26 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
                         method = "move",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/entity/Entity;onGround:Z",
+                    target = "Lnet/minecraft/world/entity/Entity;onGround:Z",
                     opcode = Opcodes.PUTFIELD,
                     ordinal = 0,
                     shift = At.Shift.AFTER
             )
     )
-    private void pmResetDragOnLand(MoverType moverType, Vector3d delta, CallbackInfo info) {
+    private void pmResetDragOnLand(MoverType moverType, net.minecraft.world.phys.Vec3 delta, CallbackInfo info) {
         if(this.onGround && this instanceof IDragCancelable) {
             ((IDragCancelable)this).pmSetCancelDrag(false);
         }
     }
 
     @Unique
-    Vector3d capturedDelta;
+    net.minecraft.world.phys.Vec3 capturedDelta;
 
     @Inject(
                         method = "collide",
             at = @At("HEAD")
     )
-    private void pmCaptureCollideDelta(Vector3d delta, CallbackInfoReturnable<Vector3d> info) {
+    private void pmCaptureCollideDelta(net.minecraft.world.phys.Vec3 delta, CallbackInfoReturnable<net.minecraft.world.phys.Vec3> info) {
         this.capturedDelta = delta;
     }
 
@@ -182,15 +186,15 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
                         method = "collide",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/Entity;getBoundingBox()Lnet/minecraft/util/math/AxisAlignedBB;"
+                    target = "Lnet/minecraft/world/entity/Entity;getBoundingBox()Lnet/minecraft/world/phys/AABB;"
             )
     )
-    private AxisAlignedBB pmGetSquashedHitbox(Entity entity) {
-        AxisAlignedBB hitbox = entity.getBoundingBox();
+    private AABB pmGetSquashedHitbox(Entity entity) {
+        AABB hitbox = entity.getBoundingBox();
         if(!(entity instanceof LivingEntity))
             return hitbox;
 
-        AxisAlignedBB travelAABB = hitbox.expandTowards(capturedDelta);
+        AABB travelAABB = hitbox.expandTowards(capturedDelta);
         boolean tall = hitbox.getYsize() > hitbox.getXsize();
         boolean flinging = ((Flingable)entity).isFlinging();
         List<PortalEntity> portalsInside = PortalEntity.getPortals(entity.level, travelAABB,
@@ -205,12 +209,12 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         return hitbox;
     }
 
-    private AxisAlignedBB getBBForPoseAndPos(Pose pose, Vec3 pos) {
-        EntitySize entitysize = this.getDimensions(pose);
+    private AABB getBBForPoseAndPos(Pose pose, Vec3 pos) {
+        EntityDimensions entitysize = this.getDimensions(pose);
         float radius = entitysize.width / 2.0F;
-        Vector3d min = new Vector3d(pos.x - radius, pos.y, pos.z - radius);
-        Vector3d max = new Vector3d(pos.x + radius, pos.y + entitysize.height, pos.z + radius);
-        return new AxisAlignedBB(min, max);
+        net.minecraft.world.phys.Vec3 min = new net.minecraft.world.phys.Vec3(pos.x - radius, pos.y, pos.z - radius);
+        net.minecraft.world.phys.Vec3 max = new net.minecraft.world.phys.Vec3(pos.x + radius, pos.y + entitysize.height, pos.z + radius);
+        return new AABB(min, max);
     }
 
     @Inject(
@@ -223,18 +227,18 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
             return;
 
         Entity thiss = (Entity)(Object)this;
-        World level = thiss.level;
+        Level level = thiss.level;
 
-        Vector3d pos = thiss.position();
+        net.minecraft.world.phys.Vec3 pos = thiss.position();
         if(pos.equals(ModUtil.getOldPos(thiss)))
             pos = pos.add(thiss.getDeltaMovement());
 
         Pose currentPose = thiss.getPose();
-        AxisAlignedBB currentBB = this.getBBForPoseAndPos(currentPose, new Vec3(pos));
-        AxisAlignedBB newBB = this.getBBForPoseAndPos(newPose, new Vec3(pos));
+        AABB currentBB = this.getBBForPoseAndPos(currentPose, new Vec3(pos));
+        AABB newBB = this.getBBForPoseAndPos(newPose, new Vec3(pos));
         Vec3 delta = new Vec3(newBB.getCenter()).sub(currentBB.getCenter());
 
-        AxisAlignedBB travelAABB = currentBB.expandTowards(delta.to3d());
+        AABB travelAABB = currentBB.expandTowards(delta.to3d());
         List<PortalEntity> portals = PortalEntity.getOpenPortals(level, travelAABB, portal -> {
             Vec3 entityOldPos = new Vec3(currentBB.getCenter());
             Vec3 entityPos = entityOldPos.clone().add(delta);
@@ -247,27 +251,27 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
     }
 
     @ModifyVariable(
-                        method = "collide(Lnet/minecraft/util/math/vector/Vector3d;)Lnet/minecraft/util/math/vector/Vector3d;",
+                        method = "collide(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;",
             at = @At(
                     value = "STORE",
                     ordinal = 0
             )
     )
-    private ReuseableStream<VoxelShape> pmAddAdditionalCollisions(ReuseableStream<VoxelShape> reuseablestream, Vector3d vector) {
+    private RewindableStream<VoxelShape> pmAddAdditionalCollisions(RewindableStream<VoxelShape> reuseablestream, net.minecraft.world.phys.Vec3 vector) {
         Entity thiss = (Entity)(Object)this;
-        AxisAlignedBB axisalignedbb = thiss.getBoundingBox();
+        AABB axisalignedbb = thiss.getBoundingBox();
         
         Stream<VoxelShape> stream2 = Stream.empty();
         if(axisalignedbb.expandTowards(vector).getSize() >= 1.0E-7D) {
-            AxisAlignedBB aabb = axisalignedbb.expandTowards(vector).inflate(1.0E-7D);
+            AABB aabb = axisalignedbb.expandTowards(vector).inflate(1.0E-7D);
             stream2 = thiss.level.getEntities(thiss, aabb, entity ->
                     entity instanceof Cube &&
                     !entity.isPassenger() &&
                     axisalignedbb.minY > entity.getBoundingBox().maxY - 0.001
-            ).stream().map(Entity::getBoundingBox).map(VoxelShapes::create);
+            ).stream().map(Entity::getBoundingBox).map(Shapes::create);
         }
 
-        return new ReuseableStream<>(Stream.concat(Stream.concat(reuseablestream.getStream(), stream2),
+        return new RewindableStream<>(Stream.concat(Stream.concat(reuseablestream.getStream(), stream2),
                 Stream.of(PortalEntity.getCollisionShape(thiss))));
     }
 
@@ -275,10 +279,10 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
                         method = "pick",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/World;clip(Lnet/minecraft/util/math/RayTraceContext;)Lnet/minecraft/util/math/BlockRayTraceResult;"
+                    target = "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"
             )
     )
-    private BlockRayTraceResult pmPickThroughPortal(World level, RayTraceContext context) {
+    private BlockHitResult pmPickThroughPortal(Level level, ClipContext context) {
         List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(level,
                 new Vec3(context.getFrom()), new Vec3(context.getTo()), portal -> true);
 
@@ -288,9 +292,9 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         PortalRenderer.getInstance().outlineRenderingPortalChain = null;
 
         if(!portalChain.isEmpty() && !holdingSpecialItem) {
-            BlockRayTraceResult normalRay = level.clip(context);
-            Vector3d positionBeforePortal = normalRay.getLocation();
-            Optional<Vector3d> optionalPositionOnPortal = portalChain.get(0).getBoundingBox().clip(context.getFrom(), context.getTo());
+            BlockHitResult normalRay = level.clip(context);
+            net.minecraft.world.phys.Vec3 positionBeforePortal = normalRay.getLocation();
+            Optional<net.minecraft.world.phys.Vec3> optionalPositionOnPortal = portalChain.get(0).getBoundingBox().clip(context.getFrom(), context.getTo());
 
             if(optionalPositionOnPortal.isPresent()) {
                 double distanceBeforePortal = positionBeforePortal.subtract(context.getFrom()).length();
@@ -316,12 +320,12 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
                         .mul(portalMatrix);
             }
 
-            Vector3d to = new Vec3(context.getTo()).transform(portalMatrix).to3d();
-            Vector3d from = new Vec3(context.getFrom()).transform(portalMatrix).to3d();
+            net.minecraft.world.phys.Vec3 to = new Vec3(context.getTo()).transform(portalMatrix).to3d();
+            net.minecraft.world.phys.Vec3 from = new Vec3(context.getFrom()).transform(portalMatrix).to3d();
 
             PortalEntity last = portalChain.get(portalChain.size() - 1);
 
-            Optional<Vector3d> intersection = last.getOtherPortal().get().getBoundingBox().clip(from, to);
+            Optional<net.minecraft.world.phys.Vec3> intersection = last.getOtherPortal().get().getBoundingBox().clip(from, to);
 
             if(intersection.isPresent())
                 from = intersection.get();

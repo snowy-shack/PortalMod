@@ -1,9 +1,5 @@
 package net.portalmod.mixins.renderer;
 
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.portalmod.common.sorted.portal.PortalTransparencyHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,6 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+
 @Mixin(ChunkRenderDispatcher.ChunkRender.class)
 public class ChunkRenderMixin {
     @Shadow @Final private Map<RenderType, VertexBuffer> buffers;
@@ -23,6 +24,6 @@ public class ChunkRenderMixin {
             at = @At("RETURN")
     )
     private void pmInit(ChunkRenderDispatcher crd, CallbackInfo ci) {
-        this.buffers.put(PortalTransparencyHandler.PORTAL_TRANSLUCENT, new VertexBuffer(DefaultVertexFormats.BLOCK));
+        this.buffers.put(PortalTransparencyHandler.PORTAL_TRANSLUCENT, new VertexBuffer(DefaultVertexFormat.BLOCK));
     }
 }

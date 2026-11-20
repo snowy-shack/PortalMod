@@ -4,12 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.Direction;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModelBuilder;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
@@ -18,14 +12,26 @@ import net.minecraftforge.client.model.ModelLoaderRegistry.VanillaProxy;
 import java.util.List;
 import java.util.function.Function;
 
+import net.minecraft.client.renderer.block.model.BlockElement;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.core.Direction;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
+
 public class SuperButtonGeometry extends VanillaProxy {
-    public SuperButtonGeometry(List<BlockPart> list) {
+    public SuperButtonGeometry(List<BlockElement> list) {
         super(list);
     }
 
     @Override
-    public IBakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<RenderMaterial, TextureAtlasSprite> spriteGetter,
-            IModelTransform modelTransform, ItemOverrideList overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter,
+            ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
         
         TextureAtlasSprite particle = spriteGetter.apply(owner.resolveTexture("particle"));
         SuperButtonBakedModel bakedModel;
@@ -38,10 +44,10 @@ public class SuperButtonGeometry extends VanillaProxy {
 
         for(Direction facing : Direction.values()) {
             for(QuadBlockCorner corner : QuadBlockCorner.values()) {
-                IModelTransform variantTransform = new SuperButtonModelTransform(facing, corner);
+                ModelState variantTransform = new SuperButtonModelTransform(facing, corner);
                 IModelBuilder<?> builder = IModelBuilder.of(owner, overrides, particle);
                 addQuads(owner, builder, bakery, spriteGetter, variantTransform, modelLocation);
-                IBakedModel variant = builder.build();
+                BakedModel variant = builder.build();
                 bakedModel.addVariant(facing, corner, variant);
             }
         }
@@ -52,19 +58,19 @@ public class SuperButtonGeometry extends VanillaProxy {
     public static class Loader implements IModelLoader<VanillaProxy> {
 
         @Override
-        public void onResourceManagerReload(IResourceManager resourceManager) {}
+        public void onResourceManagerReload(ResourceManager resourceManager) {}
         
         @Override
         public SuperButtonGeometry read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
-            List<BlockPart> list = this.getModelElements(deserializationContext, modelContents);
+            List<BlockElement> list = this.getModelElements(deserializationContext, modelContents);
             return new SuperButtonGeometry(list);
         }
 
-        private List<BlockPart> getModelElements(JsonDeserializationContext deserializationContext, JsonObject object) {
-            List<BlockPart> list = Lists.newArrayList();
+        private List<BlockElement> getModelElements(JsonDeserializationContext deserializationContext, JsonObject object) {
+            List<BlockElement> list = Lists.newArrayList();
             if (object.has("elements"))
-                for(JsonElement jsonelement : JSONUtils.getAsJsonArray(object, "elements"))
-                    list.add(deserializationContext.deserialize(jsonelement, BlockPart.class));
+                for(JsonElement jsonelement : GsonHelper.getAsJsonArray(object, "elements"))
+                    list.add(deserializationContext.deserialize(jsonelement, BlockElement.class));
             return list;
         }
     }

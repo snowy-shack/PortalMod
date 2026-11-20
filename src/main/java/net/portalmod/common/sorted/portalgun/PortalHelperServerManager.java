@@ -1,11 +1,5 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.autoportal.AutoPortalBlock;
 import net.portalmod.common.sorted.panel.PortalHelper;
 import net.portalmod.common.sorted.portal.AbstractPortalHelper;
@@ -18,11 +12,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
 public class PortalHelperServerManager {
     private static PortalHelperServerManager instance;
 
     private static final int HELPER_DELAY = 15;
-    private Map<ServerPlayerEntity, PortalHelperState> helpStates;
+    private Map<ServerPlayer, PortalHelperState> helpStates;
 
     private PortalHelperServerManager() {
         this.helpStates = new HashMap<>();
@@ -38,7 +39,7 @@ public class PortalHelperServerManager {
         this.helpStates.forEach((player, state) -> state.tick());
     }
 
-    public boolean willBeHelped(ServerPlayerEntity player, UUID gun, PortalEnd end, BlockPos pos, Direction face, Direction horizontalDirection, World level) {
+    public boolean willBeHelped(ServerPlayer player, UUID gun, PortalEnd end, BlockPos pos, Direction face, Direction horizontalDirection, Level level) {
         PortalHelperState helperState = this.helpStates.get(player);
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
@@ -57,7 +58,7 @@ public class PortalHelperServerManager {
         return block instanceof PortalHelper && ((PortalHelper)block).willHelpPortal(face, horizontalDirection, state, level);
     }
 
-    public boolean willBeHelped(ServerPlayerEntity player, UUID gun, PortalEnd end, Vec3 position, Direction face, VolatilePortalHelper helper) {
+    public boolean willBeHelped(ServerPlayer player, UUID gun, PortalEnd end, Vec3 position, Direction face, VolatilePortalHelper helper) {
         PortalHelperState helperState = this.helpStates.get(player);
 
         if(helperState != null && helperState.lastHelpedHelper instanceof VolatilePortalHelper) {
@@ -71,11 +72,11 @@ public class PortalHelperServerManager {
         return helper.willHelpPortal(position, face);
     }
 
-    public void setHelped(ServerPlayerEntity player, UUID gun, PortalEnd end, BlockPos pos, Direction face) {
+    public void setHelped(ServerPlayer player, UUID gun, PortalEnd end, BlockPos pos, Direction face) {
         this.helpStates.put(player, new PortalHelperState(gun, end, new PortalHelperRepresentation(pos, face), HELPER_DELAY));
     }
 
-    public void setHelped(ServerPlayerEntity player, UUID gun, PortalEnd end, VolatilePortalHelper helper) {
+    public void setHelped(ServerPlayer player, UUID gun, PortalEnd end, VolatilePortalHelper helper) {
         this.helpStates.put(player, new PortalHelperState(gun, end, helper, HELPER_DELAY));
     }
 
@@ -97,7 +98,7 @@ public class PortalHelperServerManager {
                 this.nextHelp--;
         }
 
-        private boolean isBasicallySame(UUID gun, PortalEnd end, World level, BlockPos pos, Direction face) {
+        private boolean isBasicallySame(UUID gun, PortalEnd end, Level level, BlockPos pos, Direction face) {
             if(!(this.lastHelpedHelper instanceof PortalHelperRepresentation))
                 return false;
 

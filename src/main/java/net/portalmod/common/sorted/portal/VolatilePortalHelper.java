@@ -1,7 +1,8 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.util.Direction;
 import net.portalmod.core.math.Vec3;
+
+import net.minecraft.core.Direction;
 
 public class VolatilePortalHelper implements AbstractPortalHelper {
     private static final float TOLERANCE = 0.01f;

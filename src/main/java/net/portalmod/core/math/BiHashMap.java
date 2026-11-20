@@ -2,6 +2,7 @@ package net.portalmod.core.math;
 
 import java.util.HashMap;
 
+
 public class BiHashMap<K1, K2, V> {
     private final HashMap<K1, HashMap<K2, V>> MAP = new HashMap<>();
     

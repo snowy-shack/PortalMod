@@ -1,28 +1,29 @@
 package net.portalmod.core.injectors;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effects;
-import net.minecraft.stats.Stats;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.stats.Stats;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+
 public class PlayerEntityInjector {
     static boolean wasFlying = false;
 
-    public static void travel(PlayerEntity player) {
-//        Vector3d delta = PortalEntity.teleportEntity(player, player.getDeltaMovement());
+    public static void travel(Player player) {
+//        Vec3 delta = PortalEntity.teleportEntity(player, player.getDeltaMovement());
 //        player.setBoundingBox(player.getBoundingBox().move(delta));
 //        player.setLocationFromBoundingbox();
 //        if(player.level.isClientSide) {
-//            Method serverAiStepMethod = ObfuscationReflectionHelper.findMethod(ClientPlayerEntity.class, "serverAiStep");
+//            Method serverAiStepMethod = ObfuscationReflectionHelper.findMethod(LocalPlayer.class, "serverAiStep");
 //            try {
 //                serverAiStepMethod.invoke(player);
 //            } catch(IllegalAccessException e) {
@@ -31,7 +32,7 @@ public class PlayerEntityInjector {
 //                throw new RuntimeException(e);
 //            }
 //        }
-//        player.travel(new Vector3d((double)player.xxa, (double)player.yya, (double)player.zza));
+//        player.travel(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza));
 
         if (player.abilities.flying && !player.isPassenger()) {
             wasFlying = true;
@@ -48,10 +49,10 @@ public class PlayerEntityInjector {
                 BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
                 float f3 = player.level.getBlockState(blockpos).getSlipperiness(player.level, blockpos, player);
                 float f4 = player.isOnGround() ? f3 * 0.91F : 0.91F;
-                Vector3d vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vector3d((double)player.xxa, (double)player.yya, (double)player.zza), f3);
+                Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
                 double d2 = vector3d5.y;
-                if (player.hasEffect(Effects.LEVITATION)) {
-                    d2 += (0.05D * (double)(player.getEffect(Effects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
+                if (player.hasEffect(MobEffects.LEVITATION)) {
+                    d2 += (0.05D * (double)(player.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
                     player.fallDistance = 0.0F;
                 } else if (player.level.isClientSide && !player.level.hasChunkAt(blockpos)) {
                     if (player.getY() > 0.0D) {
@@ -81,14 +82,14 @@ public class PlayerEntityInjector {
 
 
 
-            Vector3d vector3d = player.getDeltaMovement();
+            Vec3 vector3d = player.getDeltaMovement();
             player.setDeltaMovement(vector3d.x, d5 * 0.6D, vector3d.z);
             player.flyingSpeed = f;
             player.fallDistance = 0.0F;
 //            player.setSharedFlag(7, false);
         } else {
             if(wasFlying) {
-                Vector3d d = player.getDeltaMovement();
+                Vec3 d = player.getDeltaMovement();
                 player.setDeltaMovement(d.x, -0.08, d.z);
             }
 
@@ -98,10 +99,10 @@ public class PlayerEntityInjector {
                 BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
                 float f3 = player.level.getBlockState(blockpos).getSlipperiness(player.level, blockpos, player);
                 float f4 = player.isOnGround() ? f3 * 0.91F : 0.91F;
-                Vector3d vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vector3d((double)player.xxa, (double)player.yya, (double)player.zza), f3);
+                Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
                 double d2 = vector3d5.y;
-                if (player.hasEffect(Effects.LEVITATION)) {
-                    d2 += (0.05D * (double)(player.getEffect(Effects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
+                if (player.hasEffect(MobEffects.LEVITATION)) {
+                    d2 += (0.05D * (double)(player.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
                     player.fallDistance = 0.0F;
                 } else if (player.level.isClientSide && !player.level.hasChunkAt(blockpos)) {
                     if (player.getY() > 0.0D) {
@@ -132,10 +133,10 @@ public class PlayerEntityInjector {
 //            BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
 //            float f3 = player.level.getBlockState(blockpos).getSlipperiness(player.level, blockpos, player);
 //            float f4 = player.isOnGround() ? f3 * 0.91F : 0.91F;
-//            Vector3d vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vector3d((double)player.xxa, (double)player.yya, (double)player.zza), f3);
+//            Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
 //            double d2 = vector3d5.y;
-//            if (player.hasEffect(Effects.LEVITATION)) {
-//                d2 += (0.05D * (double)(player.getEffect(Effects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
+//            if (player.hasEffect(MobEffects.LEVITATION)) {
+//                d2 += (0.05D * (double)(player.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
 //                player.fallDistance = 0.0F;
 //            } else if (player.level.isClientSide && !player.level.hasChunkAt(blockpos)) {
 //                if (player.getY() > 0.0D) {

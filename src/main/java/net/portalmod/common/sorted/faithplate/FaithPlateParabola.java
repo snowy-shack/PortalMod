@@ -1,15 +1,15 @@
 package net.portalmod.common.sorted.faithplate;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.World;
 import net.portalmod.core.math.Vec3;
 
 import static net.portalmod.common.sorted.faithplate.FaithPlateConfigScreen.MAX_HEIGHT;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.Level;
 
 public class FaithPlateParabola {
     public static final double GRAVITY = 0.08;
@@ -25,7 +25,7 @@ public class FaithPlateParabola {
         this.setHeight(height);
     }
     
-    public FaithPlateParabola(Vector3d target, double height) {
+    public FaithPlateParabola(net.minecraft.world.phys.Vec3 target, double height) {
         this(new Vec3(target), height);
     }
     
@@ -33,7 +33,7 @@ public class FaithPlateParabola {
         this(target, Double.NEGATIVE_INFINITY);
     }
     
-    public FaithPlateParabola(Vector3d target) {
+    public FaithPlateParabola(net.minecraft.world.phys.Vec3 target) {
         this(target, Double.NEGATIVE_INFINITY);
     }
     
@@ -105,7 +105,7 @@ public class FaithPlateParabola {
         return projectedTarget.x / 2;
     }
 
-    public BlockRayTraceResult findFirstBlockHit(World world, FaithPlateTileEntity be) {
+    public BlockHitResult findFirstBlockHit(Level world, FaithPlateTileEntity be) {
         double step = 0.01;
         Vec3 startOffset = new Vec3(0.5, 1, 0.5);
         Vec3 prev = startOffset.clone();
@@ -129,12 +129,12 @@ public class FaithPlateParabola {
 
             if (!state.getCollisionShape(world, pos).isEmpty() && !state.is(be.getBlockState().getBlock())) {
                 BlockPos prevBlock = new BlockPos(prev.x, prev.y, prev.z);
-                Vector3i diff = pos.subtract(prevBlock);
+                Vec3i diff = pos.subtract(prevBlock);
                 Direction face = Direction.fromNormal(diff.getX(), diff.getY(), diff.getZ());
 
-                if (face == null) face = getNearestCubeFace(new Vector3d(current.x, current.y, current.z)).getOpposite();
+                if (face == null) face = getNearestCubeFace(new net.minecraft.world.phys.Vec3(current.x, current.y, current.z)).getOpposite();
 
-                return new BlockRayTraceResult(new Vector3d(x, y, z), face, pos, false);
+                return new BlockHitResult(new net.minecraft.world.phys.Vec3(x, y, z), face, pos, false);
             }
 
             prev = current;
@@ -142,8 +142,8 @@ public class FaithPlateParabola {
         return null;
     }
 
-    public Direction getNearestCubeFace(Vector3d p) {
-        Vector3d point = p.subtract(new Vector3d(Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)));
+    public Direction getNearestCubeFace(net.minecraft.world.phys.Vec3 p) {
+        net.minecraft.world.phys.Vec3 point = p.subtract(new net.minecraft.world.phys.Vec3(Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)));
         double[] d = {point.x, 1 - point.x, point.y, 1 - point.y, point.z, 1 - point.z};
         Direction[] faces = {
                 Direction.WEST, Direction.EAST,

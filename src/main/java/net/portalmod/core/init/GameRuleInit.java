@@ -1,13 +1,14 @@
 package net.portalmod.core.init;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.GameRules;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.packet.SUpdateBooleanGameRulePacket;
 import net.portalmod.mixins.accessors.BooleanValueAccessor;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
 
 public class GameRuleInit {
     private GameRuleInit() {}
@@ -47,7 +48,7 @@ public class GameRuleInit {
         return (GameRules.RuleKey<T>)REGISTRY.get(name);
     }
 
-    public static void sendBooleanRule(ServerPlayerEntity player, GameRules.RuleKey<GameRules.BooleanValue> key) {
+    public static void sendBooleanRule(ServerPlayer player, GameRules.RuleKey<GameRules.BooleanValue> key) {
         PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new SUpdateBooleanGameRulePacket(key.getId(), player.level.getGameRules().getBoolean(key)));
     }

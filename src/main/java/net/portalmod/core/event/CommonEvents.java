@@ -1,34 +1,15 @@
 package net.portalmod.core.event;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.world.level.chunk.LevelChunk;
+import java.util.List;
+
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.PortalMod;
 import net.portalmod.common.commands.PortalCommand;
 import net.portalmod.common.entities.Fizzleable;
@@ -54,51 +35,69 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
-@Mod.EventBusSubscriber(modid = PortalMod.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+
+/**
+ * Common (both sides) game event handlers.
+ * Forge called these through its event bus; on Fabric they are wired up in {@link #register()},
+ * either to Fabric API callbacks or to small hook mixins in {@code net.portalmod.mixins.hooks}.
+ */
 public class CommonEvents {
+
+    public static void register() {
+        CommandRegistrationCallback.EVENT.register((dispatcher, buildContext, selection) -> PortalCommand.register(dispatcher));
+        ServerWorldEvents.LOAD.register((server, level) -> onLevelLoad(level));
+        ServerTickEvents.START_SERVER_TICK.register(server -> onServerTickStart());
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onServerLogin(handler.getPlayer()));
+        ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> onEntityJoin(entity, level));
+        ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> onEntityLeave(entity));
+        ServerChunkEvents.CHUNK_LOAD.register(CommonEvents::onChunkLoad);
+        ServerChunkEvents.CHUNK_UNLOAD.register(CommonEvents::onChunkUnload);
+    }
 
     // --- logical client and logical server ---
 
-    @SubscribeEvent
-    public static void onRegisterCommands(final RegisterCommandsEvent event) {
-        PortalCommand.register(event.getDispatcher());
-    }
-
-    @SubscribeEvent
-    public static void onLevelLoad(final WorldEvent.Load event) {
-        if(event.getWorld().isClientSide()) {
-            ClientPortalManager.getInstance().clear();
-            return;
-        }
-
-        if(event.getWorld() != ServerLifecycleHooks.getCurrentServer().getLevel(World.OVERWORLD))
+    /** Server side of Forge's WorldEvent.Load. The client side is ClientEvents#onClientLevelLoad. */
+    public static void onLevelLoad(ServerLevel level) {
+        if(level != level.getServer().getLevel(Level.OVERWORLD))
             return;
 
         PortalManager.getInstance().clear();
-        ((ServerWorld)event.getWorld()).getDataStorage().get(PortalManager::getInstance, PortalManager.PATH);
+        level.getDataStorage().get(PortalManager::load, PortalManager.PATH);
     }
 
-    @SubscribeEvent
-    public static void onLivingUpdate(final LivingEvent.LivingUpdateEvent event) {
-        LivingEntityInjector.onPreTick(event.getEntityLiving());
+    /** Called at the start of LivingEntity#tick (Forge: LivingUpdateEvent). */
+    public static void onLivingUpdate(LivingEntity entity) {
+        LivingEntityInjector.onPreTick(entity);
     }
 
-    @SubscribeEvent
-    public static void onLivingFall(final LivingFallEvent event) {
-        if(event.getEntityLiving().getItemBySlot(EquipmentSlotType.FEET).getItem() == ItemInit.LONGFALL_BOOTS.get())
-            event.setCanceled(true);
+    /** Returns true to cancel fall damage (Forge: LivingFallEvent). */
+    public static boolean shouldCancelFall(LivingEntity entity) {
+        return entity.getItemBySlot(EquipmentSlot.FEET).getItem() == ItemInit.LONGFALL_BOOTS.get();
     }
 
-    @SubscribeEvent
-    public static void onPlayerTick(final TickEvent.PlayerTickEvent event) {
-        PlayerEntity player = event.player;
-
-        if(event.phase == TickEvent.Phase.START)
-            if(player.abilities.flying)
+    /** Called at the start and end of Player#tick (Forge: PlayerTickEvent). */
+    public static void onPlayerTick(Player player, boolean start) {
+        if(start)
+            if(player.getAbilities().flying)
                 ((Flingable)player).setFlinging(false);
 
-        if(event.phase == TickEvent.Phase.END && player.isLocalPlayer()) {
-            if(player.inventory.getSelected().getItem() != ItemInit.WRENCH.get()) {
+        if(!start && player.isLocalPlayer()) {
+            if(player.getInventory().getSelected().getItem() != ItemInit.WRENCH.get()) {
                 if(FaithPlateTER.selected != null) {
                     PacketInit.INSTANCE.sendToServer(new CFaithPlateEndConfigPacket(FaithPlateTER.selected));
                     FaithPlateTER.selected = null;
@@ -111,17 +110,15 @@ public class CommonEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onPlayerPickUpItem(final PlayerEvent.ItemPickupEvent event) {
-        ItemEntity originalItemEntity = event.getOriginalEntity();
-        PlayerEntity player = event.getPlayer();
-        World level = player.level;
+    /** Called after a player picks up an item entity (Forge: PlayerEvent.ItemPickupEvent). */
+    public static void onPlayerPickUpItem(Player player, ItemEntity originalItemEntity, ItemStack stack) {
+        Level level = player.level();
 
-        if(Fizzleable.isFizzleableItem(event.getStack())) {
-            RayTraceContext context = new RayTraceContext(player.getEyePosition(1), originalItemEntity.position(),
-                    RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, player);
+        if(Fizzleable.isFizzleableItem(stack)) {
+            ClipContext context = new ClipContext(player.getEyePosition(1), originalItemEntity.position(),
+                    ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.ANY, player);
 
-            BlockRayTraceResult result = ModUtil.customClip(level, context, pos -> {
+            BlockHitResult result = ModUtil.customClip(level, context, pos -> {
                 BlockState state = level.getBlockState(pos);
                 Block block = state.getBlock();
 
@@ -132,7 +129,7 @@ public class CommonEvents {
                 return Optional.empty();
             });
 
-            if(result.getType() == RayTraceResult.Type.BLOCK) {
+            if(result.getType() == HitResult.Type.BLOCK) {
                 BlockPos pos = result.getBlockPos();
                 BlockState state = level.getBlockState(pos);
 
@@ -143,84 +140,57 @@ public class CommonEvents {
         }
     }
 
-    @SubscribeEvent
-    public static void onLivingDrops(final LivingDropsEvent event) {
-        LivingEntity entity = event.getEntityLiving();
-        if (entity instanceof TestElementEntity) {
-            for (ItemEntity itemEntity : event.getDrops()) {
-                ItemStack itemStack = itemEntity.getItem();
-                if (itemStack.getItem() instanceof ModSpawnEggItem && entity.hasCustomName()) {
-                    itemStack.setHoverName(entity.getCustomName());
-                }
-            }
-        }
-    }
-
     // --- logical server only ---
 
-    @SubscribeEvent
-    public static void onServerTick(final TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.START) {
-            ServerSkinManager.getInstance().tick();
-            PortalManager.getInstance().tick();
-            VolatilePortalHelperManager.getInstance().clearVolatilePortalHelpers();
-            PortalHelperServerManager.getInstance().tick();
-        }
+    public static void onServerTickStart() {
+        ServerSkinManager.getInstance().tick();
+        PortalManager.getInstance().tick();
+        VolatilePortalHelperManager.getInstance().clearVolatilePortalHelpers();
+        PortalHelperServerManager.getInstance().tick();
     }
 
-    @SubscribeEvent
-    public static void onServerLogin(final PlayerEvent.PlayerLoggedInEvent event) {
-        ServerSkinManager.getInstance().onServerLogin((ServerPlayerEntity)event.getPlayer());
+    public static void onServerLogin(ServerPlayer player) {
+        ServerSkinManager.getInstance().onServerLogin(player);
     }
 
-    @SubscribeEvent
-    public static void onPlayerJoin(final EntityJoinWorldEvent event) {
-        if(event.getWorld().isClientSide() || event.getWorld().getServer() == null)
-            return;
-
-        if(!(event.getEntity() instanceof PlayerEntity))
+    public static void onEntityJoin(Entity entity, ServerLevel level) {
+        if(!(entity instanceof ServerPlayer player))
             return;
 
         PortalManager.getInstance().getPortalMap().forEach((k, v) -> {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(
-                    () -> (ServerPlayerEntity)event.getEntity()), new SPortalPairPacket(k, new PartialPortalPair(v)));
+                    () -> player), new SPortalPairPacket(k, new PartialPortalPair(v)));
         });
 
-        GameRuleInit.sendBooleanRule((ServerPlayerEntity)event.getEntity(), GameRuleInit.PORTAL_SLOWSHOT);
-        GameRuleInit.sendBooleanRule((ServerPlayerEntity)event.getEntity(), GameRuleInit.USE_PORTALABLE_BLACKLIST);
+        GameRuleInit.sendBooleanRule(player, GameRuleInit.PORTAL_SLOWSHOT);
+        GameRuleInit.sendBooleanRule(player, GameRuleInit.USE_PORTALABLE_BLACKLIST);
     }
 
-    @SubscribeEvent
-    public static void onPlayerLeave(final EntityLeaveWorldEvent event) {
-        if(!(event.getEntity() instanceof ServerPlayerEntity))
+    public static void onEntityLeave(Entity entity) {
+        if(!(entity instanceof ServerPlayer player))
             return;
 
-        FaithPlateTileEntity.endConfigurationForPlayer((PlayerEntity)event.getEntity());
-        TriggerSelectionServer.endConfiguration((ServerPlayerEntity)event.getEntity());
+        FaithPlateTileEntity.endConfigurationForPlayer(player);
+        TriggerSelectionServer.endConfiguration(player);
     }
 
-    @SubscribeEvent
-    public static void onChunkLoad(final ChunkEvent.Load event) {
-        if(event.getWorld().isClientSide())
-            return;
-
+    // TODO(port): since 1.17 entities are stored separately from chunks (EntitySectionStorage), so
+    // re-adding portal entities on chunk load may now duplicate or race with vanilla entity loading.
+    // Kept as in 1.16.5 for now; needs testing in game.
+    public static void onChunkLoad(ServerLevel level, LevelChunk chunk) {
         PortalManager.getInstance().getPortalsPerChunk()
-                .getOrDefault(((ServerWorld)event.getWorld()).dimension(), new HashMap<>())
-                .getOrDefault(event.getChunk().getPos(), new ArrayList<>())
+                .getOrDefault(level.dimension(), new HashMap<>())
+                .getOrDefault(chunk.getPos(), new ArrayList<>())
                 .forEach(portal -> {
-                    portal.removed = false;
-                    event.getWorld().addFreshEntity(portal);
+                    portal.unsetRemoved();
+                    level.addFreshEntity(portal);
                 });
     }
 
-    @SubscribeEvent
-    public static void onChunkUnload(final ChunkEvent.Unload event) {
-        if(event.getWorld().isClientSide() || !(event.getWorld() instanceof ServerWorld))
-            return;
-
+    public static void onChunkUnload(ServerLevel level, LevelChunk chunk) {
         PortalManager.getInstance().getPortalsPerChunk()
-                .getOrDefault(((ServerWorld)event.getWorld()).dimension(), new HashMap<>())
-                .getOrDefault(event.getChunk().getPos(), new ArrayList<>())
-                .forEach(Entity::remove);
+                .getOrDefault(level.dimension(), new HashMap<>())
+                .getOrDefault(chunk.getPos(), new ArrayList<>())
+                .forEach(portal -> portal.remove(Entity.RemovalReason.UNLOADED_TO_CHUNK));
     }
 }

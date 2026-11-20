@@ -1,9 +1,9 @@
 package net.portalmod.common.sorted.panel;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
 
-public enum PanelState implements IStringSerializable {
+public enum PanelState implements StringRepresentable {
     SINGLE("single"),
     BOTTOM("bottom"),
     TOP("top"),

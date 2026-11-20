@@ -1,15 +1,6 @@
 package net.portalmod.core.event;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
+import net.fabricmc.api.EnvType;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -47,7 +38,17 @@ import net.portalmod.common.sorted.turret.TurretEntity;
 import net.portalmod.common.sorted.turret.TurretRenderer;
 import net.portalmod.core.init.*;
 
-@EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = Dist.CLIENT)
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.world.item.Item;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+
+@EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.MOD, value = EnvType.CLIENT)
 public class ClientModEvents {
 
     @SubscribeEvent
@@ -57,33 +58,33 @@ public class ClientModEvents {
         KeyInit.init();
         Minecraft.getInstance().getMainRenderTarget().enableStencil();
 
-        RenderTypeLookup.setRenderLayer(BlockInit.ANTLINE.get(),                 RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_EMITTER.get(),           RenderType.cutout());
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_CATCHER.get(),           RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH_BLOCK.get(),         RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.WIRE_MESH.get(),               RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.IRON_FRAME.get(),              RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.BARRED_IRON_FRAME.get(),       RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.MESHED_IRON_FRAME.get(),       RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_IRON_FRAME.get(),        RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_BARRED_IRON_FRAME.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.RUSTY_MESHED_IRON_FRAME.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.ANTLINE.get(),                 RenderType.cutout());
+//        ItemBlockRenderTypes.setRenderLayer(BlockInit.LASER_EMITTER.get(),           RenderType.cutout());
+//        ItemBlockRenderTypes.setRenderLayer(BlockInit.LASER_CATCHER.get(),           RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.WIRE_MESH_BLOCK.get(),         RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.WIRE_MESH.get(),               RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.IRON_FRAME.get(),              RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.BARRED_IRON_FRAME.get(),       RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.MESHED_IRON_FRAME.get(),       RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.RUSTY_IRON_FRAME.get(),        RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.RUSTY_BARRED_IRON_FRAME.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.RUSTY_MESHED_IRON_FRAME.get(), RenderType.cutout());
 
         // This is for rendering the vines
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_SLAB.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_STAIRS.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_PLATFORM.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.ARBORED_BLACKPLATE.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_SLAB.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_STAIRS.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.ARBORED_BLACKPLATE_PLATFORM.get(), RenderType.cutout());
 
-//        RenderTypeLookup.setRenderLayer(BlockInit.LASER_RELAY.get(),     RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),  RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.CUBE_DROPPER.get(),    RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(), RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.FIZZLER_FIELD.get(),   RenderType.translucent());
-        RenderTypeLookup.setRenderLayer(BlockInit.PROPULSION_GEL.get(),  RenderType.translucent()); // Test
-        RenderTypeLookup.setRenderLayer(BlockInit.REPULSION_GEL.get(),   RenderType.translucent()); // Test
-        RenderTypeLookup.setRenderLayer(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
-        RenderTypeLookup.setRenderLayer(BlockInit.TRIGGER.get(),         RenderType.cutout());
+//        ItemBlockRenderTypes.setRenderLayer(BlockInit.LASER_RELAY.get(),     RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.CHAMBER_LIGHTS.get(),  RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.CUBE_DROPPER.get(),    RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.FIZZLER_EMITTER.get(), RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.FIZZLER_FIELD.get(),   RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.PROPULSION_GEL.get(),  RenderType.translucent()); // Test
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.REPULSION_GEL.get(),   RenderType.translucent()); // Test
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.STANDING_BUTTON.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(BlockInit.TRIGGER.get(),         RenderType.cutout());
 
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.FAITHPLATE.get(), FaithPlateTER::new);
         ClientRegistry.bindTileEntityRenderer(TileEntityTypeInit.TRIGGER.get(), TriggerTER::new);
@@ -104,8 +105,8 @@ public class ClientModEvents {
         });
     }
 
-    private static void registerItemProperty(Item item, String name, IItemPropertyGetter getter) {
-        ItemModelsProperties.register(item, new ResourceLocation(PortalMod.MODID, name), getter);
+    private static void registerItemProperty(Item item, String name, ItemPropertyFunction getter) {
+        ItemProperties.register(item, new ResourceLocation(PortalMod.MODID, name), getter);
     }
 
     @SubscribeEvent
@@ -137,7 +138,7 @@ public class ClientModEvents {
     public static void onTextureStitch(TextureStitchEvent.Pre event) {
         TextureInit.register(event);
 
-        if(event.getMap().location() == AtlasTexture.LOCATION_BLOCKS) {
+        if(event.getMap().location() == TextureAtlas.LOCATION_BLOCKS) {
             for(ResourceLocation texture : AntlineBakedModel.getAllTextures())
                 event.addSprite(texture);
 

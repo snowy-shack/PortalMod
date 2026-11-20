@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+
 public class Animation {
     private final List<Part> parts;
     private long start;

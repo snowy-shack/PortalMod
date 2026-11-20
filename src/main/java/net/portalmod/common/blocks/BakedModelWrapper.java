@@ -1,11 +1,5 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -14,14 +8,21 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class BakedModelWrapper implements IDynamicBakedModel {
-    private final IBakedModel base;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
 
-    public BakedModelWrapper(IBakedModel base) {
+public class BakedModelWrapper implements IDynamicBakedModel {
+    private final BakedModel base;
+
+    public BakedModelWrapper(BakedModel base) {
         this.base = base;
     }
 
-    public IBakedModel getBase() {
+    public BakedModel getBase() {
         return this.base;
     }
 
@@ -57,7 +58,7 @@ public class BakedModelWrapper implements IDynamicBakedModel {
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return base.getOverrides();
     }
 }

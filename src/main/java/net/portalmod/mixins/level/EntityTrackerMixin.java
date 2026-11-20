@@ -1,15 +1,6 @@
 package net.portalmod.mixins.level;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.TrackedEntity;
-import net.minecraft.world.server.ChunkHolder;
-import net.minecraft.world.server.ChunkManager;
-import net.minecraft.world.server.ServerChunkProvider;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor;
 import net.portalmod.mixins.accessors.ChunkManagerAccessor2;
@@ -24,21 +15,31 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 import java.util.Set;
 
-@Mixin(targets = "net.minecraft.world.server.ChunkManager$EntityTracker")
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ServerChunkCache;
+
+@Mixin(targets = "net.minecraft.server.level.ChunkMap$EntityTracker")
 public abstract class EntityTrackerMixin {
-//    @Shadow protected abstract void updateChunkTracking(ServerPlayerEntity player, ChunkPos chunkPos, IPacket<?>[] packets, boolean before, boolean after);
+//    @Shadow protected abstract void updateChunkTracking(ServerPlayer player, ChunkPos chunkPos, IPacket<?>[] packets, boolean before, boolean after);
 
 //    @Inject(
 //            //            method = "move",
 //            at = @At("TAIL")
 //    )
-//    private void pmLoadChunksInsidePortal(ServerPlayerEntity player, CallbackInfo info) {
+//    private void pmLoadChunksInsidePortal(ServerPlayer player, CallbackInfo info) {
 //        this.updateChunkTracking(player, new ChunkPos(5, -1), new IPacket[2], false, true);
 //    }
 
     @Shadow @Final private Entity entity;
 
-    @Shadow @Final private TrackedEntity serverEntity;
+    @Shadow @Final private ServerEntity serverEntity;
 
     @Shadow protected abstract int getEffectiveRange();
 
@@ -48,7 +49,7 @@ public abstract class EntityTrackerMixin {
 //            ordinal = 0
 //    )
 //    private boolean pmKeepOtherPortalLoaded(boolean flag) {
-//        ChunkManager chunkManagerSuper = ((ServerChunkProvider)this.entity.level.getChunkSource()).chunkMap;
+//        ChunkMap chunkManagerSuper = ((ServerChunkCache)this.entity.level.getChunkSource()).chunkMap;
 //        Entity entity = this.entity;
 //
 //        if(entity instanceof PortalEntity && ((PortalEntity)entity).isOpen()) {
@@ -62,7 +63,7 @@ public abstract class EntityTrackerMixin {
 //
 //
 //
-//            Vector3d vector3d = player.position().subtract(this.serverEntity.sentPos());
+//            Vec3 vector3d = player.position().subtract(this.serverEntity.sentPos());
 //            int i = Math.min(this.getEffectiveRange(), (((ChunkManagerAccessor)chunkManagerSuper).pmGetViewDistance() - 1) * 16);
 //            boolean flag = vector3d.x >= (double)(-i) && vector3d.x <= (double)i && vector3d.z >= (double)(-i) && vector3d.z <= (double)i && this.entity.broadcastToPlayer(player);
 //
@@ -76,25 +77,25 @@ public abstract class EntityTrackerMixin {
 //            EntityTrackerMixin otherEntityTracker = ((EntityTrackerMixin)(((ChunkManagerAccessor)chunkManagerSuper)
 //                    .pmGetEntityMap().get(otherPortal.getId())));
 //
-//            TrackedEntity trackedOtherPortal = otherEntityTracker.serverEntity;
+//            ServerEntity trackedOtherPortal = otherEntityTracker.serverEntity;
 //
-//            Vector3d otherDistance = distance.add(this.serverEntity.sentPos()).subtract(trackedOtherPortal.sentPos());
-//            if(Vector3d.ZERO.distanceTo(otherDistance) < Vector3d.ZERO.distanceTo(distance))
+//            Vec3 otherDistance = distance.add(this.serverEntity.sentPos()).subtract(trackedOtherPortal.sentPos());
+//            if(Vec3.ZERO.distanceTo(otherDistance) < Vec3.ZERO.distanceTo(distance))
 //                return otherDistance;
 //        }
 //        return distance;
 //    }
 
-    @Shadow @Final private Set<ServerPlayerEntity> seenBy;
+    @Shadow @Final private Set<ServerPlayer> seenBy;
 
     @Inject(
                         method = "updatePlayer",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void pmLoadEntitiesThroughPortal(ServerPlayerEntity player, CallbackInfo info) {
+    private void pmLoadEntitiesThroughPortal(ServerPlayer player, CallbackInfo info) {
         info.cancel();
-        ChunkManager chunkManagerSuper = ((ServerChunkProvider)this.entity.level.getChunkSource()).chunkMap;
+        ChunkMap chunkManagerSuper = ((ServerChunkCache)this.entity.level.getChunkSource()).chunkMap;
         int viewDistance = ((ChunkManagerAccessor)chunkManagerSuper).pmGetViewDistance();
         Int2ObjectMap<EntityTrackerMixin> entityMap = (Int2ObjectMap<EntityTrackerMixin>)
                 ((ChunkManagerAccessor)chunkManagerSuper).pmGetEntityMap();
@@ -102,7 +103,7 @@ public abstract class EntityTrackerMixin {
         if(player == this.entity)
             return;
 
-        Vector3d distance = player.position().subtract(this.serverEntity.sentPos());
+        Vec3 distance = player.position().subtract(this.serverEntity.sentPos());
         int radius = Math.min(this.getEffectiveRange(), (viewDistance - 1) * 16);
         boolean isInRadius = pmIsInRadius(distance, radius);
 
@@ -112,7 +113,7 @@ public abstract class EntityTrackerMixin {
                     continue;
 
                 PortalEntity portal = (PortalEntity)portalTracker.entity;
-                Vector3d distanceToPortal = player.position().subtract(portalTracker.serverEntity.sentPos());
+                Vec3 distanceToPortal = player.position().subtract(portalTracker.serverEntity.sentPos());
                 int playerRadius = (viewDistance - 1) * 16;
                 if(!pmIsInRadius(distanceToPortal, playerRadius))
                     continue;
@@ -122,8 +123,8 @@ public abstract class EntityTrackerMixin {
                     continue;
                 PortalEntity otherPortal = otherPortalOptional.get();
 
-                Vector3d teleportedPos = player.position().subtract(portal.position()).add(otherPortal.position());
-                Vector3d teleportedDistance = teleportedPos.subtract(this.serverEntity.sentPos());
+                Vec3 teleportedPos = player.position().subtract(portal.position()).add(otherPortal.position());
+                Vec3 teleportedDistance = teleportedPos.subtract(this.serverEntity.sentPos());
                 if(pmIsInRadius(teleportedDistance, radius)) {
                     isInRadius = true;
                     break;
@@ -147,7 +148,7 @@ public abstract class EntityTrackerMixin {
                                 continue;
 
                             PortalEntity portal = (PortalEntity) portalTracker.entity;
-                            Vector3d distanceToPortal = player.position().subtract(portalTracker.serverEntity.sentPos());
+                            Vec3 distanceToPortal = player.position().subtract(portalTracker.serverEntity.sentPos());
                             int playerRadius = (viewDistance - 1) * 16;
                             if(!pmIsInRadius(distanceToPortal, playerRadius))
                                 continue;
@@ -157,9 +158,9 @@ public abstract class EntityTrackerMixin {
                                 continue;
                             PortalEntity otherPortal = otherPortalOptional.get();
 
-                            Vector3d teleportedPos = player.position().subtract(portal.position()).add(otherPortal.position());
-                            int x = MathHelper.floor(teleportedPos.x / 16.0D);
-                            int z = MathHelper.floor(teleportedPos.z / 16.0D);
+                            Vec3 teleportedPos = player.position().subtract(portal.position()).add(otherPortal.position());
+                            int x = Mth.floor(teleportedPos.x / 16.0D);
+                            int z = Mth.floor(teleportedPos.z / 16.0D);
 
                             if(ChunkManagerAccessor2.pmCheckerboardDistance(chunkpos, x, z) <= viewDistance) {
                                 isInCheckerboard = true;
@@ -178,7 +179,7 @@ public abstract class EntityTrackerMixin {
         }
     }
 
-    private boolean pmIsInRadius(Vector3d vector, int radius) {
+    private boolean pmIsInRadius(Vec3 vector, int radius) {
         return vector.x >= -radius
             && vector.x <=  radius
             && vector.z >= -radius

@@ -1,18 +1,31 @@
 package net.portalmod.common.sorted.radio;
 
-import net.minecraft.block.*;
-import net.minecraft.block.material.PushReaction;
-import net.minecraft.entity.player.*;
-import net.minecraft.item.*;
-import net.minecraft.state.*;
 import net.minecraft.state.StateContainer.*;
-import net.minecraft.state.properties.*;
-import net.minecraft.tileentity.*;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.shapes.*;
-import net.minecraft.world.*;
 import net.portalmod.core.init.TileEntityTypeInit;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
 
 public class RadioBlock extends Block {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -36,7 +49,7 @@ public class RadioBlock extends Block {
     }
     
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader level) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter level) {
         return TileEntityTypeInit.RADIO.get().create();
     }
     
@@ -46,24 +59,24 @@ public class RadioBlock extends Block {
     }
     
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext selectionContext) {
+    public VoxelShape getShape(BlockState state, BlockGetter blockReader, BlockPos pos, CollisionContext selectionContext) {
         return state.getValue(FACING).getAxis() == Direction.Axis.X ? AABB_SIDE : AABB;
     }
     
     @Override
-    public boolean canSurvive(BlockState state, IWorldReader level, BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return canSupportCenter(level, pos.below(), Direction.UP);
     }
 
     @Override
-    public ActionResultType use(BlockState state, World level, BlockPos pos, PlayerEntity entity, Hand hand, BlockRayTraceResult rayTraceResult) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player entity, InteractionHand hand, BlockHitResult rayTraceResult) {
         if(!level.isClientSide())
             ((RadioBlockTileEntity)level.getBlockEntity(pos)).switchManual();
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos targetPos, boolean b) {
         if(level.isClientSide())
             return;
 
@@ -79,24 +92,24 @@ public class RadioBlock extends Block {
         } else {
             if(state.getValue(POWERED)) {
                 level.setBlock(pos, state.setValue(POWERED, false), 2);
-                if(level.dimension() != World.END)
+                if(level.dimension() != Level.END)
                     tile.stop();
             }
         }
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         boolean isPowered = context.getLevel().hasNeighborSignal(context.getClickedPos());
-        RegistryKey<World> dimension = context.getLevel().dimension();
+        ResourceKey<Level> dimension = context.getLevel().dimension();
 
         BlockState state = this.stateDefinition.any()
                 .setValue(FACING, context.getHorizontalDirection())
                 .setValue(POWERED, isPowered);
 
-        if(dimension == World.OVERWORLD)
+        if(dimension == Level.OVERWORLD)
             state = state.setValue(STATE, isPowered ? RadioState.ON : RadioState.OFF);
-        else if(dimension == World.END)
+        else if(dimension == Level.END)
             state = state.setValue(STATE, isPowered ? RadioState.ACTIVE : RadioState.INACTIVE);
         return state;
     }

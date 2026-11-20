@@ -1,9 +1,10 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
+
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 
 public class EulerConverter {
     public static class EulerAngles {
@@ -34,7 +35,7 @@ public class EulerConverter {
         Vec3 look = basis.getZ();
         Vec3 up = basis.getY();
 
-        float pitch = (float)(Math.acos(MathHelper.clamp(look.dot(Vec3.yAxis()), -1, 1)) * 180 / Math.PI - 90);
+        float pitch = (float)(Math.acos(Mth.clamp(look.dot(Vec3.yAxis()), -1, 1)) * 180 / Math.PI - 90);
 
         Vec3 yawVec = Vec3.yAxis().cross(look.clone().cross(Vec3.yAxis())).normalize();
         float yawSin = (float)Vec3.zAxis().cross(yawVec).y;
@@ -56,9 +57,9 @@ public class EulerConverter {
 
         if(angles.roll > 90 || angles.roll < -90) {
             return new EulerAngles(
-                    180 - MathHelper.positiveModulo(angles.pitch, 360),
-                    MathHelper.positiveModulo(angles.yaw, 360) + 180,
-                    MathHelper.positiveModulo(angles.roll, 360) - 180
+                    180 - Mth.positiveModulo(angles.pitch, 360),
+                    Mth.positiveModulo(angles.yaw, 360) + 180,
+                    Mth.positiveModulo(angles.roll, 360) - 180
             );
         }
 

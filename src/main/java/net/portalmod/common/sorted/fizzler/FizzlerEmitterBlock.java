@@ -1,29 +1,5 @@
 package net.portalmod.common.sorted.fizzler;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer.Builder;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
@@ -34,6 +10,31 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -52,7 +53,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     public VoxelShapeGroup getShapeGroup(BlockState state) {
         VoxelShapeGroup group = new VoxelShapeGroup.Builder()
             .add(0, 0, 3, 1, 16, 13)
-            .addPart("active", VoxelShapes.or(
+            .addPart("active", Shapes.or(
                     Block.box(1, 0, 5, 3, 16, 11),
                     Block.box(1, 0, 6.5, 4.5, 15, 9.5)))
             .addPart("field", 0,0,7,16,16,9)
@@ -98,7 +99,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return this.getShapeGroup(state).getVariant(state.getValue(ACTIVE) ? "active" : "");
     }
 
@@ -124,7 +125,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state) {
+    public boolean isInsideField(AABB box, BlockPos pos, BlockState state) {
         return state.getValue(FizzlerEmitterBlock.ACTIVE) && this.getFieldShape(state).bounds().move(pos).intersects(box);
     }
 
@@ -134,7 +135,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         if (state.getValue(ACTIVE)) {
             Direction direction = state.getValue(FACING);
             BlockState neighbor = world.getBlockState(pos.relative(direction));
@@ -163,7 +164,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction clickedFace = context.getClickedFace();
         BlockState state = this.defaultBlockState().setValue(FACING, clickedFace);
 
@@ -182,7 +183,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
         // Wall
 
-        PlayerEntity player = context.getPlayer();
+        Player player = context.getPlayer();
         boolean prefersHorizontal = player != null && player.isShiftKeyDown();
 
         // Check what placements are possible
@@ -219,7 +220,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
         return this.hasTileEntity(state) ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
     }
 
@@ -256,7 +257,7 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("fizzler_emitter", list);
     }
 }

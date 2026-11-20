@@ -1,39 +1,7 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.*;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.fizzler.FizzlerEmitterBlock;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
@@ -48,6 +16,41 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.NonNullList;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class PortalGun extends Item {
 
@@ -72,14 +75,14 @@ public class PortalGun extends Item {
     // The portalgun tracks whether it is holding something on its own
     // by using nbt instead of having 100 different things triggering the
     // pick and drop animation all over the place
-    public static void updateHolding(ItemStack itemStack, PlayerEntity player) {
+    public static void updateHolding(ItemStack itemStack, Player player) {
         if(!itemStack.hasTag())
             return;
 
-        CompoundNBT nbt = itemStack.getTag();
+        CompoundTag nbt = itemStack.getTag();
 
-        boolean isInMainHand = player.getItemInHand(Hand.MAIN_HAND) == itemStack;
-        boolean isInOffHand = player.getItemInHand(Hand.OFF_HAND) == itemStack;
+        boolean isInMainHand = player.getItemInHand(InteractionHand.MAIN_HAND) == itemStack;
+        boolean isInOffHand = player.getItemInHand(InteractionHand.OFF_HAND) == itemStack;
 
         // Only hold one gun at a time
         boolean isInHand = isInMainHand || isInOffHand && !(player.getMainHandItem().getItem() instanceof PortalGun);
@@ -97,64 +100,64 @@ public class PortalGun extends Item {
     }
 
     public static void setHolding(ItemStack itemStack, boolean holding) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        CompoundTag nbt = itemStack.getOrCreateTag();
         nbt.putBoolean("Holding", holding);
     }
 
-    public static void pickCube(PlayerEntity player, ItemStack gun) {
+    public static void pickCube(Player player, ItemStack gun) {
         setHolding(gun, true);
 
         player.level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
-                SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
+                SoundSource.PLAYERS, 1, ModUtil.randomSoundPitch());
 
         // Play lift animation
         Optional<UUID> uuid = getUUID(gun);
-        if (player.level instanceof ServerWorld && uuid.isPresent()) {
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+        if (player.level instanceof ServerLevel && uuid.isPresent()) {
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                     new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.LIFT));
             return;
         }
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+        ClientOnly.run(() -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, true));
     }
 
-    public static void dropCube(PlayerEntity player, ItemStack gun) {
+    public static void dropCube(Player player, ItemStack gun) {
         setHolding(gun, false);
 
         player.level.playSound(player, player,
-                SoundInit.PORTALGUN_DROP.get(), SoundCategory.PLAYERS, 1, ModUtil.randomSoundPitch());
+                SoundInit.PORTALGUN_DROP.get(), SoundSource.PLAYERS, 1, ModUtil.randomSoundPitch());
 
         // Play drop animation
         Optional<UUID> uuid = getUUID(gun);
-        if (player.level instanceof ServerWorld && uuid.isPresent()) {
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+        if (player.level instanceof ServerLevel && uuid.isPresent()) {
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                     new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.DROP));
             return;
         }
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+        ClientOnly.run(() -> () ->
                 PortalGunGrabSoundClient.handlePacket(player, false));
     }
 
     @Override
-    public boolean onDroppedByPlayer(ItemStack item, PlayerEntity player) {
+    public boolean onDroppedByPlayer(ItemStack item, Player player) {
         dropCube(player, item);
 
         return super.onDroppedByPlayer(item, player);
     }
 
-    public static BlockRayTraceResult customClip(World level, RayTraceContext context) {
-        return IBlockReader.traverseBlocks(context, (ctx, pos) -> {
+    public static BlockHitResult customClip(Level level, ClipContext context) {
+        return BlockGetter.traverseBlocks(context, (ctx, pos) -> {
             BlockState blockstate = level.getBlockState(pos);
 
             if (blockstate.is(BlockTagInit.PORTAL_TRANSPARENT))
                 return null;
             FluidState fluidstate = level.getFluidState(pos);
 
-            Vector3d vector3d = ctx.getFrom();
-            Vector3d vector3d1 = ctx.getTo();
-            VoxelShape voxelshape = blockstate.getBlock().getShape(blockstate, level, pos, ISelectionContext.empty());
+            net.minecraft.world.phys.Vec3 vector3d = ctx.getFrom();
+            net.minecraft.world.phys.Vec3 vector3d1 = ctx.getTo();
+            VoxelShape voxelshape = blockstate.getBlock().getShape(blockstate, level, pos, CollisionContext.empty());
 
             Block block = blockstate.getBlock();
             if(block == BlockInit.FIZZLER_EMITTER.get()) {
@@ -165,24 +168,24 @@ public class PortalGun extends Item {
                 voxelshape = ((FizzlerFieldBlock)block).getFieldShape(blockstate);
             }
 
-            BlockRayTraceResult blockraytraceresult = level.clipWithInteractionOverride(vector3d, vector3d1, pos, voxelshape, blockstate);
+            BlockHitResult blockraytraceresult = level.clipWithInteractionOverride(vector3d, vector3d1, pos, voxelshape, blockstate);
             VoxelShape voxelshape1 = ctx.getFluidShape(fluidstate, level, pos);
 
-            BlockRayTraceResult blockraytraceresult1 = voxelshape1.clip(vector3d, vector3d1, pos);
+            BlockHitResult blockraytraceresult1 = voxelshape1.clip(vector3d, vector3d1, pos);
             double d0 = blockraytraceresult == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockraytraceresult.getLocation());
             double d1 = blockraytraceresult1 == null ? Double.MAX_VALUE : ctx.getFrom().distanceToSqr(blockraytraceresult1.getLocation());
             return d0 <= d1 ? blockraytraceresult : blockraytraceresult1;
         }, ctx -> {
-            Vector3d vector3d = ctx.getFrom().subtract(ctx.getTo());
-            return BlockRayTraceResult.miss(ctx.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(ctx.getTo()));
+            net.minecraft.world.phys.Vec3 vector3d = ctx.getFrom().subtract(ctx.getTo());
+            return BlockHitResult.miss(ctx.getTo(), Direction.getNearest(vector3d.x, vector3d.y, vector3d.z), new BlockPos(ctx.getTo()));
         });
     }
 
-    private static void triggerMoonAdvancement(World level, ServerPlayerEntity player) {
+    private static void triggerMoonAdvancement(Level level, ServerPlayer player) {
         double timeOfDay = level.getTimeOfDay(0) + .25f;
         double angle = (timeOfDay - (int)timeOfDay) * 2f * Math.PI;
-        Vector3d moonVector = new Vector3d(Math.cos(angle), Math.sin(angle), 0);
-        boolean lookingUp = player.getLookAngle().dot(new Vector3d(0, 1, 0)) > 0;
+        net.minecraft.world.phys.Vec3 moonVector = new net.minecraft.world.phys.Vec3(Math.cos(angle), Math.sin(angle), 0);
+        boolean lookingUp = player.getLookAngle().dot(new net.minecraft.world.phys.Vec3(0, 1, 0)) > 0;
         boolean lookingAtTheMoon = player.getLookAngle().dot(moonVector) <= -0.997;
 
         if(lookingUp && lookingAtTheMoon) {
@@ -190,7 +193,7 @@ public class PortalGun extends Item {
         }
     }
 
-    private static void triggerPortalAdvancements(World level, ServerPlayerEntity player, PortalEntity portal, double distance) {
+    private static void triggerPortalAdvancements(Level level, ServerPlayer player, PortalEntity portal, double distance) {
         boolean allQualityBlocks = portal.getBlocksBehind().stream().allMatch(pos ->
                 level.getBlockState(pos).is(BlockTagInit.PORTALABLE_QUALITY));
 
@@ -205,14 +208,14 @@ public class PortalGun extends Item {
         player.awardStat(StatsInit.PORTALS_SHOT);
     }
 
-    public static void placePortal(PlayerEntity player, World level, PortalEnd end, ItemStack gun, BlockRayTraceResult ray) {
+    public static void placePortal(Player player, Level level, PortalEnd end, ItemStack gun, BlockHitResult ray) {
         if(player.isSpectator() || level.isClientSide)
             return;
 
         Optional<UUID> uuid = getUUID(gun);
         if (!uuid.isPresent()) return;
 
-        CompoundNBT nbt = gun.getOrCreateTag();
+        CompoundTag nbt = gun.getOrCreateTag();
 
         boolean isPrimary = end == PortalEnd.PRIMARY;
 
@@ -221,14 +224,14 @@ public class PortalGun extends Item {
         }
 
         // Play shooting animation and sound
-        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+        PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                 new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.SHOOT));
 
         level.playSound(null, player.position().x, player.position().y, player.position().z,
-                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+                (Objects.equals(end.getSerializedName(), "primary") ? SoundInit.PORTALGUN_FIRE_PRIMARY.get() : SoundInit.PORTALGUN_FIRE_SECONDARY.get()), SoundSource.PLAYERS, 1f, ModUtil.randomSoundPitch());
 
-        if(ray.getType() == RayTraceResult.Type.MISS) {
-            triggerMoonAdvancement(level, (ServerPlayerEntity)player);
+        if(ray.getType() == HitResult.Type.MISS) {
+            triggerMoonAdvancement(level, (ServerPlayer)player);
             return;
         }
 
@@ -257,8 +260,8 @@ public class PortalGun extends Item {
                     }
 
                     VoxelShape movedBlockShape = voxelshape.move(pos.getX(), pos.getY(), pos.getZ());
-                    VoxelShape entityShape = VoxelShapes.create(player.getBoundingBox());
-                    return VoxelShapes.joinIsNotEmpty(movedBlockShape, entityShape, IBooleanFunction.AND);
+                    VoxelShape entityShape = Shapes.create(player.getBoundingBox());
+                    return Shapes.joinIsNotEmpty(movedBlockShape, entityShape, BooleanOp.AND);
                 });
 
         PortalEntity portal;
@@ -268,13 +271,13 @@ public class PortalGun extends Item {
         PortalEnd finalEnd = end;
         Consumer<PortalEntity> onPlace = placedPortal -> {
             if(placedPortal == null) {
-                level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
+                level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
                 PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                         new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
                 return;
             }
 
-            triggerPortalAdvancements(level, (ServerPlayerEntity)player, placedPortal, distance);
+            triggerPortalAdvancements(level, (ServerPlayer)player, placedPortal, distance);
 
             // todo convert to string
             gun.getOrCreateTag().putInt("LastPortal", finalEnd == PortalEnd.PRIMARY ? -1 : 1);
@@ -288,13 +291,13 @@ public class PortalGun extends Item {
             // gun; same-gun portals keep bumping as before.
             boolean overwriteForeign = level.getGameRules().getBoolean(GameRuleInit.ALLOW_PORTAL_OVERWRITE);
             if(level.getGameRules().getBoolean(GameRuleInit.PORTAL_SLOWSHOT)) {
-                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, overwriteForeign, Direction.orderedByNearest(player), (ServerPlayerEntity) player, ticks, onPlace);
+                PortalManager.getInstance().schedulePlacement(level, end, hue, uuid.get(), position.clone(), face, up, false, overwriteForeign, Direction.orderedByNearest(player), (ServerPlayer) player, ticks, onPlace);
             } else {
-                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, overwriteForeign, Direction.orderedByNearest(player), (ServerPlayerEntity) player);
+                portal = PortalPlacer.placePortal(level, end, hue, uuid.get(), position.clone(), face, up, false, overwriteForeign, Direction.orderedByNearest(player), (ServerPlayer) player);
                 onPlace.accept(portal);
             }
         } else {
-            level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
+            level.playSound(null, position.x, position.y, position.z, SoundInit.PORTALGUN_MISS.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
             PacketInit.INSTANCE.send(PacketDistributor.DIMENSION.with(level::dimension),
                     new SPortalGunFailShotPacket(position, new Vec3(face), new Vec3(up), hue));
         }
@@ -307,8 +310,8 @@ public class PortalGun extends Item {
         return slotChanged || oldUUID.isPresent() && newUUID.isPresent() && !oldUUID.equals(newUUID);
     }
 
-    public static int getColorOverride(ItemStack itemStack, World level, LivingEntity entity) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+    public static int getColorOverride(ItemStack itemStack, Level level, LivingEntity entity) {
+        CompoundTag nbt = itemStack.getOrCreateTag();
         if(!nbt.contains("color"))
             return 0;
 
@@ -317,11 +320,11 @@ public class PortalGun extends Item {
     }
     
     @Override
-    public void inventoryTick(ItemStack itemStack, World level, Entity entity, int i, boolean b) {
+    public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean b) {
         super.inventoryTick(itemStack, level, entity, i, b);
 
-        if (entity instanceof PlayerEntity) {
-            updateHolding(itemStack, (PlayerEntity) entity);
+        if (entity instanceof Player) {
+            updateHolding(itemStack, (Player) entity);
         }
 
         if(level.isClientSide)
@@ -330,7 +333,7 @@ public class PortalGun extends Item {
         addUUID(itemStack);
 
         Optional<UUID> uuid = getUUID(itemStack);
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        CompoundTag nbt = itemStack.getOrCreateTag();
 
         boolean hasBlue = uuid.isPresent() && PortalManager.getInstance().has(uuid.get(), PortalEnd.PRIMARY);
         boolean hasOrange = uuid.isPresent() && PortalManager.getInstance().has(uuid.get(), PortalEnd.SECONDARY);
@@ -342,11 +345,11 @@ public class PortalGun extends Item {
         this.addDefaultNbt(nbt);
     }
 
-    public void addDefaultNbt(CompoundNBT nbt) {
+    public void addDefaultNbt(CompoundTag nbt) {
         addDefaultNbt(nbt, this.defaultLeftColor, this.defaultRightColor, this.defaultAccentColor);
     }
 
-    public static void addDefaultNbt(CompoundNBT nbt, String leftColor, String rightColor, String accentColor) {
+    public static void addDefaultNbt(CompoundTag nbt, String leftColor, String rightColor, String accentColor) {
         if (!nbt.contains("LeftColor"))   nbt.putString("LeftColor", leftColor);
         if (!nbt.contains("RightColor"))  nbt.putString("RightColor", rightColor);
         if (!nbt.contains("LastPortal"))  nbt.putInt("LastPortal", 0);
@@ -355,7 +358,7 @@ public class PortalGun extends Item {
     }
 
     @Override
-    public void fillItemCategory(ItemGroup itemGroup, NonNullList<ItemStack> itemStacks) {
+    public void fillItemCategory(CreativeModeTab itemGroup, NonNullList<ItemStack> itemStacks) {
         if (this.allowdedIn(itemGroup)) {
             itemStacks.add(new ItemStack(this));
             itemStacks.add(modifyColors(new ItemStack(this), "light_blue", "purple", "light_blue"));
@@ -369,7 +372,7 @@ public class PortalGun extends Item {
     }
 
     public static void addUUID(ItemStack itemStack) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        CompoundTag nbt = itemStack.getOrCreateTag();
 
         if (!nbt.contains("gunUUID")) {
             nbt.putUUID("gunUUID", UUID.randomUUID());
@@ -377,7 +380,7 @@ public class PortalGun extends Item {
     }
 
     public static void removeUUID(ItemStack itemStack) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+        CompoundTag nbt = itemStack.getOrCreateTag();
         nbt.remove("gunUUID");
     }
 
@@ -385,7 +388,7 @@ public class PortalGun extends Item {
         if(!itemStack.hasTag())
             return Optional.empty();
 
-        CompoundNBT nbt = itemStack.getTag();
+        CompoundTag nbt = itemStack.getTag();
         if(nbt == null)
             return Optional.empty();
 
@@ -404,11 +407,11 @@ public class PortalGun extends Item {
         addUUID(itemStack);
     }
 
-    public static Colour getLeftColour(CompoundNBT nbt) {
+    public static Colour getLeftColour(CompoundTag nbt) {
         return PortalColors.getColour(getLeftDyeColour(nbt).getName());
     }
 
-    public static DyeColor getLeftDyeColour(CompoundNBT nbt) {
+    public static DyeColor getLeftDyeColour(CompoundTag nbt) {
         DyeColor color = DyeColor.BLUE; // Fallback
 
         if (nbt.getString("Locked").equals("Left")) return getRightDyeColour(nbt);
@@ -422,11 +425,11 @@ public class PortalGun extends Item {
         return color;
     }
 
-    public static Colour getRightColour(CompoundNBT nbt) {
+    public static Colour getRightColour(CompoundTag nbt) {
         return PortalColors.getColour(getRightDyeColour(nbt).getName());
     }
 
-    public static DyeColor getRightDyeColour(CompoundNBT nbt) {
+    public static DyeColor getRightDyeColour(CompoundTag nbt) {
         DyeColor color = DyeColor.ORANGE; // Fallback
 
         if (nbt.getString("Locked").equals("Right")) return getLeftDyeColour(nbt);
@@ -444,7 +447,7 @@ public class PortalGun extends Item {
         return PortalGunModelManager.getInstance().getModel(gunUUID);
     }
 
-    public static Colour getAccentColour(CompoundNBT nbt) {
+    public static Colour getAccentColour(CompoundTag nbt) {
         Colour colour = new Colour(1f, 1, 1, 0);
         if (nbt.contains("AccentColor")) {
             String accentColor = nbt.getString("AccentColor");
@@ -455,7 +458,7 @@ public class PortalGun extends Item {
         return colour;
     }
 
-    public static void fizzleGunsInInventory(PlayerEntity player) {
+    public static void fizzleGunsInInventory(Player player) {
         if (player.level.isClientSide) {
             // The server does not retain a player's old position or velocity, so it can miss
             // fast/oblique fizzler traversal where neither the old nor the new bounding box
@@ -480,9 +483,9 @@ public class PortalGun extends Item {
         }
 
         if (didFizzleAny) {
-            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayerEntity) player),
+            PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                     new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
-            player.level.playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
+            player.level.playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
         }
     }
 
@@ -522,8 +525,8 @@ public class PortalGun extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag iTooltipFlag) {
-        CompoundNBT nbt = itemStack.getOrCreateTag();
+    public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag iTooltipFlag) {
+        CompoundTag nbt = itemStack.getOrCreateTag();
         String lock = nbt.contains("Locked") ? nbt.getString("Locked") : "None";
 
         String leftColorName = lock.equals("Left") ? "locked" : getLeftDyeColour(nbt).toString();
@@ -533,19 +536,19 @@ public class PortalGun extends Item {
         int rightColor = lock.equals("Right") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(rightColorName).getRGB();
 
         list.add(ModUtil.tooltipComponent("tooltip.portalmod.portalgun.colors"));
-        list.add(new TranslationTextComponent("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(Color.fromRgb(leftColor)))
+        list.add(new TranslatableComponent("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(leftColor)))
                 .append("§7 & ")
-                .append(new TranslationTextComponent("tooltip.portalmod.colors." + rightColorName).setStyle(Style.EMPTY.withColor(Color.fromRgb(rightColor))))
+                .append(new TranslatableComponent("tooltip.portalmod.colors." + rightColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(rightColor))))
         );
-        if (Screen.hasControlDown()) list.add(new StringTextComponent(""));
+        if (Screen.hasControlDown()) list.add(new TextComponent(""));
 
         ModUtil.addTooltip("portalgun", list);
     }
 
     @Override
-    public ITextComponent getName(ItemStack item) {
-        CompoundNBT nbt = item.getOrCreateTag();
-        Style colorStyle = Style.EMPTY.withColor(Color.fromRgb( getAccentColour(nbt).getRGBValue() ));
+    public Component getName(ItemStack item) {
+        CompoundTag nbt = item.getOrCreateTag();
+        Style colorStyle = Style.EMPTY.withColor(TextColor.fromRgb( getAccentColour(nbt).getRGBValue() ));
 
         return super.getName(item).copy().setStyle(colorStyle);
     }

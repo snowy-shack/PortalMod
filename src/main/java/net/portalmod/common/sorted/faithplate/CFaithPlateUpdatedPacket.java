@@ -2,37 +2,38 @@ package net.portalmod.common.sorted.faithplate;
 
 import java.util.function.Supplier;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.packet.AbstractPacket;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+
 public class CFaithPlateUpdatedPacket implements AbstractPacket<CFaithPlateUpdatedPacket> {
     private BlockPos pos;
-    private CompoundNBT nbt;
+    private CompoundTag nbt;
 
     public CFaithPlateUpdatedPacket() {}
 
-    public CFaithPlateUpdatedPacket(BlockPos pos, CompoundNBT nbt) {
+    public CFaithPlateUpdatedPacket(BlockPos pos, CompoundTag nbt) {
         this.pos = pos;
         this.nbt = nbt;
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos)
                 .writeNbt(nbt);
     }
 
     @Override
-    public CFaithPlateUpdatedPacket decode(PacketBuffer buffer) {
+    public CFaithPlateUpdatedPacket decode(FriendlyByteBuf buffer) {
         return new CFaithPlateUpdatedPacket(buffer.readBlockPos(), buffer.readNbt());
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
             FaithPlateTileEntity blockEntity = (FaithPlateTileEntity) context.get().getSender().level.getBlockEntity(pos);
             if(blockEntity == null)

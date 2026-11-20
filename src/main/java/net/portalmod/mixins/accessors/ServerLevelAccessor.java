@@ -1,11 +1,12 @@
 package net.portalmod.mixins.accessors;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.server.ServerWorld;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(ServerWorld.class)
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerLevel;
+
+@Mixin(ServerLevel.class)
 public interface ServerLevelAccessor {
     @Invoker(value = "add")
     void pmForceAddPortal(Entity entity);

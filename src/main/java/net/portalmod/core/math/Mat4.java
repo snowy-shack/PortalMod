@@ -1,11 +1,12 @@
 package net.portalmod.core.math;
 
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
+
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class Mat4 {
     public static Mat4 identity() {
@@ -63,7 +64,7 @@ public class Mat4 {
         this.m33 = array[15];
     }
 
-    public Mat4(Quaternion q) {
+    public Mat4(Quaternionf q) {
        float f = q.i();
        float f1 = q.j();
        float f2 = q.k();
@@ -267,7 +268,7 @@ public class Mat4 {
         return this;
     }
 
-    public Mat4 mul(Quaternion q) {
+    public Mat4 mul(Quaternionf q) {
         return this.mul(new Mat4(q));
     }
 
@@ -289,7 +290,7 @@ public class Mat4 {
         return this.scale(v.x, v.y, v.z);
     }
 
-    public Mat4 rotate(Quaternion q) {
+    public Mat4 rotate(Quaternionf q) {
         return this.mul(q);
     }
 
@@ -298,7 +299,7 @@ public class Mat4 {
     }
 
     public Mat4 rotateDeg(Vector3f axis, float angle) {
-        return this.mul(new Quaternion(axis, angle % 360, true));
+        return this.mul(new Quaternionf(axis, angle % 360, true));
     }
 
     public static Mat4 createTranslation(double x, double y, double z) {

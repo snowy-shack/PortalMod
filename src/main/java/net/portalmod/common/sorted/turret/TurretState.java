@@ -1,7 +1,7 @@
 package net.portalmod.common.sorted.turret;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum TurretState implements IStringSerializable {
+public enum TurretState implements StringRepresentable {
     RESTING,        // Default
     OPENING,        // Opening wings
     SHOOTING,       // Pew pew

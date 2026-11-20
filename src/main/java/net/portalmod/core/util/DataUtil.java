@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+
 public class DataUtil {
     public static byte[] readInputStream(InputStream is) throws IOException {
         byte[] data = new byte[1024];

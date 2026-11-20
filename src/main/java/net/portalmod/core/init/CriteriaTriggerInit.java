@@ -1,14 +1,15 @@
 package net.portalmod.core.init;
 
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
 import net.portalmod.common.triggers.CodeBoundTrigger;
 import net.portalmod.core.util.Registry;
+
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 
 public class CriteriaTriggerInit {
     private CriteriaTriggerInit() {}
 
-    public static final Registry<AbstractCriterionTrigger<?>> REGISTRY = new Registry<>();
+    public static final Registry<SimpleCriterionTrigger<?>> REGISTRY = new Registry<>();
     
     public static final Registry.Entry<CodeBoundTrigger> SHOOT_MOON = registerCBT("shoot_moon");
     public static final Registry.Entry<CodeBoundTrigger> FAITH_PLATE_ELYTRA = registerCBT("faith_plate_elytra");
@@ -22,7 +23,7 @@ public class CriteriaTriggerInit {
     public static final Registry.Entry<CodeBoundTrigger> SURVIVE_TURRET = registerCBT("survive_turret");
     public static final Registry.Entry<CodeBoundTrigger> TURRET_DEFENSE = registerCBT("turret_defense");
 
-    private static <S extends AbstractCriterionTrigger<?>> S register(S trigger) {
+    private static <S extends SimpleCriterionTrigger<?>> S register(S trigger) {
         CriteriaTriggers.register(trigger);
         return trigger;
     }

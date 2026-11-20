@@ -1,13 +1,13 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import net.minecraft.network.FriendlyByteBuf;
 
 public class SPortalPairPacket implements AbstractPacket<SPortalPairPacket> {
     private UUID uuid;
@@ -21,7 +21,7 @@ public class SPortalPairPacket implements AbstractPacket<SPortalPairPacket> {
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer
         .writeUUID(uuid)
         .writeBoolean(ppp.has(PortalEnd.PRIMARY))
@@ -34,7 +34,7 @@ public class SPortalPairPacket implements AbstractPacket<SPortalPairPacket> {
     }
 
     @Override
-    public SPortalPairPacket decode(PacketBuffer buffer) {
+    public SPortalPairPacket decode(FriendlyByteBuf buffer) {
         UUID uuid = buffer.readUUID();
         boolean hasPrimary = buffer.readBoolean();
         boolean hasSecondary = buffer.readBoolean();
@@ -49,9 +49,9 @@ public class SPortalPairPacket implements AbstractPacket<SPortalPairPacket> {
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientOnly.run(() -> () -> {
                 ClientPortalManager.getInstance().getPartialMap().put(this.uuid, this.ppp);
             });
         });

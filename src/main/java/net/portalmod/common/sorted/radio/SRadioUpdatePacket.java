@@ -1,14 +1,14 @@
 package net.portalmod.common.sorted.radio;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.function.Supplier;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 
 public class SRadioUpdatePacket implements AbstractPacket<SRadioUpdatePacket> {
     private BlockPos pos;
@@ -22,20 +22,20 @@ public class SRadioUpdatePacket implements AbstractPacket<SRadioUpdatePacket> {
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos)
                 .writeEnum(state);
     }
 
     @Override
-    public SRadioUpdatePacket decode(PacketBuffer buffer) {
+    public SRadioUpdatePacket decode(FriendlyByteBuf buffer) {
         return new SRadioUpdatePacket(buffer.readBlockPos(), buffer.readEnum(RadioState.class));
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientOnly.run(() -> () -> {
                 RadioBlockTileEntity blockEntity = (RadioBlockTileEntity)Minecraft.getInstance().level.getBlockEntity(pos);
                 if(blockEntity != null)
                     blockEntity.handlePacket(state);

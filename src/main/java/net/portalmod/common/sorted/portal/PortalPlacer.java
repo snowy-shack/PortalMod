@@ -1,19 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.common.sorted.panel.PortalHelper;
@@ -30,10 +18,23 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.Level;
+
 public class PortalPlacer {
     private static final BinaryOperator<Vec3> selectLeast = (o, n) -> n.magnitude() < o.magnitude() ? n : o;
 
-    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player) {
+    public static PortalEntity placePortal(Level level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayer player) {
         return placePortal(level, end, hue, gunUUID, position, face, upDirection, override, false, lookingDirections, player);
     }
 
@@ -49,7 +50,7 @@ public class PortalPlacer {
      *                                player shots. Ignored when {@code override} is already
      *                                true (that's a strict superset).
      */
-    public static PortalEntity placePortal(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player) {
+    public static PortalEntity placePortal(Level level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayer player) {
         Vec3 forward = new Vec3(face);
         Vec3 up = new Vec3(upDirection);
         Vec3 right = up.clone().cross(forward);
@@ -78,7 +79,7 @@ public class PortalPlacer {
             }
         }
 
-        AxisAlignedBB portalAABB = new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f);
+        AABB portalAABB = new AABB(-0.5, -1, 0,0.5, 1, 1/16f);
         portalAABB = AABBUtil.transform(portalAABB, toAbsolute).move(position.to3d());
         VoxelShape collision = getCollision(level, face, position, toAbsolute, true);
 
@@ -91,7 +92,7 @@ public class PortalPlacer {
         // overwriteForeignPortals (player shot with the gamerule on) evicts foreign portals
         // only -- same-gun portals still bump so self-bumping keeps working.
         // Neither flag -> every portal in the way bumps (command / default player shot).
-        List<AxisAlignedBB> bumpingPortals = portalsInTheWay.stream()
+        List<AABB> bumpingPortals = portalsInTheWay.stream()
                 .filter(portal -> !override && (!overwriteForeignPortals || portal.getGunUUID().equals(gunUUID)))
                 .map(Entity::getBoundingBox)
                 .collect(Collectors.toList());
@@ -100,7 +101,7 @@ public class PortalPlacer {
 
         // get vertices on valid surface
         List<AABBVertex> vertices = Collider.getFaceCorners(face.getOpposite(), portalAABB);
-        for(AxisAlignedBB box : collision.toAabbs())
+        for(AABB box : collision.toAabbs())
             for(int i = vertices.size() - 1; i >= 0; i--)
                 if(Collider.pointInBoxExceptAxis(face.getAxis(), box, vertices.get(i).getPosition()))
                     vertices.remove(i);
@@ -185,7 +186,7 @@ public class PortalPlacer {
             // same-gun ones stayed in the bump set above and didn't end up overlapping.
             // The same-gun-same-end portal is always skipped because PortalManager.put
             // handles that replacement on spawn.
-            AxisAlignedBB finalAABB = portalAABB;
+            AABB finalAABB = portalAABB;
             PortalEntity.getPortals(level, finalAABB,
                     portal -> new Vec3(portal.getNormal()).dot(new Vec3(face)) > 0.99
                             && !(portal.getGunUUID().equals(gunUUID) && portal.getEnd() == end)
@@ -211,13 +212,13 @@ public class PortalPlacer {
         PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SPortalShotPacket(portal.getId()));
 
         level.playSound(null, portal.getX(), portal.getY(), portal.getZ(),
-                SoundInit.PORTAL_OPEN.get(), SoundCategory.NEUTRAL, 1f, ModUtil.randomSlightSoundPitch());
+                SoundInit.PORTAL_OPEN.get(), SoundSource.NEUTRAL, 1f, ModUtil.randomSlightSoundPitch());
 
         return portal;
     }
 
-    public static VoxelShape getCollision(World level, Direction face, Vec3 position, Mat4 toAbsolute, boolean large) {
-        AxisAlignedBB portalWideAABB = new AxisAlignedBB(-0.5, -1, 0,0.5, 1, 1/16f)
+    public static VoxelShape getCollision(Level level, Direction face, Vec3 position, Mat4 toAbsolute, boolean large) {
+        AABB portalWideAABB = new AABB(-0.5, -1, 0,0.5, 1, 1/16f)
                         .deflate(0.002);
 
         if(large) {
@@ -226,14 +227,14 @@ public class PortalPlacer {
                     .expandTowards(2, 2, 0);
         }
 
-        AxisAlignedBB behind = portalWideAABB.move(0, 0, -1/16f);
+        AABB behind = portalWideAABB.move(0, 0, -1/16f);
         behind = AABBUtil.transform(behind, toAbsolute).move(position.to3d());
-        AxisAlignedBB front = AABBUtil.transform(portalWideAABB, toAbsolute).move(position.to3d());
+        AABB front = AABBUtil.transform(portalWideAABB, toAbsolute).move(position.to3d());
 
         List<BlockPos> backBlocks = AABBUtil.getBlocksWithin(behind);
         List<BlockPos> frontBlocks = AABBUtil.getBlocksWithin(front);
-        VoxelShape backCollision = VoxelShapes.empty();
-        VoxelShape frontCollision = VoxelShapes.empty();
+        VoxelShape backCollision = Shapes.empty();
+        VoxelShape frontCollision = Shapes.empty();
 
         for(BlockPos block : backBlocks) {
             BlockState attachedBlock = level.getBlockState(block);
@@ -248,10 +249,10 @@ public class PortalPlacer {
                     .getShape(level, block)
                     .move(block.getX(), block.getY(), block.getZ());
 
-            VoxelShape fullBlockShape = VoxelShapes.block().move(block.getX(), block.getY(), block.getZ());
-            VoxelShape airAround = VoxelShapes.joinUnoptimized(fullBlockShape, blockShape, IBooleanFunction.ONLY_FIRST);
+            VoxelShape fullBlockShape = Shapes.block().move(block.getX(), block.getY(), block.getZ());
+            VoxelShape airAround = Shapes.joinUnoptimized(fullBlockShape, blockShape, BooleanOp.ONLY_FIRST);
 
-            backCollision = VoxelShapes.joinUnoptimized(backCollision, valid ? airAround : fullBlockShape, IBooleanFunction.OR);
+            backCollision = Shapes.joinUnoptimized(backCollision, valid ? airAround : fullBlockShape, BooleanOp.OR);
         }
 
         for(BlockPos block : frontBlocks) {
@@ -267,7 +268,7 @@ public class PortalPlacer {
                 VoxelShape fluidShape = frontBlock.getFluidState().getShape(level, block)
                         .move(block.getX(), block.getY(), block.getZ());
 
-                blockShape = VoxelShapes.joinUnoptimized(blockShape, fluidShape, IBooleanFunction.OR);
+                blockShape = Shapes.joinUnoptimized(blockShape, fluidShape, BooleanOp.OR);
             }
 
             if(frontBlock.getBlock() instanceof AbstractGelBlock) {
@@ -275,27 +276,27 @@ public class PortalPlacer {
                     blockShape = AbstractGelBlock.SHAPES.get(face.getOpposite()).getShape()
                             .move(block.getX(), block.getY(), block.getZ());
                 } else {
-                    blockShape = VoxelShapes.empty();
+                    blockShape = Shapes.empty();
                 }
             }
 
             if(!frontNonBlocking)
-                frontCollision = VoxelShapes.joinUnoptimized(frontCollision, blockShape, IBooleanFunction.OR);
+                frontCollision = Shapes.joinUnoptimized(frontCollision, blockShape, BooleanOp.OR);
         }
 
         frontCollision = AABBUtil.forEachBox(frontCollision, AABBUtil::roundToTexels);
         backCollision = AABBUtil.forEachBox(backCollision, AABBUtil::roundToTexels);
 
-        backCollision = VoxelShapes.joinUnoptimized(backCollision, VoxelShapes.create(behind), IBooleanFunction.AND);
-        frontCollision = VoxelShapes.joinUnoptimized(frontCollision, VoxelShapes.create(front), IBooleanFunction.AND);
-        return VoxelShapes.or(backCollision, frontCollision);
+        backCollision = Shapes.joinUnoptimized(backCollision, Shapes.create(behind), BooleanOp.AND);
+        frontCollision = Shapes.joinUnoptimized(frontCollision, Shapes.create(front), BooleanOp.AND);
+        return Shapes.or(backCollision, frontCollision);
     }
 
     // reaction := movement of the portal to move out of invalid surfaces
-    private static Map<Direction, Double> getLargestReactionByDirection(Direction face, AxisAlignedBB portalAABB, VoxelShape collision) {
+    private static Map<Direction, Double> getLargestReactionByDirection(Direction face, AABB portalAABB, VoxelShape collision) {
         Map<Direction, Double> largestReactionByDirection = new HashMap<>();
 
-        for(AxisAlignedBB box : collision.toAabbs()) {
+        for(AABB box : collision.toAabbs()) {
             if(!Collider.intersectExceptAxis(face.getAxis(), box, portalAABB))
                 continue;
 
@@ -314,10 +315,10 @@ public class PortalPlacer {
         return largestReactionByDirection;
     }
 
-    private static Map<Direction, Double> getLargestReactionByShortestDirection(Direction face, AxisAlignedBB portalAABB, VoxelShape collision, List<List<Direction>> allNormals) {
+    private static Map<Direction, Double> getLargestReactionByShortestDirection(Direction face, AABB portalAABB, VoxelShape collision, List<List<Direction>> allNormals) {
         Map<Direction, Double> largestReactionByDirection = new HashMap<>();
 
-        for(AxisAlignedBB box : collision.toAabbs()) {
+        for(AABB box : collision.toAabbs()) {
             Optional<List<Vec3>> reactionsOptional = Collider.collideExceptAxis(face.getAxis(), box, portalAABB);
             if(!reactionsOptional.isPresent())
                 continue;
@@ -338,7 +339,7 @@ public class PortalPlacer {
         return largestReactionByDirection;
     }
 
-    public static boolean portalCollides(Direction face, AxisAlignedBB portalAABB, VoxelShape collision) {
+    public static boolean portalCollides(Direction face, AABB portalAABB, VoxelShape collision) {
         return collision.toAabbs().stream().anyMatch(box ->
                 Collider.collideExceptAxis(face.getAxis(), box, portalAABB).isPresent());
     }

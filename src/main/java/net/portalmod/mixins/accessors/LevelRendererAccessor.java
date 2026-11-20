@@ -1,10 +1,11 @@
 package net.portalmod.mixins.accessors;
 
-import net.minecraft.client.renderer.WorldRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(WorldRenderer.class)
+import net.minecraft.client.renderer.LevelRenderer;
+
+@Mixin(LevelRenderer.class)
 public interface LevelRendererAccessor {
     @Accessor("lastViewDistance")
     int pmGetLastViewDistance();

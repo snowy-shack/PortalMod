@@ -1,15 +1,16 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
 import net.portalmod.PortalMod;
 
-public class SkinEntryWidget extends Widget {
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
+
+public class SkinEntryWidget extends AbstractWidget {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
 
     private final SkinSelectorScreen parent;
@@ -18,7 +19,7 @@ public class SkinEntryWidget extends Widget {
     private boolean selected;
 
     public SkinEntryWidget(int x, int y, int width, int height, SkinSelectorScreen parent, SkinPreviewWidget skinPreviewWidget, PortalGunSkin skin) {
-        super(x, y, width, height, StringTextComponent.EMPTY);
+        super(x, y, width, height, TextComponent.EMPTY);
         this.parent = parent;
         this.skinPreviewWidget = skinPreviewWidget;
         this.skin = skin;
@@ -36,7 +37,7 @@ public class SkinEntryWidget extends Widget {
         }
     }
 
-    protected void renderBackground(MatrixStack matrixStack) {
+    protected void renderBackground(PoseStack matrixStack) {
         if(this.selected) {
             RenderSystem.color4f(1, 1, 1, 1);
             Minecraft.getInstance().getTextureManager().bind(TEXTURE);
@@ -45,9 +46,9 @@ public class SkinEntryWidget extends Widget {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
-        FontRenderer font = Minecraft.getInstance().font;
+        Font font = Minecraft.getInstance().font;
 
         String credit = (this.skin.artist != null) ? "- by " + this.skin.artist : "";
 

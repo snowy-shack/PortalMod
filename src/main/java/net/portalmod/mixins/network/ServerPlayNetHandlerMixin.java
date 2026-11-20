@@ -1,10 +1,5 @@
 package net.portalmod.mixins.network;
 
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.portalmod.common.sorted.portal.IClientTeleportable;
 import net.portalmod.common.sorted.portal.PortalServerProofManager;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -15,7 +10,13 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayNetHandler.class)
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+
+@Mixin(ServerGamePacketListenerImpl.class)
 public class ServerPlayNetHandlerMixin {
     private BlockPos pmCapturedBlockPos;
 
@@ -25,7 +26,7 @@ public class ServerPlayNetHandlerMixin {
             ordinal = 0
     )
     private boolean pmAvoidResettingFallDistance(boolean value) {
-        IClientTeleportable player = ((IClientTeleportable)((ServerPlayNetHandler)(Object)this).player);
+        IClientTeleportable player = ((IClientTeleportable)((ServerGamePacketListenerImpl)(Object)this).player);
         if(player.getJustPortaled()) {
             return false;
         }
@@ -37,18 +38,18 @@ public class ServerPlayNetHandlerMixin {
             at = @At("RETURN")
     )
     private void pmClearPortalMovementState(CallbackInfo info) {
-        ((IClientTeleportable)((ServerPlayNetHandler)(Object)this).player).setJustPortaled(false);
+        ((IClientTeleportable)((ServerGamePacketListenerImpl)(Object)this).player).setJustPortaled(false);
     }
 
     @Redirect(
                         method = "handleMovePlayer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/ServerPlayerEntity;isSleeping()Z",
+                    target = "Lnet/minecraft/server/level/ServerPlayer;isSleeping()Z",
                     ordinal = 2
             )
     )
-    private boolean pmAllowPortalTeleportation(ServerPlayerEntity player) {
+    private boolean pmAllowPortalTeleportation(ServerPlayer player) {
         return true; // todo actual logic to check tp validity here
     }
 
@@ -56,10 +57,10 @@ public class ServerPlayNetHandlerMixin {
                         method = "handleMovePlayer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/ServerPlayerEntity;isChangingDimension()Z"
+                    target = "Lnet/minecraft/server/level/ServerPlayer;isChangingDimension()Z"
             )
     )
-    private boolean pmAllowPortalTeleportation2(ServerPlayerEntity player) {
+    private boolean pmAllowPortalTeleportation2(ServerPlayer player) {
         if(((ITeleportLerpable)player).hasUsedPortal())
             return true;
         return player.isChangingDimension();
@@ -69,10 +70,10 @@ public class ServerPlayNetHandlerMixin {
                         method = "handleUseItemOn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/BlockRayTraceResult;getBlockPos()Lnet/minecraft/util/math/BlockPos;"
+                    target = "Lnet/minecraft/world/phys/BlockHitResult;getBlockPos()Lnet/minecraft/core/BlockPos;"
             )
     )
-    private BlockPos pmCaptureBlockPos(BlockRayTraceResult instance) {
+    private BlockPos pmCaptureBlockPos(BlockHitResult instance) {
         this.pmCapturedBlockPos = instance.getBlockPos();
         return this.pmCapturedBlockPos;
     }
@@ -81,11 +82,11 @@ public class ServerPlayNetHandlerMixin {
                         method = "handleUseItemOn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/ai/attributes/ModifiableAttributeInstance;getValue()D"
+                    target = "Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;getValue()D"
             )
     )
-    private double pmAllowThroughPortalBreakReach(ModifiableAttributeInstance attribute) {
-        ServerPlayNetHandler thiss = (ServerPlayNetHandler)(Object)this;
+    private double pmAllowThroughPortalBreakReach(AttributeInstance attribute) {
+        ServerGamePacketListenerImpl thiss = (ServerGamePacketListenerImpl)(Object)this;
         if(PortalServerProofManager.getInstance().hasBelievableProof(thiss.player, this.pmCapturedBlockPos, false))
             return Double.POSITIVE_INFINITY;
 

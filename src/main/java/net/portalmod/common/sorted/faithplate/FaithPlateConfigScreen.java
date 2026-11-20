@@ -1,27 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
@@ -35,6 +14,28 @@ import java.util.regex.Pattern;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.AbstractWidget;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 
 public class FaithPlateConfigScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/faithplate.png");
@@ -58,7 +59,7 @@ public class FaithPlateConfigScreen extends Screen {
     private FaithPlateParabola parabola;
 
     public FaithPlateConfigScreen(BlockPos selected) {
-        super(new TranslationTextComponent("screen." + PortalMod.MODID + ".faithplate"));
+        super(new TranslatableComponent("screen." + PortalMod.MODID + ".faithplate"));
         this.selected = selected;
     }
 
@@ -76,19 +77,19 @@ public class FaithPlateConfigScreen extends Screen {
 
         int buttonWidth = 216 / 2 - 1;
 
-        panel = addWidget(new RenderWidget(this, getX() + 10, getY() + 22, 210, 121, new StringTextComponent("Render Panel")));
-        selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, buttonWidth, 20, new TranslationTextComponent("container.faithplate.select"), button -> {
+        panel = addWidget(new RenderWidget(this, getX() + 10, getY() + 22, 210, 121, new TextComponent("Render Panel")));
+        selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, buttonWidth, 20, new TranslatableComponent("container.faithplate.select"), button -> {
             FaithPlateTER.selected = selected;
             this.onClose();
         }));
-        done = addButton(new ExtendedButton(getX() + 9 + buttonWidth, getY() + 150, buttonWidth, 20, new TranslationTextComponent("gui.done"), button ->
+        done = addButton(new ExtendedButton(getX() + 9 + buttonWidth, getY() + 150, buttonWidth, 20, new TranslatableComponent("gui.done"), button ->
                 this.onClose()
         ));
 
-        enable = addButton(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, new TranslationTextComponent("container.faithplate.enabled"), be.isEnabled()));
+        enable = addButton(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, new TranslatableComponent("container.faithplate.enabled"), be.isEnabled()));
         enable.setUnavailable(be.isIndicatorControlled());
 
-        heightField = addWidget(new NumberInputField(this, font, getX() + 230, getY() + 70 + verticalOffset, 85, 20, new StringTextComponent("Height")));
+        heightField = addWidget(new NumberInputField(this, font, getX() + 230, getY() + 70 + verticalOffset, 85, 20, new TextComponent("Height")));
 
         float middle = 0;
         float target = 0;
@@ -125,19 +126,19 @@ public class FaithPlateConfigScreen extends Screen {
 
     @Override
     public void onClose() {
-        World level = Minecraft.getInstance().level;
+        Level level = Minecraft.getInstance().level;
         if(level == null)
             return;
 
         FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(selected);
 
         if(be != null) {
-            Vector3d pos = be.getTargetPos();
+            net.minecraft.world.phys.Vec3 pos = be.getTargetPos();
             Direction face = be.getTargetFace();
-            CompoundNBT nbt = new CompoundNBT();
+            CompoundTag nbt = new CompoundTag();
 
             if(pos != null && face != null) {
-                CompoundNBT target = new CompoundNBT();
+                CompoundTag target = new CompoundTag();
                 target.putDouble("x", pos.x());
                 target.putDouble("y", pos.y());
                 target.putDouble("z", pos.z());
@@ -198,7 +199,7 @@ public class FaithPlateConfigScreen extends Screen {
     }
     
     @Override
-    public void renderBackground(MatrixStack matrixStack, int i) {
+    public void renderBackground(PoseStack matrixStack, int i) {
         super.renderBackground(matrixStack, i);
         
         RenderSystem.color4f(1, 1, 1, 1);
@@ -212,7 +213,7 @@ public class FaithPlateConfigScreen extends Screen {
     int verticalOffset = 75;
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(matrixStack);
         panel.render(matrixStack, mouseX, mouseY, partialTicks);
         selector.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -220,40 +221,40 @@ public class FaithPlateConfigScreen extends Screen {
         enable.render(matrixStack, mouseX, mouseY, partialTicks);
         heightField.render(matrixStack, mouseX, mouseY, partialTicks);
         
-        FontRenderer fontRenderer = Minecraft.getInstance().font;
+        Font fontRenderer = Minecraft.getInstance().font;
 
-        fontRenderer.draw(matrixStack, new TranslationTextComponent("container.faithplate"), getX() + 11, getY() + 8, 0xFFFFFF);
-        drawString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.height"), getX() + 230, getY() + 53 + verticalOffset, 16777215 | 0xFF << 24);
+        fontRenderer.draw(matrixStack, new TranslatableComponent("container.faithplate"), getX() + 11, getY() + 8, 0xFFFFFF);
+        drawString(matrixStack, fontRenderer, new TranslatableComponent("container.faithplate.height"), getX() + 230, getY() + 53 + verticalOffset, 16777215 | 0xFF << 24);
 
         if (!panel.enabled)
-            drawCenteredString(matrixStack, fontRenderer, new TranslationTextComponent("container.faithplate.noTarget"), (width - 100) / 2, (getY() + panel.y + panel.getHeight()) / 2, 0xFFFF5555);
+            drawCenteredString(matrixStack, fontRenderer, new TranslatableComponent("container.faithplate.noTarget"), (width - 100) / 2, (getY() + panel.y + panel.getHeight()) / 2, 0xFFFF5555);
     }
     
-    private static class RenderWidget extends Widget {
+    private static class RenderWidget extends AbstractWidget {
         private final FaithPlateConfigScreen parent;
         private boolean handleClicked = false;
         private boolean enabled = true;
-        private Vector2f offset = new Vector2f(0, 0);
-        private Vector2f baseOffset = new Vector2f(-90, 45); // TODO replace
+        private Vec2 offset = new Vec2(0, 0);
+        private Vec2 baseOffset = new Vec2(-90, 45); // TODO replace
         private static VertexBuffer vbo;
         
-        public RenderWidget(FaithPlateConfigScreen parent, int x, int y, int width, int height, ITextComponent text) {
+        public RenderWidget(FaithPlateConfigScreen parent, int x, int y, int width, int height, Component text) {
             super(x, y, width, height, text);
             this.parent = parent;
 
-            MainWindow window = Minecraft.getInstance().getWindow();
+            Window window = Minecraft.getInstance().getWindow();
             double guiScale = window.getGuiScale();
 
             if (vbo != null) vbo.close();
 
-            vbo = new VertexBuffer(DefaultVertexFormats.POSITION_TEX);
+            vbo = new VertexBuffer(DefaultVertexFormat.POSITION_TEX);
             float fbx = (float)((parent.width - getWidth() - 100) / 2f * guiScale);
             float fby = (float)((parent.height - (y + getHeight())) * guiScale);
             float fbw = fbx + (int)(getWidth() * guiScale);
             float fbh = fby + (int)(getHeight() * guiScale);
 
-            BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
-            bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+            BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+            bufferbuilder.begin(GL_QUADS, DefaultVertexFormat.POSITION_TEX);
             bufferbuilder.vertex(fbx, fby, 0).uv(0.0F, 1).endVertex();
             bufferbuilder.vertex(fbw, fby, 0).uv(1, 1).endVertex();
             bufferbuilder.vertex(fbw, fbh, 0).uv(1, 0.0F).endVertex();
@@ -268,7 +269,7 @@ public class FaithPlateConfigScreen extends Screen {
 
         // Hours wasted here: 6
         @Override
-        public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
             if (!this.enabled) return;
 
             double a = 0;
@@ -279,7 +280,7 @@ public class FaithPlateConfigScreen extends Screen {
             }
 
             Minecraft mc = Minecraft.getInstance();
-            MainWindow window = mc.getWindow();
+            Window window = mc.getWindow();
             double guiScale = window.getGuiScale();
 
             int fbX = (int) ((parent.width - getWidth() - 100) / 2f * guiScale);
@@ -340,7 +341,7 @@ public class FaithPlateConfigScreen extends Screen {
 
             int oldPitch = parent.pitch;
             parent.pitch += amount;
-            parent.pitch = MathHelper.clamp(parent.pitch, 5, 50);
+            parent.pitch = Mth.clamp(parent.pitch, 5, 50);
             ShaderInit.FAITHPLATE_GRID.get().bind().setInt("pitch", parent.pitch).unbind();
 
             int offsetX = (int) (baseOffset.x + offset.x) + width  / 2;
@@ -352,7 +353,7 @@ public class FaithPlateConfigScreen extends Screen {
             float xNew = xMouseRelative / (float)parent.pitch;
             float yNew = yMouseRelative / (float)parent.pitch;
 
-            offset = new Vector2f(
+            offset = new Vec2(
                     offset.x + (xNew - xOld) * parent.pitch,
                     offset.y - (yNew - yOld) * parent.pitch
             );
@@ -371,17 +372,17 @@ public class FaithPlateConfigScreen extends Screen {
                     parent.parabola.setHeight(-(mouseY - this.y - baseOffset.y - this.height / 2 + offset.y) / parent.pitch);
                 }
             } else {
-                offset = new Vector2f(offset.x + (float) deltaX, offset.y - (float)deltaY);
+                offset = new Vec2(offset.x + (float) deltaX, offset.y - (float)deltaY);
             }
             
             parent.updateField();
         }
     }
     
-    private static class NumberInputField extends TextFieldWidget {
+    private static class NumberInputField extends EditBox {
         private final FaithPlateConfigScreen parent;
         
-        public NumberInputField(FaithPlateConfigScreen parent, FontRenderer font, int x, int y, int width, int height, ITextComponent text) {
+        public NumberInputField(FaithPlateConfigScreen parent, Font font, int x, int y, int width, int height, Component text) {
             super(font, x, y, width, height, text);
             this.parent = parent;
         }

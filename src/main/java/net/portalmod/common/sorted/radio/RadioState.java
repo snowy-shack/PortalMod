@@ -1,8 +1,8 @@
 package net.portalmod.common.sorted.radio;
 
-import net.minecraft.util.*;
+import net.minecraft.util.StringRepresentable;
 
-public enum RadioState implements IStringSerializable {
+public enum RadioState implements StringRepresentable {
     OFF(false),
     ON(true),
     INACTIVE(false),

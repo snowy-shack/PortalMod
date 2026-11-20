@@ -1,25 +1,25 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public class DiscontinuousLerpPos {
-    private final Vector3d from;
-    private Vector3d to;
+    private final Vec3 from;
+    private Vec3 to;
     private int ticks = 1;
     private int tick = 1;
 
-    public DiscontinuousLerpPos(Vector3d from, Vector3d to, int ticks) {
+    public DiscontinuousLerpPos(Vec3 from, Vec3 to, int ticks) {
         this.from = from;
         this.to = to;
         this.ticks = ticks;
     }
 
-    public DiscontinuousLerpPos(Vector3d from) {
+    public DiscontinuousLerpPos(Vec3 from) {
         this.from = from;
     }
 
-    public void extendLerp(Vector3d to) {
+    public void extendLerp(Vec3 to) {
         if(!this.isIncomplete())
             this.ticks++;
         this.to = to;
@@ -56,11 +56,11 @@ public class DiscontinuousLerpPos {
         entity.zOld = zo;
     }
 
-    public Vector3d getFrom() {
+    public Vec3 getFrom() {
         return this.from;
     }
 
-    public Vector3d getTo() {
+    public Vec3 getTo() {
         return this.to;
     }
 

@@ -1,21 +1,22 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class AntlineBlockItem extends BlockItem {
     public AntlineBlockItem(Block block, Properties properties) {
@@ -23,8 +24,8 @@ public class AntlineBlockItem extends BlockItem {
     }
 
     @Override
-    protected boolean placeBlock(BlockItemUseContext context, BlockState state) {
-        World level = context.getLevel();
+    protected boolean placeBlock(BlockPlaceContext context, BlockState state) {
+        Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Direction clickedFace = context.getClickedFace();
 
@@ -32,7 +33,7 @@ public class AntlineBlockItem extends BlockItem {
         if (level.getBlockEntity(pos) != null && level.getBlockEntity(pos) instanceof AntlineTileEntity) {
             AntlineTileEntity tileEntity = (AntlineTileEntity)level.getBlockEntity(pos);
             AntlineTileEntity.SideMap sideMap = tileEntity.getSideMap();
-            Vector3d clickedVector = context.getClickLocation();
+            Vec3 clickedVector = context.getClickLocation();
 
             int count = 0;
             if (clickedVector.x == Math.round(clickedVector.x)) count++;
@@ -47,7 +48,7 @@ public class AntlineBlockItem extends BlockItem {
 
         sideMap.put(clickedFace.getOpposite(), AntlineTileEntity.Side.dot(clickedFace.getOpposite()));
 
-        if (level instanceof ServerWorld && this.getBlock() instanceof AntlineBlock) {
+        if (level instanceof ServerLevel && this.getBlock() instanceof AntlineBlock) {
             AntlineBlock block = (AntlineBlock) this.getBlock();
 
             boolean shift = context.getPlayer() != null && context.getPlayer().isShiftKeyDown();
@@ -63,7 +64,7 @@ public class AntlineBlockItem extends BlockItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("antline", list);
     }
 }

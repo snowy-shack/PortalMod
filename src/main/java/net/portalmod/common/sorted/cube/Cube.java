@@ -1,20 +1,5 @@
 package net.portalmod.common.sorted.cube;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
@@ -26,6 +11,26 @@ import net.portalmod.core.util.ModUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+
 public class Cube extends TestElementEntity {
 
     public double oldDeltaY = 0;
@@ -33,7 +38,7 @@ public class Cube extends TestElementEntity {
     public boolean wasOnGround = true;
     public float wasVerticalSpeed = 0;
 
-    public Cube(EntityType<? extends LivingEntity> entityType, World level) {
+    public Cube(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
     
@@ -41,8 +46,8 @@ public class Cube extends TestElementEntity {
         return new EntityDamageSource("cube", entity);
     }
 
-    public static AttributeModifierMap.MutableAttribute createAttributes() {
-        return MobEntity.createMobAttributes();
+    public static AttributeSupplier.MutableAttribute createAttributes() {
+        return Mob.createMobAttributes();
     }
 
     @Override
@@ -62,7 +67,7 @@ public class Cube extends TestElementEntity {
 
     @Override
     public boolean canCollideWith(Entity entity) {
-        return entity instanceof PlayerEntity
+        return entity instanceof Player
                 && !entity.hasPassenger(this)
                 && super.canCollideWith(entity);
     }
@@ -79,7 +84,7 @@ public class Cube extends TestElementEntity {
 
             // todo only super button
             if (!this.level.isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
-                CriteriaTriggerInit.CUBE_ON_BUTTON.get().trigger((ServerPlayerEntity) this.getVehicle());
+                CriteriaTriggerInit.CUBE_ON_BUTTON.get().trigger((ServerPlayer) this.getVehicle());
             }
 
             this.oldActive = isActive();
@@ -92,11 +97,11 @@ public class Cube extends TestElementEntity {
 
             // todo better damage system
 
-            AxisAlignedBB aabb = getBoundingBox().inflate(1.0E-7D);
+            AABB aabb = getBoundingBox().inflate(1.0E-7D);
             List<Entity> entities = this.level.getEntities(this, aabb.inflate(1.0E-1D));
 
             for (Entity entity : entities) {
-                AxisAlignedBB entityAABB = entity.getBoundingBox();
+                AABB entityAABB = entity.getBoundingBox();
                 double x0 = (aabb.maxX - entityAABB.minX);
                 double x1 = -(aabb.minX - entityAABB.maxX);
                 double y1 = -(aabb.minY - entityAABB.maxY);
@@ -115,15 +120,15 @@ public class Cube extends TestElementEntity {
             }
 
             if (this.isOnGround() && !this.wasOnGround && oldDeltaY < -0.3) {
-                float volume = MathHelper.clamp((float) -this.oldDeltaY, 0, 1);
-                this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, volume, ModUtil.randomSoundPitch());
+                float volume = Mth.clamp((float) -this.oldDeltaY, 0, 1);
+                this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundSource.NEUTRAL, volume, ModUtil.randomSoundPitch());
             }
 
             this.wasOnGround = this.isOnGround();
 
             // push when entity near (copied from BoatEntity)
             this.checkInsideBlocks();
-            List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.05, -0.01, 0.05), EntityPredicates.pushableBy(this));
+            List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.05, -0.01, 0.05), EntitySelector.pushableBy(this));
             for(Entity entity : list) {
                 this.push(entity);
             }
@@ -137,7 +142,7 @@ public class Cube extends TestElementEntity {
     }
 
     public void onSpawnedByPlayer() {
-        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundCategory.NEUTRAL, 0.5f, ModUtil.randomSoundPitch());
+        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundSource.NEUTRAL, 0.5f, ModUtil.randomSoundPitch());
     }
 
     @Override
@@ -173,15 +178,15 @@ public class Cube extends TestElementEntity {
     }
 
     @Override
-    public ItemStack getItemBySlot(EquipmentSlotType slotType) {
+    public ItemStack getItemBySlot(EquipmentSlot slotType) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public void setItemSlot(EquipmentSlotType slotType, ItemStack itemStack) {}
+    public void setItemSlot(EquipmentSlot slotType, ItemStack itemStack) {}
 
     @Override
-    public HandSide getMainArm() {
-        return HandSide.RIGHT;
+    public HumanoidArm getMainArm() {
+        return HumanoidArm.RIGHT;
     }
 }

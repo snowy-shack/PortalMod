@@ -1,13 +1,5 @@
 package net.portalmod.client.screens;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.DialogTexts;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 import net.minecraftforge.fml.client.gui.widget.Slider;
 import net.portalmod.PortalMod;
@@ -15,6 +7,15 @@ import net.portalmod.client.screens.widgets.ToggleButton;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.injectors.MainMenuInjector;
 import net.portalmod.common.sorted.portalgun.skins.SkinSelectorScreen;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public class PortalModOptionsScreen extends Screen {
     private static final int BUTTON_WIDTH = 200;
@@ -32,13 +33,13 @@ public class PortalModOptionsScreen extends Screen {
     private Button SKIN_PAGE_BUTTON;
     
     public PortalModOptionsScreen(Screen lastScreen) {
-        super(new TranslationTextComponent("options." + PortalMod.MODID + ".title"));
+        super(new TranslatableComponent("options." + PortalMod.MODID + ".title"));
         this.lastScreen = lastScreen;
     }
     
     public static Button getAccessButton(Screen screen) {
         return new Button(screen.width / 2 - 75, screen.height / 6 + 144 - 6, 150, 20,
-                new TranslationTextComponent("options." + PortalMod.MODID + ".button"),
+                new TranslatableComponent("options." + PortalMod.MODID + ".button"),
                 ($1) -> Minecraft.getInstance().setScreen(new PortalModOptionsScreen(screen)));
     }
     
@@ -73,13 +74,13 @@ public class PortalModOptionsScreen extends Screen {
         this.addButton(SEPARATE_GUN_BUTTON);
         this.addButton(SKIN_PAGE_BUTTON);
 
-        this.addButton(new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, DialogTexts.GUI_DONE, (p_213056_1_) -> {
+        this.addButton(new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, CommonComponents.GUI_DONE, (p_213056_1_) -> {
             close(true);
         }));
     }
 
-    private TranslationTextComponent getText(String id) {
-        return new TranslationTextComponent("options." + PortalMod.MODID + "." + id);
+    private TranslatableComponent getText(String id) {
+        return new TranslatableComponent("options." + PortalMod.MODID + "." + id);
     }
 
     private ToggleButton createToggleButton(int x, int y, String id, boolean value) {
@@ -93,7 +94,7 @@ public class PortalModOptionsScreen extends Screen {
 
     private RecursionSlider createRecursionSlider(int x, int y) {
         return new RecursionSlider(x, y, BUTTON_WIDTH, BUTTON_HEIGHT,
-                this.getText("recursion").append(": "), StringTextComponent.EMPTY,
+                this.getText("recursion").append(": "), TextComponent.EMPTY,
                 0, 9, PortalModConfigManager.RECURSION.get(), false, true, $1 -> {});
     }
 
@@ -111,7 +112,7 @@ public class PortalModOptionsScreen extends Screen {
     }
     
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         renderDirtBackground(0);
         drawCenteredString(matrixStack, this.font, this.title, this.width / 2, 20, 16777215);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -145,12 +146,12 @@ public class PortalModOptionsScreen extends Screen {
     }
 
     private static class RecursionSlider extends Slider {
-        public RecursionSlider(int x, int y, int width, int height, ITextComponent prefix, ITextComponent suf, double minVal, double maxVal, double currentVal, boolean showDec, boolean drawStr, IPressable handler) {
+        public RecursionSlider(int x, int y, int width, int height, Component prefix, Component suf, double minVal, double maxVal, double currentVal, boolean showDec, boolean drawStr, IPressable handler) {
             super(x, y, width, height, prefix, suf, minVal, maxVal, currentVal, showDec, drawStr, handler);
         }
 
         @Override
-        protected void renderBg(MatrixStack matrixStack, Minecraft minecraft, int x, int y) {
+        protected void renderBg(PoseStack matrixStack, Minecraft minecraft, int x, int y) {
             if(this.visible) {
                 if(this.dragging) {
                     this.sliderValue = (x - (this.x + 4)) / (float)(this.width - 8);

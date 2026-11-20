@@ -1,9 +1,6 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
 import com.mojang.util.UUIDTypeAdapter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.Texture;
-import net.minecraft.util.ResourceLocation;
 import net.portalmod.PortalMod;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -14,6 +11,10 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.resources.ResourceLocation;
 
 public class ClientSkinManager extends SkinManager {
     private static ClientSkinManager instance;
@@ -47,7 +48,7 @@ public class ClientSkinManager extends SkinManager {
     }
 
     protected void uploadSkin(PortalGunSkin skin, boolean overwrite) {
-        Texture currentTexture = Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(skin.skin_id));
+        AbstractTexture currentTexture = Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(skin.skin_id));
         if(!(currentTexture instanceof PortalGunAnimatedTexture) || overwrite) {
             PortalGunAnimatedTexture skinTexture = new PortalGunAnimatedTexture(skin.skin_id, skin.getFilename(), skin.framerate);
             Minecraft.getInstance().textureManager.register(this.getSkinLocation(skin.skin_id), skinTexture);

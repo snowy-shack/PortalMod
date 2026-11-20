@@ -1,9 +1,9 @@
 package net.portalmod.core.math;
 
 import com.google.common.collect.Lists;
-import net.minecraft.util.Direction;
-
 import java.util.List;
+
+import net.minecraft.core.Direction;
 
 public class AABBVertex {
     private final Vec3 position;

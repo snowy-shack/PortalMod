@@ -1,10 +1,11 @@
 package net.portalmod.core.init;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.tags.EntityTypeTags;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 import net.portalmod.PortalMod;
+
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.resources.ResourceLocation;
 
 public class EntityTagInit {
     private EntityTagInit() {}

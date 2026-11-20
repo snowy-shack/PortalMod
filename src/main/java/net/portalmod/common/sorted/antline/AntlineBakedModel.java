@@ -1,19 +1,6 @@
 package net.portalmod.common.sorted.antline;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
@@ -27,6 +14,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.BlockAndTintGetter;
 
 public class AntlineBakedModel implements IDynamicBakedModel {
     /** Used when the block is rendered before the tile entity exists (e.g. chunk build race). */
@@ -80,7 +80,7 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         return textures;
     }
 
-    private void putVertex(BakedQuadBuilder builder, Vector3d normal,
+    private void putVertex(BakedQuadBuilder builder, net.minecraft.world.phys.Vec3 normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
 
         ImmutableList<VertexFormatElement> elements = builder.getVertexFormat().getElements().asList();
@@ -118,8 +118,8 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         }
     }
 
-    private BakedQuad createQuad(Vector3d vec1, Vector3d vec2, Vector3d vec3, Vector3d vec4, TextureAtlasSprite sprite) {
-        Vector3d normal = vec3.subtract(vec2).cross(vec1.subtract(vec2)).normalize();
+    private BakedQuad createQuad(net.minecraft.world.phys.Vec3 vec1, net.minecraft.world.phys.Vec3 vec2, net.minecraft.world.phys.Vec3 vec3, net.minecraft.world.phys.Vec3 vec4, TextureAtlasSprite sprite) {
+        net.minecraft.world.phys.Vec3 normal = vec3.subtract(vec2).cross(vec1.subtract(vec2)).normalize();
 //        int tw = sprite.getWidth() + (int)(offset.x / 16f);
 //        int th = sprite.getHeight() + (int)(offset.y / 16f);
 
@@ -142,8 +142,8 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         return builder.build();
     }
 
-    private Vector3d v(double x, double y, double z) {
-        return new Vector3d(x, y, z);
+    private net.minecraft.world.phys.Vec3 v(double x, double y, double z) {
+        return new net.minecraft.world.phys.Vec3(x, y, z);
     }
 
     private void addQuad(List<BakedQuad> quads, Direction side, Direction offset, ResourceLocation texture) {
@@ -172,11 +172,11 @@ public class AntlineBakedModel implements IDynamicBakedModel {
                 0, 0, 0, 1
         );
 
-        Vector3d absOffset = new Vec3(offset.getNormal()).transform(relToAbs).mul(5 / 16f).to3d();
+        net.minecraft.world.phys.Vec3 absOffset = new Vec3(offset.getNormal()).transform(relToAbs).mul(5 / 16f).to3d();
         if (offset.getAxis().isVertical())
-            absOffset = Vector3d.ZERO;
+            absOffset = net.minecraft.world.phys.Vec3.ZERO;
 
-        TextureAtlasSprite tex = Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(texture);
+        TextureAtlasSprite tex = Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(texture);
 
         switch(side) {
             case UP:    quads.add(createQuad(v(ux, u, dy).add(absOffset), v(ux, u, uy).add(absOffset), v(dx, u, uy).add(absOffset), v(dx, u, dy).add(absOffset), tex)); break;
@@ -199,8 +199,8 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
     @Nonnull
     @Override
-    public IModelData getModelData(@Nonnull IBlockDisplayReader world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
-        TileEntity te = world.getBlockEntity(pos);
+    public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
+        BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof AntlineTileEntity) {
             return te.getModelData();
         }
@@ -266,11 +266,11 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        return Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(inactive("inactive_dot"));
+        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(inactive("inactive_dot"));
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

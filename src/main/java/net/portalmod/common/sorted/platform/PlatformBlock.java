@@ -1,32 +1,5 @@
 package net.portalmod.common.sorted.platform;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BreakableBlock;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.Half;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 import net.portalmod.common.blocks.FrameBlock;
 import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.core.math.BiHashMap;
@@ -38,7 +11,40 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PlatformBlock extends BreakableBlock implements IWaterLoggable, PortalableBlock, BeamBearer {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+
+public class PlatformBlock extends HalfTransparentBlock implements SimpleWaterloggedBlock, PortalableBlock, BeamBearer {
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
@@ -59,7 +65,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, HALF, BEAM, ORIGINAL_HALF, WATERLOGGED);
     }
 
@@ -95,40 +101,40 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter blockReader, BlockPos pos, CollisionContext context) {
         return SHAPES.get(state.getValue(FACING), state.getValue(HALF) == Half.TOP)
                 .getVariant(state.getValue(BEAM) ? "beam" : "");
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, IBlockReader blockReader, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter blockReader, BlockPos pos, CollisionContext context) {
         return SHAPES.get(state.getValue(FACING), state.getValue(HALF) == Half.TOP)
                 .getVariant(state.getValue(BEAM) ? "beam_collision" : "");
     }
 
     @Override
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult blockRayTraceResult) {
+    public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockRayTraceResult) {
         if (!PlatformBeamBlock.isBeamItem(player.getItemInHand(hand).getItem())) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
 
         if (hasBeamBelow(state, world, pos)) {
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
         }
 
         BlockState cycled = state.cycle(BEAM);
         world.setBlockAndUpdate(pos, cycled);
 
-        player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.platform." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
+        player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.platform." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
 
         player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         boolean waterlogged = context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
 
         BlockState state = this.defaultBlockState()
@@ -140,7 +146,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
         return state.setValue(BEAM, hasBeamBelow(state, context.getLevel(), context.getClickedPos()));
     }
 
-    public Direction getPlacementDirection(BlockItemUseContext context) {
+    public Direction getPlacementDirection(BlockPlaceContext context) {
         BlockState clickedState = context.getLevel().getBlockState(context.getClickedPos().relative(context.getClickedFace().getOpposite()));
         Block block = clickedState.getBlock();
 
@@ -164,7 +170,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
             world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
@@ -177,13 +183,13 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
-    public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean b) {
+    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean b) {
         // Check for power to immediately update the state
         world.neighborChanged(pos, this, pos);
     }
 
     @Override
-    public void neighborChanged(BlockState state, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         boolean power = level.hasNeighborSignal(pos);
 
         Half oldHalf = state.getValue(HALF);
@@ -199,7 +205,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
-    public static boolean hasBeamBelow(BlockState blockState, IWorld world, BlockPos pos) {
+    public static boolean hasBeamBelow(BlockState blockState, LevelAccessor world, BlockPos pos) {
         BlockState belowState = world.getBlockState(pos.relative(blockState.getValue(FACING).getOpposite()));
         Block block = belowState.getBlock();
 
@@ -226,7 +232,7 @@ public class PlatformBlock extends BreakableBlock implements IWaterLoggable, Por
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("platform", list);
     }
 

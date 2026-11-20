@@ -1,24 +1,5 @@
 package net.portalmod.common.sorted.antline.indicator;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.init.BlockInit;
@@ -28,6 +9,26 @@ import net.portalmod.core.util.ModUtil;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated, TestElementActivator {
     public static final int MAX_DURATION = 20;
@@ -48,7 +49,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(TIMER, DURATION);
     }
@@ -61,7 +62,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    public void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos) {
+    public void onAntlineActivation(boolean active, BlockState state, Level world, BlockPos pos) {
         if (state.getValue(ACTIVATED) == active) return;
 
         // Save antline power
@@ -84,16 +85,16 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+    public InteractionResult use(BlockState blockState, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
 
         // Handle cycling duration
         if (player.isShiftKeyDown() && WrenchItem.usedWrench(player, hand)) {
             int newDuration = incrementDuration(blockState);
             world.setBlockAndUpdate(pos, blockState.setValue(DURATION, newDuration));
-            player.displayClientMessage(new TranslationTextComponent("actionbar.portalmod.antline_timer.duration", newDuration), true);
+            player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.antline_timer.duration", newDuration), true);
             WrenchItem.playUseSound(world, result.getLocation());
 
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         return super.use(blockState, world, pos, player, hand, result);
@@ -106,13 +107,13 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    public void tick(BlockState state, ServerWorld level, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
         if (level.isClientSide) return;
 
         count(level, pos, state);
     }
 
-    public void count(World level, BlockPos pos, BlockState state) {
+    public void count(Level level, BlockPos pos, BlockState state) {
 
         // Reset if powered by antline
         if (state.getValue(ACTIVATED)) {
@@ -133,7 +134,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
         level.setBlock(pos, state.setValue(TIMER, count - 1), 2);
 
         if (this.shouldPlaySound(state.getValue(DURATION), count)) {
-            level.playSound(null, pos, SoundInit.ANTLINE_TIMER_TICK.get(), SoundCategory.BLOCKS, 3, 1);
+            level.playSound(null, pos, SoundInit.ANTLINE_TIMER_TICK.get(), SoundSource.BLOCKS, 3, 1);
         }
 
         scheduleTick(state, level, pos);
@@ -152,7 +153,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
         return false;
     }
 
-    public static void scheduleTick(BlockState state, World level, BlockPos pos) {
+    public static void scheduleTick(BlockState state, Level level, BlockPos pos) {
         final float stepFactor = 20f / 9f;
         int currentSteps = 9 - state.getValue(TIMER);
         int totalSteps = state.getValue(DURATION);
@@ -163,7 +164,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("antline_timer", list);
     }
 }

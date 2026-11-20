@@ -1,16 +1,16 @@
 package net.portalmod.common.sorted.creer;
 
-import net.minecraft.client.renderer.entity.IEntityRenderer;
-import net.minecraft.client.renderer.entity.layers.EnergyLayer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.EnergySwirlLayer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.resources.ResourceLocation;
 
-public class CreerChargeLayer extends EnergyLayer<CreeperEntity, CreerModel<CreeperEntity>> {
+public class CreerChargeLayer extends EnergySwirlLayer<Creeper, CreerModel<Creeper>> {
     private static final ResourceLocation POWER_LOCATION = new ResourceLocation("textures/entity/creeper/creeper_armor.png");
-    private final CreerModel<CreeperEntity> model = new CreerModel<>(2.0F);
+    private final CreerModel<Creeper> model = new CreerModel<>(2.0F);
 
-    public CreerChargeLayer(IEntityRenderer<CreeperEntity, CreerModel<CreeperEntity>> p_i50947_1_) {
+    public CreerChargeLayer(RenderLayerParent<Creeper, CreerModel<Creeper>> p_i50947_1_) {
         super(p_i50947_1_);
     }
 
@@ -22,7 +22,7 @@ public class CreerChargeLayer extends EnergyLayer<CreeperEntity, CreerModel<Cree
         return POWER_LOCATION;
     }
 
-    protected EntityModel<CreeperEntity> model() {
+    protected EntityModel<Creeper> model() {
         return this.model;
     }
 }

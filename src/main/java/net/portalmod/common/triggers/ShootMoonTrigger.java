@@ -1,28 +1,31 @@
 package net.portalmod.common.triggers;
 
 import com.google.gson.JsonObject;
-import net.minecraft.advancements.criterion.*;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.loot.ConditionArrayParser;
-import net.minecraft.util.ResourceLocation;
 import net.portalmod.PortalMod;
 
-public class ShootMoonTrigger extends AbstractCriterionTrigger<ShootMoonTrigger.Instance> {
+import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import net.minecraft.advancements.critereon.AbstractCriterionTriggerInstance;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.resources.ResourceLocation;
+
+public class ShootMoonTrigger extends SimpleCriterionTrigger<ShootMoonTrigger.Instance> {
     private static final ResourceLocation ID = new ResourceLocation(PortalMod.MODID, "shoot_moon");
 
     public ResourceLocation getId() {
         return ID;
     }
 
-    protected ShootMoonTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entity, ConditionArrayParser condition) {
+    protected ShootMoonTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entity, DeserializationContext condition) {
         return new ShootMoonTrigger.Instance(entity);
     }
 
-    public void trigger(ServerPlayerEntity player) {
+    public void trigger(ServerPlayer player) {
         this.trigger(player, x -> true);
     }
 
-    public static class Instance extends CriterionInstance {
+    public static class Instance extends AbstractCriterionTriggerInstance {
         public Instance(EntityPredicate.AndPredicate player) {
             super(ShootMoonTrigger.ID, player);
         }

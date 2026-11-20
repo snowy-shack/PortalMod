@@ -1,33 +1,8 @@
 package net.portalmod.common.sorted.portal;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.culling.ClippingHelper;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.client.settings.GraphicsFanciness;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.particles.RedstoneParticleData;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.*;
-import net.minecraft.block.BlockState;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
@@ -52,6 +27,37 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL32.GL_DEPTH_CLAMP;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.client.GraphicsStatus;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.Util;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import net.minecraft.core.Vec3i;
+import org.joml.Vector4f;
+import net.minecraft.world.level.block.state.BlockState;
+
 public class PortalRenderer {
     private static PortalRenderer instance;
 
@@ -59,7 +65,7 @@ public class PortalRenderer {
     private static final PositionTextureVertexRenderer screenQuad = new PositionTextureVertexRenderer(GL_QUADS);
     private static final PositionTextureVertexRenderer blitQuad = new PositionTextureVertexRenderer(GL_QUADS);
 
-    private static final Framebuffer tempFBO = new Framebuffer(
+    private static final RenderTarget tempFBO = new RenderTarget(
             Minecraft.getInstance().getWindow().getWidth(),
             Minecraft.getInstance().getWindow().getHeight(),
             true,
@@ -68,12 +74,12 @@ public class PortalRenderer {
 
     // todo create a state class and dump everything in idk
     public int recursion = 0;
-    public ActiveRenderInfo currentCamera;
+    public Camera currentCamera;
     public int renderedPortals = 0;
     public boolean currentlyRenderingPortals = false;
     private boolean fabulousGraphics = false;
     private final Deque<PortalEntity> portalStack = new ArrayDeque<>();
-    public MatrixStack clipMatrix = new MatrixStack();
+    public PoseStack clipMatrix = new PoseStack();
     private final float[] projectionBuffer = new float[16];
     public Vec3 clearColor = new Vec3(0);
 
@@ -115,8 +121,8 @@ public class PortalRenderer {
 
     private static final double RAY_CORNER_EPSILON = 0.08;
 
-    /** Cached {@code Optional.of(VoxelShapes.empty())} for the portal-sight shape override hot path. */
-    private static final Optional<VoxelShape> EMPTY_SHAPE_OVERRIDE = Optional.of(VoxelShapes.empty());
+    /** Cached {@code Optional.of(Shapes.empty())} for the portal-sight shape override hot path. */
+    private static final Optional<VoxelShape> EMPTY_SHAPE_OVERRIDE = Optional.of(Shapes.empty());
 
     // --- profiler ---
     public static final Profile PROFILE = new Profile();
@@ -385,9 +391,9 @@ public class PortalRenderer {
         ShaderInit.PORTAL_FRAME.get().unbind();
     }
 
-    public void renderPortals(ClientWorld level, ActiveRenderInfo camera, ClippingHelper clippingHelper, Matrix4f projectionMatrix, float partialTicks) {
+    public void renderPortals(ClientLevel level, Camera camera, Frustum clippingHelper, Matrix4f projectionMatrix, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
-        Framebuffer mainFBO = mc.getMainRenderTarget();
+        RenderTarget mainFBO = mc.getMainRenderTarget();
 
         boolean isOuter = recursion == 0;
         if(isOuter) {
@@ -410,7 +416,7 @@ public class PortalRenderer {
 
         if(recursion == 0) {
             currentlyRenderingPortals = true;
-            fabulousGraphics = mc.options.graphicsMode == GraphicsFanciness.FABULOUS;
+            fabulousGraphics = mc.options.graphicsMode == GraphicsStatus.FABULOUS;
 
             if(fabulousGraphics) {
                 int w = mc.getWindow().getWidth();
@@ -475,7 +481,7 @@ public class PortalRenderer {
         }
     }
 
-    private boolean discardPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper, Matrix4f projectionMatrix) {
+    private boolean discardPortal(PortalEntity portal, Camera camera, Frustum clippingHelper, Matrix4f projectionMatrix) {
         Vec3 cameraPos = new Vec3(camera.getPosition());
         Vec3 portalPos = new Vec3(portal.position());
         Vec3 portalToCamera = cameraPos.sub(portalPos);
@@ -526,8 +532,8 @@ public class PortalRenderer {
      * when the AABB straddles the near plane (any corner has w &lt;= epsilon), in which
      * case the caller should skip NDC-based culling to avoid false positives.
      */
-    private float[] computePortalNdcRect(PortalEntity portal, ActiveRenderInfo camera, Matrix4f projectionMatrix) {
-        AxisAlignedBB bb = portal.getBoundingBox();
+    private float[] computePortalNdcRect(PortalEntity portal, Camera camera, Matrix4f projectionMatrix) {
+        AABB bb = portal.getBoundingBox();
         Matrix4f view = getViewMatrix(camera);
         Matrix4f mvp = projectionMatrix.copy();
         mvp.multiply(view);
@@ -577,19 +583,19 @@ public class PortalRenderer {
      *
      * @param out length must be at least {@link #PORTAL_OPENING_CONTROL_POINT_COUNT}
      */
-    private static void portalOpeningControlPoints(PortalEntity portal, Vector3d[] out) {
+    private static void portalOpeningControlPoints(PortalEntity portal, net.minecraft.world.phys.Vec3[] out) {
         OrthonormalBasis basis = portal.getSourceBasis();
         Vec3 rightUnit = basis.getX().normalize();
         Vec3 upUnit = basis.getY().normalize();
         double rx = rightUnit.x * 0.5, ry = rightUnit.y * 0.5, rz = rightUnit.z * 0.5;
         double ux = upUnit.x,         uy = upUnit.y,         uz = upUnit.z;
-        Vector3d center = portal.getBoundingBox().getCenter();
+        net.minecraft.world.phys.Vec3 center = portal.getBoundingBox().getCenter();
         int idx = 0;
         for(int row = 0; row < PORTAL_OPENING_GRID_H; row++) {
             double b = portalOpeningGridCoord(PORTAL_OPENING_GRID_H, row);
             for(int col = 0; col < PORTAL_OPENING_GRID_W; col++) {
                 double a = portalOpeningGridCoord(PORTAL_OPENING_GRID_W, col);
-                out[idx++] = new Vector3d(
+                out[idx++] = new net.minecraft.world.phys.Vec3(
                         center.x + a * rx + b * ux,
                         center.y + a * ry + b * uy,
                         center.z + a * rz + b * uz);
@@ -623,7 +629,7 @@ public class PortalRenderer {
     /**
      * {@code true} if the ray from {@code from} reaches {@code corner} without an opaque block in front of it.
      * The shape override collapses every non-sight-blocking block (glass, panes, bars,
-     * leaves, scaffolding, fluids, …) to {@link VoxelShapes#empty()}, so the raycast
+     * leaves, scaffolding, fluids, …) to {@link Shapes#empty()}, so the raycast
      * keeps traversing through stacks of non-occluders and only reports a hit when it
      * reaches an actually solid block.
      *
@@ -636,16 +642,16 @@ public class PortalRenderer {
      * corner sample and (if the ray was blocked) at the exact block-face hit point, so
      * you can see the ray results ingame.
      */
-    private static boolean cornerVisibleAlongRay(ClientWorld world, Vector3d from, Vector3d corner,
+    private static boolean cornerVisibleAlongRay(ClientLevel world, net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 corner,
                                                  @Nullable Entity viewer, boolean emitDebugParticles) {
-        RayTraceContext ctx = new RayTraceContext(from, corner, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, viewer);
-        BlockRayTraceResult hit = ModUtil.customClip(world, ctx, pos ->
+        ClipContext ctx = new ClipContext(from, corner, ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.NONE, viewer);
+        BlockHitResult hit = ModUtil.customClip(world, ctx, pos ->
                 blockCountsAsOpaqueForPortalSight(world.getBlockState(pos))
                         ? Optional.empty()
                         : EMPTY_SHAPE_OVERRIDE);
 
         boolean visible;
-        if(hit.getType() == RayTraceResult.Type.MISS) {
+        if(hit.getType() == HitResult.Type.MISS) {
             visible = true;
         } else {
             double distCorner = from.distanceTo(corner);
@@ -655,17 +661,17 @@ public class PortalRenderer {
 
         if(emitDebugParticles) {
             // Corner sample: green = ray reached it (portal will render), red = occluded.
-            RedstoneParticleData cornerDust = visible
-                    ? new RedstoneParticleData(0.1F, 1.0F, 0.2F, 0.2F)
-                    : new RedstoneParticleData(1.0F, 0.15F, 0.1F, 0.2F);
+            DustParticleOptions cornerDust = visible
+                    ? new DustParticleOptions(0.1F, 1.0F, 0.2F, 0.2F)
+                    : new DustParticleOptions(1.0F, 0.15F, 0.1F, 0.2F);
             world.addParticle(cornerDust, corner.x, corner.y, corner.z, 0, 0, 0);
 
-            if(!visible && hit.getType() != RayTraceResult.Type.MISS) {
+            if(!visible && hit.getType() != HitResult.Type.MISS) {
                 // Yellow dust at the block-face where the ray stopped. If grates/glass
                 // are working correctly, this should be on the solid wall behind them,
                 // not on the grate itself.
-                Vector3d h = hit.getLocation();
-                RedstoneParticleData hitDust = new RedstoneParticleData(1.0F, 0.9F, 0.2F, 0.2F);
+                net.minecraft.world.phys.Vec3 h = hit.getLocation();
+                DustParticleOptions hitDust = new DustParticleOptions(1.0F, 0.9F, 0.2F, 0.2F);
                 world.addParticle(hitDust, h.x, h.y, h.z, 0, 0, 0);
             }
         }
@@ -678,17 +684,17 @@ public class PortalRenderer {
      * (cheap skip path). Only meaningful from {@link #renderPortal} when {@code recursion == 1} (main view);
      * nested passes skip this.
      */
-    public boolean portalOpeningFullyOccluded(PortalEntity portal, ActiveRenderInfo camera) {
-        ClientWorld world = Minecraft.getInstance().level;
+    public boolean portalOpeningFullyOccluded(PortalEntity portal, Camera camera) {
+        ClientLevel world = Minecraft.getInstance().level;
         if(world == null)
             return false;
 
-        Vector3d from = camera.getPosition();
+        net.minecraft.world.phys.Vec3 from = camera.getPosition();
         Entity viewer = camera.getEntity();
         if(viewer == null)
             viewer = Minecraft.getInstance().player;
 
-        Vector3d[] points = new Vector3d[PORTAL_OPENING_CONTROL_POINT_COUNT];
+        net.minecraft.world.phys.Vec3[] points = new net.minecraft.world.phys.Vec3[PORTAL_OPENING_CONTROL_POINT_COUNT];
         portalOpeningControlPoints(portal, points);
 
         // Rate-limit debug particles to once per game tick per portal so the HUD
@@ -705,7 +711,7 @@ public class PortalRenderer {
         }
 
         boolean anyVisible = false;
-        for(Vector3d p : points) {
+        for(net.minecraft.world.phys.Vec3 p : points) {
             boolean v = cornerVisibleAlongRay(world, from, p, viewer, emitDebugParticles);
             if(v) {
                 anyVisible = true;
@@ -731,7 +737,7 @@ public class PortalRenderer {
         return new float[]{xMin, yMin, xMax, yMax};
     }
 
-    private void finishPortalEntity(PortalEntity portal, ActiveRenderInfo camera, float partialTicks, boolean fabulousGraphics) {
+    private void finishPortalEntity(PortalEntity portal, Camera camera, float partialTicks, boolean fabulousGraphics) {
         if(fabulousGraphics)
             GL11.glDisable(GL_STENCIL_TEST);
 
@@ -741,7 +747,7 @@ public class PortalRenderer {
             glDisable(GL_CLIP_PLANE0);
         }
 
-        ActiveRenderInfo fogCamera = camera;
+        Camera fogCamera = camera;
         if(portal.getOtherPortal().isPresent()) {
             fogCamera = new PortalCamera(camera, partialTicks);
             fogCamera.setPosition(portal.getOtherPortal().get().position());
@@ -756,7 +762,7 @@ public class PortalRenderer {
         recursion--;
     }
 
-    private ActiveRenderInfo setupCamera(ActiveRenderInfo camera, PortalEntity portal, float partialTicks) {
+    private Camera setupCamera(Camera camera, PortalEntity portal, float partialTicks) {
         if(!portal.getOtherPortal().isPresent())
             return camera;
 
@@ -775,7 +781,7 @@ public class PortalRenderer {
                 newCameraPos, angles.getPitch(), angles.getYaw(), angles.getRoll(), partialTicks);
     }
 
-    private void setupMatrixStack(MatrixStack matrixStack, ActiveRenderInfo camera) {
+    private void setupMatrixStack(PoseStack matrixStack, Camera camera) {
         if(camera instanceof PortalCamera) {
             PortalCamera portalCamera = (PortalCamera)camera;
             matrixStack.mulPose(Vector3f.ZP.rotationDegrees(portalCamera.getRoll()));
@@ -784,7 +790,7 @@ public class PortalRenderer {
         }
     }
 
-    private void blitFBOtoFBO(Framebuffer src, Framebuffer dest) {
+    private void blitFBOtoFBO(RenderTarget src, RenderTarget dest) {
         ShaderInit.ACTUAL_BLIT.get().bind()
                 .setMatrix("projection", Matrix4f.createScaleMatrix(1, 1, 1))
                 .setInt("texture", 0);
@@ -805,13 +811,13 @@ public class PortalRenderer {
         ShaderInit.ACTUAL_BLIT.get().unbind();
     }
 
-    private void setupSkyAndFog(ActiveRenderInfo camera, float partialTicks) {
+    private void setupSkyAndFog(Camera camera, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
         if(mc.level != null) {
             FogRenderer.setupColor(camera, partialTicks, mc.level, mc.options.renderDistance,
                     mc.gameRenderer.getDarkenWorldAmount(partialTicks));
             float renderDistance = mc.gameRenderer.getRenderDistance();
-            boolean hasFog = mc.level.effects().isFoggyAt(MathHelper.floor(camera.getBlockPosition().getX()), MathHelper.floor(camera.getBlockPosition().getY()))
+            boolean hasFog = mc.level.effects().isFoggyAt(Mth.floor(camera.getBlockPosition().getX()), Mth.floor(camera.getBlockPosition().getY()))
                     || mc.gui.getBossOverlay().shouldCreateWorldFog();
             if(Minecraft.getInstance().options.renderDistance >= 4)
                 FogRenderer.setupFog(camera, FogRenderer.FogType.FOG_SKY, renderDistance, hasFog, partialTicks);
@@ -820,7 +826,7 @@ public class PortalRenderer {
         }
     }
 
-    private void renderPortal(PortalEntity portal, ActiveRenderInfo camera, ClippingHelper clippingHelper, Matrix4f projectionMatrix, float partialTicks, boolean fabulousGraphics) {
+    private void renderPortal(PortalEntity portal, Camera camera, Frustum clippingHelper, Matrix4f projectionMatrix, float partialTicks, boolean fabulousGraphics) {
         recursion++;
         this.portalChain.addLast(portal);
         if(PROFILE.enabled) {
@@ -855,7 +861,7 @@ public class PortalRenderer {
         }
 
         Minecraft mc = Minecraft.getInstance();
-        Framebuffer mainFBO = mc.getMainRenderTarget();
+        RenderTarget mainFBO = mc.getMainRenderTarget();
 
         Matrix4f modelMatrix = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera));
         Matrix4f viewMatrix = getViewMatrix(camera);
@@ -867,12 +873,12 @@ public class PortalRenderer {
             GL11.glEnable(GL_STENCIL_TEST);
             Optional<PortalEntity> otherPortalOptional = portal.getOtherPortal();
 
-            MatrixStack matrixStack = new MatrixStack();
-            ActiveRenderInfo portalCamera = setupCamera(camera, portal, partialTicks);
+            PoseStack matrixStack = new PoseStack();
+            Camera portalCamera = setupCamera(camera, portal, partialTicks);
             setupMatrixStack(matrixStack, portalCamera);
             setupSkyAndFog(portalCamera, partialTicks);
 
-            ActiveRenderInfo fogCamera = portalCamera;
+            Camera fogCamera = portalCamera;
             if(portal.getOtherPortal().isPresent()) {
                 fogCamera = new PortalCamera(portalCamera, partialTicks);
                 fogCamera.setPosition(portal.getOtherPortal().get().position());
@@ -929,7 +935,7 @@ public class PortalRenderer {
                         : PMState.cameraPosOverrideForRenderingSelf.clone().transform(PortalEntity.getPortalToPortalMatrix(portal, otherPortal));
 
                 PROFILE.push("saveRenderChunks");
-                ObjectList<WorldRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
+                ObjectList<LevelRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
                 renderChunks.addAll(mc.levelRenderer.renderChunks);
                 PROFILE.pop();
 
@@ -977,7 +983,7 @@ public class PortalRenderer {
                 mc.levelRenderer.renderChunks.clear();
                 mc.levelRenderer.renderChunks.addAll(renderChunks);
 
-                TileEntityRendererDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
+                BlockEntityRenderDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
                 PROFILE.pop();
 
@@ -1064,12 +1070,12 @@ public class PortalRenderer {
         return recursion <= 1;
     }
 
-    public void renderHighlights(ActiveRenderInfo camera, Matrix4f projectionMatrix) {
+    public void renderHighlights(Camera camera, Matrix4f projectionMatrix) {
         if(PortalMod.DEBUG)
             GL43.glPushDebugGroup(GL43.GL_DEBUG_SOURCE_APPLICATION, 0, "Highlights");
 
-        ClientWorld level = Minecraft.getInstance().level;
-        ClientPlayerEntity player = Minecraft.getInstance().player;
+        ClientLevel level = Minecraft.getInstance().level;
+        LocalPlayer player = Minecraft.getInstance().player;
 
         if(level == null || player == null)
             return;
@@ -1091,7 +1097,7 @@ public class PortalRenderer {
                 continue;
 
             PortalEntity portal = (PortalEntity)entity;
-            Vector3d cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            net.minecraft.world.phys.Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
             if(currentCamera != null)
                 cameraPos = currentCamera.getPosition();
 
@@ -1138,7 +1144,7 @@ public class PortalRenderer {
     }
     
     private void unbindBuffer() {
-        DefaultVertexFormats.POSITION_TEX.clearBufferState();
+        DefaultVertexFormat.POSITION_TEX.clearBufferState();
         VertexBuffer.unbind();
     }
 
@@ -1157,9 +1163,9 @@ public class PortalRenderer {
                 .setFloat("clipPos", (float)pos.x, (float)pos.y, (float)pos.z);
     }
 
-    private Matrix4f getModelMatrix(PortalEntity portal, ActiveRenderInfo camera, float offset) {
-        Vector3i portalNormal = portal.getDirection().getNormal();
-        MatrixStack matrix = new MatrixStack();
+    private Matrix4f getModelMatrix(PortalEntity portal, Camera camera, float offset) {
+        Vec3i portalNormal = portal.getDirection().getNormal();
+        PoseStack matrix = new PoseStack();
         Vec3 offsetNormal = new Vec3(camera.getPosition()).sub(portal.position()).normalize().mul(offset);
 
         matrix.translate(offsetNormal.x, offsetNormal.y, offsetNormal.z);
@@ -1168,9 +1174,9 @@ public class PortalRenderer {
         return matrix.last().pose();
     }
 
-    private Matrix4f getViewMatrix(ActiveRenderInfo camera) {
-        Vector3d cameraPos = camera.getPosition();
-        MatrixStack matrix = new MatrixStack();
+    private Matrix4f getViewMatrix(Camera camera) {
+        net.minecraft.world.phys.Vec3 cameraPos = camera.getPosition();
+        PoseStack matrix = new PoseStack();
         float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
         matrix.mulPose(Vector3f.ZP.rotationDegrees(roll));
@@ -1180,7 +1186,7 @@ public class PortalRenderer {
         return matrix.last().pose();
     }
 
-    public ActiveRenderInfo getCurrentCamera() {
+    public Camera getCurrentCamera() {
         if(this.currentCamera == null)
             return Minecraft.getInstance().gameRenderer.getMainCamera();
         return this.currentCamera;

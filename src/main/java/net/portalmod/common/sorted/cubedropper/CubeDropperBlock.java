@@ -1,29 +1,5 @@
 package net.portalmod.common.sorted.cubedropper;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -37,6 +13,37 @@ import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3f;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 public class CubeDropperBlock extends MultiBlock {
 
@@ -82,7 +89,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState blockState, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
+    public VoxelShape getShape(BlockState blockState, BlockGetter p_220053_2_, BlockPos p_220053_3_, CollisionContext p_220053_4_) {
         return SHAPE.get(blockState.getValue(HALF), blockState.getValue(CORNER)).getVariant(blockState.getValue(OPEN) ? "" : "closed");
     }
 
@@ -171,7 +178,7 @@ public class CubeDropperBlock extends MultiBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         if (context.getClickedFace() != Direction.DOWN) return null;
 
         boolean prefersLeft = clickedOnPositiveHalf(context, Direction.Axis.X);
@@ -191,7 +198,7 @@ public class CubeDropperBlock extends MultiBlock {
         return null;
     }
 
-    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+    public boolean isCornerPlaceable(BlockPlaceContext context, QuadBlockCorner corner) {
         BlockPos topLeftPos = context.getClickedPos();
 
         if (!corner.isLeft()) topLeftPos = topLeftPos.west();
@@ -212,7 +219,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         super.neighborChanged(state, world, pos, block, neighborPos, b);
         if (world.isClientSide) return;
 
@@ -225,7 +232,7 @@ public class CubeDropperBlock extends MultiBlock {
                 .anyMatch(checkingPos -> world.hasSignal(checkingPos.above(), Direction.DOWN));
 
         if (isPowered) {
-            TileEntity blockEntity = world.getBlockEntity(getMainPosition(state, pos));
+            BlockEntity blockEntity = world.getBlockEntity(getMainPosition(state, pos));
             if (blockEntity instanceof CubeDropperTileEntity) {
                 ((CubeDropperTileEntity) blockEntity).resetDropper();
             }
@@ -233,41 +240,41 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public ActionResultType use(BlockState blockState, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+    public InteractionResult use(BlockState blockState, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         if (world.isClientSide) {
-            return ActionResultType.PASS;
+            return InteractionResult.PASS;
         }
 
         ItemStack itemStack = player.getItemInHand(hand);
         Item item = itemStack.getItem();
 
-        TileEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
-        if (!(tileEntity instanceof CubeDropperTileEntity)) return ActionResultType.FAIL;
+        BlockEntity tileEntity = world.getBlockEntity(this.getMainPosition(blockState, pos));
+        if (!(tileEntity instanceof CubeDropperTileEntity)) return InteractionResult.FAIL;
         CubeDropperTileEntity dropperEntity = (CubeDropperTileEntity) tileEntity;
 
         if (item instanceof SpawnEggItem) {
             dropperEntity.onEggClick(itemStack, player);
             player.playSound(SoundEvents.ITEM_FRAME_ADD_ITEM, 1, 1);
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         if (item instanceof WrenchItem) {
             dropperEntity.onWrenchClick(player);
             WrenchItem.playUseSound(world, result.getLocation());
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
-    public void setOpen(boolean open, BlockState blockState, World world, BlockPos pos) {
+    public void setOpen(boolean open, BlockState blockState, Level world, BlockPos pos) {
         this.setBlockStateValue(OPEN, open, blockState, world, pos);
-        world.playSound(null, pos, open ? SoundInit.CUBE_DROPPER_OPEN.get() : SoundInit.CUBE_DROPPER_CLOSE.get(), SoundCategory.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
+        world.playSound(null, pos, open ? SoundInit.CUBE_DROPPER_OPEN.get() : SoundInit.CUBE_DROPPER_CLOSE.get(), SoundSource.BLOCKS, 1, ModUtil.randomSlightSoundPitch());
     }
 
     @Override
-    public void onRemove(BlockState blockState, World world, BlockPos pos, BlockState newState, boolean b) {
+    public void onRemove(BlockState blockState, Level world, BlockPos pos, BlockState newState, boolean b) {
         if (isMainBlock(blockState) && !blockState.is(newState.getBlock())) {
-            TileEntity blockEntity = world.getBlockEntity(pos);
+            BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CubeDropperTileEntity) {
                 ((CubeDropperTileEntity) blockEntity).onRemove();
             }
@@ -276,7 +283,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(CORNER, HALF, OPEN);
     }
 
@@ -287,7 +294,7 @@ public class CubeDropperBlock extends MultiBlock {
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
         return this.isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create() : null;
     }
 
@@ -307,7 +314,7 @@ public class CubeDropperBlock extends MultiBlock {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("cube_dropper", list);
     }
 }

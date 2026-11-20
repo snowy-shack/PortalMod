@@ -1,7 +1,5 @@
 package net.portalmod.mixins;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.KeyInit;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +8,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -27,7 +28,7 @@ public class MinecraftMixin {
                         method = "handleKeybinds",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screen/Screen;)V",
+                    target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V",
                     ordinal = 1
             )
     )

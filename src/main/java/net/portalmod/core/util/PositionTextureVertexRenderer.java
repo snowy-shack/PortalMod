@@ -1,15 +1,16 @@
 package net.portalmod.core.util;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.portalmod.client.render.Shader;
 import net.portalmod.core.math.Mat4;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
 import java.util.function.Consumer;
+
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 
 public class PositionTextureVertexRenderer {
     private final int primitive;
@@ -22,12 +23,12 @@ public class PositionTextureVertexRenderer {
     public void reset() {
         if(this.vb != null)
             this.vb.close();
-        this.vb = new VertexBuffer(DefaultVertexFormats.POSITION_TEX);
+        this.vb = new VertexBuffer(DefaultVertexFormat.POSITION_TEX);
     }
 
     public void data(Consumer<BufferBuilder> data) {
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
-        bufferbuilder.begin(this.primitive, DefaultVertexFormats.POSITION_TEX);
+        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        bufferbuilder.begin(this.primitive, DefaultVertexFormat.POSITION_TEX);
         data.accept(bufferbuilder);
         bufferbuilder.end();
         this.vb.upload(bufferbuilder);

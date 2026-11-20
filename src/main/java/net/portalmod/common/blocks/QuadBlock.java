@@ -1,21 +1,22 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.Property;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.BlockPos;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
 import java.util.*;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.util.Tuple;
+import net.minecraft.core.BlockPos;
 
 public class QuadBlock extends MultiBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -115,7 +116,7 @@ public class QuadBlock extends MultiBlock {
     }
 
     @Nullable
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getClickedFace();
         Direction.Axis axis = direction.getAxis();
         boolean isPositive = direction.getAxisDirection() == Direction.AxisDirection.POSITIVE;
@@ -143,7 +144,7 @@ public class QuadBlock extends MultiBlock {
         return null;
     }
 
-    public boolean isCornerPlaceable(BlockItemUseContext context, QuadBlockCorner corner) {
+    public boolean isCornerPlaceable(BlockPlaceContext context, QuadBlockCorner corner) {
         return this.getAllBlocks(context.getClickedPos(), corner, context.getClickedFace()).stream()
                 .allMatch(pos -> ModUtil.canPlaceAt(context, pos));
     }

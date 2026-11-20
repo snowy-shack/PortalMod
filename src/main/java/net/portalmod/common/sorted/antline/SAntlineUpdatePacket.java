@@ -1,43 +1,43 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.function.Supplier;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+
 public class SAntlineUpdatePacket implements AbstractPacket<SAntlineUpdatePacket> {
     private BlockPos pos;
-    private CompoundNBT nbt;
+    private CompoundTag nbt;
 
     public SAntlineUpdatePacket() {}
 
-    public SAntlineUpdatePacket(BlockPos pos, CompoundNBT nbt) {
+    public SAntlineUpdatePacket(BlockPos pos, CompoundTag nbt) {
         this.pos = pos;
         this.nbt = nbt;
     }
     
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(pos)
                 .writeNbt(nbt);
     }
 
     @Override
-    public SAntlineUpdatePacket decode(PacketBuffer buffer) {
+    public SAntlineUpdatePacket decode(FriendlyByteBuf buffer) {
         return new SAntlineUpdatePacket(buffer.readBlockPos(), buffer.readNbt());
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientOnly.run(() -> () -> {
                 AntlineTileEntity blockEntity = (AntlineTileEntity) Minecraft.getInstance().level.getBlockEntity(pos);
                 if(blockEntity == null) return;
                 blockEntity.load(nbt, false);

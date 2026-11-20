@@ -1,12 +1,13 @@
 package net.portalmod.mixins.accessors;
 
-import net.minecraft.client.gui.screen.MainMenuScreen;
-import net.minecraft.client.renderer.RenderSkyboxCube;
-import net.minecraft.util.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(MainMenuScreen.class)
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.renderer.CubeMap;
+import net.minecraft.resources.ResourceLocation;
+
+@Mixin(TitleScreen.class)
 public interface MainMenuScreenAccessor {
     @Accessor(value = "MINECRAFT_EDITION")
     static void pmSetEdition(ResourceLocation value) {
@@ -14,7 +15,7 @@ public interface MainMenuScreenAccessor {
     }
 
     @Accessor(value = "CUBE_MAP")
-    static void pmSetCubeMap(RenderSkyboxCube value) {
+    static void pmSetCubeMap(CubeMap value) {
         throw new AssertionError();
     }
 
@@ -24,7 +25,7 @@ public interface MainMenuScreenAccessor {
     }
 
     @Accessor(value = "CUBE_MAP")
-    static RenderSkyboxCube pmGetCubeMap() {
+    static CubeMap pmGetCubeMap() {
         throw new AssertionError();
     }
 }

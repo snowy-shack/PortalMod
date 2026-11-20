@@ -10,19 +10,20 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.portalmod.core.init.TextureInit;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
 
 public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
 //    public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "misc/faithplate_target");
@@ -35,7 +36,7 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
 //        return textures;
 //    }
 
-    private void putVertex(BakedQuadBuilder builder, Vector3d normal,
+    private void putVertex(BakedQuadBuilder builder, Vec3 normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
 
         ImmutableList<VertexFormatElement> elements = builder.getVertexFormat().getElements().asList();
@@ -73,8 +74,8 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
         }
     }
 
-    private BakedQuad createQuad(Vector3d v1, Vector3d v2, Vector3d v3, Vector3d v4, TextureAtlasSprite sprite) {
-        Vector3d normal = v3.subtract(v2).cross(v1.subtract(v2)).normalize();
+    private BakedQuad createQuad(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, TextureAtlasSprite sprite) {
+        Vec3 normal = v3.subtract(v2).cross(v1.subtract(v2)).normalize();
         int tw = sprite.getWidth();
         int th = sprite.getHeight();
 
@@ -87,8 +88,8 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
         return builder.build();
     }
 
-    private Vector3d v(double x, double y, double z) {
-        return new Vector3d(x, y, z);
+    private Vec3 v(double x, double y, double z) {
+        return new Vec3(x, y, z);
     }
 
     private void addQuad(List<BakedQuad> quads, Direction side, TextureAtlasSprite texture, float offset) {
@@ -113,7 +114,7 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
 
     public BakedQuad getQuad(Direction side, float offset) {
         List<BakedQuad> quads = new ArrayList<>();
-        addQuad(quads, side, Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS)
+        addQuad(quads, side, Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
                 .apply(TextureInit.FAITHPLATE_TARGET), offset);
         return quads.get(0);
     }
@@ -140,16 +141,16 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(TextureInit.FAITHPLATE_TARGET);
+        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(TextureInit.FAITHPLATE_TARGET);
     }
 
     @Override
     public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        return Minecraft.getInstance().getTextureAtlas(AtlasTexture.LOCATION_BLOCKS).apply(TextureInit.FAITHPLATE_TARGET);
+        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(TextureInit.FAITHPLATE_TARGET);
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

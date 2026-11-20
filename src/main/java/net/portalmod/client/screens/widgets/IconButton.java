@@ -1,11 +1,11 @@
 package net.portalmod.client.screens.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
 
 public class IconButton extends Button {
     private static final int SIZE = 20;
@@ -14,14 +14,14 @@ public class IconButton extends Button {
     private final int v;
 
     public IconButton(int x, int y, ResourceLocation texture, int u, int v, IPressable onClick) {
-        super(x, y, SIZE, SIZE, StringTextComponent.EMPTY, onClick);
+        super(x, y, SIZE, SIZE, TextComponent.EMPTY, onClick);
         this.texture = texture;
         this.u = u;
         this.v = v;
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
 
         if(this.visible) {

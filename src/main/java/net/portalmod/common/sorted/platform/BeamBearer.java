@@ -1,9 +1,9 @@
 package net.portalmod.common.sorted.platform;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-
 import javax.annotation.Nullable;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
 
 public interface BeamBearer {
     @Nullable

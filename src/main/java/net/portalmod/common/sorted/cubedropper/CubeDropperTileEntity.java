@@ -1,20 +1,5 @@
 package net.portalmod.common.sorted.cubedropper;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
@@ -25,12 +10,28 @@ import net.portalmod.core.util.ModUtil;
 
 import java.util.*;
 
-public class CubeDropperTileEntity extends TileEntity implements ITickableTileEntity, IndicatorActivated {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.TickableBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+
+public class CubeDropperTileEntity extends BlockEntity implements TickableBlockEntity, IndicatorActivated {
 
     public List<UUID> entityUUIDs = new ArrayList<>();
     public int openTicks = 0;
     public boolean wasActive = false;
-    public CompoundNBT entityNBT = null;
+    public CompoundTag entityNBT = null;
 
     public CubeDropperTileEntity() {
         super(TileEntityTypeInit.CUBE_DROPPER.get());
@@ -64,7 +65,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     // Open dropper and fizzle first cube
     public void openDropper(CubeDropperBlock dropperBlock) {
-        if (this.level instanceof ServerWorld) {
+        if (this.level instanceof ServerLevel) {
             dropperBlock.setOpen(true, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 1;
             if (this.entityUUIDs.size() == 2) {
@@ -74,9 +75,9 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void fizzleFirstCube() {
-        if (!(this.level instanceof ServerWorld)) return;
+        if (!(this.level instanceof ServerLevel)) return;
 
-        Entity entity = ((ServerWorld) this.level).getEntity(this.entityUUIDs.get(0));
+        Entity entity = ((ServerLevel) this.level).getEntity(this.entityUUIDs.get(0));
 
         if (entity instanceof TestElementEntity) {
             ((TestElementEntity) entity).startFizzling();
@@ -89,7 +90,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
 
     // Close dropper and spawn a new cube inside the dropper
     public void closeDropper(CubeDropperBlock dropperBlock) {
-        if (this.level instanceof ServerWorld) {
+        if (this.level instanceof ServerLevel) {
             dropperBlock.setOpen(false, this.getBlockState(), this.level, this.getBlockPos());
             this.openTicks = 0;
             addEntity();
@@ -106,13 +107,13 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         if (this.entityUUIDs.isEmpty() && this.openTicks == 0) {
             addEntity();
         }
-        if (this.level instanceof ServerWorld) {
-            this.entityUUIDs.removeIf(uuid -> ((ServerWorld) this.level).getEntity(uuid) == null);
+        if (this.level instanceof ServerLevel) {
+            this.entityUUIDs.removeIf(uuid -> ((ServerLevel) this.level).getEntity(uuid) == null);
         }
     }
 
     public void addEntity() {
-        if (this.entityNBT == null || !(this.level instanceof ServerWorld)) {
+        if (this.entityNBT == null || !(this.level instanceof ServerLevel)) {
             return;
         }
 
@@ -133,7 +134,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
             ((TestElementEntity) entity).setFromDropper(true);
         }
 
-        boolean successful = ((ServerWorld) this.level).tryAddFreshEntityWithPassengers(entity);
+        boolean successful = ((ServerLevel) this.level).tryAddFreshEntityWithPassengers(entity);
 
         if (successful) {
             this.entityUUIDs.add(entity.getUUID());
@@ -141,9 +142,9 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void removeAllEntities() {
-        if (this.level instanceof ServerWorld) {
+        if (this.level instanceof ServerLevel) {
             for (UUID uuid : this.entityUUIDs) {
-                Entity entity = ((ServerWorld) this.level).getEntity(uuid);
+                Entity entity = ((ServerLevel) this.level).getEntity(uuid);
                 if (entity != null) {
                     if (entity instanceof TestElementEntity) {
                         ((TestElementEntity) entity).startFizzling();
@@ -156,7 +157,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         }
     }
 
-    public void onEggClick(ItemStack egg, PlayerEntity player) {
+    public void onEggClick(ItemStack egg, Player player) {
         EntityType<?> spawnEggType = ((SpawnEggItem) egg.getItem()).getType(egg.getTag());
 
         if (!player.isCreative()) {
@@ -168,7 +169,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
         this.setEntityNBT(spawnEggType);
     }
 
-    public void onWrenchClick(PlayerEntity player) {
+    public void onWrenchClick(Player player) {
         if (!this.hasEntityNBT()) return;
 
         // Remove current spawned cube
@@ -206,7 +207,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, Level world, BlockPos pos) {
         List<BlockPos> possibleIndicatorPositions = new ArrayList<>();
         possibleIndicatorPositions.addAll(getSurroundingPositions(pos));
         possibleIndicatorPositions.addAll(getSurroundingPositions(pos.below()));
@@ -239,7 +240,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     public void setEntityNBT(EntityType<?> entityType) {
-        this.entityNBT = new CompoundNBT();
+        this.entityNBT = new CompoundTag();
         this.entityNBT.putString("id", Registry.ENTITY_TYPE.getKey(entityType).toString());
     }
 
@@ -256,7 +257,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         nbt = super.save(nbt);
         if (!this.entityUUIDs.isEmpty()) {
             nbt.putUUID("UUID1", this.entityUUIDs.get(0));
@@ -275,7 +276,7 @@ public class CubeDropperTileEntity extends TileEntity implements ITickableTileEn
     }
 
     @Override
-    public void load(BlockState blockState, CompoundNBT nbt) {
+    public void load(BlockState blockState, CompoundTag nbt) {
         super.load(blockState, nbt);
         this.entityUUIDs.clear();
         if (nbt.hasUUID("UUID1")) {

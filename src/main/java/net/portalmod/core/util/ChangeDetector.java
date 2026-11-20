@@ -1,3 +1,4 @@
+
 package net.portalmod.core.util;
 
 public class ChangeDetector {

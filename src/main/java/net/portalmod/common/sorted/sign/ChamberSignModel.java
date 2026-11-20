@@ -1,14 +1,14 @@
 package net.portalmod.common.sorted.sign;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
 
 public class ChamberSignModel extends EntityModel<Entity> {
-	public ModelRenderer main;
+	public ModelPart main;
 
 	public ChamberSignModel() {
 		texWidth = 128;
@@ -17,7 +17,7 @@ public class ChamberSignModel extends EntityModel<Entity> {
     }
 
 	public void changeModel(ChamberSignEntity sign) {
-		main = new ModelRenderer(this);
+		main = new ModelPart(this);
 
 		main.setPos(0.0F, 24.0F, 0.0F);
 
@@ -25,7 +25,7 @@ public class ChamberSignModel extends EntityModel<Entity> {
 		main.texOffs(1, 1).addBox(-12.0F, -24.0F, -1.0F, 24.0F, 48.0F, 2.0F, 0.0F, false);
 
 		// Progress bar
-		main.texOffs(8, 51).addBox(-9.0F, 4.0F, -1.01F,1 + MathHelper.clamp(sign.getProgress(), -1, 8) * 2, 2.0F, 1.0F, 0.0F, false);
+		main.texOffs(8, 51).addBox(-9.0F, 4.0F, -1.01F,1 + Mth.clamp(sign.getProgress(), -1, 8) * 2, 2.0F, 1.0F, 0.0F, false);
 
 		// Numbers
 		main.texOffs(53 + (sign.getLeftDigit() % 5 * 9), sign.getLeftDigit() > 4 ? 20 : 0).addBox(-9.0F, -17.0F, -1.01F, 8.0F, 18.0F, 1.0F, 0.0F, false);
@@ -48,11 +48,11 @@ public class ChamberSignModel extends EntityModel<Entity> {
 	}
 
 	@Override
-	public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+	public void renderToBuffer(PoseStack matrixStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
 		main.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 	}
 
-	public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
+	public void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
 		modelRenderer.xRot = x;
 		modelRenderer.yRot = y;
 		modelRenderer.zRot = z;

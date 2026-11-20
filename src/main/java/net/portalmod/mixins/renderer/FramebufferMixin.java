@@ -1,12 +1,13 @@
 package net.portalmod.mixins.renderer;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.shader.Framebuffer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-@Mixin(Framebuffer.class)
+import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+
+@Mixin(RenderTarget.class)
 public class FramebufferMixin {
 
     // BEWARE: PORTAL RENDERING

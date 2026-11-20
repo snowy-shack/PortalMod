@@ -3,6 +3,7 @@ package net.portalmod.common.sorted.portal;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
+
 public class OrthonormalBasis {
     private Vec3 x;
     private Vec3 y;

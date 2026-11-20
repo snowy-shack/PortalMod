@@ -1,15 +1,5 @@
 package net.portalmod.mixins;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.multiplayer.PlayerController;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.play.client.CPlayerDiggingPacket;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.portalmod.common.sorted.portal.CThroughPortalProofPacket;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.common.sorted.portal.PortalRenderer;
@@ -22,17 +12,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
-@Mixin(PlayerController.class)
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+
+@Mixin(MultiPlayerGameMode.class)
 public class PlayerControllerMixin {
 
     @Inject(
                         method = "sendBlockAction",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"
+                    target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
             )
     )
-    private void pmSendBreakProof(CPlayerDiggingPacket.Action action, BlockPos pos, Direction direction, CallbackInfo info) {
+    private void pmSendBreakProof(ServerboundPlayerActionPacket.Action action, BlockPos pos, Direction direction, CallbackInfo info) {
         List<PortalEntity> portalChain = PortalRenderer.getInstance().outlineRenderingPortalChain;
 
         if(portalChain != null)
@@ -43,10 +44,10 @@ public class PlayerControllerMixin {
                         method = "useItemOn",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/network/play/ClientPlayNetHandler;send(Lnet/minecraft/network/IPacket;)V"
+                    target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"
             )
     )
-    private void pmSendPlaceProof(ClientPlayerEntity player, ClientWorld level, Hand hand, BlockRayTraceResult rayTrace, CallbackInfoReturnable<ActionResultType> info) {
+    private void pmSendPlaceProof(LocalPlayer player, ClientLevel level, InteractionHand hand, BlockHitResult rayTrace, CallbackInfoReturnable<InteractionResult> info) {
         List<PortalEntity> portalChain = PortalRenderer.getInstance().outlineRenderingPortalChain;
 
         if(portalChain != null)

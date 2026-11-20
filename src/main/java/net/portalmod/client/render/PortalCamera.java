@@ -1,21 +1,22 @@
 package net.portalmod.client.render;
 
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.IBlockReader;
 import net.portalmod.core.math.Vec3;
 
-public class PortalCamera extends ActiveRenderInfo {
+import net.minecraft.client.Camera;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
+
+public class PortalCamera extends Camera {
     private float roll;
     
-    public PortalCamera(IBlockReader level, Entity entity, Vec3 position, float xRot, float yRot, float roll, float partialTicks) {
+    public PortalCamera(BlockGetter level, Entity entity, Vec3 position, float xRot, float yRot, float roll, float partialTicks) {
         super.setup(level, entity, false, false, partialTicks);
         this.setRotation(yRot, xRot);
         this.setPosition(position.x, position.y, position.z);
         this.roll = roll;
     }
 
-    public PortalCamera(ActiveRenderInfo camera, float partialTicks) {
+    public PortalCamera(Camera camera, float partialTicks) {
         this(camera.getEntity().level, camera.getEntity(), new Vec3(camera.getPosition()), camera.getXRot(), camera.getYRot(),
                 camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : 0, partialTicks);
     }

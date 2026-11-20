@@ -1,7 +1,6 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
@@ -11,6 +10,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import net.minecraft.server.level.ServerPlayer;
 
 public class ServerSkinManager extends SkinManager {
     private static ServerSkinManager instance;
@@ -30,7 +31,7 @@ public class ServerSkinManager extends SkinManager {
         return new File(ServerLifecycleHooks.getCurrentServer().getServerDirectory(), "portalmod");
     }
 
-    public void onServerLogin(ServerPlayerEntity player) {
+    public void onServerLogin(ServerPlayer player) {
         if(this.clientSide)
             return;
 
@@ -52,7 +53,7 @@ public class ServerSkinManager extends SkinManager {
         });
     }
 
-    public void onServerReceivedPacket(ServerPlayerEntity player, CSetPlayerSkinPacket packet) {
+    public void onServerReceivedPacket(ServerPlayer player, CSetPlayerSkinPacket packet) {
         if(this.clientSide)
             return;
 

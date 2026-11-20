@@ -1,16 +1,6 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.common.blocks.PushDoorBlock;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.StandingButtonBlock;
@@ -21,15 +11,26 @@ import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.function.Supplier;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+
 public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInteractionPacket> {
     private PortalGunInteraction type;
     private PortalEnd end;
     private int data;
-    private BlockRayTraceResult blockHit;
+    private BlockHitResult blockHit;
 
     public CPortalGunInteractionPacket() {}
 
-    public CPortalGunInteractionPacket(PortalGunInteraction type, PortalEnd end, int data, BlockRayTraceResult blockHit) {
+    public CPortalGunInteractionPacket(PortalGunInteraction type, PortalEnd end, int data, BlockHitResult blockHit) {
         this.type = type;
         this.end = end;
         this.data = data;
@@ -40,7 +41,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
         private final PortalGunInteraction type;
         private PortalEnd end = PortalEnd.NONE;
         private int data = -1;
-        private BlockRayTraceResult blockHit = BlockRayTraceResult.miss(Vector3d.ZERO, Direction.NORTH, BlockPos.ZERO);
+        private BlockHitResult blockHit = BlockHitResult.miss(Vec3.ZERO, Direction.NORTH, BlockPos.ZERO);
         
         public Builder(PortalGunInteraction type) {
             this.type = type;
@@ -56,7 +57,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
             return this;
         }
 
-        public Builder blockHit(BlockRayTraceResult blockHit) {
+        public Builder blockHit(BlockHitResult blockHit) {
             this.blockHit = blockHit;
             return this;
         }
@@ -67,7 +68,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
     }
     
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeEnum(type);
         buffer.writeEnum(end);
         buffer.writeInt(data);
@@ -75,7 +76,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
     }
 
     @Override
-    public CPortalGunInteractionPacket decode(PacketBuffer buffer) {
+    public CPortalGunInteractionPacket decode(FriendlyByteBuf buffer) {
         return new CPortalGunInteractionPacket(
                 buffer.readEnum(PortalGunInteraction.class),
                 buffer.readEnum(PortalEnd.class),
@@ -83,39 +84,39 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                 this.readBlockHitResult(buffer));
     }
 
-    private void writeBlockHitResult(PacketBuffer buffer, BlockRayTraceResult result) {
+    private void writeBlockHitResult(FriendlyByteBuf buffer, BlockHitResult result) {
         BlockPos pos = result.getBlockPos();
         buffer.writeBlockPos(pos);
         buffer.writeEnum(result.getDirection());
 
-        Vector3d location = result.getLocation();
+        Vec3 location = result.getLocation();
         buffer.writeFloat((float)(location.x - (double)pos.getX()));
         buffer.writeFloat((float)(location.y - (double)pos.getY()));
         buffer.writeFloat((float)(location.z - (double)pos.getZ()));
 
-        buffer.writeBoolean(result.getType() == RayTraceResult.Type.MISS);
+        buffer.writeBoolean(result.getType() == HitResult.Type.MISS);
         buffer.writeBoolean(result.isInside());
     }
 
-    private BlockRayTraceResult readBlockHitResult(PacketBuffer buffer) {
+    private BlockHitResult readBlockHitResult(FriendlyByteBuf buffer) {
         BlockPos blockpos = buffer.readBlockPos();
         Direction direction = buffer.readEnum(Direction.class);
 
         float x = buffer.readFloat();
         float y = buffer.readFloat();
         float z = buffer.readFloat();
-        Vector3d position = new Vector3d(blockpos.getX() + x, blockpos.getY() + y, blockpos.getZ() + z);
+        Vec3 position = new Vec3(blockpos.getX() + x, blockpos.getY() + y, blockpos.getZ() + z);
 
         boolean miss = buffer.readBoolean();
         boolean inside = buffer.readBoolean();
 
-        return miss ? BlockRayTraceResult.miss(position, direction, blockpos) : new BlockRayTraceResult(position, direction, blockpos, inside);
+        return miss ? BlockHitResult.miss(position, direction, blockpos) : new BlockHitResult(position, direction, blockpos, inside);
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            ServerPlayerEntity player = context.get().getSender();
+            ServerPlayer player = context.get().getSender();
             if(player == null)
                 return;
 

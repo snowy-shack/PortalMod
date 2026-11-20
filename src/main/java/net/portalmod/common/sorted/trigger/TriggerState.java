@@ -1,8 +1,8 @@
 package net.portalmod.common.sorted.trigger;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum TriggerState implements IStringSerializable {
+public enum TriggerState implements StringRepresentable {
     NULL("null"),
     INACTIVE("inactive"),
     ACTIVE("active");

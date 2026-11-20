@@ -1,11 +1,6 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.TrackedEntity;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import net.portalmod.core.packet.SEntityPortalTeleportLerpPacket;
@@ -17,7 +12,13 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.function.Consumer;
 
-@Mixin(TrackedEntity.class)
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.util.Mth;
+import net.minecraft.server.level.ServerEntity;
+
+@Mixin(ServerEntity.class)
 public class TrackedEntityMixin {
     @Shadow @Final private Entity entity;
 
@@ -29,13 +30,13 @@ public class TrackedEntityMixin {
                     ordinal = 3
             )
     )
-    private void pmHijackPositionPacket(Consumer<IPacket<?>> instance, Object packetObject) {
-        IPacket<?> packet = (IPacket<?>)packetObject;
+    private void pmHijackPositionPacket(Consumer<Packet<?>> instance, Object packetObject) {
+        Packet<?> packet = (Packet<?>)packetObject;
         ITeleportLerpable victim = ((ITeleportLerpable)this.entity);
 
         if(victim.hasUsedPortal() && (this.entity instanceof LivingEntity)) {
-            byte xRot = (byte) MathHelper.floor(this.entity.yRot * 256.0F / 360.0F);
-            byte yRot = (byte) MathHelper.floor(this.entity.xRot * 256.0F / 360.0F);
+            byte xRot = (byte) Mth.floor(this.entity.yRot * 256.0F / 360.0F);
+            byte yRot = (byte) Mth.floor(this.entity.xRot * 256.0F / 360.0F);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SEntityPortalTeleportLerpPacket(
                     this.entity.getId(), xRot, yRot, this.entity.isOnGround(), victim.getLerpPositions()));
         } else {
@@ -98,12 +99,12 @@ public class TrackedEntityMixin {
 //
 ////            Vector3d pos = this.entity.position();
 ////
-////            instance.accept(new SEntityPortalTeleportPacket((IPacket<IClientPlayNetHandler>)packet,
+////            instance.accept(new SEntityPortalTeleportPacket((Packet<IClientPlayNetHandler>)packet,
 ////                    lastUsedPortal, pos.x, pos.y, pos.z));
 ////
 ////            ((ITeleportable)this.entity).removeLastUsedPortal();
 ////        } else {
-////            instance.accept((IPacket<IClientPlayNetHandler>)packet);
+////            instance.accept((Packet<IClientPlayNetHandler>)packet);
 ////        }
 //    }
 }

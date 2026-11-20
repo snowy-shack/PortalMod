@@ -1,20 +1,21 @@
 package net.portalmod.mixins.accessors;
 
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.util.math.vector.Vector3d;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(ActiveRenderInfo.class)
+import net.minecraft.core.BlockPos;
+import net.minecraft.client.Camera;
+import net.minecraft.world.phys.Vec3;
+
+@Mixin(Camera.class)
 public interface ActiveRenderInfoAccessor {
     @Accessor(value = "position")
-    void pmSetPosition(Vector3d value);
+    void pmSetPosition(Vec3 value);
     
     @Accessor(value = "position")
-    Vector3d pmGetPosition();
+    Vec3 pmGetPosition();
 
     @Accessor(value = "blockPosition")
     BlockPos.Mutable pmGetBlockPosition();

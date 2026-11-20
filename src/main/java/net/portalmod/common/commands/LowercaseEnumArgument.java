@@ -8,18 +8,18 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.command.arguments.IArgumentSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.TranslationTextComponent;
-
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
+
 public class LowercaseEnumArgument<T extends Enum<T>> implements ArgumentType<T> {
     private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType(
-            (found, constants) -> new TranslationTextComponent("commands.forge.arguments.enum.invalid", constants, found));
+            (found, constants) -> new TranslatableComponent("commands.forge.arguments.enum.invalid", constants, found));
 
     private final Class<T> enumClass;
     private final Map<String, T> options;
@@ -48,7 +48,7 @@ public class LowercaseEnumArgument<T extends Enum<T>> implements ArgumentType<T>
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-        return ISuggestionProvider.suggest(this.options.keySet(), builder);
+        return SharedSuggestionProvider.suggest(this.options.keySet(), builder);
     }
 
     @Override
@@ -56,15 +56,15 @@ public class LowercaseEnumArgument<T extends Enum<T>> implements ArgumentType<T>
         return this.options.keySet();
     }
 
-    public static class Serializer implements IArgumentSerializer<LowercaseEnumArgument<?>> {
+    public static class Serializer implements ArgumentSerializer<LowercaseEnumArgument<?>> {
         @Override
-        public void serializeToNetwork(LowercaseEnumArgument<?> argument, PacketBuffer buffer) {
+        public void serializeToNetwork(LowercaseEnumArgument<?> argument, FriendlyByteBuf buffer) {
             buffer.writeUtf(argument.enumClass.getName());
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
-        public LowercaseEnumArgument<?> deserializeFromNetwork(PacketBuffer buffer) {
+        public LowercaseEnumArgument<?> deserializeFromNetwork(FriendlyByteBuf buffer) {
             try {
                 String name = buffer.readUtf();
                 return new LowercaseEnumArgument(Class.forName(name));

@@ -7,15 +7,16 @@ import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.util.TriConsumer;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.TriPredicate;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
 public class BlockIterator {
-    private final World level;
+    private final Level level;
     private final BlockPos pos;
     private BlockPos currentPos;
     private boolean result;
@@ -23,7 +24,7 @@ public class BlockIterator {
     private BlockPos tempPos;
     private BlockState tempState;
     
-    public BlockIterator(World level, BlockPos pos, boolean initialResult) {
+    public BlockIterator(Level level, BlockPos pos, boolean initialResult) {
         this.level = level;
         this.pos = pos;
         this.currentPos = pos;

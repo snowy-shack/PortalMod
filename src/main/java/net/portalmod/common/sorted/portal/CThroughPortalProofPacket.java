@@ -1,12 +1,13 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.function.Supplier;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class CThroughPortalProofPacket implements AbstractPacket<CThroughPortalProofPacket> {
     private int[] portalChain;
@@ -18,7 +19,7 @@ public class CThroughPortalProofPacket implements AbstractPacket<CThroughPortalP
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         int length = this.portalChain.length;
         buffer.writeInt(length);
 
@@ -28,7 +29,7 @@ public class CThroughPortalProofPacket implements AbstractPacket<CThroughPortalP
     }
 
     @Override
-    public CThroughPortalProofPacket decode(PacketBuffer buffer) {
+    public CThroughPortalProofPacket decode(FriendlyByteBuf buffer) {
         int length = buffer.readInt();
         int[] portalChain = new int[length];
 
@@ -40,9 +41,9 @@ public class CThroughPortalProofPacket implements AbstractPacket<CThroughPortalP
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            ServerPlayerEntity player = context.get().getSender();
+            ServerPlayer player = context.get().getSender();
             if(player == null)
                 return;
 

@@ -1,24 +1,29 @@
 package net.portalmod.common.particles;
 
-import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.HandSide;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
 
 import java.util.Random;
 
-public class PortalGunSparkParticle extends SpriteTexturedParticle {
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
+
+public class PortalGunSparkParticle extends TextureSheetParticle {
 
     public static final Random RANDOM = new Random();
 
     public int u;
     public int v;
 
-    protected PortalGunSparkParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
+    protected PortalGunSparkParticle(ClientLevel world, double x, double y, double z, double dx, double dy, double dz) {
         super(world, x, y, z, dx, dy, dz);
         this.lifetime = 2;
         this.gravity = 0;
@@ -32,7 +37,7 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() { return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
+    public ParticleRenderType getRenderType() { return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT; }
     @Override
     protected int getLightColor(float idk) { return 15728880; } // See WorldRenderer:2714
 
@@ -68,14 +73,14 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         return this.sprite.getV((this.v + 1) * 4);
     }
 
-    public static void createParticles(World world, PlayerEntity player, boolean offhand) {
-        boolean isLefty = player.getMainArm() == HandSide.LEFT;
+    public static void createParticles(Level world, Player player, boolean offhand) {
+        boolean isLefty = player.getMainArm() == HumanoidArm.LEFT;
 
-        Vector3d viewVec = player.getViewVector(1);
-        Vector3d rightVec = Vector3d.directionFromRotation(0, player.yHeadRot + 90); // Screen right
-        Vector3d downVec = viewVec.cross(rightVec); // Screen down
+        Vec3 viewVec = player.getViewVector(1);
+        Vec3 rightVec = Vec3.directionFromRotation(0, player.yHeadRot + 90); // Screen right
+        Vec3 downVec = viewVec.cross(rightVec); // Screen down
 
-        Vector3d viewLocation = player.getEyePosition(1)
+        Vec3 viewLocation = player.getEyePosition(1)
                 .add(viewVec.scale(0.8)) // Forward
                 .add(rightVec.scale(0.45)
                         .scale(offhand == isLefty ? 1 : -1)) // Right
@@ -86,8 +91,8 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         double spread = 0.2;
 
         for (int i = 0; i < amount; i++) {
-            Vector3d offset = new Vector3d(symmetricRandom(spread), symmetricRandom(spread), symmetricRandom(spread));
-            Vector3d particlePos = viewLocation.add(offset);
+            Vec3 offset = new Vec3(symmetricRandom(spread), symmetricRandom(spread), symmetricRandom(spread));
+            Vec3 particlePos = viewLocation.add(offset);
 
             world.addParticle(ParticleInit.PORTALGUN_SPARK.get(), particlePos.x, particlePos.y, particlePos.z, symmetricRandom(speed), symmetricRandom(speed), symmetricRandom(speed));
         }
@@ -97,15 +102,15 @@ public class PortalGunSparkParticle extends SpriteTexturedParticle {
         return (RANDOM.nextFloat() - 0.5) * 2 * i;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
 
-        public Factory(IAnimatedSprite p_i50823_1_) {
+        public Factory(SpriteSet p_i50823_1_) {
             this.sprite = p_i50823_1_;
         }
 
         @Override
-        public Particle createParticle(BasicParticleType type, ClientWorld world, double x, double y, double z, double dx, double dy, double dz) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double dx, double dy, double dz) {
             PortalGunSparkParticle particle = new PortalGunSparkParticle(world, x, y, z, dx, dy, dz);
             particle.pickSprite(this.sprite);
             return particle;

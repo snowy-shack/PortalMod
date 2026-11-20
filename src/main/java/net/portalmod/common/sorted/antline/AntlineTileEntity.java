@@ -1,15 +1,5 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -22,14 +12,25 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AntlineTileEntity extends TileEntity {
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+
+public class AntlineTileEntity extends BlockEntity {
     private final SideMap sideMap = new SideMap();
 
     public SideMap getSideMap() {
         return sideMap;
     }
 
-    public AntlineTileEntity(TileEntityType<?> type) {
+    public AntlineTileEntity(BlockEntityType<?> type) {
         super(type);
     }
 
@@ -38,19 +39,19 @@ public class AntlineTileEntity extends TileEntity {
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         if(sideMap.isBlank())
             sideMap.makeDefault();
         return super.save(sideMap.get(nbt));
     }
 
     @Override
-    public void load(BlockState state, CompoundNBT nbt) {
+    public void load(BlockState state, CompoundTag nbt) {
         super.load(state, nbt);
         sideMap.set(nbt);
     }
 
-    public void load(CompoundNBT nbt, boolean complete) {
+    public void load(CompoundTag nbt, boolean complete) {
         if (complete)
             sideMap.set(nbt);
         else
@@ -132,25 +133,25 @@ public class AntlineTileEntity extends TileEntity {
     // chunk update
 
     @Override
-    public CompoundNBT getUpdateTag() {
-        return this.save(new CompoundNBT());
+    public CompoundTag getUpdateTag() {
+        return this.save(new CompoundTag());
     }
 
     @Override
-    public void handleUpdateTag(BlockState state, CompoundNBT tag) {
+    public void handleUpdateTag(BlockState state, CompoundTag tag) {
         load(state, tag);
     }
 
     // block update
 
     @Override
-    public SUpdateTileEntityPacket getUpdatePacket() {
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
         // TODO sync only needed data
-        return new SUpdateTileEntityPacket(this.getBlockPos(), -1, save(new CompoundNBT()));
+        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), -1, save(new CompoundTag()));
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         // TODO false with only needed data
         this.load(packet.getTag(), true);
     }
@@ -179,22 +180,22 @@ public class AntlineTileEntity extends TileEntity {
             return !get(direction).isEmpty();
         }
 
-        public void set(CompoundNBT nbt) {
-            CompoundNBT data = nbt.getCompound("AntlineSides");
+        public void set(CompoundTag nbt) {
+            CompoundTag data = nbt.getCompound("AntlineSides");
             for (Direction direction : Direction.values())
                 this.put(direction, new Side(direction, data.getByte(direction.getName())));
 //            }
         }
 
-        public CompoundNBT get(CompoundNBT nbt) {
-            CompoundNBT data = new CompoundNBT();
+        public CompoundTag get(CompoundTag nbt) {
+            CompoundTag data = new CompoundTag();
             for(Direction direction : Direction.values())
                 data.putByte(direction.getName(), this.get(direction).value);
             nbt.put("AntlineSides", data);
             return nbt;
         }
 
-        public void merge(CompoundNBT nbt) {
+        public void merge(CompoundTag nbt) {
             for (String s : nbt.getAllKeys())
                 this.put(Direction.valueOf(s.toUpperCase()), new Side(Direction.valueOf(s.toUpperCase()), nbt.getByte(s)));
         }

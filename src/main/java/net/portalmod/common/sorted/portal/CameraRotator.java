@@ -1,15 +1,16 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+
 public class CameraRotator {
     public static void rotate(Entity entity, PortalEntity portal, PortalEntity targetPortal) {
-        boolean isLocalPlayer = entity instanceof ClientPlayerEntity;
+        boolean isLocalPlayer = entity instanceof LocalPlayer;
 
         float xRotOld = entity.xRot;
         float yRotOld = entity.yRot;
@@ -27,7 +28,7 @@ public class CameraRotator {
         float absPitch = Math.abs(anglesUnbound.getPitch());
 
         if(absPitch >= 90 && absPitch <= 135) {
-            pitch = MathHelper.clamp(anglesUnbound.getPitch(), -90, 90);
+            pitch = Mth.clamp(anglesUnbound.getPitch(), -90, 90);
             yaw = anglesUnbound.getYaw();
 
             if(targetPortal.getDirection().getAxis().isHorizontal()) {
@@ -66,7 +67,7 @@ public class CameraRotator {
         entity.yRot = entity.yRotO = yaw;
 
         if(isLocalPlayer) {
-            ClientPlayerEntity player = (ClientPlayerEntity)entity;
+            LocalPlayer player = (LocalPlayer)entity;
             float xRotDelta = player.xRot - xRotOld;
             float yRotDelta = player.yRot - yRotOld;
 

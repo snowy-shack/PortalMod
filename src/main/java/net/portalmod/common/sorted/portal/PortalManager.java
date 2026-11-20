@@ -1,18 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.network.PacketDistributor;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
@@ -23,12 +12,24 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class PortalManager extends WorldSavedData {
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.util.Mth;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.saveddata.SavedData;
+
+public class PortalManager extends SavedData {
     private static PortalManager instance;
     public static final String PATH = PortalMod.MODID + "_portals";
     private final Map<UUID, PortalPair> portalMap = new HashMap<>();
     private final Map<Pair<UUID, PortalEnd>, PortalPlacementInfo> scheduledPlacements = new HashMap<>();
-    private final HashMap<RegistryKey<World>, HashMap<ChunkPos, List<PortalEntity>>> portalsPerChunk = new HashMap<>();
+    private final HashMap<ResourceKey<Level>, HashMap<ChunkPos, List<PortalEntity>>> portalsPerChunk = new HashMap<>();
     private final Deque<PortalEntity> pendingRemovals = new ArrayDeque<>();
     public boolean unloadingChunk = false;
 
@@ -44,7 +45,7 @@ public class PortalManager extends WorldSavedData {
 
     public void tick() {
         for(PortalEntity portal : this.pendingRemovals) {
-            ((ServerWorld)portal.level).removeEntity(portal, false);
+            ((ServerLevel)portal.level).removeEntity(portal, false);
         }
         this.pendingRemovals.clear();
 
@@ -64,11 +65,11 @@ public class PortalManager extends WorldSavedData {
         this.pendingRemovals.add(portal);
     }
 
-    public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
+    public void schedulePlacement(Level level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, @Nullable Direction[] lookingDirections, @Nullable ServerPlayer player, long tickCountdown, Consumer<PortalEntity> onPlace) {
         schedulePlacement(level, end, hue, gunUUID, position, face, upDirection, override, false, lookingDirections, player, tickCountdown, onPlace);
     }
 
-    public void schedulePlacement(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
+    public void schedulePlacement(Level level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayer player, long tickCountdown, Consumer<PortalEntity> onPlace) {
         Pair<UUID, PortalEnd> key = new Pair<>(gunUUID, end);
         this.scheduledPlacements.put(key, new PortalPlacementInfo(level, end, hue, gunUUID, position, face, upDirection, override, overwriteForeignPortals, lookingDirections, player, tickCountdown, onPlace));
     }
@@ -80,21 +81,21 @@ public class PortalManager extends WorldSavedData {
     }
 
     @Override
-    public void load(CompoundNBT nbt) {
+    public void load(CompoundTag nbt) {
         for(String key : nbt.getAllKeys()) {
-            CompoundNBT pair = nbt.getCompound(key);
+            CompoundTag pair = nbt.getCompound(key);
             PortalPair portalPair = new PortalPair();
             if(pair.contains("primary")) {
-                CompoundNBT primary = pair.getCompound("primary");
+                CompoundTag primary = pair.getCompound("primary");
                 ResourceLocation rl = new ResourceLocation(primary.getString("level"));
-                RegistryKey<World> rk = RegistryKey.create(Registry.DIMENSION_REGISTRY, rl);
-                World level = ServerLifecycleHooks.getCurrentServer().getLevel(rk);
+                ResourceKey<Level> rk = ResourceKey.create(Registry.DIMENSION_REGISTRY, rl);
+                Level level = ServerLifecycleHooks.getCurrentServer().getLevel(rk);
 
                 PortalEntity blue = new PortalEntity(level);
                 blue.load(primary);
                 portalPair.set(PortalEnd.PRIMARY, blue);
 
-                ChunkPos chunkPos = new ChunkPos(MathHelper.floor(blue.getX()) >> 4, MathHelper.floor(blue.getZ()) >> 4);
+                ChunkPos chunkPos = new ChunkPos(Mth.floor(blue.getX()) >> 4, Mth.floor(blue.getZ()) >> 4);
                 HashMap<ChunkPos, List<PortalEntity>> chunks = portalsPerChunk.getOrDefault(rk, new HashMap<>());
                 List<PortalEntity> portals = chunks.getOrDefault(chunkPos, new ArrayList<>());
                 portals.add(blue);
@@ -102,16 +103,16 @@ public class PortalManager extends WorldSavedData {
                 portalsPerChunk.put(rk, chunks);
             }
             if(pair.contains("secondary")) {
-                CompoundNBT secondary = pair.getCompound("secondary");
+                CompoundTag secondary = pair.getCompound("secondary");
                 ResourceLocation rl = new ResourceLocation(secondary.getString("level"));
-                RegistryKey<World> rk = RegistryKey.create(Registry.DIMENSION_REGISTRY, rl);
-                World level = ServerLifecycleHooks.getCurrentServer().getLevel(rk);
+                ResourceKey<Level> rk = ResourceKey.create(Registry.DIMENSION_REGISTRY, rl);
+                Level level = ServerLifecycleHooks.getCurrentServer().getLevel(rk);
 
                 PortalEntity orange = new PortalEntity(level);
                 orange.load(secondary);
                 portalPair.set(PortalEnd.SECONDARY, orange);
 
-                ChunkPos chunkPos = new ChunkPos(MathHelper.floor(orange.getX()) >> 4, MathHelper.floor(orange.getZ()) >> 4);
+                ChunkPos chunkPos = new ChunkPos(Mth.floor(orange.getX()) >> 4, Mth.floor(orange.getZ()) >> 4);
                 HashMap<ChunkPos, List<PortalEntity>> chunks = portalsPerChunk.getOrDefault(rk, new HashMap<>());
                 List<PortalEntity> portals = chunks.getOrDefault(chunkPos, new ArrayList<>());
                 portals.add(orange);
@@ -123,17 +124,17 @@ public class PortalManager extends WorldSavedData {
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
+    public CompoundTag save(CompoundTag nbt) {
         portalMap.forEach((uuid, pair) -> {
-            CompoundNBT pairNbt = new CompoundNBT();
+            CompoundTag pairNbt = new CompoundTag();
             if(pair.has(PortalEnd.PRIMARY)) {
-                CompoundNBT blueNbt = new CompoundNBT();
+                CompoundTag blueNbt = new CompoundTag();
                 pair.get(PortalEnd.PRIMARY).saveGlobal(blueNbt);
                 blueNbt.putString("level", pair.get(PortalEnd.PRIMARY).level.dimension().location().toString());
                 pairNbt.put("primary", blueNbt);
             }
             if(pair.has(PortalEnd.SECONDARY)) {
-                CompoundNBT orangeNbt = new CompoundNBT();
+                CompoundTag orangeNbt = new CompoundTag();
                 pair.get(PortalEnd.SECONDARY).saveGlobal(orangeNbt);
                 orangeNbt.putString("level", pair.get(PortalEnd.SECONDARY).level.dimension().location().toString());
                 pairNbt.put("secondary", orangeNbt);
@@ -148,15 +149,15 @@ public class PortalManager extends WorldSavedData {
         portalsPerChunk.clear();
     }
 
-    private static World getOverworld() {
-        return ServerLifecycleHooks.getCurrentServer().getLevel(World.OVERWORLD);
+    private static Level getOverworld() {
+        return ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
     }
 
     private static void getStorageAndSetDirty() {
-        ((ServerWorld)getOverworld()).getDataStorage().computeIfAbsent(PortalManager::getInstance, PATH).setDirty();
+        ((ServerLevel)getOverworld()).getDataStorage().computeIfAbsent(PortalManager::getInstance, PATH).setDirty();
     }
 
-    public HashMap<RegistryKey<World>, HashMap<ChunkPos, List<PortalEntity>>> getPortalsPerChunk() {
+    public HashMap<ResourceKey<Level>, HashMap<ChunkPos, List<PortalEntity>>> getPortalsPerChunk() {
         return portalsPerChunk;
     }
 
@@ -165,12 +166,12 @@ public class PortalManager extends WorldSavedData {
 
         if(!pair.areInSameDimension(PortalEnd.PRIMARY, portal)) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
-            ((ServerWorld)primary.level).removeEntity(primary, false);
+            ((ServerLevel)primary.level).removeEntity(primary, false);
         }
 
         if(!pair.areInSameDimension(PortalEnd.SECONDARY, portal)) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
-            ((ServerWorld)secondary.level).removeEntity(secondary, false);
+            ((ServerLevel)secondary.level).removeEntity(secondary, false);
         }
 
         pair.computeIfPresent(end, PortalEntity::onReplaced);
@@ -178,7 +179,7 @@ public class PortalManager extends WorldSavedData {
         portal.inChunk = true;
         portalMap.put(gunUUID, pair);
 
-        ChunkPos chunkPos = new ChunkPos(MathHelper.floor(portal.getX()) >> 4, MathHelper.floor(portal.getZ()) >> 4);
+        ChunkPos chunkPos = new ChunkPos(Mth.floor(portal.getX()) >> 4, Mth.floor(portal.getZ()) >> 4);
         HashMap<ChunkPos, List<PortalEntity>> chunks = portalsPerChunk.getOrDefault(portal.level.dimension(), new HashMap<>());
         List<PortalEntity> portals = chunks.getOrDefault(chunkPos, new ArrayList<>());
         portals.add(portal);
@@ -195,8 +196,8 @@ public class PortalManager extends WorldSavedData {
             pair.remove(portal);
             portal.inChunk = false;
 
-            RegistryKey<World> dimension = portal.level.dimension();
-            ChunkPos chunkPos = new ChunkPos(MathHelper.floor(portal.getX()) >> 4, MathHelper.floor(portal.getZ()) >> 4);
+            ResourceKey<Level> dimension = portal.level.dimension();
+            ChunkPos chunkPos = new ChunkPos(Mth.floor(portal.getX()) >> 4, Mth.floor(portal.getZ()) >> 4);
             if(portalsPerChunk.containsKey(dimension)) {
                 if(portalsPerChunk.get(dimension).containsKey(chunkPos)) {
                     List<PortalEntity> portals = portalsPerChunk.get(dimension).get(chunkPos);
@@ -233,7 +234,7 @@ public class PortalManager extends WorldSavedData {
     }
 
     private static class PortalPlacementInfo {
-        public final World level;
+        public final Level level;
         public final PortalEnd end;
         public final String hue;
         public final UUID gunUUID;
@@ -243,11 +244,11 @@ public class PortalManager extends WorldSavedData {
         public final boolean override;
         public final boolean overwriteForeignPortals;
         public final @Nullable Direction[] lookingDirections;
-        public final @Nullable ServerPlayerEntity player;
+        public final @Nullable ServerPlayer player;
         public long tickCountdown;
         public Consumer<PortalEntity> onPlace;
 
-        public PortalPlacementInfo(World level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayerEntity player, long tickCountdown, Consumer<PortalEntity> onPlace) {
+        public PortalPlacementInfo(Level level, PortalEnd end, String hue, UUID gunUUID, Vec3 position, Direction face, Direction upDirection, boolean override, boolean overwriteForeignPortals, @Nullable Direction[] lookingDirections, @Nullable ServerPlayer player, long tickCountdown, Consumer<PortalEntity> onPlace) {
             this.level = level;
             this.end = end;
             this.hue = hue;

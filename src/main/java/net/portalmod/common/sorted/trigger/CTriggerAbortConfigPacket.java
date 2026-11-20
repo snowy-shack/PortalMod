@@ -1,12 +1,13 @@
 package net.portalmod.common.sorted.trigger;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.function.Supplier;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
 
 public class CTriggerAbortConfigPacket implements AbstractPacket<CTriggerAbortConfigPacket> {
     private BlockPos pos;
@@ -18,19 +19,19 @@ public class CTriggerAbortConfigPacket implements AbstractPacket<CTriggerAbortCo
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeBlockPos(this.pos);
     }
 
     @Override
-    public CTriggerAbortConfigPacket decode(PacketBuffer buffer) {
+    public CTriggerAbortConfigPacket decode(FriendlyByteBuf buffer) {
         return new CTriggerAbortConfigPacket(buffer.readBlockPos());
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
+    public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            ServerPlayerEntity sender = context.get().getSender();
+            ServerPlayer sender = context.get().getSender();
             if (sender != null)
                 TriggerSelectionServer.endConfiguration(sender);
         });

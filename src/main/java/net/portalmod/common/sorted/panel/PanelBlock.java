@@ -1,24 +1,6 @@
 package net.portalmod.common.sorted.panel;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.ModUtil;
@@ -28,6 +10,25 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
 
 public class PanelBlock extends Block implements PortalHelper {
     public static final EnumProperty<PanelState> STATE = EnumProperty.create("state", PanelState.class);
@@ -39,19 +40,19 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(STATE, AXIS);
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        World world = context.getLevel();
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Level world = context.getLevel();
         Direction clickedFace = context.getClickedFace();
         BlockPos clickedOnPos = context.getClickedPos().relative(clickedFace.getOpposite());
         BlockState clickedBlock = world.getBlockState(clickedOnPos);
-        PlayerEntity player = context.getPlayer();
+        Player player = context.getPlayer();
 
         // Block is not this one or shift is not down
         if (!clickedBlock.getBlock().is(this) || player == null || !player.isShiftKeyDown()) {
@@ -107,7 +108,7 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public void setPlacedBy(World world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState blockState, @Nullable LivingEntity entity, ItemStack itemStack) {
         PanelState panelState = blockState.getValue(STATE);
 
         // Place the other half
@@ -156,7 +157,7 @@ public class PanelBlock extends Block implements PortalHelper {
         return panelState.isLeft() ? Direction.EAST : Direction.WEST;
     }
 
-    public void setBlock(World world, BlockPos pos, PanelState state, Direction.Axis axis) {
+    public void setBlock(Level world, BlockPos pos, PanelState state, Direction.Axis axis) {
         world.setBlockAndUpdate(pos, this.defaultBlockState().setValue(STATE, state).setValue(AXIS, axis));
     }
 
@@ -167,7 +168,7 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, IWorld world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         PanelState panelState = state.getValue(STATE);
         Direction.Axis axis = state.getValue(AXIS);
 
@@ -198,7 +199,7 @@ public class PanelBlock extends Block implements PortalHelper {
         return state;
     }
 
-    public static boolean areTwoBlocksInInventory(PlayerEntity player, Block block) {
+    public static boolean areTwoBlocksInInventory(Player player, Block block) {
         if (player.isCreative()) {
             return true;
         }
@@ -217,8 +218,8 @@ public class PanelBlock extends Block implements PortalHelper {
         return false;
     }
 
-    public static void removeBlockFromInventory(PlayerEntity player, Block block) {
-        PlayerInventory inventory = player.inventory;
+    public static void removeBlockFromInventory(Player player, Block block) {
+        Inventory inventory = player.inventory;
 
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);
@@ -316,12 +317,12 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public boolean containsBlock(BlockState state, BlockPos panelPos, BlockPos pos, World world) {
+    public boolean containsBlock(BlockState state, BlockPos panelPos, BlockPos pos, Level world) {
         return panelPos.equals(pos) || this.getConnectedPositions(state, panelPos).contains(pos);
     }
 
     @Override
-    public boolean willHelpPortal(Direction face, Direction horizontalDirection, BlockState state, World world) {
+    public boolean willHelpPortal(Direction face, Direction horizontalDirection, BlockState state, Level world) {
         // Only front face of 2x2 panel
         PanelState panelState = state.getValue(STATE);
 
@@ -335,7 +336,7 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     @Override
-    public Pair<Vec3, Direction> helpPortal(Vec3 hitPos, Direction face, Direction horizontalDirection, Direction[] lookingDirections, BlockState state, World world) {
+    public Pair<Vec3, Direction> helpPortal(Vec3 hitPos, Direction face, Direction horizontalDirection, Direction[] lookingDirections, BlockState state, Level world) {
         if(!this.willHelpPortal(face, horizontalDirection, state, world))
             return new Pair<>(hitPos, horizontalDirection);
 

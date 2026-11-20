@@ -1,34 +1,5 @@
 package net.portalmod.common.entities;
 
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MoverType;
-import net.minecraft.entity.item.BoatEntity;
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.stats.Stats;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
@@ -49,17 +20,46 @@ import net.portalmod.core.util.ModUtil;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import org.joml.Vector3f;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+
 /**
  * Entity which can be fizzled, dropped by a cube dropper, picked up using a portal gun and broken with a wrench.
  */
 public abstract class TestElementEntity extends LivingEntity implements Fizzleable {
 
-    public static final DataParameter<Integer> FIZZLE_TICKS_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
-    public static final DataParameter<Boolean> FROM_DROPPER_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Integer> WIGGLE_ID = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
-    private static final DataParameter<Integer> DATA_ID_HURT = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
-    private static final DataParameter<Integer> DATA_ID_HURTDIR = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.INT);
-    private static final DataParameter<Float> DATA_ID_DAMAGE = EntityDataManager.defineId(TestElementEntity.class, DataSerializers.FLOAT);
+    public static final EntityDataAccessor<Integer> FIZZLE_TICKS_ID = SynchedEntityData.defineId(TestElementEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Boolean> FROM_DROPPER_ID = SynchedEntityData.defineId(TestElementEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> WIGGLE_ID = SynchedEntityData.defineId(TestElementEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(TestElementEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_ID_HURTDIR = SynchedEntityData.defineId(TestElementEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_ID_DAMAGE = SynchedEntityData.defineId(TestElementEntity.class, EntityDataSerializers.FLOAT);
 
     public static final float HOLDING_DISTANCE = 1.5f;
 
@@ -73,7 +73,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     private Integer oldPortalChainLength;
     private Float eyeHeightOld;
 
-    public TestElementEntity(EntityType<? extends LivingEntity> p_i48577_1_, World p_i48577_2_) {
+    public TestElementEntity(EntityType<? extends LivingEntity> p_i48577_1_, Level p_i48577_2_) {
         super(p_i48577_1_, p_i48577_2_);
         this.canFizzle = true;
     }
@@ -140,14 +140,14 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         }
 
         double minSpeed = 0.08;
-        Vector3d xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
+        net.minecraft.world.phys.Vec3 xzMovement = this.getDeltaMovement().multiply(1, 0, 1);
 
         // If no horizontal movement, choose randomly
         if (xzMovement.length() == 0) {
-            xzMovement = new Vector3d(new Random().nextFloat() * 0.1 - 0.05, 0, new Random().nextFloat() * 0.1 - 0.05);
+            xzMovement = new net.minecraft.world.phys.Vec3(new Random().nextFloat() * 0.1 - 0.05, 0, new Random().nextFloat() * 0.1 - 0.05);
         }
 
-        Vector3d newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
+        net.minecraft.world.phys.Vec3 newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
         this.setDeltaMovement(newMovement);
 
         if (this.level.isClientSide) {
@@ -171,7 +171,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
      */
     public void fizzleInit() {
         this.setNoGravity(true);
-        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundCategory.NEUTRAL, 1, ModUtil.randomSlightSoundPitch());
+        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundSource.NEUTRAL, 1, ModUtil.randomSlightSoundPitch());
     }
 
     /**
@@ -187,20 +187,20 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     public void awardKill() {
         Entity holder = this.getVehicle();
 
-        if (this.isPassenger() && holder instanceof PlayerEntity) {
-            ((PlayerEntity) holder).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
+        if (this.isPassenger() && holder instanceof Player) {
+            ((Player) holder).awardStat(Stats.ENTITY_KILLED.get(this.getType()));
 
-            if (holder instanceof ServerPlayerEntity) {
+            if (holder instanceof ServerPlayer) {
                 CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
-                        (ServerPlayerEntity) holder,
+                        (ServerPlayer) holder,
                         this,
-                        DamageSource.playerAttack((PlayerEntity) holder)
+                        DamageSource.playerAttack((Player) holder)
                 );
             }
         }
     }
 
-    public boolean pickUp(PlayerEntity player) {
+    public boolean pickUp(Player player) {
         boolean riding = this.startRiding(player);
         if (!riding) return false;
 
@@ -213,11 +213,11 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
     @Override
     public void rideTick() {
-        this.setDeltaMovement(Vector3d.ZERO);
+        this.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
         this.tick();
 
-        if (!(this.getVehicle() instanceof PlayerEntity)) {
-            if (this.getVehicle() instanceof AbstractMinecartEntity || this.getVehicle() instanceof BoatEntity) {
+        if (!(this.getVehicle() instanceof Player)) {
+            if (this.getVehicle() instanceof AbstractMinecart || this.getVehicle() instanceof Boat) {
                 super.rideTick();
             } else {
                 this.stopRiding();
@@ -225,7 +225,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             return;
         }
 
-        PlayerEntity player = (PlayerEntity)getVehicle();
+        Player player = (Player)getVehicle();
 
         if(!this.level.isClientSide) {
             // server assigns old position stored in serverOldPos
@@ -292,11 +292,11 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             ridingVec = ridingVec.transform(portalRotationMatrix);
             ridingVersor = ridingVersor.transform(portalRotationMatrix);
 
-            Vector3d ridingPos = eyePos.clone().add(ridingVec).to3d();
+            net.minecraft.world.phys.Vec3 ridingPos = eyePos.clone().add(ridingVec).to3d();
 
             // check if the new position is free of collision
             if(passedPortal && !holderJustTeleported) {
-                AxisAlignedBB nextSpace = this.getBoundingBox().move(this.position().reverse()).move(ridingPos);
+                AABB nextSpace = this.getBoundingBox().move(this.position().reverse()).move(ridingPos);
                 boolean nextSpaceEmpty = true;
 
                 // check for portals in the next position
@@ -308,15 +308,15 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 }
 
                 // temporarily set the hitbox to there for internal stuff
-                AxisAlignedBB oldHitbox = this.getBoundingBox();
+                AABB oldHitbox = this.getBoundingBox();
                 this.setBoundingBox(nextSpace);
 
                 for(BlockPos pos : AABBUtil.getBlocksWithin(nextSpace)) {
                     VoxelShape blockShape = level.getBlockState(pos)
-                            .getCollisionShape(this.level, pos, ISelectionContext.of(this))
+                            .getCollisionShape(this.level, pos, CollisionContext.of(this))
                             .move(pos.getX(), pos.getY(), pos.getZ());
 
-                    if(VoxelShapes.joinIsNotEmpty(blockShape, VoxelShapes.create(nextSpace), IBooleanFunction.AND)) {
+                    if(Shapes.joinIsNotEmpty(blockShape, Shapes.create(nextSpace), BooleanOp.AND)) {
                         nextSpaceEmpty = false;
                     }
                 }
@@ -448,11 +448,11 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         Entity vehicle = this.getVehicle();
 
         this.removeVehicle();
-        if (!(vehicle instanceof PlayerEntity)) return;
+        if (!(vehicle instanceof Player)) return;
 
         this.boardingCooldown = 0;
 
-        Vector3d momentum;
+        net.minecraft.world.phys.Vec3 momentum;
         if(this.level.isClientSide) {
             momentum = this.position().subtract(ModUtil.getOldPos(this));
         } else {
@@ -466,7 +466,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 ModUtil.symmetricRandom(0.01f)));
     }
 
-    public static void dropHeldEntities(PlayerEntity player, boolean yeet, boolean nullifyMomentum, ItemStack itemStack) {
+    public static void dropHeldEntities(Player player, boolean yeet, boolean nullifyMomentum, ItemStack itemStack) {
         List<Entity> passengers = player.getPassengers();
         for(int i = passengers.size() - 1; i >= 0; --i) {
             Entity entity = passengers.get(i);
@@ -483,11 +483,11 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             final float maxSpeed = 0.5f;
             final float strength = .3f;
 
-            Vector3d velocity = entity.getDeltaMovement();
+            net.minecraft.world.phys.Vec3 velocity = entity.getDeltaMovement();
             boolean exceedsLimit = velocity.add(player.getDeltaMovement().reverse()).length() > maxSpeed;
 
             if(nullifyMomentum) {
-                entity.setDeltaMovement(Vector3d.ZERO);
+                entity.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
             } else {
                 if(exceedsLimit) {
                     entity.setDeltaMovement(velocity.normalize().multiply(maxSpeed, maxSpeed, maxSpeed).add(player.getDeltaMovement()));
@@ -503,8 +503,8 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     @Override
     public boolean isControlledByLocalInstance() {
         Entity entity = this.getVehicle();
-        if(entity instanceof PlayerEntity) {
-            return ((PlayerEntity)entity).isLocalPlayer();
+        if(entity instanceof Player) {
+            return ((Player)entity).isLocalPlayer();
         } else {
             return !this.level.isClientSide;
         }
@@ -519,12 +519,12 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     }
 
     public boolean isPickedUp() {
-        return this.getVehicle() != null && this.getVehicle() instanceof PlayerEntity;
+        return this.getVehicle() != null && this.getVehicle() instanceof Player;
     }
 
     public void dropIfPickedUp() {
         if (this.isPickedUp()) {
-            PlayerEntity player = (PlayerEntity) this.getVehicle();
+            Player player = (Player) this.getVehicle();
             assert player != null;
             dropHeldEntities(player, false, false, player.getMainHandItem());
         }
@@ -602,14 +602,14 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT nbt) {
+    public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
         nbt.putInt("FizzleTicks", this.getFizzleTicks());
         nbt.putBoolean("FromDropper", this.isFromDropper());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT nbt) {
+    public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
         if (nbt.contains("FizzleTicks")) {
             this.setFizzleTicks(nbt.getInt("FizzleTicks"));

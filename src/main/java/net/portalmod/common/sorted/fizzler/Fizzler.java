@@ -1,12 +1,12 @@
 package net.portalmod.common.sorted.fizzler;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public interface Fizzler {
-    boolean isInsideField(AxisAlignedBB box, BlockPos pos, BlockState state);
+    boolean isInsideField(AABB box, BlockPos pos, BlockState state);
     boolean isActive(BlockState state);
     VoxelShape getFieldShape(BlockState state);
 

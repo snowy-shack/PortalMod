@@ -1,23 +1,23 @@
 package net.portalmod.common.sorted.turret;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.culling.ClippingHelper;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.PortalMod;
 import net.portalmod.common.entities.TestElementEntityRenderer;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
 
 public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, TurretModel<TurretEntity>> {
 //    private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png");
@@ -25,10 +25,10 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret.png"),
             new ResourceLocation(PortalMod.MODID, "textures/entity/turret/turret_off.png"),
     };
-    private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormats.POSITION_TEX_COLOR);
+    private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR);
     public static TurretState state = TurretState.RESTING;
 
-    public TurretRenderer(EntityRendererManager erm) {
+    public TurretRenderer(EntityRenderDispatcher erm) {
         super(erm, new TurretModel<>(), 0.5f);
         this.addLayer(new TurretEyeLayer<>(this));
     }
@@ -39,7 +39,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
     }
 
     @Override
-    public void render(TurretEntity turret, float a, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderTypeBuffer, int light) {
+    public void render(TurretEntity turret, float a, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int light) {
 //        if(super.shouldRender(turret, ))
         TurretState turretState = turret.getState();
 
@@ -81,28 +81,28 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             return;
         }
 
-        float rotation = -MathHelper.lerp(partialTicks, turret.yBodyRotO, turret.yBodyRot) * ((float)Math.PI / 180f);
-        float z = MathHelper.cos(rotation);
-        float x = MathHelper.sin(rotation);
+        float rotation = -Mth.lerp(partialTicks, turret.yBodyRotO, turret.yBodyRot) * ((float)Math.PI / 180f);
+        float z = Mth.cos(rotation);
+        float x = Mth.sin(rotation);
 
         // Eye position at eye height and 2.5 pixels to the direction it is looking in
-        Vector3d localEyePos = new Vector3d(x * 2.5 / 16, turret.getEyeHeight(), z * 2.5 / 16);
+        net.minecraft.world.phys.Vec3 localEyePos = new net.minecraft.world.phys.Vec3(x * 2.5 / 16, turret.getEyeHeight(), z * 2.5 / 16);
         Vec3 turretEyePos = new Vec3(turret.getPosition(partialTicks).add(localEyePos));
         Vec3 turretEyeToCamera = new Vec3(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition())
                 .sub(turretEyePos)
                 .normalize();
 
         // The position that the laser should ease towards
-        Vector3d targetPos;
+        net.minecraft.world.phys.Vec3 targetPos;
         if (turret.hasTarget() && turret.shouldLaserMove()) {
             // Position at the target
             targetPos = turret.targetEntity.getPosition(partialTicks).add(0, turret.targetEntity.getBbHeight() * 0.5, 0);
         } else {
             // Position 5 blocks in front of the turret, when not looking at anything
-            targetPos = turretEyePos.to3d().add(new Vector3d(x, 0, z).scale(5));
+            targetPos = turretEyePos.to3d().add(new net.minecraft.world.phys.Vec3(x, 0, z).scale(5));
         }
 
-        if (turret.lastLaserPos == Vector3d.ZERO) {
+        if (turret.lastLaserPos == net.minecraft.world.phys.Vec3.ZERO) {
             turret.lastLaserPos = targetPos;
         }
 
@@ -112,7 +112,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
             targetPos = turret.lastLaserPos.add(targetPos.subtract(turret.lastLaserPos).scale(1 - Math.exp(- 0.5 * deltaTime)));
         }
 
-        Vector3d turretToTarget = targetPos.subtract(turretEyePos.to3d());
+        net.minecraft.world.phys.Vec3 turretToTarget = targetPos.subtract(turretEyePos.to3d());
         turret.turretToTarget = turretToTarget;
 
         Vec3 laserForward = new Vec3(turretToTarget).normalize();
@@ -127,9 +127,9 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
                 0,0, 0, 1
         );
 
-        Vector3d rayPath = turretToTarget.scale(Minecraft.getInstance().gameRenderer.getRenderDistance() * 2);
-        Vector3d from = turretEyePos.to3d();
-        Vector3d to = from.add(rayPath);
+        net.minecraft.world.phys.Vec3 rayPath = turretToTarget.scale(Minecraft.getInstance().gameRenderer.getRenderDistance() * 2);
+        net.minecraft.world.phys.Vec3 from = turretEyePos.to3d();
+        net.minecraft.world.phys.Vec3 to = from.add(rayPath);
 
 //        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
 //        RayTraceResult rayResult = turret.level.clip(rayCtx);
@@ -142,8 +142,8 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         matrixStack.translate(localEyePos.x, localEyePos.y, localEyePos.z);
         matrixStack.last().pose().multiply(laserMatrix.to4f());
 
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuilder();
-        bufferBuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+        BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
+        bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);
 
         bufferBuilder.vertex( 1/32f, 0, 0).uv(0, 0).color(1, 1, 1, opacity).endVertex();
         bufferBuilder.vertex(-1/32f, 0, 0).uv(0, 1).color(1, 1, 1, opacity).endVertex();
@@ -160,10 +160,10 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
 
         Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
         LASER_BUFFER.bind();
-        DefaultVertexFormats.POSITION_TEX_COLOR.setupBufferState(0L);
+        DefaultVertexFormat.POSITION_TEX_COLOR.setupBufferState(0L);
         if (turretState.isStanding() && turret.getHurtTime() == 0) LASER_BUFFER.draw(matrixStack.last().pose(), 7);
         VertexBuffer.unbind();
-        DefaultVertexFormats.POSITION_TEX_COLOR.clearBufferState();
+        DefaultVertexFormat.POSITION_TEX_COLOR.clearBufferState();
 
         matrixStack.popPose();
 
@@ -171,7 +171,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
     }
 
     @Override
-    public boolean shouldRender(TurretEntity p_225626_1_, ClippingHelper p_225626_2_, double p_225626_3_, double p_225626_5_, double p_225626_7_) {
+    public boolean shouldRender(TurretEntity p_225626_1_, Frustum p_225626_2_, double p_225626_3_, double p_225626_5_, double p_225626_7_) {
         return true;
     }
 }

@@ -1,10 +1,11 @@
 package net.portalmod.mixins.accessors;
 
-import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(AbstractMinecartEntity.class)
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+
+@Mixin(AbstractMinecart.class)
 public interface AbstractMinecartAccessor {
     @Accessor(value = "lSteps")
     void pmSetLSteps(int value);

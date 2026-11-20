@@ -1,40 +1,40 @@
 package net.portalmod.common.entities;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.entity.LivingRenderer;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.LightType;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.util.Mth;
+import org.joml.Vector3f;
+import net.minecraft.world.level.LightLayer;
 
-public abstract class TestElementEntityRenderer<T extends TestElementEntity, M extends EntityModel<T>> extends LivingRenderer<T, M> {
-    public TestElementEntityRenderer(EntityRendererManager manager, M model, float v) {
+public abstract class TestElementEntityRenderer<T extends TestElementEntity, M extends EntityModel<T>> extends LivingEntityRenderer<T, M> {
+    public TestElementEntityRenderer(EntityRenderDispatcher manager, M model, float v) {
         super(manager, model, v);
     }
 
     @Override
-    public void render(T entity, float p_225623_2_, float p_225623_3_, MatrixStack matrixStack, IRenderTypeBuffer p_225623_5_, int light) {
+    public void render(T entity, float p_225623_2_, float p_225623_3_, PoseStack matrixStack, MultiBufferSource p_225623_5_, int light) {
         float f5 = (float)entity.getHurtTime() - p_225623_3_;
         float f6 = Math.max(0, entity.getDamage() - p_225623_3_);
 
         light = LightTexture.pack(
-                entity.level.getBrightness(LightType.BLOCK, entity.blockPosition()),
-                entity.level.getBrightness(LightType.SKY, entity.blockPosition())
+                entity.level.getBrightness(LightLayer.BLOCK, entity.blockPosition()),
+                entity.level.getBrightness(LightLayer.SKY, entity.blockPosition())
         ); // Fixup the light to be that of the entity
 
         matrixStack.pushPose();
 
         if (f5 > 0.0F) {
-            matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(MathHelper.sin(f5) * f5 * f6 / 10.0F * (float)entity.getHurtDir()));
+            matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(Mth.sin(f5) * f5 * f6 / 10.0F * (float)entity.getHurtDir()));
         }
 
         float wiggle = entity.getWiggle() - p_225623_3_;
         if (wiggle > 0.0F) {
-            matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(MathHelper.sin(wiggle * 1.5f) * wiggle * 0.5f * (float)entity.getHurtDir()));
+            matrixStack.mulPose(new Vector3f(entity.getLookAngle().multiply(1, 0, 1).normalize()).rotationDegrees(Mth.sin(wiggle * 1.5f) * wiggle * 0.5f * (float)entity.getHurtDir()));
         }
 
         super.render(entity, p_225623_2_, p_225623_3_, matrixStack, p_225623_5_, entity.getFizzleLight(light));

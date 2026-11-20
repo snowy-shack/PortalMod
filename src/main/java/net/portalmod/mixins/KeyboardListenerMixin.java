@@ -10,18 +10,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import net.minecraft.client.KeyboardListener;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.Shader;
 
-@Mixin(KeyboardListener.class)
+import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.TranslatableComponent;
+
+@Mixin(KeyboardHandler.class)
 public abstract class KeyboardListenerMixin {
     @Shadow protected abstract void debugFeedbackTranslated(String string, Object... objects);
 
     @Inject(at = @At(value = "RETURN"),
-            slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/WorldRenderer;allChanged()V")),
+            slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;allChanged()V")),
             method = "handleDebugKeys(I)Z", cancellable = true)
     private void pmHandleDebugKeys(int key, CallbackInfoReturnable<Boolean> info) {
         if(!info.getReturnValue() && key == GLFW.GLFW_KEY_Z) {
@@ -39,7 +40,7 @@ public abstract class KeyboardListenerMixin {
 
             info.setReturnValue(true);
         } else if(key == GLFW.GLFW_KEY_Q) {
-            Minecraft.getInstance().gui.getChat().addMessage(new TranslationTextComponent("debug." + PortalMod.MODID + ".reload_shaders.help"));
+            Minecraft.getInstance().gui.getChat().addMessage(new TranslatableComponent("debug." + PortalMod.MODID + ".reload_shaders.help"));
         }
     }
 }

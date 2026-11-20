@@ -1,14 +1,15 @@
 package net.portalmod.common.sorted.faithplate;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.button.AbstractButton;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.portalmod.PortalMod;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 public class FaithplateCheckboxButton extends AbstractButton {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/checkbox.png");
@@ -16,7 +17,7 @@ public class FaithplateCheckboxButton extends AbstractButton {
     private boolean unavailable;
 
     // new CheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, new StringTextComponent("Enabled"), be.isEnabled())
-    public FaithplateCheckboxButton(int x, int y, int width, int height, ITextComponent textOn, boolean ticked) {
+    public FaithplateCheckboxButton(int x, int y, int width, int height, Component textOn, boolean ticked) {
         super(x, y, width, height, textOn);
         this.ticked = ticked;
     }
@@ -34,11 +35,11 @@ public class FaithplateCheckboxButton extends AbstractButton {
         this.unavailable = unavailable;
     }
 
-    public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.getTextureManager().bind(TEXTURE);
         RenderSystem.enableDepthTest();
-        FontRenderer fontRenderer = minecraft.font;
+        Font fontRenderer = minecraft.font;
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

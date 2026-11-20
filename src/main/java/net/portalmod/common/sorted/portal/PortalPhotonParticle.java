@@ -1,13 +1,5 @@
 package net.portalmod.common.sorted.portal;
 
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
 import net.portalmod.core.init.ParticleInit;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -15,7 +7,20 @@ import net.portalmod.core.math.Vec3;
 import java.awt.*;
 import java.util.Random;
 
-public class PortalPhotonParticle extends SpriteTexturedParticle {
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+
+public class PortalPhotonParticle extends TextureSheetParticle {
     private final PortalEntity portal;
     private final double x0, y0, z0;
     private final double x1, y1, z1;
@@ -25,7 +30,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
     private final boolean smooth;
     private final boolean useGravity;
 
-    protected PortalPhotonParticle(ClientWorld level, double x, double y, double z, double xd, double yd, double zd, PortalPhotonParticleData data, IAnimatedSprite sprite) {
+    protected PortalPhotonParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, PortalPhotonParticleData data, SpriteSet sprite) {
         super(level, x, y, z, xd, yd, zd);
 
         this.portal = data.getPortal();
@@ -84,12 +89,12 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
     }
 
     private void calculateAlpha() {
-        this.alpha = MathHelper.clamp((float)Math.pow((this.lifetime - this.age) / decay, 2), 0, 0.8f);
+        this.alpha = Mth.clamp((float)Math.pow((this.lifetime - this.age) / decay, 2), 0, 0.8f);
         if(this.smooth)
             this.alpha *= 1 - (float)Math.exp(-this.age / 7f);
 
         if(this.portal != null)
-            this.alpha *= MathHelper.clamp((float)this.portal.getAge() / 30f * this.portal.getAge() / 30f, 0f, 1f);
+            this.alpha *= Mth.clamp((float)this.portal.getAge() / 30f * this.portal.getAge() / 30f, 0f, 1f);
     }
 
     private void calculatePos() {
@@ -108,15 +113,15 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         } else {
             double f = 1 - Math.exp(-this.age / this.speed) - this.end;
             this.setPos(
-                    MathHelper.lerp(f, this.x0, this.x1),
-                    MathHelper.lerp(f, this.y0, this.y1),
-                    MathHelper.lerp(f, this.z0, this.z1)
+                    Mth.lerp(f, this.x0, this.x1),
+                    Mth.lerp(f, this.y0, this.y1),
+                    Mth.lerp(f, this.z0, this.z1)
             );
         }
     }
 
     @Override
-    public void render(IVertexBuilder vertexBuilder, ActiveRenderInfo camera, float f) {
+    public void render(VertexConsumer vertexBuilder, Camera camera, float f) {
         Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
         super.render(vertexBuilder, camera, f);
     }
@@ -192,7 +197,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         }
     }
 
-    public static void createFailParticles(World level, Vec3 position, Vec3 normal, Vec3 upVector, String hue) {
+    public static void createFailParticles(Level level, Vec3 position, Vec3 normal, Vec3 upVector, String hue) {
         Random random = new Random();
 
         for(int i = 0; i < 360; i += 10) {
@@ -258,7 +263,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         createParticle(portal.level, linked ? portal : null, random, pos0, pos1, color, speed, decay, smooth, false);
     }
 
-    private static void createParticle(World level, PortalEntity portal, Random random, Vec3 pos0, Vec3 pos1, Color color, float speed, float decay, boolean smooth, boolean useGravity) {
+    private static void createParticle(Level level, PortalEntity portal, Random random, Vec3 pos0, Vec3 pos1, Color color, float speed, float decay, boolean smooth, boolean useGravity) {
         float randomR = random.nextFloat() * 0.1f;
         float randomG = random.nextFloat() * 0.1f;
         float randomB = random.nextFloat() * 0.1f;
@@ -266,9 +271,9 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         level.addParticle(
                 new PortalPhotonParticleData(
                         portal,
-                        MathHelper.clamp(color.getRed() / 255f   + randomR, 0, 1),
-                        MathHelper.clamp(color.getGreen() / 255f + randomG, 0, 1),
-                        MathHelper.clamp(color.getBlue() / 255f  + randomB, 0, 1),
+                        Mth.clamp(color.getRed() / 255f   + randomR, 0, 1),
+                        Mth.clamp(color.getGreen() / 255f + randomG, 0, 1),
+                        Mth.clamp(color.getBlue() / 255f  + randomB, 0, 1),
                         speed,
                         decay,
                         smooth,
@@ -300,25 +305,25 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
     }
     
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
         
-        public Factory(IAnimatedSprite sprite) {
+        public Factory(SpriteSet sprite) {
             this.sprite = sprite;
         }
         
-        public Particle createParticle(BasicParticleType type, ClientWorld level, double x, double y, double z, double xd, double yd, double zd) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xd, double yd, double zd) {
             PortalPhotonParticle particle = new PortalPhotonParticle(level, x, y, z, xd, yd, zd, (PortalPhotonParticleData)type, sprite);
             particle.pickSprite(sprite);
             return particle;
         }
     }
     
-    public static class PortalPhotonParticleData extends BasicParticleType {
+    public static class PortalPhotonParticleData extends SimpleParticleType {
         private final PortalEntity portal;
         private final float r, g, b;
         private final float speed;
@@ -339,7 +344,7 @@ public class PortalPhotonParticle extends SpriteTexturedParticle {
         }
 
         @Override
-        public BasicParticleType getType() {
+        public SimpleParticleType getType() {
             return ParticleInit.PORTAL_PHOTON.get();
         }
 

@@ -1,15 +1,5 @@
 package net.portalmod.common.sorted.portal;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.GameSettings;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.portalmod.PMState;
 import net.portalmod.client.render.PortalCamera;
@@ -22,16 +12,26 @@ import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import java.util.List;
 import java.util.Optional;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Options;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Camera;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import org.joml.Vector3f;
+import net.minecraft.world.level.Level;
+
 public class PortalEntityClient {
     // todo teleport player in spectator
 
     public static PortalCamera teleportCamera(EntityViewRenderEvent.CameraSetup event, boolean useBobbing) {
-        ActiveRenderInfo camera = event.getInfo();
+        Camera camera = event.getInfo();
         float partialTicks = (float)event.getRenderPartialTicks();
 
         Minecraft minecraft = Minecraft.getInstance();
-        PlayerEntity player = minecraft.player;
-        World level = minecraft.level;
+        Player player = minecraft.player;
+        Level level = minecraft.level;
 
         if(player == null || level == null)
             return null;
@@ -41,7 +41,7 @@ public class PortalEntityClient {
         newCamera.setYaw(event.getYaw());
         newCamera.setRoll(event.getRoll());
 
-        AxisAlignedBB playerAABB = player.getBoundingBox()
+        AABB playerAABB = player.getBoundingBox()
                 .move(new Vec3(player.position()).negate().to3d())
                 .move(player.xo, player.yo, player.zo)
                 .expandTowards(new Vec3(player.position()).sub(player.xo, player.yo, player.zo).to3d());
@@ -70,17 +70,17 @@ public class PortalEntityClient {
             return newCamera;
 
         PortalEntity targetPortal = portal.getOtherPortal().get();
-        Vector3d portalPos = portal.position();
-        Vector3d targetPortalPos = targetPortal.position();
-        Vector3d cameraPos = camera.getPosition();
+        net.minecraft.world.phys.Vec3 portalPos = portal.position();
+        net.minecraft.world.phys.Vec3 targetPortalPos = targetPortal.position();
+        net.minecraft.world.phys.Vec3 cameraPos = camera.getPosition();
 
-        MatrixStack bob = new MatrixStack();
+        PoseStack bob = new PoseStack();
         minecraft.gameRenderer.bobHurt(bob, partialTicks);
         if(minecraft.options.bobView)
             minecraft.gameRenderer.bobView(bob, partialTicks);
         Mat4 bobMat = new Mat4(bob.last().pose());
 
-        MatrixStack view = new MatrixStack();
+        PoseStack view = new PoseStack();
         view.mulPose(Vector3f.ZP.rotationDegrees(newCamera.getRoll()));
         view.mulPose(Vector3f.XP.rotationDegrees(newCamera.getXRot()));
         view.mulPose(Vector3f.YP.rotationDegrees(newCamera.getYRot() + 180.0F));
@@ -131,10 +131,10 @@ public class PortalEntityClient {
     }
 
     private static PortalCamera teleportThirdPersonCamera(EntityViewRenderEvent.CameraSetup event) {
-        ActiveRenderInfo camera = event.getInfo();
+        Camera camera = event.getInfo();
         Minecraft minecraft = Minecraft.getInstance();
-        PlayerEntity player = minecraft.player;
-        World level = minecraft.level;
+        Player player = minecraft.player;
+        Level level = minecraft.level;
 
         if(player == null || level == null)
             return null;
@@ -173,7 +173,7 @@ public class PortalEntityClient {
     }
 
     public static void teleportCameraAndApply(EntityViewRenderEvent.CameraSetup event) {
-        ActiveRenderInfo camera = event.getInfo();
+        Camera camera = event.getInfo();
         boolean thirdPerson = camera.isDetached();
         PortalCamera newCamera = thirdPerson ? teleportThirdPersonCamera(event) : teleportCamera(event, true);
 
@@ -210,7 +210,7 @@ public class PortalEntityClient {
     }
 
     public static boolean isLocalPlayerMoving() {
-        GameSettings options = Minecraft.getInstance().options;
+        Options options = Minecraft.getInstance().options;
         return options.keyLeft.isDown()
             || options.keyRight.isDown()
             || options.keyUp.isDown()

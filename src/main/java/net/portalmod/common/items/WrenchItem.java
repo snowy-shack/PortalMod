@@ -1,20 +1,5 @@
 package net.portalmod.common.items;
 
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
@@ -29,24 +14,43 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.Level;
+
 public class WrenchItem extends Item {
     public WrenchItem(Properties properties) {
         super(properties);
     }
 
-    public static void playUseSound(PlayerEntity player, World world, Vector3d location) {
-        world.playSound(player, location.x, location.y, location.z, SoundInit.WRENCH_USE.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    public static void playUseSound(Player player, Level world, Vec3 location) {
+        world.playSound(player, location.x, location.y, location.z, SoundInit.WRENCH_USE.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
-    public static void playFailSound(PlayerEntity player, World world, Vector3d location) {
-        world.playSound(player, location.x, location.y, location.z, SoundInit.WRENCH_FAIL.get(), SoundCategory.PLAYERS, 1f, ModUtil.randomSoundPitch());
+    public static void playFailSound(Player player, Level world, Vec3 location) {
+        world.playSound(player, location.x, location.y, location.z, SoundInit.WRENCH_FAIL.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSoundPitch());
     }
 
-    public static void playUseSound(World world, Vector3d location) {
+    public static void playUseSound(Level world, Vec3 location) {
         playUseSound(null, world, location);
     }
 
-    public static void playFailSound(World world, Vector3d location) {
+    public static void playFailSound(Level world, Vec3 location) {
         playFailSound(null, world, location);
     }
 
@@ -54,7 +58,7 @@ public class WrenchItem extends Item {
         return StreamSupport.stream(entity.getHandSlots().spliterator(), false).anyMatch(itemStack -> itemStack.getItem() instanceof WrenchItem);
     }
 
-    public static boolean usedWrench(LivingEntity entity, Hand hand) {
+    public static boolean usedWrench(LivingEntity entity, InteractionHand hand) {
         return entity.getItemInHand(hand).getItem() instanceof WrenchItem;
     }
 
@@ -63,20 +67,20 @@ public class WrenchItem extends Item {
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, world, 64);
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+        BlockHitResult rayHit = ModUtil.rayTraceBlock(player, world, 64);
         Direction clickFace = rayHit.getDirection();
-        Vector3d clickPos = rayHit.getLocation();
+        Vec3 clickPos = rayHit.getLocation();
         ItemStack itemStack = player.getItemInHand(hand);
 
         if(!world.isClientSide) return super.use(world, player, hand);
 
         if(FaithPlateTER.selected != null) {
             BlockPos selected = FaithPlateTER.selected;
-            TileEntity blockEntity = world.getBlockEntity(selected);
+            BlockEntity blockEntity = world.getBlockEntity(selected);
 
             if (!(blockEntity instanceof FaithPlateTileEntity)) {
-                return ActionResult.fail(itemStack);
+                return InteractionResultHolder.fail(itemStack);
             }
             FaithPlateTileEntity be = (FaithPlateTileEntity) blockEntity;
 
@@ -90,8 +94,8 @@ public class WrenchItem extends Item {
                 enabled = true;
             }
 
-            CompoundNBT nbt = new CompoundNBT();
-            CompoundNBT target = new CompoundNBT();
+            CompoundTag nbt = new CompoundTag();
+            CompoundTag target = new CompoundTag();
             target.putFloat("height", be.getHeight());
             nbt.putBoolean("enabled", enabled || be.isEnabled());
 
@@ -108,7 +112,7 @@ public class WrenchItem extends Item {
             FaithPlateTER.selected = null;
 
             WrenchItem.playUseSound(world, player.position());
-            return ActionResult.success(itemStack);
+            return InteractionResultHolder.success(itemStack);
         }
 
         if (TriggerSelectionClient.isSelecting()) {
@@ -116,15 +120,15 @@ public class WrenchItem extends Item {
 
             TriggerSelectionClient.confirmSelection();
 
-            return ActionResult.success(itemStack);
+            return InteractionResultHolder.success(itemStack);
         }
 
-        return ActionResult.fail(itemStack);
+        return InteractionResultHolder.fail(itemStack);
     }
 
     @Nonnull
-    public static Vector3d getTargetPos(Direction clickFace, Vector3d clickPos) {
-        clickPos = new Vector3d(
+    public static Vec3 getTargetPos(Direction clickFace, Vec3 clickPos) {
+        clickPos = new Vec3(
                 Math.round(clickPos.x() * 2) / 2.0,
                 Math.round(clickPos.y() * 2) / 2.0,
                 Math.round(clickPos.z() * 2) / 2.0
@@ -137,12 +141,12 @@ public class WrenchItem extends Item {
     }
 
     @Override
-    public boolean doesSneakBypassUse(ItemStack stack, IWorldReader world, BlockPos pos, PlayerEntity player) {
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader world, BlockPos pos, Player player) {
         return true;
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("wrench", list);
     }
 }

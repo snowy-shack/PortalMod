@@ -1,10 +1,11 @@
 package net.portalmod.core.init;
 
-import net.minecraft.item.Item;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 import net.portalmod.PortalMod;
+
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.resources.ResourceLocation;
 
 public class ItemTagInit {
     private ItemTagInit() {}

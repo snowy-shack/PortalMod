@@ -1,7 +1,8 @@
 package net.portalmod.core.util;
 
-import net.minecraft.util.math.MathHelper;
 import net.portalmod.core.math.Vec3;
+
+import net.minecraft.util.Mth;
 
 public class Colour {
 
@@ -35,9 +36,9 @@ public class Colour {
     }
 
     public void lighten(float amount) {
-        this.r = (int) MathHelper.clamp(this.r + amount * 255, 0, 255);
-        this.g = (int) MathHelper.clamp(this.g + amount * 255, 0, 255);
-        this.b = (int) MathHelper.clamp(this.b + amount * 255, 0, 255);
+        this.r = (int) Mth.clamp(this.r + amount * 255, 0, 255);
+        this.g = (int) Mth.clamp(this.g + amount * 255, 0, 255);
+        this.b = (int) Mth.clamp(this.b + amount * 255, 0, 255);
     }
 
     public void darken(float amount) {

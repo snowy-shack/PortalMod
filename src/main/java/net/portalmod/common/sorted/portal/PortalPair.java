@@ -2,6 +2,7 @@ package net.portalmod.common.sorted.portal;
 
 import java.util.function.Consumer;
 
+
 public class PortalPair {
     private PortalEntity blue, orange;
 

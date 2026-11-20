@@ -1,10 +1,11 @@
 package net.portalmod.core.init;
 
-import net.minecraft.fluid.Fluid;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 import net.portalmod.PortalMod;
+
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.resources.ResourceLocation;
 
 public class FluidTagInit {
     private FluidTagInit() {}

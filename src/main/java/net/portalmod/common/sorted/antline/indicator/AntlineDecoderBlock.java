@@ -1,17 +1,5 @@
 package net.portalmod.common.sorted.antline.indicator;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.AttachFace;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.util.ModUtil;
 
@@ -19,6 +7,19 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 
 public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated, IndicatorActivated {
     public static final BooleanProperty ACTIVATED = BooleanProperty.create("activated");
@@ -34,7 +35,7 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(ACTIVATED);
     }
@@ -45,17 +46,17 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    public int getSignal(BlockState state, IBlockReader blockReader, BlockPos pos, Direction direction) {
+    public int getSignal(BlockState state, BlockGetter blockReader, BlockPos pos, Direction direction) {
         return state.getValue(ACTIVATED) ? 15 : 0;
     }
 
     @Override
-    public int getDirectSignal(BlockState state, IBlockReader blockReader, BlockPos pos, Direction direction) {
+    public int getDirectSignal(BlockState state, BlockGetter blockReader, BlockPos pos, Direction direction) {
         return state.getValue(ACTIVATED) && getConnectedDirection(state) == direction ? 15 : 0;
     }
 
     @Override
-    public void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos) {
+    public void onAntlineActivation(boolean active, BlockState state, Level world, BlockPos pos) {
         // This method gets called on neighbor updates too, so it's safe to check for indicators here
 
         boolean shouldBeActive = (active || this.checkIndicators(state, world, pos).allIndicatorsActivated);
@@ -73,13 +74,13 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moved) {
         if (!moved && !state.is(newState.getBlock()) && state.getValue(ACTIVATED)) {
             this.updateNeighbours(state, world, pos);
         }
     }
 
-    public void updateNeighbours(BlockState state, World world, BlockPos pos) {
+    public void updateNeighbours(BlockState state, Level world, BlockPos pos) {
         world.updateNeighborsAt(pos, this);
         Direction connectedDirection = getConnectedDirection(state);
 
@@ -88,24 +89,24 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    public boolean canConnectRedstone(BlockState state, IBlockReader world, BlockPos pos, @Nullable Direction side) {
+    public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
         return state.getValue(FACE) == AttachFace.FLOOR;
     }
 
     @Override
-    public void neighborChanged(BlockState state, World world, BlockPos pos, Block nBlock, BlockPos nPos, boolean b) {
+    public void neighborChanged(BlockState state, Level world, BlockPos pos, Block nBlock, BlockPos nPos, boolean b) {
         this.updateAntlineActivation(state, world, pos);
     }
 
     @Override
-    public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean b) {
+    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean b) {
         // First update surrounding antlines, then check for them
         world.updateNeighborsAt(pos, this);
         this.updateAntlineActivation(state, world, pos);
     }
 
     @Override
-    public List<BlockPos> getIndicatorPositions(BlockState blockState, World world, BlockPos pos) {
+    public List<BlockPos> getIndicatorPositions(BlockState blockState, Level world, BlockPos pos) {
         Direction.Axis axis = this.getHorsedOn(blockState).getAxis();
         return Arrays.stream(Direction.values())
                 .filter(direction -> direction.getAxis() != axis)
@@ -114,7 +115,7 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable IBlockReader blockReader, List<ITextComponent> list, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable BlockGetter blockReader, List<Component> list, TooltipFlag flag) {
         ModUtil.addTooltip("antline_decoder", list);
     }
 }

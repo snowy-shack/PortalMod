@@ -1,14 +1,15 @@
 package net.portalmod.common.sorted.button;
 
-import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.vector.TransformationMatrix;
-import net.minecraft.util.math.vector.Vector3f;
 import net.portalmod.core.math.Mat4;
 
-public class SuperButtonModelTransform implements IModelTransform {
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Direction.AxisDirection;
+import com.mojang.math.Transformation;
+import org.joml.Vector3f;
+
+public class SuperButtonModelTransform implements ModelState {
     private final Mat4 matrix;
     
     public SuperButtonModelTransform(Direction facing, QuadBlockCorner corner) {
@@ -36,7 +37,7 @@ public class SuperButtonModelTransform implements IModelTransform {
     }
 
     @Override
-    public TransformationMatrix getRotation() {
-        return new TransformationMatrix(matrix.to4f());
+    public Transformation getRotation() {
+        return new Transformation(matrix.to4f());
     }
 }

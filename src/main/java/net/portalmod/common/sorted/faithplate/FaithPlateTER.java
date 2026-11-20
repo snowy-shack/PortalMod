@@ -1,31 +1,5 @@
 package net.portalmod.common.sorted.faithplate;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.model.Model;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.world.World;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.ItemInit;
@@ -33,28 +7,54 @@ import net.portalmod.core.math.Vec3;
 import net.portalmod.core.util.Colour;
 import net.portalmod.core.util.ModUtil;
 
-public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import net.minecraft.world.level.Level;
+
+public class FaithPlateTER extends BlockEntityRenderer<FaithPlateTileEntity> {
     public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate");
     public static final ResourceLocation TEXTURE_ORANGE = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_active");
     public static final ResourceLocation TEXTURE_BLUE_E = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_emission");
     public static final ResourceLocation TEXTURE_ORANGE_E = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_active_emission");
-    public static RenderMaterial MATERIAL_BLUE;
-    public static RenderMaterial MATERIAL_ORANGE;
-    public static RenderMaterial MATERIAL_BLUE_E;
-    public static RenderMaterial MATERIAL_ORANGE_E;
+    public static Material MATERIAL_BLUE;
+    public static Material MATERIAL_ORANGE;
+    public static Material MATERIAL_BLUE_E;
+    public static Material MATERIAL_ORANGE_E;
     private final FaithPlatePlateModel plateModel;
     public static BlockPos selected;
 
-    public FaithPlateTER(TileEntityRendererDispatcher terd) {
+    public FaithPlateTER(BlockEntityRenderDispatcher terd) {
         super(terd);
         plateModel = new FaithPlatePlateModel();
-        MATERIAL_BLUE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_BLUE);
-        MATERIAL_ORANGE = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_ORANGE);
-        MATERIAL_BLUE_E = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_BLUE_E);
-        MATERIAL_ORANGE_E = new RenderMaterial(AtlasTexture.LOCATION_BLOCKS, TEXTURE_ORANGE_E);
+        MATERIAL_BLUE = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_BLUE);
+        MATERIAL_ORANGE = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_ORANGE);
+        MATERIAL_BLUE_E = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_BLUE_E);
+        MATERIAL_ORANGE_E = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_ORANGE_E);
     }
 
-    private void renderPlate(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int combinedOverlay) {
+    private void renderPlate(FaithPlateTileEntity be, PoseStack matrixStack, MultiBufferSource renderBuffer, int combinedOverlay) {
         BlockPos pos = be.getBlockPos();
         BlockState state = be.getBlockState();
         boolean onWall = state.getValue(FaithPlateBlock.FACE) == FaithPlateBlock.Face.WALL;
@@ -75,15 +75,15 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.translate(0, -1.5, 0);
 
         boolean disabled = be.isEnabled() && be.getCooldown() < 2;
-        IVertexBuilder ivbNormal = disabled
+        VertexConsumer ivbNormal = disabled
                 ? MATERIAL_ORANGE.buffer(renderBuffer, RenderType::entityTranslucent)
                 : MATERIAL_BLUE.buffer(renderBuffer, RenderType::entityTranslucent);
 
-        IVertexBuilder ivbEmissive = disabled
+        VertexConsumer ivbEmissive = disabled
                 ? MATERIAL_ORANGE_E.buffer(renderBuffer, RenderType::entityTranslucent)
                 : MATERIAL_BLUE_E.buffer(renderBuffer, RenderType::entityTranslucent);
 
-        int light = WorldRenderer.getLightColor(be.getLevel(),
+        int light = LevelRenderer.getLightColor(be.getLevel(),
                 onWall ? pos.relative(state.getValue(FaithPlateBlock.FACING)) : pos.above());
 
         plateModel.render(be, plateModel.bone, matrixStack, ivbNormal, light, combinedOverlay, new Colour(0xFFFFFFFF), false);
@@ -96,13 +96,13 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.popPose();
     }
 
-    private void renderTrigger(FaithPlateTileEntity be, MatrixStack matrixStack) {
+    private void renderTrigger(FaithPlateTileEntity be, PoseStack matrixStack) {
         BlockPos pos = be.getBlockPos();
         BlockState state = be.getBlockState();
         Block block = state.getBlock();
 
-        IRenderTypeBuffer renderTypeBuffer = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
-        IVertexBuilder vertexBuilder = renderTypeBuffer.getBuffer(RenderType.lines());
+        MultiBufferSource renderTypeBuffer = Minecraft.getInstance().levelRenderer.renderBuffers.outlineBufferSource();
+        VertexConsumer vertexBuilder = renderTypeBuffer.getBuffer(RenderType.lines());
 
         if (!(block instanceof FaithPlateBlock)) return;
 
@@ -112,13 +112,13 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.translate(-pos.getX(), -pos.getY(), -pos.getZ());
         matrixStack.translate(normal.x, normal.y, normal.z);
 
-        WorldRenderer.renderLineBox(matrixStack, vertexBuilder,
+        LevelRenderer.renderLineBox(matrixStack, vertexBuilder,
                 be.getTrigger(), 1, 1, 1, 1);
 
         matrixStack.popPose();
     }
 
-    private void renderPath(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, Vector3d absoluteTargetBlockPos, Direction targetFace, int overlay) {
+    private void renderPath(FaithPlateTileEntity be, PoseStack matrixStack, MultiBufferSource renderBuffer, net.minecraft.world.phys.Vec3 absoluteTargetBlockPos, Direction targetFace, int overlay) {
         BlockState state = be.getBlockState();
         Vec3 normal = new Vec3(targetFace.getNormal()).mul(.5);
         Vec3 absoluteTargetPos = new Vec3(absoluteTargetBlockPos).add(.5).add(normal);
@@ -132,7 +132,7 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         Vec3 relativeTargetPos = absoluteTargetPos.clone().sub(platePos);
 
         FaithPlateParabola parabola = new FaithPlateParabola(relativeTargetPos.to3d(), be.getPredictedHeight(absoluteTargetBlockPos));
-        IVertexBuilder lineBuffer = renderBuffer.getBuffer(RenderType.lines());
+        VertexConsumer lineBuffer = renderBuffer.getBuffer(RenderType.lines());
 
         matrixStack.pushPose();
         matrixStack.translate(relativeStartPoint.x, relativeStartPoint.y, relativeStartPoint.z);
@@ -181,11 +181,11 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         }
     }
 
-    private void vertex(IVertexBuilder lineBuffer, Matrix4f matrix4f, float x, float y, float z) {
+    private void vertex(VertexConsumer lineBuffer, Matrix4f matrix4f, float x, float y, float z) {
         lineBuffer.vertex(matrix4f, x, y, z).color(1, 1, 1, 1f).endVertex();
     }
 
-    private void renderTarget(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, Vector3d pos, Direction face, int light, int overlay) {
+    private void renderTarget(FaithPlateTileEntity be, PoseStack matrixStack, MultiBufferSource renderBuffer, net.minecraft.world.phys.Vec3 pos, Direction face, int light, int overlay) {
         float distance = (float)Minecraft.getInstance().gameRenderer.getMainCamera().getPosition().subtract(new Vec3(pos).add(be.getBlockPos()).to3d()).dot(new Vec3(face).to3d());
         distance = (float)Math.min(0.0001 + Math.max(0.1 / 200 * (distance - 5), 0), 0.1);
 
@@ -206,41 +206,41 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         matrixStack.popPose();
     }
 
-    private void renderPointedPath(FaithPlateTileEntity be, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int overlay) {
-        PlayerEntity player = Minecraft.getInstance().player; // TODO check functionality in multiplayer
+    private void renderPointedPath(FaithPlateTileEntity be, PoseStack matrixStack, MultiBufferSource renderBuffer, int overlay) {
+        Player player = Minecraft.getInstance().player; // TODO check functionality in multiplayer
 
         if (!be.getBlockPos().equals(selected) || player == null || player.noPhysics) return;
 
-        Item mainHandItem = player.getItemInHand(Hand.MAIN_HAND).getItem();
-        Item offHandItem = player.getItemInHand(Hand.OFF_HAND).getItem();
+        Item mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND).getItem();
+        Item offHandItem = player.getItemInHand(InteractionHand.OFF_HAND).getItem();
 
         if (!(mainHandItem == ItemInit.WRENCH.get() || offHandItem == ItemInit.WRENCH.get())) return;
 
-        BlockRayTraceResult rayHit = ModUtil.rayTraceBlock(player, be.getLevel(), 64);
+        BlockHitResult rayHit = ModUtil.rayTraceBlock(player, be.getLevel(), 64);
 
-        if (rayHit.getType() == RayTraceResult.Type.MISS) return;
+        if (rayHit.getType() == HitResult.Type.MISS) return;
 
         Direction targetFace = rayHit.getDirection();
 
-        Vector3d absoluteTargetPos = rayHit.getLocation();
+        net.minecraft.world.phys.Vec3 absoluteTargetPos = rayHit.getLocation();
         absoluteTargetPos = WrenchItem.getTargetPos(targetFace, absoluteTargetPos);
 
         BlockPos plateBlockPos = be.getBlockPos();
-        Vector3d renderTargetPos = absoluteTargetPos.subtract(Vector3d.atLowerCornerOf(plateBlockPos));
-        int targetBlockLight = getTargetLight(be.getLevel(), Vector3d.atCenterOf(rayHit.getBlockPos()), targetFace);
+        net.minecraft.world.phys.Vec3 renderTargetPos = absoluteTargetPos.subtract(net.minecraft.world.phys.Vec3.atLowerCornerOf(plateBlockPos));
+        int targetBlockLight = getTargetLight(be.getLevel(), net.minecraft.world.phys.Vec3.atCenterOf(rayHit.getBlockPos()), targetFace);
 
         renderPath(be, matrixStack, renderBuffer, absoluteTargetPos, rayHit.getDirection(), overlay);
         renderTarget(be, matrixStack, renderBuffer, renderTargetPos, targetFace, targetBlockLight, overlay);
     }
 
-    private int getTargetLight(World level, Vector3d pos, Direction face) {
-        return WorldRenderer.getLightColor(level, new BlockPos(
-                pos.add(Vector3d.atLowerCornerOf(face.getNormal()))
+    private int getTargetLight(Level level, net.minecraft.world.phys.Vec3 pos, Direction face) {
+        return LevelRenderer.getLightColor(level, new BlockPos(
+                pos.add(net.minecraft.world.phys.Vec3.atLowerCornerOf(face.getNormal()))
         ));
     }
     
     @Override
-    public void render(FaithPlateTileEntity be, float partialTicks, MatrixStack matrixStack, IRenderTypeBuffer renderBuffer, int light, int overlay) {
+    public void render(FaithPlateTileEntity be, float partialTicks, PoseStack matrixStack, MultiBufferSource renderBuffer, int light, int overlay) {
         renderPlate(be, matrixStack, renderBuffer, overlay);
 
         renderPointedPath(be, matrixStack, renderBuffer, overlay);
@@ -253,27 +253,27 @@ public class FaithPlateTER extends TileEntityRenderer<FaithPlateTileEntity> {
         if (be.getTargetFace() == null || be.getTargetPos() == null || be.getBlockPos().equals(selected)) return;
 
         if (Minecraft.getInstance().options.renderDebug && holdingWrench) {
-            renderPath(be, matrixStack, renderBuffer, be.getTargetPos().add(Vector3d.atLowerCornerOf(be.getBlockPos())), be.getTargetFace(), overlay);
+            renderPath(be, matrixStack, renderBuffer, be.getTargetPos().add(net.minecraft.world.phys.Vec3.atLowerCornerOf(be.getBlockPos())), be.getTargetFace(), overlay);
         }
 
-        Vector3d absoluteTargetPos = be.getTargetPos().add(Vector3d.atCenterOf(be.getBlockPos()));
+        net.minecraft.world.phys.Vec3 absoluteTargetPos = be.getTargetPos().add(net.minecraft.world.phys.Vec3.atCenterOf(be.getBlockPos()));
         renderTarget(be, matrixStack, renderBuffer, be.getTargetPos(), be.getTargetFace(),
                     getTargetLight(be.getLevel(), absoluteTargetPos, be.getTargetFace()), overlay);
 
 //        FaithPlateParabola parabola = new FaithPlateParabola(new Vec3(be.getTargetPos()).to3d(), be.getHeight());
-//        BlockRayTraceResult tr = parabola.findFirstBlockHit(be.getLevel(), be);
+//        BlockHitResult tr = parabola.findFirstBlockHit(be.getLevel(), be);
 
 //        if (tr != null) {
 //            Direction face = tr.getDirection().getOpposite();
 //            BlockPos pos = tr.getBlockPos();
 //
 //            if ((selected == null || !selected.equals(be.getBlockPos()))) {
-//                renderTarget(be, matrixStack, renderBuffer, Vector3d.atLowerCornerOf(pos), face,
-//                        getTargetLight(be.getLevel(), Vector3d.atLowerCornerOf(pos.offset(be.getBlockPos())), face), overlay);
+//                renderTarget(be, matrixStack, renderBuffer, net.minecraft.world.phys.Vec3.atLowerCornerOf(pos), face,
+//                        getTargetLight(be.getLevel(), net.minecraft.world.phys.Vec3.atLowerCornerOf(pos.offset(be.getBlockPos())), face), overlay);
 //            }
 //        } else {
-//            renderTarget(be, matrixStack, renderBuffer, Vector3d.atLowerCornerOf(be.getBlockPos()), be.getTargetFace(),
-//                    getTargetLight(be.getLevel(), be.getTargetPos().add(Vector3d.atLowerCornerOf(be.getBlockPos())), be.getTargetFace()), overlay);
+//            renderTarget(be, matrixStack, renderBuffer, net.minecraft.world.phys.Vec3.atLowerCornerOf(be.getBlockPos()), be.getTargetFace(),
+//                    getTargetLight(be.getLevel(), be.getTargetPos().add(net.minecraft.world.phys.Vec3.atLowerCornerOf(be.getBlockPos())), be.getTargetFace()), overlay);
 //        }
     }
 

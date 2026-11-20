@@ -1,14 +1,5 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.MainWindow;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.portalmod.PortalMod;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -22,7 +13,17 @@ import java.awt.*;
 
 import static org.lwjgl.opengl.GL11.GL_QUADS;
 
-public class ColorPickerWidget extends Widget {
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import net.minecraft.network.chat.TextComponent;
+
+public class ColorPickerWidget extends AbstractWidget {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
     private static final int COLOR_PICKER_U = 218;
     private static final int COLOR_PICKER_V = 177;
@@ -75,7 +76,7 @@ public class ColorPickerWidget extends Widget {
     private boolean huePickerCursorHovering;
 
     public ColorPickerWidget(int x, int y, int width, int height) {
-        super(x, y, width, height, StringTextComponent.EMPTY);
+        super(x, y, width, height, TextComponent.EMPTY);
         this.init();
     }
 
@@ -104,7 +105,7 @@ public class ColorPickerWidget extends Widget {
     }
 
     private void initShaders() {
-        MatrixStack matrixStack = new MatrixStack();
+        PoseStack matrixStack = new PoseStack();
         this.setupProjection(matrixStack);
 
         ShaderInit.COLOR_PICKER_SV.get()
@@ -136,15 +137,15 @@ public class ColorPickerWidget extends Widget {
                 .unbind();
     }
 
-    private void setShadersModelViewMatrix(MatrixStack matrixStack) {
+    private void setShadersModelViewMatrix(PoseStack matrixStack) {
         ShaderInit.COLOR_PICKER_SV.get().bind().setMatrix("modelView", matrixStack.last().pose());
         ShaderInit.COLOR_PICKER_HUE.get().bind().setMatrix("modelView", matrixStack.last().pose());
         ShaderInit.COLOR_PICKER_SOLID.get().bind().setMatrix("modelView", matrixStack.last().pose());
         GL20.glUseProgram(0);
     }
 
-    private void setupProjection(MatrixStack matrixStack) {
-        MainWindow mainWindow = Minecraft.getInstance().getWindow();
+    private void setupProjection(PoseStack matrixStack) {
+        Window mainWindow = Minecraft.getInstance().getWindow();
         matrixStack.scale(1, -1, 1);
         matrixStack.last().pose().multiply(Matrix4f.orthographic(
                 (float)(mainWindow.getWidth() / mainWindow.getGuiScale()),
@@ -186,7 +187,7 @@ public class ColorPickerWidget extends Widget {
         this.initQuad(huePickerCursorColorQuad, this.getHuePickerCursorColorRegion());
     }
 
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         matrixStack.pushPose();
         matrixStack.translate(0, this.computeAnimation(), 0);
 
@@ -199,11 +200,11 @@ public class ColorPickerWidget extends Widget {
         matrixStack.popPose();
     }
 
-    private void blitRect(MatrixStack matrixStack, Rectangle rect, int u, int v) {
+    private void blitRect(PoseStack matrixStack, Rectangle rect, int u, int v) {
         blit(matrixStack, rect.x, rect.y, u, v, rect.width, rect.height, 512, 512);
     }
 
-    private void renderSVPicker(MatrixStack matrixStack) {
+    private void renderSVPicker(PoseStack matrixStack) {
         this.renderSVPickerColor();
         this.renderSVPickerCursor(matrixStack);
     }
@@ -214,7 +215,7 @@ public class ColorPickerWidget extends Widget {
         ShaderInit.COLOR_PICKER_SV.get().unbind();
     }
 
-    private void renderSVPickerCursor(MatrixStack matrixStack) {
+    private void renderSVPickerCursor(PoseStack matrixStack) {
         this.blitRect(matrixStack, this.getSVPickerCursorRegion(),
                 this.svPickerCursorHovering ? SV_PICKER_CURSOR_FOCUSED_U : SV_PICKER_CURSOR_U, SV_PICKER_CURSOR_V);
         this.renderSVPickerCursorColor();
@@ -227,7 +228,7 @@ public class ColorPickerWidget extends Widget {
         ShaderInit.COLOR_PICKER_SOLID.get().unbind();
     }
 
-    private void renderHuePicker(MatrixStack matrixStack) {
+    private void renderHuePicker(PoseStack matrixStack) {
         this.renderHuePickerColor();
         this.renderHuePickerCursor(matrixStack);
     }
@@ -238,7 +239,7 @@ public class ColorPickerWidget extends Widget {
         ShaderInit.COLOR_PICKER_HUE.get().unbind();
     }
 
-    private void renderHuePickerCursor(MatrixStack matrixStack) {
+    private void renderHuePickerCursor(PoseStack matrixStack) {
         this.blitRect(matrixStack, this.getHuePickerCursorRegion(),
                 this.huePickerCursorHovering ? HUE_PICKER_CURSOR_FOCUSED_U : HUE_PICKER_CURSOR_U, HUE_PICKER_CURSOR_V);
         this.renderHuePickerCursorColor();
@@ -321,11 +322,11 @@ public class ColorPickerWidget extends Widget {
     }
 
     private void setHue(float hue) {
-        this.huePickerCursorY = MathHelper.clamp(hue / 360, 0, 1);
+        this.huePickerCursorY = Mth.clamp(hue / 360, 0, 1);
     }
 
     private void setSaturation(float saturation) {
-        this.svPickerCursorX = MathHelper.clamp(saturation, 0, 1);
+        this.svPickerCursorX = Mth.clamp(saturation, 0, 1);
     }
 
     private int getSVPickerX() {
@@ -417,8 +418,8 @@ public class ColorPickerWidget extends Widget {
     private void setSVPickerCursorPosition(int x, int y) {
         this.svPickerCursorX = (float)(x - this.getSVPickerX()) / SV_PICKER_WIDTH;
         this.svPickerCursorY = (float)(y - this.getSVPickerY()) / SV_PICKER_HEIGHT;
-        this.svPickerCursorX = MathHelper.clamp(this.svPickerCursorX, 0, 1);
-        this.svPickerCursorY = MathHelper.clamp(this.svPickerCursorY, 0, 1);
+        this.svPickerCursorX = Mth.clamp(this.svPickerCursorX, 0, 1);
+        this.svPickerCursorY = Mth.clamp(this.svPickerCursorY, 0, 1);
         this.updateSVPickerCursor();
     }
 
@@ -428,7 +429,7 @@ public class ColorPickerWidget extends Widget {
 
     private void setHuePickerCursorPosition(int y) {
         this.huePickerCursorY = (float)(y - this.getHuePickerY()) / HUE_PICKER_HEIGHT;
-        this.huePickerCursorY = MathHelper.clamp(this.huePickerCursorY, 0, 1);
+        this.huePickerCursorY = Mth.clamp(this.huePickerCursorY, 0, 1);
         this.updateHuePickerCursor();
     }
 
@@ -446,7 +447,7 @@ public class ColorPickerWidget extends Widget {
 
     private void setValue(float value) {
         value = 1 - (value - SV_PICKER_VAL_MIN) / (SV_PICKER_VAL_MAX - SV_PICKER_VAL_MIN);
-        this.svPickerCursorY = MathHelper.clamp(value, 0, 1);
+        this.svPickerCursorY = Mth.clamp(value, 0, 1);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package net.portalmod.common.sorted.gel;
 
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 public interface IGelAffected {
     int MAX_PROPULSION_TICKS = 30;
@@ -28,8 +28,8 @@ public interface IGelAffected {
     void incrementPropulsionTicks();
     void decrementPropulsionTicks();
 
-    void setLastDeltaMovement(Vector3d lastDeltaMovement);
-    Vector3d getLastDeltaMovement();
-    void setLastLastDeltaMovement(Vector3d lastLastDeltaMovement);
-    Vector3d getLastLastDeltaMovement();
+    void setLastDeltaMovement(Vec3 lastDeltaMovement);
+    Vec3 getLastDeltaMovement();
+    void setLastLastDeltaMovement(Vec3 lastLastDeltaMovement);
+    Vec3 getLastLastDeltaMovement();
 }

@@ -1,11 +1,5 @@
 package net.portalmod.common.sorted.button;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IDynamicBakedModel;
 import net.minecraftforge.client.model.data.IModelData;
 import net.portalmod.core.math.BiHashMap;
@@ -16,11 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
+
 public class SuperButtonBakedModel implements IDynamicBakedModel {
-    private final BiHashMap<Direction, QuadBlockCorner, IBakedModel> variants = new BiHashMap<>();
-    private final IBakedModel base;
+    private final BiHashMap<Direction, QuadBlockCorner, BakedModel> variants = new BiHashMap<>();
+    private final BakedModel base;
     
-    public SuperButtonBakedModel(IBakedModel base) {
+    public SuperButtonBakedModel(BakedModel base) {
         this.base = base;
     }
 
@@ -28,13 +29,13 @@ public class SuperButtonBakedModel implements IDynamicBakedModel {
     @Nonnull
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-        IBakedModel variant = this.variants.get(state.getValue(SuperButtonBlock.FACING), state.getValue(SuperButtonBlock.CORNER));
+        BakedModel variant = this.variants.get(state.getValue(SuperButtonBlock.FACING), state.getValue(SuperButtonBlock.CORNER));
         if(variant == null)
             return new ArrayList<>();
         return variant.getQuads(state, side, rand);
     }
     
-    public void addVariant(Direction facing, QuadBlockCorner corner, IBakedModel variant) {
+    public void addVariant(Direction facing, QuadBlockCorner corner, BakedModel variant) {
         this.variants.put(facing, corner, variant);
     }
 
@@ -65,7 +66,7 @@ public class SuperButtonBakedModel implements IDynamicBakedModel {
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

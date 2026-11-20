@@ -2,20 +2,21 @@ package net.portalmod.common.sorted.antline;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.client.model.IModelLoader;
+
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 public class AntlineLoader implements IModelLoader<AntlineGeometry> {
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager) {}
+    public void onResourceManagerReload(ResourceManager resourceManager) {}
 
     @Override
     public AntlineGeometry read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
-//        ItemCameraTransforms itemCameraTransforms;
+//        ItemTransforms itemCameraTransforms;
 //        JsonObject transformsObject = modelContents.getAsJsonObject("display");
-//        itemCameraTransforms = deserializationContext.deserialize(transformsObject, ItemCameraTransforms.class);
+//        itemCameraTransforms = deserializationContext.deserialize(transformsObject, ItemTransforms.class);
 //        return new AntlineGeometry(itemCameraTransforms);
         return new AntlineGeometry();
     }

@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.portalmod.PortalMod;
 
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.resources.ResourceLocation;
+
 public class TextureInit {
-    private static final Registry BLOCKS = new Registry(AtlasTexture.LOCATION_BLOCKS);
+    private static final Registry BLOCKS = new Registry(TextureAtlas.LOCATION_BLOCKS);
     
     private TextureInit() {}
     

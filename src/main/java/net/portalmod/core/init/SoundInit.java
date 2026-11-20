@@ -1,14 +1,15 @@
 package net.portalmod.core.init;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.portalmod.core.registry.RegistryObject;
+import net.portalmod.core.registry.DeferredRegister;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.PortalMod;
 
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+
 public class SoundInit {
-    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, PortalMod.MODID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, PortalMod.MODID);
 
     private SoundInit() {}
 

@@ -1,10 +1,11 @@
 package net.portalmod.core.init;
 
-import net.minecraft.block.Block;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.Tags;
 import net.portalmod.PortalMod;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.resources.ResourceLocation;
 
 public class BlockTagInit {
     private BlockTagInit() {}

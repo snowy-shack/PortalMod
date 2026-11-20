@@ -1,15 +1,5 @@
 package net.portalmod.common.sorted.goo;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.fluid.FlowingFluid;
-import net.minecraft.pathfinding.PathNodeType;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
@@ -21,7 +11,18 @@ import net.portalmod.mixins.accessors.EntityAccessor;
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
-public class GooBlock extends FlowingFluidBlock {
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+
+public class GooBlock extends LiquidBlock {
     public static final double MOVEMENT_FRICTION = 0.6;
     public static final double SWIM_SPEED = 0.25;
     public static final double FLOW_PUSH_STRENGTH = 0.05;
@@ -77,7 +78,7 @@ public class GooBlock extends FlowingFluidBlock {
 
     @Nullable
     @Override
-    public PathNodeType getAiPathNodeType(BlockState state, IBlockReader world, BlockPos pos, @Nullable MobEntity entity) {
-        return PathNodeType.LAVA;
+    public BlockPathTypes getAiPathNodeType(BlockState state, BlockGetter world, BlockPos pos, @Nullable Mob entity) {
+        return BlockPathTypes.LAVA;
     }
 }

@@ -1,16 +1,5 @@
 package net.portalmod.common.sorted.portal;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.culling.ClippingHelper;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.PMState;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.math.Mat4;
@@ -23,14 +12,27 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+
 public class DuplicateEntityRenderer {
     public static Vec3 entityPosOverride = null;
     public static Matrix4f entityShadowTransformOverride = null;
     public static boolean shouldRenderShadow = true;
 
-    public static void renderDuplicateEntities(ClippingHelper clippinghelper, double d0, double d1, double d2, float partialTicks, MatrixStack matrixStack, ActiveRenderInfo camera) {
+    public static void renderDuplicateEntities(Frustum clippinghelper, double d0, double d1, double d2, float partialTicks, PoseStack matrixStack, Camera camera) {
         Minecraft mc = Minecraft.getInstance();
-        WorldRenderer lr = Minecraft.getInstance().levelRenderer;
+        LevelRenderer lr = Minecraft.getInstance().levelRenderer;
 
         if(mc.player == null)
             return;
@@ -38,7 +40,7 @@ public class DuplicateEntityRenderer {
         Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource().endBatch();
 
         for(Entity entity : lr.level.entitiesForRendering()) {
-            boolean shouldRender = !(entity instanceof ClientPlayerEntity)
+            boolean shouldRender = !(entity instanceof LocalPlayer)
                     || camera.getEntity() == entity
                     || (entity == mc.player && !mc.player.isSpectator());
 
@@ -62,11 +64,11 @@ public class DuplicateEntityRenderer {
         }
     }
 
-    public static boolean shouldRenderSelf(Entity entity, ClippingHelper clippingHelper) {
+    public static boolean shouldRenderSelf(Entity entity, Frustum clippingHelper) {
         return shouldRender(entity, Mat4.identity(), clippingHelper);
     }
 
-    private static boolean shouldRenderEntity(Entity entity, ClippingHelper clippingHelper, Vec3 camPos, Mat4 matrix) {
+    private static boolean shouldRenderEntity(Entity entity, Frustum clippingHelper, Vec3 camPos, Mat4 matrix) {
         if(!entity.shouldRender(camPos.x, camPos.y, camPos.z))
             return false;
 
@@ -76,8 +78,8 @@ public class DuplicateEntityRenderer {
         return shouldRender(entity, matrix, clippingHelper);
     }
 
-    private static boolean shouldRender(Entity entity, Mat4 matrix, ClippingHelper clippingHelper) {
-        ActiveRenderInfo currentCamera = PortalRenderer.getInstance().getCurrentCamera();
+    private static boolean shouldRender(Entity entity, Mat4 matrix, Frustum clippingHelper) {
+        Camera currentCamera = PortalRenderer.getInstance().getCurrentCamera();
         Vec3 cameraPos = PMState.cameraPosOverrideForRenderingSelf != null
                 ? PMState.cameraPosOverrideForRenderingSelf
                 : new Vec3(currentCamera.getPosition());
@@ -85,12 +87,12 @@ public class DuplicateEntityRenderer {
         Minecraft mc = Minecraft.getInstance();
         ActiveRenderInfoAccessor mainCameraAccessor = (ActiveRenderInfoAccessor)mc.gameRenderer.getMainCamera();
         float partialTicks = mc.isPaused() ? ((MinecraftAccessor)mc).pmGetPausePartialTick() : mc.getFrameTime();
-        float eyeHeight = MathHelper.lerp(partialTicks, mainCameraAccessor.pmGetEyeHeightOld(), mainCameraAccessor.pmGetEyeHeight());
+        float eyeHeight = Mth.lerp(partialTicks, mainCameraAccessor.pmGetEyeHeightOld(), mainCameraAccessor.pmGetEyeHeight());
 
         Vec3 partialTickedOffset = new Vec3(entity.getPosition(partialTicks)).sub(entity.position());
-        AxisAlignedBB aabb = entity.getBoundingBox().move(partialTickedOffset.to3d());
+        AABB aabb = entity.getBoundingBox().move(partialTickedOffset.to3d());
         aabb = transformAABB(aabb, matrix);
-        AxisAlignedBB aabbCull = entity.getBoundingBoxForCulling().move(partialTickedOffset.to3d()).inflate(0.5);
+        AABB aabbCull = entity.getBoundingBoxForCulling().move(partialTickedOffset.to3d()).inflate(0.5);
         aabbCull = transformAABB(aabbCull, matrix);
 
         if(entity != mc.cameraEntity)
@@ -104,11 +106,11 @@ public class DuplicateEntityRenderer {
         return distance > 0.001 && clippingHelper.isVisible(aabbCull);
     }
 
-    private static void renderDuplicateEntity(Entity entity, double camX, double camY, double camZ, float partialTicks, MatrixStack matrixStack, ClippingHelper clippingHelper) {
-        double d0 = MathHelper.lerp(partialTicks, entity.xOld, entity.getX());
-        double d1 = MathHelper.lerp(partialTicks, entity.yOld, entity.getY());
-        double d2 = MathHelper.lerp(partialTicks, entity.zOld, entity.getZ());
-        float f = MathHelper.lerp(partialTicks, entity.yRotO, entity.yRot);
+    private static void renderDuplicateEntity(Entity entity, double camX, double camY, double camZ, float partialTicks, PoseStack matrixStack, Frustum clippingHelper) {
+        double d0 = Mth.lerp(partialTicks, entity.xOld, entity.getX());
+        double d1 = Mth.lerp(partialTicks, entity.yOld, entity.getY());
+        double d2 = Mth.lerp(partialTicks, entity.zOld, entity.getZ());
+        float f = Mth.lerp(partialTicks, entity.yRotO, entity.yRot);
 
         if(entity instanceof PortalEntity || Minecraft.getInstance().player == null)
             return;
@@ -121,8 +123,8 @@ public class DuplicateEntityRenderer {
                 continue;
 
             PortalEntity otherPortal = portal.getOtherPortal().get();
-            ActiveRenderInfo camera = PortalRenderer.getInstance().getCurrentCamera();
-            EntityRendererManager erm = Minecraft.getInstance().levelRenderer.entityRenderDispatcher;
+            Camera camera = PortalRenderer.getInstance().getCurrentCamera();
+            EntityRenderDispatcher erm = Minecraft.getInstance().levelRenderer.entityRenderDispatcher;
 
             Mat4 changeOfBasisMatrix = PortalEntity.getPortalToPortalRotationMatrix(portal, otherPortal);
             Mat4 portalToPortalMatrix = PortalEntity.getPortalToPortalMatrix(portal, otherPortal);
@@ -148,7 +150,7 @@ public class DuplicateEntityRenderer {
             shouldRenderShadow = portal.getDirection().getAxis().isHorizontal() && otherPortal.getDirection().getAxis().isHorizontal();
             matrixStack.popPose();
 
-            RenderUtil.setupClipPlane(new MatrixStack(), otherPortal, camera, 0, true);
+            RenderUtil.setupClipPlane(new PoseStack(), otherPortal, camera, 0, true);
 
             erm.render(entity, d0, d1, d2, f,
                     partialTicks, matrixStack, Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource(),
@@ -170,9 +172,9 @@ public class DuplicateEntityRenderer {
         }
     }
 
-    private static AxisAlignedBB transformAABB(AxisAlignedBB aabb, Mat4 matrix) {
+    private static AABB transformAABB(AABB aabb, Mat4 matrix) {
         Vec3 min = new Vec3(aabb.minX, aabb.minY, aabb.minZ).transform(matrix);
         Vec3 max = new Vec3(aabb.maxX, aabb.maxY, aabb.maxZ).transform(matrix);
-        return new AxisAlignedBB(min.to3d(), max.to3d());
+        return new AABB(min.to3d(), max.to3d());
     }
 }

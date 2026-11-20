@@ -1,21 +1,22 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import net.portalmod.core.init.RecipeInit;
 
-public class PortalGunDuplicateRecipe extends SpecialRecipe {
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+
+public class PortalGunDuplicateRecipe extends CustomRecipe {
     public PortalGunDuplicateRecipe(ResourceLocation resourceLocation) {
         super(resourceLocation);
     }
 
     @Override
-    public boolean matches(CraftingInventory inventory, World world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         int guns = 0;
 
         for (int i = 0; i < inventory.getContainerSize(); i++) {
@@ -28,7 +29,7 @@ public class PortalGunDuplicateRecipe extends SpecialRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInventory inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack item = inventory.getItem(i);
             if (!item.isEmpty()) {
@@ -39,7 +40,7 @@ public class PortalGunDuplicateRecipe extends SpecialRecipe {
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInventory inventory) {
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer inventory) {
         NonNullList<ItemStack> nonnulllist = NonNullList.withSize(inventory.getContainerSize(), ItemStack.EMPTY);
 
         for (int i = 0; i < inventory.getContainerSize(); i++) {
@@ -58,7 +59,7 @@ public class PortalGunDuplicateRecipe extends SpecialRecipe {
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return RecipeInit.PORTAL_GUN_DUPLICATE.get();
     }
 }

@@ -1,13 +1,13 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
 
 import java.util.UUID;
 import java.util.function.Supplier;
+
+import net.minecraft.network.FriendlyByteBuf;
 
 public class SPortalGunAnimationPacket implements AbstractPacket<SPortalGunAnimationPacket> {
     protected UUID gunUUID;
@@ -21,21 +21,21 @@ public class SPortalGunAnimationPacket implements AbstractPacket<SPortalGunAnima
     }
 
     @Override
-    public void encode(PacketBuffer buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeUUID(gunUUID);
         buffer.writeEnum(animation);
     }
 
     @Override
-    public SPortalGunAnimationPacket decode(PacketBuffer buffer) {
+    public SPortalGunAnimationPacket decode(FriendlyByteBuf buffer) {
         return new SPortalGunAnimationPacket(
                 buffer.readUUID(),
                 buffer.readEnum(PortalGunAnimation.class));
     }
 
     @Override
-    public boolean handle(Supplier<NetworkEvent.Context> context) {
-        context.get().enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+    public boolean handle(Supplier<PacketContext> context) {
+        context.get().enqueueWork(() -> ClientOnly.run(() -> () -> {
             switch(this.animation) {
                 case SHOOT:
                     PortalGunISTER.startShootAnimation(this.gunUUID);

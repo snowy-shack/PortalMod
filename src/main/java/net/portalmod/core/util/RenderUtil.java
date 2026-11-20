@@ -6,22 +6,22 @@ import static org.lwjgl.opengl.GL11.glClipPlane;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.client.render.Shader;
 import net.portalmod.common.sorted.portal.PortalEntity;
 import net.portalmod.core.math.Vec3;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Camera;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import net.minecraft.core.Vec3i;
 
 public class RenderUtil {
     public static void bindTexture(Shader shader, String uniform, String path, int index) {
@@ -44,10 +44,10 @@ public class RenderUtil {
         setClipPlane(0, matrix, new Vec3(0, 0, -1));
     }
 
-    public static void setupClipPlane(MatrixStack clipMatrix, PortalEntity portal, ActiveRenderInfo camera, float offset, boolean reversed) {
-        Vector3i portalNormal = portal.getDirection().getNormal();
+    public static void setupClipPlane(PoseStack clipMatrix, PortalEntity portal, Camera camera, float offset, boolean reversed) {
+        Vec3i portalNormal = portal.getDirection().getNormal();
         Vec3 offsetNormal = new Vec3(camera.getPosition()).sub(portal.position()).normalize().mul(offset);
-        Vector3d cameraPos = camera.getPosition();
+        net.minecraft.world.phys.Vec3 cameraPos = camera.getPosition();
         float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
         clipMatrix.last().pose().setIdentity();

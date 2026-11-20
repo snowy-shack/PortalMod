@@ -1,29 +1,7 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.util.ClientModUtil;
@@ -36,6 +14,28 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
 import static net.portalmod.common.sorted.antline.AntlineTileEntity.Side.SideType.NONE;
+
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 
 public class AntlineBlock extends Block {
 //    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -76,14 +76,14 @@ public class AntlineBlock extends Block {
 
     @Nullable
     @Override
-    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-        TileEntity entity = TileEntityTypeInit.ANTLINE.get().create();
+    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
+        BlockEntity entity = TileEntityTypeInit.ANTLINE.get().create();
         return entity;
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         if (!canSupportCenter(context.getLevel(),
                 context.getClickedPos().relative(context.getClickedFace().getOpposite()),
                 context.getClickedFace()))
@@ -91,7 +91,7 @@ public class AntlineBlock extends Block {
         return super.getStateForPlacement(context);
     }
 
-    public static ConnectionType getConnectionType(World level, BlockPos pos, Direction sideDir, Direction direction, int threshold) {
+    public static ConnectionType getConnectionType(Level level, BlockPos pos, Direction sideDir, Direction direction, int threshold) {
         if (!(level.getBlockState(pos).getBlock() instanceof AntlineBlock)) return ConnectionType.NONE;
 
         BlockState adjacentState = level.getBlockState(pos.relative(direction)); // Adjacent face
@@ -133,7 +133,7 @@ public class AntlineBlock extends Block {
         return ConnectionType.NONE;
     }
 
-    public void recursiveSignalChain(World level, AntlineTileEntity.Side side, BlockPos pos, Direction originDirection, boolean active, int depth) {
+    public void recursiveSignalChain(Level level, AntlineTileEntity.Side side, BlockPos pos, Direction originDirection, boolean active, int depth) {
         BlockPos trackedPos = pos.immutable();
         Set<BlockPos> activePositions = ACTIVE_SIGNAL_POSITIONS.get();
         boolean addedToActive = activePositions.add(trackedPos);
@@ -205,7 +205,7 @@ public class AntlineBlock extends Block {
         }
     }
 
-    public void sideUpdate(World level, AntlineTileEntity.Side side, BlockPos pos,
+    public void sideUpdate(Level level, AntlineTileEntity.Side side, BlockPos pos,
                            boolean allowNewConnections, boolean shift, Direction allowedConnectDirection) {
         Boolean active = null;
         Direction originDirection = null;
@@ -295,7 +295,7 @@ public class AntlineBlock extends Block {
         }
     }
 
-    private void connect(World level, BlockPos pos, Direction side, Direction connectDir, boolean connect) {
+    private void connect(Level level, BlockPos pos, Direction side, Direction connectDir, boolean connect) {
         AntlineTileEntity tileEntity = (AntlineTileEntity) level.getBlockEntity(pos);
         AntlineTileEntity.Side sideObj = tileEntity.getSideMap().get(side);
 
@@ -308,7 +308,7 @@ public class AntlineBlock extends Block {
     }
 
     @Override
-    public void neighborChanged(BlockState blockState, World level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
+    public void neighborChanged(BlockState blockState, Level level, BlockPos pos, Block block, BlockPos neighborPos, boolean b) {
         super.neighborChanged(blockState, level, pos, block, neighborPos, b);
 
         if (!level.isClientSide && ACTIVE_SIGNAL_POSITIONS.get().contains(pos)) {
@@ -356,11 +356,11 @@ public class AntlineBlock extends Block {
     }
 
     @Override
-    public boolean canBeReplaced(BlockState state, BlockItemUseContext context) {
+    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
         return context.getItemInHand().getItem() instanceof AntlineBlockItem;
     }
 
-    public void breakDot(BlockState state, World level, BlockPos pos, PlayerEntity player, Direction direction) {
+    public void breakDot(BlockState state, Level level, BlockPos pos, Player player, Direction direction) {
         if(level.isClientSide)
             return;
 
@@ -380,7 +380,7 @@ public class AntlineBlock extends Block {
 
             if (player == null || !player.isCreative()) dropResources(state, level, pos); // Item drops
 
-            if (level instanceof ServerWorld) {
+            if (level instanceof ServerLevel) {
                 // Update each side
                 for (AntlineTileEntity.Side side : tileEntity.getSideMap().values()) {
                     if (side.isEmpty() || side.toDirection() == direction) continue;
@@ -406,9 +406,9 @@ public class AntlineBlock extends Block {
         sendUpdatePacket(level, pos, direction, tileEntity);
     }
 
-    public void sendUpdatePacket(World level, BlockPos pos, Direction sideDir, AntlineTileEntity tileEntity) {
+    public void sendUpdatePacket(Level level, BlockPos pos, Direction sideDir, AntlineTileEntity tileEntity) {
         if (level.isClientSide) return;
-        CompoundNBT nbtA = new CompoundNBT();
+        CompoundTag nbtA = new CompoundTag();
 
         AntlineTileEntity.SideMap sideMap = tileEntity.getSideMap();
         AntlineTileEntity.Side side = sideMap.get(sideDir);
@@ -419,15 +419,15 @@ public class AntlineBlock extends Block {
     }
 
     @Override
-    public boolean removedByPlayer(BlockState state, World level, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid) {
-        Vector3d rayPath = player.getViewVector(0).scale(7);
-        Vector3d from = player.getEyePosition(0);
-        Vector3d to = from.add(rayPath);
+    public boolean removedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+        Vec3 rayPath = player.getViewVector(0).scale(7);
+        Vec3 from = player.getEyePosition(0);
+        Vec3 to = from.add(rayPath);
 
         for (Direction direction : Direction.values()) {
-            BlockRayTraceResult rayHit = getSideShape(level, pos, direction, isHoldingAntline(player)).clip(from, to, pos);
+            BlockHitResult rayHit = getSideShape(level, pos, direction, isHoldingAntline(player)).clip(from, to, pos);
 
-            if (rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK) {
+            if (rayHit != null && rayHit.getType() == HitResult.Type.BLOCK) {
                 breakDot(state, level, pos, player, direction);
                 break;
             }
@@ -435,7 +435,7 @@ public class AntlineBlock extends Block {
         return false;
     }
 
-    public static boolean isHoldingAntline(PlayerEntity player) {
+    public static boolean isHoldingAntline(Player player) {
         return player.getMainHandItem().getItem() instanceof AntlineBlockItem;
     }
 
@@ -456,45 +456,45 @@ public class AntlineBlock extends Block {
 
     private static void initializeRotateMap() {
         ROTATE.put(Direction.NORTH, shape -> {
-            AxisAlignedBB bb = shape.move(-.5, -.5, -.5).bounds();
+            AABB bb = shape.move(-.5, -.5, -.5).bounds();
             return Block.box(bb.minX * 16, -bb.minZ * 16, bb.minY * 16, bb.maxX * 16, -bb.maxZ * 16, bb.maxY * 16).move(.5, .5, .5);
         });
 
         ROTATE.put(Direction.SOUTH, shape -> {
-            AxisAlignedBB bb = ROTATE.get(Direction.NORTH).apply(shape).move(-.5, -.5, -.5).bounds();
+            AABB bb = ROTATE.get(Direction.NORTH).apply(shape).move(-.5, -.5, -.5).bounds();
             return Block.box(-bb.minX * 16, bb.minY * 16, -bb.minZ * 16, -bb.maxX * 16, bb.maxY * 16, -bb.maxZ * 16).move(.5, .5, .5);
         });
 
         ROTATE.put(Direction.EAST, shape -> {
-            AxisAlignedBB bb = ROTATE.get(Direction.NORTH).apply(shape).move(-.5, -.5, -.5).bounds();
+            AABB bb = ROTATE.get(Direction.NORTH).apply(shape).move(-.5, -.5, -.5).bounds();
             return Block.box(-bb.minZ * 16, bb.minY * 16, bb.minX * 16, -bb.maxZ * 16, bb.maxY * 16, bb.maxX * 16).move(.5, .5, .5);
         });
 
         ROTATE.put(Direction.WEST, shape -> {
-            AxisAlignedBB bb = ROTATE.get(Direction.NORTH).apply(shape).move(-.5, -.5, -.5).bounds();
+            AABB bb = ROTATE.get(Direction.NORTH).apply(shape).move(-.5, -.5, -.5).bounds();
             return Block.box(bb.minZ * 16, bb.minY * 16, -bb.minX * 16, bb.maxZ * 16, bb.maxY * 16, -bb.maxX * 16).move(.5, .5, .5);
         });
 
         ROTATE.put(Direction.UP, shape -> {
-            AxisAlignedBB bb = shape.move(-.5, -.5, -.5).bounds();
+            AABB bb = shape.move(-.5, -.5, -.5).bounds();
             return Block.box(bb.minX * 16, -bb.minY * 16, bb.minZ * 16, bb.maxX * 16, -bb.maxY * 16, bb.maxZ * 16).move(.5, .5, .5);
         });
 
         ROTATE.put(Direction.DOWN, shape -> shape);
     }
 
-    public VoxelShape getSideShape(IBlockReader level, BlockPos pos, Direction sideDirection, boolean largeShape) {
-        TileEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null || sideDirection == null) return VoxelShapes.empty();
+    public VoxelShape getSideShape(BlockGetter level, BlockPos pos, Direction sideDirection, boolean largeShape) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null || sideDirection == null) return Shapes.empty();
 
         AntlineTileEntity.SideMap sideMap = ((AntlineTileEntity) blockEntity).getSideMap();
-        if (sideMap == null) return VoxelShapes.empty();
+        if (sideMap == null) return Shapes.empty();
 
         AntlineTileEntity.Side side = sideMap.get(sideDirection);
-        AtomicReference<VoxelShape> RESULT = new AtomicReference<>(VoxelShapes.empty());
+        AtomicReference<VoxelShape> RESULT = new AtomicReference<>(Shapes.empty());
 
         if (side.getSideType() != NONE && DOT != null)
-            RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(DOT)));
+            RESULT.set(Shapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(DOT)));
 
         if (largeShape) {
             if (!side.isEmpty()) {
@@ -503,7 +503,7 @@ public class AntlineBlock extends Block {
         } else {
             side.getConnections().forEach((direction, b) -> {
                 if (b && dotShapes.get(direction) != null)
-                    RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(dotShapes.get(direction))));
+                    RESULT.set(Shapes.or(RESULT.get(), ROTATE.get(sideDirection).apply(dotShapes.get(direction))));
             });
         }
 
@@ -511,47 +511,47 @@ public class AntlineBlock extends Block {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, IBlockReader level, BlockPos pos, ISelectionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (level.getBlockEntity(pos) == null || ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap() == null)
-            return VoxelShapes.empty();
+            return Shapes.empty();
 
         AtomicReference<Entity> entity = new AtomicReference<>(context.getEntity());
 
         if (entity.get() == null) {
-            if (!((World)level).isClientSide)
-                return VoxelShapes.empty();
+            if (!((Level)level).isClientSide)
+                return Shapes.empty();
 
-            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            ClientOnly.run(() -> () -> {
                 entity.set(ClientModUtil.getLocalPlayer());
             });
         }
 
-        Vector3d rayPath = entity.get().getViewVector(0).scale(7);
-        Vector3d from = entity.get().getEyePosition(0);
-        Vector3d to = from.add(rayPath);
+        Vec3 rayPath = entity.get().getViewVector(0).scale(7);
+        Vec3 from = entity.get().getEyePosition(0);
+        Vec3 to = from.add(rayPath);
 
         for (Direction direction : Direction.values()) {
-            boolean holdingAntline = entity.get() instanceof PlayerEntity && isHoldingAntline((PlayerEntity) entity.get());
+            boolean holdingAntline = entity.get() instanceof Player && isHoldingAntline((Player) entity.get());
             VoxelShape shape = getSideShape(level, pos, direction, holdingAntline);
-            BlockRayTraceResult rayHit = shape.clip(from, to, pos);
+            BlockHitResult rayHit = shape.clip(from, to, pos);
 
-            if (rayHit != null && rayHit.getType() == RayTraceResult.Type.BLOCK)
+            if (rayHit != null && rayHit.getType() == HitResult.Type.BLOCK)
                 return shape;
         }
 
-        AtomicReference<VoxelShape> RESULT = new AtomicReference<>(VoxelShapes.empty());
+        AtomicReference<VoxelShape> RESULT = new AtomicReference<>(Shapes.empty());
 
         AntlineTileEntity.SideMap sideMap = ((AntlineTileEntity) level.getBlockEntity(pos)).getSideMap();
         sideMap.forEach((direction, side) -> {
             if(!side.isEmpty())
-                RESULT.set(VoxelShapes.or(RESULT.get(), ROTATE.get(direction).apply(DOT)));
+                RESULT.set(Shapes.or(RESULT.get(), ROTATE.get(direction).apply(DOT)));
         });
 
         return RESULT.get();
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState p_200123_1_, IBlockReader p_200123_2_, BlockPos p_200123_3_) {
+    public boolean propagatesSkylightDown(BlockState p_200123_1_, BlockGetter p_200123_2_, BlockPos p_200123_3_) {
         return true;
     }
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+
 public class ClientPortalManager {
     private static ClientPortalManager instance;
     private final Map<UUID, PortalPair> PORTAL_MAP = new HashMap<>();

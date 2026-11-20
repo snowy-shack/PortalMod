@@ -1,21 +1,22 @@
 package net.portalmod.common.sorted.portalgun;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.entity.item.ItemFrameEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.vector.Vector3d;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.portal.PortalEnd;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.PacketInit;
 import org.lwjgl.glfw.GLFW;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.Vec3;
 
 public class PortalGunClient {
     private static PortalGunClient instance;
@@ -36,7 +37,7 @@ public class PortalGunClient {
     }
 
     private void handleLeftClick() {
-        ClientPlayerEntity player = Minecraft.getInstance().player;
+        LocalPlayer player = Minecraft.getInstance().player;
 
         if (player.hasPassenger(TestElementEntity.class)) {
             TestElementEntity.dropHeldEntities(player, true, false, player.getMainHandItem());
@@ -53,20 +54,20 @@ public class PortalGunClient {
     }
 
     private void shootPortal(PortalEnd end) {
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if(player == null)
             return;
 
         float partialTicks = Minecraft.getInstance().getFrameTime();
-        Vector3d rayPath = player.getViewVector(partialTicks).scale(200);
-        Vector3d from = player.getEyePosition(partialTicks);
-        Vector3d to = from.add(rayPath);
-        RayTraceContext rayCtx = new RayTraceContext(from, to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, null);
-        BlockRayTraceResult ray = PortalGun.customClip(player.level, rayCtx);
+        Vec3 rayPath = player.getViewVector(partialTicks).scale(200);
+        Vec3 from = player.getEyePosition(partialTicks);
+        Vec3 to = from.add(rayPath);
+        ClipContext rayCtx = new ClipContext(from, to, ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.NONE, null);
+        BlockHitResult ray = PortalGun.customClip(player.level, rayCtx);
         ItemStack itemStack = player.getMainHandItem();
 
         if(itemStack.hasTag()) {
-            CompoundNBT nbt = itemStack.getTag();
+            CompoundTag nbt = itemStack.getTag();
 
             if(nbt.contains("Locked") && nbt.getString("Locked").equals(end == PortalEnd.PRIMARY ? "Left" : "Right")) {
                 if(PortalModConfigManager.SEPARATE_GUN.get())
@@ -163,8 +164,8 @@ public class PortalGunClient {
 
     static boolean shouldDeferRightClickToVanilla(Class<? extends Entity> entityClass) {
         return entityClass != null
-                && (ItemFrameEntity.class.isAssignableFrom(entityClass)
-                || ArmorStandEntity.class.isAssignableFrom(entityClass));
+                && (ItemFrame.class.isAssignableFrom(entityClass)
+                || ArmorStand.class.isAssignableFrom(entityClass));
     }
 
     public void resetPresses() {

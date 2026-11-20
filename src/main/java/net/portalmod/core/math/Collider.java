@@ -1,9 +1,6 @@
 package net.portalmod.core.math;
 
 import com.google.common.collect.Lists;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +8,11 @@ import java.util.Stack;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+
 public class Collider {
-    public static Optional<Vec3> collide(Direction.Axis axis, AxisAlignedBB collider, AxisAlignedBB colliding) {
+    public static Optional<Vec3> collide(Direction.Axis axis, AABB collider, AABB colliding) {
         double collision1 = colliding.max(axis) - collider.min(axis);
         double collision2 = collider.max(axis) - colliding.min(axis);
 
@@ -30,7 +30,7 @@ public class Collider {
         return Optional.of(reaction);
     }
 
-    public static Optional<List<Vec3>> collideExceptAxis(@Nullable Direction.Axis axis, AxisAlignedBB collider, AxisAlignedBB colliding) {
+    public static Optional<List<Vec3>> collideExceptAxis(@Nullable Direction.Axis axis, AABB collider, AABB colliding) {
         List<Vec3> reactions = Lists.newArrayList();
         for(Direction.Axis a : Direction.Axis.values()) {
             if(a == axis)
@@ -44,11 +44,11 @@ public class Collider {
         return Optional.of(reactions);
     }
 
-    public static boolean intersect(Direction.Axis axis, AxisAlignedBB collider, AxisAlignedBB colliding) {
+    public static boolean intersect(Direction.Axis axis, AABB collider, AABB colliding) {
         return collider.min(axis) < colliding.max(axis) && collider.max(axis) > colliding.min(axis);
     }
 
-    public static boolean intersectExceptAxis(@Nullable Direction.Axis axis, AxisAlignedBB collider, AxisAlignedBB colliding) {
+    public static boolean intersectExceptAxis(@Nullable Direction.Axis axis, AABB collider, AABB colliding) {
         for(Direction.Axis a : Direction.Axis.values()) {
             if(a == axis)
                 continue;
@@ -59,11 +59,11 @@ public class Collider {
         return true;
     }
 
-    public static boolean pointInBox(Direction.Axis axis, AxisAlignedBB collider, Vec3 point) {
+    public static boolean pointInBox(Direction.Axis axis, AABB collider, Vec3 point) {
         return point.choose(axis) > collider.min(axis) && point.choose(axis) < collider.max(axis);
     }
 
-    public static boolean pointInBoxExceptAxis(Direction.Axis axis, AxisAlignedBB collider, Vec3 point) {
+    public static boolean pointInBoxExceptAxis(Direction.Axis axis, AABB collider, Vec3 point) {
         for(Direction.Axis a : Direction.Axis.values()) {
             if(a == axis)
                 continue;
@@ -108,7 +108,7 @@ public class Collider {
         return combined;
     }
 
-    public static List<AABBVertex> getVertices(AxisAlignedBB box) {
+    public static List<AABBVertex> getVertices(AABB box) {
 //        return Collider.<Direction.Axis, Double, Vec3>combineFunctions(
 //                Direction.Axis.values(),
 //                new Function[] {
@@ -130,7 +130,7 @@ public class Collider {
         );
     }
 
-    public static List<AABBVertex> getFaceCorners(Direction direction, AxisAlignedBB box) {
+    public static List<AABBVertex> getFaceCorners(Direction direction, AABB box) {
         Direction.Axis axis = direction.getAxis();
         return getVertices(box).stream().filter(v -> v.getPosition().choose(axis) == AABBUtil.getSide(box, direction)).collect(Collectors.toList());
     }

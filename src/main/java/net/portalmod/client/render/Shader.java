@@ -14,10 +14,11 @@ import java.util.Map;
 
 import org.lwjgl.system.MemoryUtil;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.portalmod.PortalMod;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
 
 public class Shader {
     private static final String BASE_PATH = "shaders/";

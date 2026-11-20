@@ -1,36 +1,40 @@
 package net.portalmod.common.sorted.portal;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.ActiveRenderInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.fabricmc.api.Environment;
 import net.portalmod.core.init.ParticleInit;
 
 import java.util.Locale;
 import java.util.Random;
 
-public class PortalParticle extends SpriteTexturedParticle {
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import org.joml.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import net.minecraft.core.Vec3i;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.Level;
+
+public class PortalParticle extends TextureSheetParticle {
     private final int u, v;
-    protected PortalParticle(ClientWorld level, double x, double y, double z, double xd, double yd, double zd, PortalParticleData data, IAnimatedSprite sprite) {
+    protected PortalParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, PortalParticleData data, SpriteSet sprite) {
         super(level, x, y, z, xd, yd, zd);
 
 //        float min = .02f;
@@ -76,19 +80,19 @@ public class PortalParticle extends SpriteTexturedParticle {
     @Override
     public void tick() {
         super.tick();
-        this.alpha = MathHelper.clamp((float)Math.pow((this.lifetime - this.age) / 7f, 2), 0, 1);
+        this.alpha = Mth.clamp((float)Math.pow((this.lifetime - this.age) / 7f, 2), 0, 1);
 
         this.oRoll = this.roll;
-        Vector3d delta = new Vector3d(this.xd, this.yd, this.zd);
+        Vec3 delta = new Vec3(this.xd, this.yd, this.zd);
 
-        ActiveRenderInfo camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         delta.xRot(camera.getXRot()).yRot(camera.getYRot() + 180.0F);
         this.roll = -((float)Math.atan2(delta.y, delta.x) - 1f/2f * (float)Math.PI);
         if(this.age == 1)
             this.oRoll = this.roll;
     }
 
-    public static void spawnBurst(ClientWorld level, Vector3d pos, Direction direction) {
+    public static void spawnBurst(ClientLevel level, Vec3 pos, Direction direction) {
 //        int size = 5;
 //        for(int i = 0; i < size; ++i) {
 //            for(int j = 0; j < size; ++j) {
@@ -110,7 +114,7 @@ public class PortalParticle extends SpriteTexturedParticle {
 
         int count = 40;
         for(int i = 0; i < count; i++) {
-            Vector3i normal = direction.getNormal();
+            Vec3i normal = direction.getNormal();
 //            float xd = normal.getX() == 0 ? (float)random.nextInt(50) / 100f : 0;
 //            float yd = normal.getY() == 0 ? (float)random.nextInt(50) / 100f : 0;
 //            float zd = normal.getZ() == 0 ? (float)random.nextInt(50) / 100f : 0;
@@ -135,23 +139,23 @@ public class PortalParticle extends SpriteTexturedParticle {
         return this.sprite.getV((v + 1) * 4);
     }
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
-        private final IAnimatedSprite sprite;
-        public Factory(IAnimatedSprite sprite) {
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
+        private final SpriteSet sprite;
+        public Factory(SpriteSet sprite) {
             this.sprite = sprite;
         }
-        public Particle createParticle(BasicParticleType type, ClientWorld level, double x, double y, double z, double xd, double yd, double zd) {
+        public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xd, double yd, double zd) {
             PortalParticle particle = new PortalParticle(level, x, y, z, xd, yd, zd, (PortalParticleData)type, sprite);
             particle.pickSprite(sprite);
             return particle;
         }
     }
-    public static class PortalParticleData extends BasicParticleType {
-        public static final IParticleData.IDeserializer<PortalParticleData> DESERIALIZER = new IParticleData.IDeserializer<PortalParticleData>() {
+    public static class PortalParticleData extends SimpleParticleType {
+        public static final ParticleOptions.IDeserializer<PortalParticleData> DESERIALIZER = new ParticleOptions.IDeserializer<PortalParticleData>() {
             @Override
             public PortalParticleData fromCommand(ParticleType<PortalParticleData> type, StringReader reader) throws CommandSyntaxException {
                 reader.expect(' ');
@@ -167,7 +171,7 @@ public class PortalParticle extends SpriteTexturedParticle {
                 return new PortalParticleData(r, g, b, a, direction);
             }
             @Override
-            public PortalParticleData fromNetwork(ParticleType<PortalParticleData> type, PacketBuffer packetBuffer) {
+            public PortalParticleData fromNetwork(ParticleType<PortalParticleData> type, FriendlyByteBuf packetBuffer) {
                 return new PortalParticleData(packetBuffer.readFloat(), packetBuffer.readFloat(),
                         packetBuffer.readFloat(), packetBuffer.readFloat(), Direction.from3DDataValue(packetBuffer.readInt()));
             }
@@ -179,11 +183,11 @@ public class PortalParticle extends SpriteTexturedParticle {
             this.r = r;
             this.g = g;
             this.b = b;
-            this.a = MathHelper.clamp(a, 0.01f, 4.0f);
+            this.a = Mth.clamp(a, 0.01f, 4.0f);
             this.direction = direction;
         }
         @Override
-        public void writeToNetwork(PacketBuffer packetBuffer) {
+        public void writeToNetwork(FriendlyByteBuf packetBuffer) {
             packetBuffer.writeFloat(this.r);
             packetBuffer.writeFloat(this.g);
             packetBuffer.writeFloat(this.b);
@@ -196,7 +200,7 @@ public class PortalParticle extends SpriteTexturedParticle {
                     Registry.PARTICLE_TYPE.getKey(this.getType()), this.r, this.g, this.b, this.a, this.direction.get3DDataValue());
         }
         @Override
-        public BasicParticleType getType() {
+        public SimpleParticleType getType() {
             return ParticleInit.PORTAL_PARTICLE.get();
         }
 

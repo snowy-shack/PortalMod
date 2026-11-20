@@ -1,11 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.server.ServerWorld;
 import net.portalmod.core.math.Vec3;
 
 import java.util.Arrays;
@@ -14,10 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+
 public class PortalServerProofManager {
     private static PortalServerProofManager instance;
 
-    private final Map<ServerPlayerEntity, BlockInteractionProof> blockInteractionProofs;
+    private final Map<ServerPlayer, BlockInteractionProof> blockInteractionProofs;
 
     private PortalServerProofManager() {
         this.blockInteractionProofs = new HashMap<>();
@@ -29,11 +30,11 @@ public class PortalServerProofManager {
         return instance;
     }
 
-    public void setProof(ServerPlayerEntity player, int tick, int[] portalChain) {
+    public void setProof(ServerPlayer player, int tick, int[] portalChain) {
         this.blockInteractionProofs.put(player, new BlockInteractionProof(tick, portalChain));
     }
 
-    public boolean hasBelievableProof(ServerPlayerEntity player, BlockPos pos, boolean breakBlock) {
+    public boolean hasBelievableProof(ServerPlayer player, BlockPos pos, boolean breakBlock) {
         if(!this.blockInteractionProofs.containsKey(player))
             return false;
         return this.blockInteractionProofs.get(player).isValid(player, pos, breakBlock);
@@ -48,14 +49,14 @@ public class PortalServerProofManager {
             this.portalChain = portalChain;
         }
 
-        public boolean isValid(ServerPlayerEntity player, BlockPos pos, boolean breakBlock) {
+        public boolean isValid(ServerPlayer player, BlockPos pos, boolean breakBlock) {
             MinecraftServer server = player.getServer();
-            ServerWorld level = player.getLevel();
+            ServerLevel level = player.getLevel();
 
             if(server == null || server.getTickCount() != this.tick)
                 return false;
 
-            ModifiableAttributeInstance attribute = player.getAttribute(net.minecraftforge.common.ForgeMod.REACH_DISTANCE.get());
+            AttributeInstance attribute = player.getAttribute(net.minecraftforge.common.ForgeMod.REACH_DISTANCE.get());
             if(attribute == null)
                 return false;
 

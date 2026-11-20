@@ -2,12 +2,12 @@ package net.portalmod.common.sorted.portal;
 
 import java.util.function.Supplier;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.portalmod.core.util.ClientOnly;
+import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.packet.AbstractPacket;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class PortalPacket {
     public static enum Type {
@@ -24,20 +24,20 @@ public class PortalPacket {
         }
 
         @Override
-        public void encode(PacketBuffer buffer) {
+        public void encode(FriendlyByteBuf buffer) {
             buffer.writeEnum(type)
                     .writeInt(entityId);
         }
 
         @Override
-        public Client decode(PacketBuffer buffer) {
+        public Client decode(FriendlyByteBuf buffer) {
             return new Client(buffer.readEnum(Type.class), buffer.readInt());
         }
 
         @Override
-        public boolean handle(Supplier<NetworkEvent.Context> context) {
+        public boolean handle(Supplier<PacketContext> context) {
             context.get().enqueueWork(() -> {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+                ClientOnly.run(() -> () -> {
                     if(type == Type.REPLACE)
                         Minecraft.getInstance().level.removeEntity(entityId);
                 });

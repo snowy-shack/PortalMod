@@ -1,11 +1,5 @@
 package net.portalmod.mixins;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PistonBlockStructureHelper;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.portalmod.common.blocks.CustomPushBehavior;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,11 +11,18 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+
 // Pretty much all copied over from the Carpet mod
-@Mixin(PistonBlockStructureHelper.class)
+@Mixin(PistonStructureResolver.class)
 public class PistonBlockStructureHelperMixin {
 
-    @Shadow @Final private World level;
+    @Shadow @Final private Level level;
     @Shadow @Final private Direction pushDirection;
 
     // fields that are needed because @Redirects cannot capture locals
@@ -36,7 +37,7 @@ public class PistonBlockStructureHelperMixin {
             at = @At(
                     value = "INVOKE",
                     ordinal = 1,
-                    target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
+                    target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
             )
     )
     private void captureBlockLinePositions(BlockPos p_177251_1_, Direction p_177251_2_, CallbackInfoReturnable<Boolean> cir, BlockState blockstate, int i, BlockState oldState, BlockPos blockpos) {
@@ -48,7 +49,7 @@ public class PistonBlockStructureHelperMixin {
             method = "addBlockLine",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;canStickTo(Lnet/minecraft/world/level/block/state/BlockState;)Z"
             )
     )
     private boolean onAddBlockLineCanStickToEachOther(BlockState state, BlockState behindState) {
@@ -70,7 +71,7 @@ public class PistonBlockStructureHelperMixin {
             at = @At(
                     value = "INVOKE",
                     ordinal = 1,
-                    target = "Lnet/minecraft/world/World;getBlockState(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;"
+                    target = "Lnet/minecraft/world/level/Level;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;"
             )
     )
     private void captureNeighborPositions(BlockPos pos, CallbackInfoReturnable<Boolean> cir, BlockState state, Direction[] dirs, int i, int j, Direction dir, BlockPos neighborPos) {
@@ -82,7 +83,7 @@ public class PistonBlockStructureHelperMixin {
             method = "addBranchingBlocks",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;canStickTo(Lnet/minecraft/block/BlockState;)Z"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;canStickTo(Lnet/minecraft/world/level/block/state/BlockState;)Z"
             )
     )
     private boolean onAddBranchingBlocksCanStickToEachOther(BlockState neighborState, BlockState state, BlockPos pos) {

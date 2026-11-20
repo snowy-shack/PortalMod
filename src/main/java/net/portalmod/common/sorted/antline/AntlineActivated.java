@@ -1,16 +1,16 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 /**
  * Interface for things that are powered by antlines, such as indicators.
  */
 public interface AntlineActivated extends AntlineConnector {
-    void onAntlineActivation(boolean active, BlockState state, World world, BlockPos pos);
+    void onAntlineActivation(boolean active, BlockState state, Level world, BlockPos pos);
 
     default boolean ignoreAntlineActivationFromBlock(BlockState state) {
         return false;
@@ -19,7 +19,7 @@ public interface AntlineActivated extends AntlineConnector {
     /**
      * Looks around to check whether we should be powered or not.
      */
-    default void updateAntlineActivation(BlockState state, World world, BlockPos pos) {
+    default void updateAntlineActivation(BlockState state, Level world, BlockPos pos) {
         Direction horsedOn = this.getHorsedOn(state);
 
         for (Direction direction : Direction.values()) {

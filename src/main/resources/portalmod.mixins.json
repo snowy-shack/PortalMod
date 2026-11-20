@@ -1,8 +1,7 @@
 {
     "required": true,
     "package": "net.portalmod.mixins",
-    "compatibilityLevel": "JAVA_8",
-    "refmap": "portalmod.refmap.json",
+    "compatibilityLevel": "JAVA_17",
     "mixins": [
         "AbstractBlockMixin",
         "BlockMixin",

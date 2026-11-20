@@ -1,10 +1,11 @@
 package net.portalmod.common.sorted.radio;
 
-import net.minecraft.client.Minecraft;
 import net.portalmod.core.init.SoundInit;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import net.minecraft.client.Minecraft;
 
 public class RadioBlockClient {
     protected static final Map<RadioBlockTileEntity, RadioSound> RADIOS = new HashMap<>();

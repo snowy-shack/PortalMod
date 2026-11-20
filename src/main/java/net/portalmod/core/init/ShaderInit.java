@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import net.portalmod.client.render.Shader;
 import net.portalmod.core.util.Registry;
 
+
 public class ShaderInit {
     private ShaderInit() {}
     

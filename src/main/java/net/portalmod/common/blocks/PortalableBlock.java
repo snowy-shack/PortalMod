@@ -1,10 +1,11 @@
 package net.portalmod.common.blocks;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
 import net.portalmod.core.init.BlockTagInit;
 import net.portalmod.core.init.GameRuleInit;
+
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 /**
  * Helper interface for working with portalable blocks. This interface does not make a block portalable, but it can provide handy information when the block is in the tag.
@@ -16,7 +17,7 @@ public interface PortalableBlock {
      */
     boolean isPortalableOnFace(BlockState state, Direction face);
 
-    static boolean isPortalable(BlockState state, Direction face, World world) {
+    static boolean isPortalable(BlockState state, Direction face, Level world) {
         if (world.getGameRules().getBoolean(GameRuleInit.USE_PORTALABLE_BLACKLIST)) {
             return !state.is(BlockTagInit.UNPORTALABLE);
         }
