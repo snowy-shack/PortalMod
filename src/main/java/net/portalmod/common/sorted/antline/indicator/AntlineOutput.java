@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline.indicator;
 
+import net.minecraft.network.chat.Component;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.init.SoundInit;
@@ -15,7 +16,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
 /**
@@ -40,7 +40,7 @@ public abstract class AntlineOutput extends AntlineDevice implements AntlineActi
         boolean reversed = blockState.getValue(REVERSED);
         if (player.getItemInHand(hand).getItem() instanceof WrenchItem) {
             world.setBlockAndUpdate(pos, blockState.setValue(REVERSED, !reversed));
-            player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
+            player.displayClientMessage(Component.translatable("actionbar.portalmod.indicator_mode." + (reversed ? "normal" : "reversed")), true);
             WrenchItem.playUseSound(world, result.getLocation());
 
             return InteractionResult.SUCCESS;

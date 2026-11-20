@@ -1,6 +1,7 @@
 package net.portalmod.common.sorted.cubedropper;
 
-import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraft.world.item.SpawnEggItem;
+
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
@@ -120,9 +121,9 @@ public class CubeDropperTileEntity extends BlockEntity implements TickableBlockE
         // Create new entity using nbt
         Entity entity = EntityType.loadEntityRecursive(this.entityNBT, this.level, e -> {
             e.moveTo(new Vec3(this.getBlockPos().south().east()).to3d());
-            e.yRot = (ModUtil.symmetricRandom(15) + e.rotate(Rotation.getRandom(new Random())));
-            e.setYBodyRot(e.yRot);
-            e.setYHeadRot(e.yRot);
+            e.setYRot((ModUtil.symmetricRandom(15) + e.rotate(Rotation.getRandom(new Random()))));
+            e.setYBodyRot(e.getYRot());
+            e.setYHeadRot(e.getYRot());
             return e;
         });
 
@@ -162,7 +163,7 @@ public class CubeDropperTileEntity extends BlockEntity implements TickableBlockE
 
         if (!player.isCreative()) {
             egg.shrink(1);
-            this.getEntityType().ifPresent(type -> player.addItem(new ItemStack(ForgeSpawnEggItem.fromEntityType(type))));
+            this.getEntityType().ifPresent(type -> player.addItem(new ItemStack(SpawnEggItem.byId(type))));
         }
 
         this.removeAllEntities();
@@ -200,7 +201,7 @@ public class CubeDropperTileEntity extends BlockEntity implements TickableBlockE
                     blockPos.getX() + 1,
                     blockPos.getY() - 1.4,
                     blockPos.getZ() + 1,
-                    new ItemStack(ForgeSpawnEggItem.fromEntityType(type)));
+                    new ItemStack(SpawnEggItem.byId(type)));
             entity.setDeltaMovement(entity.getDeltaMovement().multiply(1, .5, 1));
             this.level.addFreshEntity(entity);
         });

@@ -388,7 +388,7 @@ public class Vec3 {
 
     @Nullable
     public Direction toDirection() {
-        return Direction.fromNormal((int)this.x, (int)this.y, (int)this.z);
+        return Direction.fromDelta((int)this.x, (int)this.y, (int)this.z);
     }
 
     public BlockPos toBlockPos() {

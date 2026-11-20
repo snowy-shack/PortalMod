@@ -14,8 +14,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class PortalModOptionsScreen extends Screen {
     private static final int BUTTON_WIDTH = 200;
@@ -33,13 +31,13 @@ public class PortalModOptionsScreen extends Screen {
     private Button SKIN_PAGE_BUTTON;
     
     public PortalModOptionsScreen(Screen lastScreen) {
-        super(new TranslatableComponent("options." + PortalMod.MODID + ".title"));
+        super(Component.translatable("options." + PortalMod.MODID + ".title"));
         this.lastScreen = lastScreen;
     }
     
     public static Button getAccessButton(Screen screen) {
         return new Button(screen.width / 2 - 75, screen.height / 6 + 144 - 6, 150, 20,
-                new TranslatableComponent("options." + PortalMod.MODID + ".button"),
+                Component.translatable("options." + PortalMod.MODID + ".button"),
                 ($1) -> Minecraft.getInstance().setScreen(new PortalModOptionsScreen(screen)));
     }
     
@@ -80,7 +78,7 @@ public class PortalModOptionsScreen extends Screen {
     }
 
     private TranslatableComponent getText(String id) {
-        return new TranslatableComponent("options." + PortalMod.MODID + "." + id);
+        return Component.translatable("options." + PortalMod.MODID + "." + id);
     }
 
     private ToggleButton createToggleButton(int x, int y, String id, boolean value) {
@@ -94,7 +92,7 @@ public class PortalModOptionsScreen extends Screen {
 
     private RecursionSlider createRecursionSlider(int x, int y) {
         return new RecursionSlider(x, y, BUTTON_WIDTH, BUTTON_HEIGHT,
-                this.getText("recursion").append(": "), TextComponent.EMPTY,
+                this.getText("recursion").append(": "), Component.empty(),
                 0, 9, PortalModConfigManager.RECURSION.get(), false, true, $1 -> {});
     }
 

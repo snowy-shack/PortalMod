@@ -35,8 +35,8 @@ public class PortalMod implements ModInitializer {
         SoundInit.SOUNDS.register();
         FluidInit.FLUIDS.register();
         BlockInit.BLOCKS.register();
+        EntityInit.ENTITIES.register(); // before items: spawn eggs need their entity type
         ItemInit.ITEMS.register();
-        EntityInit.ENTITIES.register();
         TileEntityTypeInit.TILE_ENTITY_TYPES.register();
         ParticleInit.PARTICLE_TYPES.register();
         RecipeInit.RECIPES.register();
@@ -54,6 +54,7 @@ public class PortalMod implements ModInitializer {
         GameRuleInit.registerAll();
         ArgumentTypeInit.registerAll();
         ItemInit.registerFluidDispenserBehavior();
+        net.portalmod.common.items.ModSpawnEggItem.register();
 
         CommonEvents.register();
     }

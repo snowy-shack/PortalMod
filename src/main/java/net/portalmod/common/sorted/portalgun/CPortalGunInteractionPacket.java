@@ -126,7 +126,7 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                         CriteriaTriggerInit.GRAB_ENTITY.get().trigger(player);
                     }
 
-                    Entity entity = player.level.getEntity(data);
+                    Entity entity = player.level().getEntity(data);
 
                     if (entity instanceof TestElementEntity) {
                         ((TestElementEntity) entity).pickUp(player);
@@ -150,18 +150,18 @@ public class CPortalGunInteractionPacket implements AbstractPacket<CPortalGunInt
                     break;
 
                 case SHOOT_PORTAL:
-                    PortalGun.placePortal(player, player.level, end, player.getMainHandItem(), this.blockHit);
+                    PortalGun.placePortal(player, player.level(), end, player.getMainHandItem(), this.blockHit);
                     break;
 
                 case PRESS_BUTTON:
                 case OPEN_DOOR:
-                    BlockState blockState = player.level.getBlockState(blockHit.getBlockPos());
+                    BlockState blockState = player.level().getBlockState(blockHit.getBlockPos());
                     Block block = blockState.getBlock();
                     if (block instanceof StandingButtonBlock && ((StandingButtonBlock) block).canPress(blockState)) {
-                        ((StandingButtonBlock) block).press(blockState, player.level, blockHit.getBlockPos());
+                        ((StandingButtonBlock) block).press(blockState, player.level(), blockHit.getBlockPos());
                     }
                     if (block instanceof PushDoorBlock) {
-                        ((PushDoorBlock) block).interact(blockState, player.level, blockHit.getBlockPos(), blockHit);
+                        ((PushDoorBlock) block).interact(blockState, player.level(), blockHit.getBlockPos(), blockHit);
                     }
                     break;
 

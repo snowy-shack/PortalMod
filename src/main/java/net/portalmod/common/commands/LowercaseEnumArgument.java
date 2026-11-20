@@ -1,5 +1,6 @@
 package net.portalmod.common.commands;
 
+import net.minecraft.network.chat.Component;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -15,11 +16,10 @@ import java.util.stream.Collectors;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class LowercaseEnumArgument<T extends Enum<T>> implements ArgumentType<T> {
     private static final Dynamic2CommandExceptionType INVALID_ENUM = new Dynamic2CommandExceptionType(
-            (found, constants) -> new TranslatableComponent("commands.forge.arguments.enum.invalid", constants, found));
+            (found, constants) -> Component.translatable("commands.forge.arguments.enum.invalid", constants, found));
 
     private final Class<T> enumClass;
     private final Map<String, T> options;

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.cube;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.common.entities.TestElementEntityRenderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -26,12 +27,12 @@ public abstract class CubeRenderer extends TestElementEntityRenderer<Cube, CubeM
 //        AbstractCubeModel.shader.bind();
 //        PortalShaders.uniformMatrix("projection", projectionBuffer);
 //        RenderSystem.activeTexture(GL_TEXTURE0);
-//        minecraft.textureManager.bind(minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
+//        minecraft.RenderSystem.setShaderTexture(0, minecraft.getEntityRenderDispatcher().getRenderer(cube).getTextureLocation(cube));
 //        PortalShaders.uniform1i("texture", 0);
         
         super.render(cube, f, f2, matrixStack, renderTypeBuffer, i);
 
-//        MultiBufferSource.Impl irendertypebuffer$impl = minecraft.levelRenderer.renderBuffers.bufferSource();
+//        MultiBufferSource.BufferSource irendertypebuffer$impl = minecraft.levelRenderer.renderBuffers.bufferSource();
 //        irendertypebuffer$impl.endBatch(renderType);
 //        
 //        AbstractCubeModel.shader.unbind();

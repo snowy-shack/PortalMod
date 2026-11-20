@@ -84,7 +84,7 @@ public class TriggerSelectionClient {
         BlockPos min = origin.offset(-distance, -distance, -distance);
         BlockPos max = origin.offset(distance, distance, distance);
 
-        BlockPos.Mutable result = pos.mutable();
+        BlockPos.MutableBlockPos result = pos.mutable();
         result.clamp(Direction.Axis.X, min.getX(), max.getX());
         result.clamp(Direction.Axis.Y, min.getY(), max.getY());
         result.clamp(Direction.Axis.Z, min.getZ(), max.getZ());

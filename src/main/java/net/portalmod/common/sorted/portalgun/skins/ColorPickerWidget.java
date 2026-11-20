@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.portalmod.PortalMod;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -21,7 +23,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
-import net.minecraft.network.chat.TextComponent;
 
 public class ColorPickerWidget extends AbstractWidget {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
@@ -76,7 +77,7 @@ public class ColorPickerWidget extends AbstractWidget {
     private boolean huePickerCursorHovering;
 
     public ColorPickerWidget(int x, int y, int width, int height) {
-        super(x, y, width, height, TextComponent.EMPTY);
+        super(x, y, width, height, Component.empty());
         this.init();
     }
 
@@ -191,8 +192,8 @@ public class ColorPickerWidget extends AbstractWidget {
         matrixStack.pushPose();
         matrixStack.translate(0, this.computeAnimation(), 0);
 
-        Minecraft.getInstance().getTextureManager().bind(TEXTURE);
-        blit(matrixStack, this.x, this.y, COLOR_PICKER_U, COLOR_PICKER_V, this.width, this.height, 512, 512);
+        RenderSystem.setShaderTexture(0, TEXTURE);
+        blit(matrixStack, this.getX(), this.getY(), COLOR_PICKER_U, COLOR_PICKER_V, this.width, this.height, 512, 512);
 
         this.setShadersModelViewMatrix(matrixStack);
         this.renderSVPicker(matrixStack);
@@ -330,11 +331,11 @@ public class ColorPickerWidget extends AbstractWidget {
     }
 
     private int getSVPickerX() {
-        return this.x + SV_PICKER_X;
+        return this.getX() + SV_PICKER_X;
     }
 
     private int getSVPickerY() {
-        return this.y + SV_PICKER_Y;
+        return this.getY() + SV_PICKER_Y;
     }
 
     private int getSVPickerCursorX() {
@@ -346,11 +347,11 @@ public class ColorPickerWidget extends AbstractWidget {
     }
 
     private int getHuePickerX() {
-        return this.x + HUE_PICKER_X;
+        return this.getX() + HUE_PICKER_X;
     }
 
     private int getHuePickerY() {
-        return this.y + HUE_PICKER_Y;
+        return this.getY() + HUE_PICKER_Y;
     }
 
     private int getHuePickerCursorX() {

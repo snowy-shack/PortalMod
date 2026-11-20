@@ -1,6 +1,5 @@
 package net.portalmod.mixins.entity;
 
-import net.minecraftforge.common.ForgeMod;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -13,7 +12,7 @@ import net.portalmod.common.sorted.portal.PortalMovementAccounting;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.AttributeInit;
 import net.portalmod.core.init.CriteriaTriggerInit;
-import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.DamageTypeInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.interfaces.IGetPose;
 import org.spongepowered.asm.mixin.Final;
@@ -106,7 +105,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
         // walked through a fizzler -- cascading into all online players' portals closing.
         // Only the client controlling this player (local) may send the packet; the server-side
         // tick (isClientSide=false) still runs as a best-effort fallback.
-        if (player.level.isClientSide && !player.isLocalPlayer()) return;
+        if (player.level().isClientSide && !player.isLocalPlayer()) return;
 
         PortalGun.fizzleGunsInInventory(player);
     }
@@ -167,11 +166,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     private void pmFixStopFlyingVelocity(CallbackInfo info) {
         Player thiss = (Player)(Object)this;
 
-        if(thiss.abilities.flying && !thiss.isPassenger()) {
+        if(thiss.getAbilities().flying && !thiss.isPassenger()) {
             this.pmWasFlying = true;
         } else {
             if(this.pmWasFlying) {
-                double gravity = Objects.requireNonNull(thiss.getAttribute(ForgeMod.ENTITY_GRAVITY.get())).getValue();
+                double gravity = 0.08D /* TODO(port): Forge ENTITY_GRAVITY attribute does not exist on Fabric; vanilla default */;
                 Vec3 d = thiss.getDeltaMovement();
                 thiss.setDeltaMovement(d.x, -gravity, d.z);
             }
@@ -223,7 +222,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     )
     private void pmGrantFaithPlateElytraAdvancement(CallbackInfo info) {
         // todo readd launched reset
-        if(!this.level.isClientSide) {
+        if(!this.level().isClientSide) {
             if(((Flingable)this).isFlinging() && ((Player)(Object)this).getDeltaMovement().length() > .7) {
                 CriteriaTriggerInit.FAITH_PLATE_ELYTRA.get().trigger((ServerPlayer)(Object)this);
             }
@@ -237,7 +236,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             cancellable = true
     )
     public void pmPlayGooHurtSound(DamageSource damageSource, CallbackInfoReturnable<SoundEvent> cir) {
-        if (damageSource == FluidInit.GOO_DAMAGE) {
+        if (damageSource.is(DamageTypeInit.GOO)) {
             cir.setReturnValue(SoundInit.GOO_DAMAGE.get());
         }
     }
@@ -247,7 +246,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
             at = @At("RETURN"),
             cancellable = true
     )
-    private static void pmAddAttributes(CallbackInfoReturnable<AttributeSupplier.MutableAttribute> cir) {
+    private static void pmAddAttributes(CallbackInfoReturnable<AttributeSupplier.Builder> cir) {
         cir.setReturnValue(cir.getReturnValue()
                 .add(AttributeInit.GRAB_REACH.get())
                 .add(AttributeInit.BUTTON_REACH.get())

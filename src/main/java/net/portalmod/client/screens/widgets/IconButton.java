@@ -1,11 +1,11 @@
 package net.portalmod.client.screens.widgets;
 
+import net.minecraft.network.chat.Component;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
 
 public class IconButton extends Button {
     private static final int SIZE = 20;
@@ -14,7 +14,7 @@ public class IconButton extends Button {
     private final int v;
 
     public IconButton(int x, int y, ResourceLocation texture, int u, int v, IPressable onClick) {
-        super(x, y, SIZE, SIZE, TextComponent.EMPTY, onClick);
+        super(x, y, SIZE, SIZE, Component.empty(), onClick);
         this.texture = texture;
         this.u = u;
         this.v = v;
@@ -26,10 +26,10 @@ public class IconButton extends Button {
 
         if(this.visible) {
             Minecraft minecraft = Minecraft.getInstance();
-            minecraft.getTextureManager().bind(this.texture);
+            RenderSystem.setShaderTexture(0, this.texture);
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            blit(matrixStack, this.x + 2, this.y + 2, this.u, this.v + (this.active ? 0 : 16), 16, 16, 512, 512);
+            blit(matrixStack, this.getX() + 2, this.getY() + 2, this.u, this.v + (this.active ? 0 : 16), 16, 16, 512, 512);
         }
     }
 }

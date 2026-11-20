@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
+import com.mojang.math.Axis;
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.common.sorted.antline.indicator.IndicatorActivated;
 import net.portalmod.common.sorted.antline.indicator.IndicatorInfo;
@@ -95,7 +96,7 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
 
             if(entity instanceof Player) {
                 Player player = (Player)entity;
-                if(player.abilities.flying)
+                if(player.getAbilities().flying)
                     continue;
             }
 
@@ -176,8 +177,8 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
         if(state.getValue(FACE) == Face.WALL) {
             Mat4 matrix = Mat4.identity()
             .translate(new Vec3(.5))
-            .rotateDeg(Vector3f.YP, -state.getValue(FACING).toYRot())
-            .rotateDeg(Vector3f.XP, 90)
+            .rotateDeg(Axis.YP, -state.getValue(FACING).toYRot())
+            .rotateDeg(Axis.XP, 90)
             .translate(new Vec3(-.5));
 
             triggerTransformed.transform(matrix);

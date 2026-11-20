@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.sorted.platform.BeamBearer;
 import net.portalmod.common.sorted.platform.PlatformBeamBlock;
 import net.portalmod.core.math.Mat4;
@@ -36,7 +37,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
@@ -94,10 +94,10 @@ public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomP
 
             if(facing.getAxis() == Direction.Axis.Y) {
                 int angle = (facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE) ? 90 : -90;
-                matrix.rotateDeg(Vector3f.ZP, angle);
+                matrix.rotateDeg(Axis.ZP, angle);
             } else {
                 int angle = facing.get2DDataValue() * -90 + 90;
-                matrix.rotateDeg(Vector3f.YP, angle);
+                matrix.rotateDeg(Axis.YP, angle);
             }
 
             matrix.translate(new Vec3(-.5));
@@ -139,7 +139,7 @@ public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomP
         BlockState cycled = state.cycle(BEAM);
         world.setBlockAndUpdate(pos, cycled);
 
-        player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.iron_frame." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
+        player.displayClientMessage(Component.translatable("actionbar.portalmod.iron_frame." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
 
         player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
 

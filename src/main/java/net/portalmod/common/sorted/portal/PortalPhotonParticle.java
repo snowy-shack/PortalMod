@@ -234,7 +234,7 @@ public class PortalPhotonParticle extends TextureSheetParticle {
         Mat4 modelMatrix = portal.getSourceBasis().getChangeOfBasisFromCanonicalMatrix();
         Color color = PortalColors.getColor(portal);
 
-        if(portal.level == null || color == null)
+        if(portal.level() == null || color == null)
             return;
 
         float x0 = (float)Math.cos(startAngle);
@@ -260,7 +260,7 @@ public class PortalPhotonParticle extends TextureSheetParticle {
         Vec3 pos0 = new Vec3(x0, y0, outwards ? 0 : 0.1).transform(modelMatrix).add(portal.position());
         Vec3 pos1 = new Vec3(x1, y1, outwards ? 0.1 : 0).transform(modelMatrix).add(portal.position());
 
-        createParticle(portal.level, linked ? portal : null, random, pos0, pos1, color, speed, decay, smooth, false);
+        createParticle(portal.level(), linked ? portal : null, random, pos0, pos1, color, speed, decay, smooth, false);
     }
 
     private static void createParticle(Level level, PortalEntity portal, Random random, Vec3 pos0, Vec3 pos1, Color color, float speed, float decay, boolean smooth, boolean useGravity) {

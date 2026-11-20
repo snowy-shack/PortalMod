@@ -17,7 +17,7 @@ public class FaithPlateElytraTrigger extends SimpleCriterionTrigger<FaithPlateEl
         return ID;
     }
 
-    protected FaithPlateElytraTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entity, DeserializationContext condition) {
+    protected FaithPlateElytraTrigger.Instance createInstance(JsonObject json, EntityPredicate.Composite entity, DeserializationContext condition) {
         return new FaithPlateElytraTrigger.Instance(entity);
     }
 
@@ -26,7 +26,7 @@ public class FaithPlateElytraTrigger extends SimpleCriterionTrigger<FaithPlateEl
     }
 
     public static class Instance extends AbstractCriterionTriggerInstance {
-        public Instance(EntityPredicate.AndPredicate player) {
+        public Instance(EntityPredicate.Composite player) {
             super(FaithPlateElytraTrigger.ID, player);
         }
     }

@@ -27,7 +27,7 @@ public abstract class RemoteClientPlayerEntityMixin extends LivingEntity {
     )
     private void pmLerpPosWithPortal(CallbackInfo info) {
         Deque<Tuple<Vec3, Vec3>> lerpPositions = ((ITeleportLerpable)this).getLerpPositions();
-        if(lerpPositions.isEmpty() || !this.level.isClientSide)
+        if(lerpPositions.isEmpty() || !this.level().isClientSide)
             return;
 
         Tuple<Vec3, Vec3> currentLerpPos = lerpPositions.pop();

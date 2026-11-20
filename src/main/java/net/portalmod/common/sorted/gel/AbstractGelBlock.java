@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.gel;
 
+import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.portalmod.common.sorted.gel.container.GelContainer;
@@ -92,9 +93,9 @@ public class AbstractGelBlock extends HalfTransparentBlock {
                 matrix.scale(new Vec3(facing.getOpposite().getNormal()).mul(2).add(1));
 
             if(facing.getAxis() == Axis.X)
-                matrix.rotateDeg(Vector3f.ZP, -90);
+                matrix.rotateDeg(Axis.ZP, -90);
             if(facing.getAxis() == Axis.Z)
-                matrix.rotateDeg(Vector3f.XP, 90);
+                matrix.rotateDeg(Axis.XP, 90);
 
             matrix.translate(new Vec3(-.5));
             SHAPES.put(facing, shape.clone().transform(matrix, true));

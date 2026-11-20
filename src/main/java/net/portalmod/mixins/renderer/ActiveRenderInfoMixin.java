@@ -31,15 +31,15 @@ public abstract class ActiveRenderInfoMixin {
         Vec3 from = new Vec3(thiss.getPosition());
         Vec3 to = from.clone().sub(new Vec3(thiss.getLookVector()).mul(zoom));
 
-        List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(entity.level, from, to, portal -> true);
+        List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(entity.level(), from, to, portal -> true);
         if(portalChain.isEmpty()) {
-            List<PortalEntity> portals = PortalEntity.getOpenPortals(entity.level, entity.getBoundingBox(), portal -> true);
+            List<PortalEntity> portals = PortalEntity.getOpenPortals(entity.level(), entity.getBoundingBox(), portal -> true);
             if(portals.isEmpty())
                 return;
 
             Vec3 from2 = from.clone().sub(new Vec3(thiss.getLookVector()).mul(0.2));
-            ClipContext context = new ClipContext(from2.to3d(), to.to3d(), ClipContext.BlockMode.VISUAL, ClipContext.FluidMode.NONE, thiss.getEntity());
-            HitResult result = entity.level.clip(context);
+            ClipContext context = new ClipContext(from2.to3d(), to.to3d(), ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, thiss.getEntity());
+            HitResult result = entity.level().clip(context);
             double maxZoom = Math.min(zoom, result.getLocation().distanceTo(from.to3d()) - 0.1);
             info.setReturnValue(maxZoom);
 
@@ -50,8 +50,8 @@ public abstract class ActiveRenderInfoMixin {
         Vec3 teleportedEyePos = from.clone().transform(portalMatrix);
         Pair<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3> ray = ModUtil.teleportRay(portalChain, from.to3d(), to.to3d());
 
-        ClipContext context = new ClipContext(ray.getFirst(), ray.getSecond(), ClipContext.BlockMode.VISUAL, ClipContext.FluidMode.NONE, thiss.getEntity());
-        HitResult result = entity.level.clip(context);
+        ClipContext context = new ClipContext(ray.getFirst(), ray.getSecond(), ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, thiss.getEntity());
+        HitResult result = entity.level().clip(context);
         double maxZoom = Math.min(zoom, result.getLocation().distanceTo(teleportedEyePos.to3d()) - 0.1);
         info.setReturnValue(maxZoom);
     }

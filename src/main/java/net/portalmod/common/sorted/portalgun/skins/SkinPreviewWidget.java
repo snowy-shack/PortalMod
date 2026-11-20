@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.network.chat.Component;
+import com.mojang.math.Axis;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.portalgun.PortalGunModel;
@@ -18,7 +20,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
-import net.minecraft.network.chat.TextComponent;
 
 public class SkinPreviewWidget extends AbstractWidget {
     private final SkinSelectorScreen parent;
@@ -45,7 +46,7 @@ public class SkinPreviewWidget extends AbstractWidget {
     private String nextSelectedSkin;
 
     public SkinPreviewWidget(int x, int y, int width, int height, SkinSelectorScreen parent) {
-        super(x, y, width, height, TextComponent.EMPTY);
+        super(x, y, width, height, Component.empty());
         this.parent = parent;
 
         this.xRot = 30;
@@ -58,13 +59,13 @@ public class SkinPreviewWidget extends AbstractWidget {
 
     public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         partialTicks = Minecraft.getInstance().getFrameTime();
-        MultiBufferSource.Impl irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
         Colour lastPortalColor = new Colour(64, 59, 75, 255);
         Colour stripeColour = new Colour(255, 255, 255, 0);
         Colour tint = Optional.ofNullable(parent.getSkinTint()).orElse(Colour.WHITE);
 
-        Minecraft.getInstance().textureManager.bind(TextureAtlas.LOCATION_BLOCKS);
-        Minecraft.getInstance().textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
 
         RenderSystem.pushMatrix();
         RenderSystem.enableRescaleNormal();
@@ -72,8 +73,8 @@ public class SkinPreviewWidget extends AbstractWidget {
         RenderSystem.defaultAlphaFunc();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.translatef((float)this.x + this.width / 2f, (float)this.y + this.width / 2f, 100.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.translatef((float)this.getX() + this.width / 2f, (float)this.getY() + this.width / 2f, 100.0F);
         RenderSystem.scalef(5, 5, 5);
         RenderSystem.scalef(16.0F, -16.0F, 16.0F);
         Lighting.setupFor3DItems();
@@ -81,9 +82,9 @@ public class SkinPreviewWidget extends AbstractWidget {
         matrixStack.pushPose();
 
         this.computeAnimation();
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(Mth.lerp(partialTicks, this.xRotOld, this.xRot)));
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.lerp(partialTicks, this.yRotOld, this.yRot)));
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(this.zRot));
+        matrixStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, this.xRotOld, this.xRot)));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, this.yRotOld, this.yRot)));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(this.zRot));
         matrixStack.translate(0, -.2, 0);
 
         PortalGunISTER.renderGun(matrixStack, null, this.getModel(), irendertypebuffer$impl,

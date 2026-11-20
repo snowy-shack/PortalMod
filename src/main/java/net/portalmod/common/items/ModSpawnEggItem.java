@@ -1,8 +1,6 @@
 package net.portalmod.common.items;
 
-import net.minecraftforge.common.util.Lazy;
 import net.portalmod.core.registry.RegistryObject;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.portalmod.core.util.ModUtil;
 
 import javax.annotation.Nullable;
@@ -27,33 +25,26 @@ import net.minecraft.world.level.Level;
 
 public class ModSpawnEggItem extends SpawnEggItem {
     protected static final List<ModSpawnEggItem> UNADDED = new ArrayList<>();
-    private final Lazy<? extends EntityType<?>> supplier;
     public final String tooltipName;
     
     public ModSpawnEggItem(RegistryObject<? extends EntityType<?>> supplier, Properties properties, String tooltipName) {
-        super(null, 0xFFFFFF, 0xFFFFFF, properties);
-        this.supplier = Lazy.of(supplier::get);
+        // Entity types are registered before items (see PortalMod), so the type is ready here.
+        // The vanilla constructor also adds this egg to SpawnEggItem's lookup map.
+        super(supplier.get(), 0xFFFFFF, 0xFFFFFF, properties);
         UNADDED.add(this);
         this.tooltipName = tooltipName;
     }
     
     public static void register() {
-        Map<EntityType<?>, SpawnEggItem> eggs = ObfuscationReflectionHelper.getPrivateValue(SpawnEggItem.class, null, "field_195987_b");
         ModDefaultDispenseItemBehavior behaviour = new ModDefaultDispenseItemBehavior();
         
         for(SpawnEggItem spawnEgg : UNADDED) {
-            eggs.put(spawnEgg.getType(null), spawnEgg);
             DispenserBlock.registerBehavior(spawnEgg, behaviour);
         }
         
         UNADDED.clear();
     }
     
-    @Override
-    public EntityType<?> getType(CompoundTag p_208076_1_) {
-        return supplier.get();
-    }
-
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
         if (this.tooltipName != null) {

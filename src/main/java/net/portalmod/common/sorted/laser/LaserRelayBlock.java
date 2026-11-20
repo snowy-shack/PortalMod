@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.laser;
 
+import com.mojang.math.Axis;
 import net.portalmod.core.math.VoxelShapeBuilder;
 
 import net.minecraft.world.level.block.Block;
@@ -48,12 +49,12 @@ public class LaserRelayBlock extends Block {
 ////                matrix.scale(new Vec3(facing.step()).mul(2).add(1));
 ////
 ////            if(facing.getAxis() == Axis.X)
-////                matrix.rotateDeg(Vector3f.ZP, -90);
+////                matrix.rotateDeg(Axis.ZP, -90);
 ////
 ////            if(facing.getAxis() == Axis.Z)
-////                matrix.rotateDeg(Vector3f.XP, 90);
+////                matrix.rotateDeg(Axis.XP, 90);
 ////
-//////            matrix.rotateDeg(Vector3f.YP, 90);
+//////            matrix.rotateDeg(Axis.YP, 90);
 ////            matrix.translate(new Vec3(-.5));
 ////
 ////            SHAPES.put(facing, shape.clone().transform(matrix));

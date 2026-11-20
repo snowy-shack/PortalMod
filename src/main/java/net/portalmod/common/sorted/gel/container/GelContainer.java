@@ -42,7 +42,7 @@ public class GelContainer extends BlockItem {
         ItemStack itemStack = context.getItemInHand();
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = context.getLevel().getBlockState(clickedPos);
-        boolean creative = player.abilities.instabuild;
+        boolean creative = player.getAbilities().instabuild;
         Direction gelSide = context.getClickedFace().getOpposite();
 
         int gelAmount = getAmount(itemStack);

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.button;
 
+import com.mojang.math.Axis;
 import net.portalmod.core.math.Mat4;
 
 import net.minecraft.client.resources.model.ModelState;
@@ -22,18 +23,18 @@ public class SuperButtonModelTransform implements ModelState {
         
         if(facing.getAxisDirection() == AxisDirection.NEGATIVE) {
             if(facing.getAxis() == Axis.Y)
-                matrix.rotateDeg(Vector3f.ZP, 180);
+                matrix.rotateDeg(Axis.ZP, 180);
             else
-                matrix.rotateDeg(Vector3f.YP, 180);
+                matrix.rotateDeg(Axis.YP, 180);
         }
         
         int axisFactor = axis == Axis.X ? 0 : -90;
         if(axis == Axis.X)
-            matrix.rotateDeg(Vector3f.ZN, 90);
+            matrix.rotateDeg(Axis.ZN, 90);
         if(axis == Axis.Z)
-            matrix.rotateDeg(Vector3f.XP, 90);
+            matrix.rotateDeg(Axis.XP, 90);
         
-        return matrix.rotateDeg(Vector3f.YP, corner.getRot() + axisFactor);
+        return matrix.rotateDeg(Axis.YP, corner.getRot() + axisFactor);
     }
 
     @Override

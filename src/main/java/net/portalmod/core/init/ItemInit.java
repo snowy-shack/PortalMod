@@ -92,7 +92,7 @@ public class ItemInit {
                     properties().setISTER(() -> ISTERWrapper::new))); // todo remove ister
 
     public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
-            () -> new GooBucketItem(FluidInit.GOO_FLUID, properties().stacksTo(1)));
+            () -> new GooBucketItem(FluidInit.GOO_FLUID.get(), properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CONTAINER = ITEMS.register("container",
             () -> new EmptyGelContainer(properties().stacksTo(16)));

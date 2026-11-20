@@ -28,7 +28,7 @@ public class PropulsionGelBlock extends AbstractGelBlock {
     }
 
     public static boolean actuallyOnSpeedGel(BlockPos pos, BlockState state, Entity entity) {
-        VoxelShape shapeEntity = state.getShape(entity.level, pos, CollisionContext.of(entity));
+        VoxelShape shapeEntity = state.getShape(entity.level(), pos, CollisionContext.of(entity));
         VoxelShape alignedShapeEntity = shapeEntity.move(pos.getX(), pos.getY(), pos.getZ());
 
         return Shapes.joinIsNotEmpty(alignedShapeEntity,
@@ -73,13 +73,13 @@ public class PropulsionGelBlock extends AbstractGelBlock {
 
     public static void onPreTick(LivingEntity entity) {
         BlockPos pos = entity.blockPosition();
-        BlockState state = entity.level.getBlockState(pos);
+        BlockState state = entity.level().getBlockState(pos);
         boolean isInSpeedGel = state.getBlock() instanceof PropulsionGelBlock;
 
         IGelAffected gelAffected = ((IGelAffected) entity);
 
         // to each their own
-        if (entity.level.isClientSide == entity instanceof Player) {
+        if (entity.level().isClientSide == entity instanceof Player) {
             if (isInSpeedGel) {
                 if (actuallyOnSpeedGel(pos, state, entity)) {
                     double speed = entity.getDeltaMovement().multiply(1, 0, 1).length();
@@ -96,7 +96,7 @@ public class PropulsionGelBlock extends AbstractGelBlock {
                 }
             } else {
                 // Preserve speed while jumping / bouncing
-                if (entity.isOnGround() && gelAffected.getLeftGround() && !(state.getBlock() instanceof RepulsionGelBlock)) {
+                if (entity.onGround() && gelAffected.getLeftGround() && !(state.getBlock() instanceof RepulsionGelBlock)) {
                     gelAffected.setPropulsionTicks(0);
                 }
 
@@ -105,7 +105,7 @@ public class PropulsionGelBlock extends AbstractGelBlock {
                 }
             }
 
-            if (entity.level.isClientSide) {
+            if (entity.level().isClientSide) {
                 PacketInit.INSTANCE.sendToServer(new CPropulsionGelBoostTickPacket(gelAffected.getPropulsionTicks()));
             }
         }
@@ -123,7 +123,7 @@ public class PropulsionGelBlock extends AbstractGelBlock {
             removeGelSpeedBoost(entity);
         }
 
-        gelAffected.setLeftGround(!entity.isOnGround());
+        gelAffected.setLeftGround(!entity.onGround());
     }
 
 }

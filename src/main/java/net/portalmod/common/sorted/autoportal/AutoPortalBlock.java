@@ -40,7 +40,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
@@ -157,7 +156,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
 
                 autoPortal.link(uuid.get(), end, primaryColor, secondaryColor);
                 WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.autoportal.set"), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.autoportal.set"), true);
                 return InteractionResult.SUCCESS;
             }
         } else {
@@ -175,7 +174,7 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
             autoPortal.swapEnd();
             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
 
-            player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.autoportal."
+            player.displayClientMessage(Component.translatable("actionbar.portalmod.autoportal."
                     + (autoPortal.end == PortalEnd.PRIMARY ? "primary" : "secondary")), true);
 
             return InteractionResult.SUCCESS;

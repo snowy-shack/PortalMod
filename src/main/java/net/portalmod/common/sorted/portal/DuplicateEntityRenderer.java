@@ -110,12 +110,12 @@ public class DuplicateEntityRenderer {
         double d0 = Mth.lerp(partialTicks, entity.xOld, entity.getX());
         double d1 = Mth.lerp(partialTicks, entity.yOld, entity.getY());
         double d2 = Mth.lerp(partialTicks, entity.zOld, entity.getZ());
-        float f = Mth.lerp(partialTicks, entity.yRotO, entity.yRot);
+        float f = Mth.lerp(partialTicks, entity.yRotO, entity.getYRot());
 
         if(entity instanceof PortalEntity || Minecraft.getInstance().player == null)
             return;
 
-        List<PortalEntity> entities = PortalEntity.getOpenPortals(entity.level,
+        List<PortalEntity> entities = PortalEntity.getOpenPortals(entity.level(),
                 entity.getBoundingBox().inflate(.2), portal -> true);
 
         for(PortalEntity portal : entities) {

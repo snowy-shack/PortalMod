@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.fizzler;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -58,15 +59,15 @@ public class FizzlerFieldBlock extends DoubleBlock implements Fizzler {
         matrix.translate(new Vec3(.5));
 
         if (axis == Direction.Axis.X) {
-            matrix.rotateDeg(Vector3f.YP, 90);
+            matrix.rotateDeg(Axis.YP, 90);
         }
 
         if (axis == Direction.Axis.Y) {
-            matrix.rotateDeg(Vector3f.XP, 90);
+            matrix.rotateDeg(Axis.XP, 90);
         }
 
         if (rotated) {
-            matrix.rotateDeg(Vector3f.ZP, 90);
+            matrix.rotateDeg(Axis.ZP, 90);
         }
 
         matrix.translate(new Vec3(-.5));

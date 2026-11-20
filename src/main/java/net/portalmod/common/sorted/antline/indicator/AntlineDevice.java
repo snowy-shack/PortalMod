@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline.indicator;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.sorted.antline.AntlineConnector;
 import net.portalmod.core.math.BiHashMap;
 import net.portalmod.core.math.Mat4;
@@ -44,10 +45,10 @@ public class AntlineDevice extends FaceAttachedHorizontalDirectionalBlock implem
 
                 if(attachFace != AttachFace.WALL) {
                     int angle = (attachFace == AttachFace.FLOOR) ? 90 : -90;
-                    matrix.rotateDeg(Vector3f.ZP, angle);
+                    matrix.rotateDeg(Axis.ZP, angle);
                 } else {
                     int angle = facing.get2DDataValue() * -90 - 90;
-                    matrix.rotateDeg(Vector3f.YP, angle);
+                    matrix.rotateDeg(Axis.YP, angle);
                 }
                 matrix.translate(new Vec3(-.5));
 

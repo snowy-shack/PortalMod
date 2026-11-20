@@ -7,7 +7,6 @@ import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.util.TriConsumer;
 
-import net.minecraftforge.common.util.TriPredicate;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;

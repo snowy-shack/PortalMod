@@ -1,5 +1,6 @@
 package net.portalmod.common.entities;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
 import net.portalmod.common.particles.FizzleGlowParticle;
@@ -9,7 +10,7 @@ import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.core.init.EntityTagInit;
-import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.DamageTypeInit;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.AABBUtil;
@@ -150,14 +151,14 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         net.minecraft.world.phys.Vec3 newMovement = xzMovement.length() < minSpeed ? xzMovement.normalize().scale(minSpeed) : xzMovement.scale(0.95);
         this.setDeltaMovement(newMovement);
 
-        if (this.level.isClientSide) {
-            FizzleGlowParticle.createGlowParticles(level, this);
-            FizzleFlakeParticle.createFlakeParticles(level, this);
+        if (this.level().isClientSide) {
+            FizzleGlowParticle.createGlowParticles(level(), this);
+            FizzleFlakeParticle.createFlakeParticles(level(), this);
         }
 
         // Rotate slowly
-        this.yRot += 35f * (float) newMovement.length();
-        this.yHeadRot = this.yRot;
+        this.setYRot(this.getYRot() + (35f * (float) newMovement.length()));
+        this.yHeadRot = this.getYRot();
 
         if (fizzleTicks > this.maxFizzleTime && this.isAlive()) {
             this.fizzleKill();
@@ -171,14 +172,14 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
      */
     public void fizzleInit() {
         this.setNoGravity(true);
-        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundSource.NEUTRAL, 1, ModUtil.randomSlightSoundPitch());
+        this.level().playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.ENTITY_FIZZLE.get(), SoundSource.NEUTRAL, 1, ModUtil.randomSlightSoundPitch());
     }
 
     /**
      * On the last tick of fizzling
      */
     public void fizzleKill() {
-        if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level.isClientSide) {
+        if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level().isClientSide) {
             this.dropAllDeathLoot(new DamageSource("fizzle"));
         }
         this.remove();
@@ -204,7 +205,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         boolean riding = this.startRiding(player);
         if (!riding) return false;
 
-        if (player.level.isClientSide()) {
+        if (player.level().isClientSide()) {
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.PICK_ENTITY).data(this.getId()).build());
         }
 
@@ -227,7 +228,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
         Player player = (Player)getVehicle();
 
-        if(!this.level.isClientSide) {
+        if(!this.level().isClientSide) {
             // server assigns old position stored in serverOldPos
             // since the former resets every tick
             // and thus cannot be assigned from the packet itself
@@ -255,15 +256,15 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             Vec3 originalEyeOldPos = eyeOldPos.clone();
 
             Vec3 ridingVersor = new Vec3(0, 0, 1)
-                    .transform(new Mat4(Vector3f.XP.rotationDegrees(player.getViewXRot(1))))
-                    .transform(new Mat4(Vector3f.YN.rotationDegrees(player.getViewYRot(1))));
+                    .transform(new Mat4(Axis.XP.rotationDegrees(player.getViewXRot(1))))
+                    .transform(new Mat4(Axis.YN.rotationDegrees(player.getViewYRot(1))));
 
             Vec3 ridingVec = ridingVersor.clone().mul(HOLDING_DISTANCE);
 
             // get portals along the holding ray
             Vec3 from = eyePos;
             Vec3 to = eyePos.clone().add(ridingVec);
-            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(this.level, from, to, portal -> true);
+            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(this.level(), from, to, portal -> true);
             boolean passedPortal = this.oldPortalChainLength != null && portalChain.size() != this.oldPortalChainLength;
             this.oldPortalChainLength = portalChain.size();
 
@@ -300,7 +301,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 boolean nextSpaceEmpty = true;
 
                 // check for portals in the next position
-                List<PortalEntity> portalsInCube = PortalEntity.getOpenPortals(this.level, nextSpace, portal -> true);
+                List<PortalEntity> portalsInCube = PortalEntity.getOpenPortals(this.level(), nextSpace, portal -> true);
                 if(portalsInCube.isEmpty()) {
                     dropHeldEntities(player, false, true, player.getMainHandItem());
                     PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.RELEASE_ENTITY).build());
@@ -312,8 +313,8 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 this.setBoundingBox(nextSpace);
 
                 for(BlockPos pos : AABBUtil.getBlocksWithin(nextSpace)) {
-                    VoxelShape blockShape = level.getBlockState(pos)
-                            .getCollisionShape(this.level, pos, CollisionContext.of(this))
+                    VoxelShape blockShape = level().getBlockState(pos)
+                            .getCollisionShape(this.level(), pos, CollisionContext.of(this))
                             .move(pos.getX(), pos.getY(), pos.getZ());
 
                     if(Shapes.joinIsNotEmpty(blockShape, Shapes.create(nextSpace), BooleanOp.AND)) {
@@ -333,10 +334,10 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
             // calculate rotation
             Vec3 lookVec = new Vec3(0, 0, 1)
-                    .transform(new Mat4(Vector3f.YN.rotationDegrees(this.getVehicle().getYHeadRot())))
+                    .transform(new Mat4(Axis.YN.rotationDegrees(this.getVehicle().getYHeadRot())))
                     .transform(portalRotationMatrix);
-            this.yRot = -(float)(Math.atan2(lookVec.x, lookVec.z) * 180 / Math.PI);
-            this.yBodyRot = this.yRot;
+            this.setYRot(-(float)(Math.atan2(lookVec.x, lookVec.z) * 180 / Math.PI));
+            this.yBodyRot = this.getYRot();
 
             // old position
             Vec3 oldRidingVec = this.oldRidingVec;
@@ -368,7 +369,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
                 this.holderJustTeleported = false;
             } else if(passedPortal) {
-                this.yRotO = this.yRot;
+                this.yRotO = this.getYRot();
                 this.yBodyRotO = this.yBodyRot;
             }
 
@@ -408,11 +409,11 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
         this.fallDistance = 0;
 
-        if (player.level.isClientSide) {
+        if (player.level().isClientSide) {
             if (player.getMainHandItem().getItem() instanceof PortalGun) {
-                PortalGunSparkParticle.createParticles(this.level, player, false);
+                PortalGunSparkParticle.createParticles(this.level(), player, false);
             } else if (player.getOffhandItem().getItem() instanceof PortalGun) {
-                PortalGunSparkParticle.createParticles(this.level, player, true);
+                PortalGunSparkParticle.createParticles(this.level(), player, true);
             }
         }
 
@@ -453,7 +454,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         this.boardingCooldown = 0;
 
         net.minecraft.world.phys.Vec3 momentum;
-        if(this.level.isClientSide) {
+        if(this.level().isClientSide) {
             momentum = this.position().subtract(ModUtil.getOldPos(this));
         } else {
             momentum = this.position().subtract(this.serverOldPos.to3d());
@@ -506,7 +507,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         if(entity instanceof Player) {
             return ((Player)entity).isLocalPlayer();
         } else {
-            return !this.level.isClientSide;
+            return !this.level().isClientSide;
         }
     }
 
@@ -538,14 +539,14 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
     @Override
     public boolean hurt(DamageSource source, float damage) {
-        if (this.level.isClientSide || !this.isAlive()) {
+        if (this.level().isClientSide || !this.isAlive()) {
             return false;
         }
 
         boolean shouldSwing = true;
         boolean holdingWrench = source instanceof EntityDamageSource && source.getEntity() instanceof LivingEntity && WrenchItem.hitWithWrench((LivingEntity) source.getEntity());
         boolean outOfWorld = source == DamageSource.OUT_OF_WORLD;
-        boolean inGoo = source == FluidInit.GOO_DAMAGE && this.getVehicle() == null;
+        boolean inGoo = source.is(DamageTypeInit.GOO) && this.getVehicle() == null;
         boolean isCreative = source.isCreativePlayer();
 
         boolean shouldHurt = holdingWrench || inGoo || outOfWorld || isCreative;
@@ -577,7 +578,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         this.markHurt();
         if (creative || this.getDamage() > 40.0F) {
             this.remove();
-            if (!creative && !this.isFromDropper() && this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+            if (!creative && !this.isFromDropper() && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                 this.dropAllDeathLoot(source);
             }
         }

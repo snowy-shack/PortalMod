@@ -27,11 +27,11 @@ public class WatermarkRenderer {
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
         RenderSystem.disableAlphaTest();
 
-        Minecraft.getInstance().getTextureManager().bind(WM_LEFT);
+        RenderSystem.setShaderTexture(0, WM_LEFT);
         blit(matrixStack, 0, 0, 0,
                 0, 0, width, height, width, height);
 
-        Minecraft.getInstance().getTextureManager().bind(WM_RIGHT);
+        RenderSystem.setShaderTexture(0, WM_RIGHT);
         blit(matrixStack, window.getGuiScaledWidth() - width, 0, 0,
                 0, 0, width, height, width, height);
     }

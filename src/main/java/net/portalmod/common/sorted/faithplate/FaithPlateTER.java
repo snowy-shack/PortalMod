@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
+import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.ItemInit;
@@ -62,16 +63,16 @@ public class FaithPlateTER extends BlockEntityRenderer<FaithPlateTileEntity> {
         matrixStack.pushPose();
 
         matrixStack.translate(.5, .5, .5);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees((onWall ? 0 : 180) - state.getValue(FaithPlateBlock.FACING).toYRot()));
+        matrixStack.mulPose(Axis.YP.rotationDegrees((onWall ? 0 : 180) - state.getValue(FaithPlateBlock.FACING).toYRot()));
         if(onWall) {
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(90));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(90));
         }
         matrixStack.translate(-.5, -.5, -.5);
 
         matrixStack.translate(.5, 1, 0);
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(180));
-        matrixStack.mulPose(Vector3f.XP.rotationDegrees(180));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(180));
+        matrixStack.mulPose(Axis.XP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
         boolean disabled = be.isEnabled() && be.getCooldown() < 2;

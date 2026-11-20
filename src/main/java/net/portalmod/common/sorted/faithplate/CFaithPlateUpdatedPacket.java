@@ -35,11 +35,11 @@ public class CFaithPlateUpdatedPacket implements AbstractPacket<CFaithPlateUpdat
     @Override
     public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            FaithPlateTileEntity blockEntity = (FaithPlateTileEntity) context.get().getSender().level.getBlockEntity(pos);
+            FaithPlateTileEntity blockEntity = (FaithPlateTileEntity) context.get().getSender().level().getBlockEntity(pos);
             if(blockEntity == null)
                 return;
             blockEntity.load(nbt);
-            context.get().getSender().level.sendBlockUpdated(pos, BlockInit.FAITHPLATE.get().defaultBlockState(),
+            context.get().getSender().level().sendBlockUpdated(pos, BlockInit.FAITHPLATE.get().defaultBlockState(),
                     BlockInit.FAITHPLATE.get().defaultBlockState(), 3);
         });
         

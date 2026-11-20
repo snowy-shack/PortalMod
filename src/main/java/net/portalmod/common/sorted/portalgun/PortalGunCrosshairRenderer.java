@@ -59,7 +59,7 @@ public class PortalGunCrosshairRenderer {
             Vec3 from = player.getEyePosition(0);
             Vec3 to = from.add(rayPath);
 
-            ClipContext rayCtx = new ClipContext(from, to, ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.ANY, null);
+            ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, null);
             BlockHitResult rayTrace = PortalGun.customClip(level, rayCtx);
 
             boolean isPortalable = PortalableBlock.isPortalable(mc.level.getBlockState(rayTrace.getBlockPos()), rayTrace.getDirection(), level);
@@ -111,7 +111,7 @@ public class PortalGunCrosshairRenderer {
         int y = centeredCrosshairOrigin(window.getGuiScaledHeight(), CROSSHAIR_SIZE);
 
         RenderSystem.disableBlend();
-        Minecraft.getInstance().getTextureManager().bind(texture);
+        RenderSystem.setShaderTexture(0, texture);
         blit(matrixStack, x, y, 0,
                 filled ? CROSSHAIR_SIZE : 0, end == PortalEnd.PRIMARY ? 0 : CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE * 2, CROSSHAIR_SIZE * 2);
         RenderSystem.enableBlend();
@@ -124,7 +124,7 @@ public class PortalGunCrosshairRenderer {
         int y = centeredCrosshairOrigin(window.getGuiScaledHeight(), CROSSHAIR_SIZE);
 
         RenderSystem.disableBlend();
-        Minecraft.getInstance().getTextureManager().bind(texture);
+        RenderSystem.setShaderTexture(0, texture);
         blit(matrixStack, x, y, 0,
                 0, end == PortalEnd.PRIMARY ? 0 : CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE, CROSSHAIR_SIZE * 2);
         RenderSystem.enableBlend();

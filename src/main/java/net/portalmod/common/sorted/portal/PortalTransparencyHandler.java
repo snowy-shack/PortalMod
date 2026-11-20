@@ -19,19 +19,19 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 
 public class PortalTransparencyHandler {
-    public static final RenderType.State PORTAL_TRANSLUCENT_STATE = RenderType.State.builder()
-            .setShadeModelState(new RenderStateShard.ShadeModelState(true))
-            .setLightmapState(new RenderStateShard.LightmapState(true))
-            .setTextureState(new RenderStateShard.TextureState(TextureAtlas.LOCATION_BLOCKS, false, true))
-            .setLineState(new RenderStateShard.LineState(OptionalDouble.of(1.1)))
-            .setTransparencyState(new RenderStateShard.TransparencyState("translucent_transparency", () -> {
+    public static final RenderType.CompositeState PORTAL_TRANSLUCENT_STATE = RenderType.CompositeState.builder()
+            .setShadeModelState(new RenderStateShard.ShadeModelStateShard(true))
+            .setLightmapState(new RenderStateShard.LightmapStateShard(true))
+            .setTextureState(new RenderStateShard.TextureStateShard(TextureAtlas.LOCATION_BLOCKS, false, true))
+            .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(1.1)))
+            .setTransparencyState(new RenderStateShard.TransparencyStateShard("translucent_transparency", () -> {
                 RenderSystem.enableBlend();
                 RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             }, () -> {
                 RenderSystem.disableBlend();
                 RenderSystem.defaultBlendFunc();
             }))
-            .setOutputState(new RenderStateShard.TargetState("translucent_target", () -> {
+            .setOutputState(new RenderStateShard.OutputStateShard("translucent_target", () -> {
                 if (Minecraft.useShaderTransparency()) {
                     Minecraft.getInstance().levelRenderer.getTranslucentTarget().bindWrite(false);
                 }
@@ -52,7 +52,7 @@ public class PortalTransparencyHandler {
         LevelRenderer lr = Minecraft.getInstance().levelRenderer;
         Queue<ChunkBufferBuilderPack> freeBuffers = ((ChunkRenderDispatcherAccessor)lr.chunkRenderDispatcher).pmGetFreeBuffers();
         if(!freeBuffers.isEmpty()) {
-            for(LevelRenderer.LocalRenderInformationContainer lric : lr.renderChunks) {
+            for(LevelRenderer.RenderChunkInfo lric : lr.renderChunks) {
                 net.minecraft.world.phys.Vec3 vector3d = portalCamera.getPosition();
                 float x = (float)vector3d.x;
                 float y = (float)vector3d.y;
@@ -74,7 +74,7 @@ public class PortalTransparencyHandler {
         LevelRenderer lr = Minecraft.getInstance().levelRenderer;
         Queue<ChunkBufferBuilderPack> freeBuffers = ((ChunkRenderDispatcherAccessor)lr.chunkRenderDispatcher).pmGetFreeBuffers();
         if(!freeBuffers.isEmpty()) {
-            for(LevelRenderer.LocalRenderInformationContainer lric : lr.renderChunks) {
+            for(LevelRenderer.RenderChunkInfo lric : lr.renderChunks) {
                 float x = (float)position.x;
                 float y = (float)position.y;
                 float z = (float)position.z;

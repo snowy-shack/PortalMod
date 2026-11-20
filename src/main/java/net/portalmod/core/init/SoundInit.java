@@ -13,6 +13,10 @@ public class SoundInit {
 
     private SoundInit() {}
 
+    // BUCKET (Forge set these on the fluid attributes)
+    public static final RegistryObject<SoundEvent> BUCKET_FILL_GOO = register("item.bucket.fill_goo");
+    public static final RegistryObject<SoundEvent> BUCKET_EMPTY_GOO = register("item.bucket.empty_goo");
+
     // BLOCKS
     public static final RegistryObject<SoundEvent> RADIO_LOOP = register("block.radio.loop");
     public static final RegistryObject<SoundEvent> RADIO_DINOSAUR1 = register("block.radio.transmission");
@@ -86,6 +90,6 @@ public class SoundInit {
     public static final RegistryObject<SoundEvent> CHAMBER_SIGN_PLACE = register("entity.chamber_sign.place");
 
     private static RegistryObject<SoundEvent> register(String id) {
-        return SOUNDS.register(id, () -> new SoundEvent(new ResourceLocation(PortalMod.MODID, id)));
+        return SOUNDS.register(id, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(PortalMod.MODID, id)));
     }
 }

@@ -35,10 +35,10 @@ public class TrackedEntityMixin {
         ITeleportLerpable victim = ((ITeleportLerpable)this.entity);
 
         if(victim.hasUsedPortal() && (this.entity instanceof LivingEntity)) {
-            byte xRot = (byte) Mth.floor(this.entity.yRot * 256.0F / 360.0F);
-            byte yRot = (byte) Mth.floor(this.entity.xRot * 256.0F / 360.0F);
+            byte xRot = (byte) Mth.floor(this.entity.getYRot() * 256.0F / 360.0F);
+            byte yRot = (byte) Mth.floor(this.entity.getXRot() * 256.0F / 360.0F);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SEntityPortalTeleportLerpPacket(
-                    this.entity.getId(), xRot, yRot, this.entity.isOnGround(), victim.getLerpPositions()));
+                    this.entity.getId(), xRot, yRot, this.entity.onGround(), victim.getLerpPositions()));
         } else {
             instance.accept(packet);
         }

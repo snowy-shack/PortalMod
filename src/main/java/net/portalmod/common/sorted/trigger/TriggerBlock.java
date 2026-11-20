@@ -28,7 +28,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
@@ -75,7 +74,7 @@ public class TriggerBlock extends Block {
             level.setBlockAndUpdate(pos, cycled);
 
             WrenchItem.playUseSound(level, rayTraceResult.getLocation());
-            player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.trigger_type." + cycled.getValue(TYPE).getSerializedName()), true);
+            player.displayClientMessage(Component.translatable("actionbar.portalmod.trigger_type." + cycled.getValue(TYPE).getSerializedName()), true);
 
             if (tileEntity instanceof TriggerTileEntity) ((TriggerTileEntity) tileEntity).updateTriggerType();
 

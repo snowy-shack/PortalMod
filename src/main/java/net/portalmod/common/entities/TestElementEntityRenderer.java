@@ -22,8 +22,8 @@ public abstract class TestElementEntityRenderer<T extends TestElementEntity, M e
         float f6 = Math.max(0, entity.getDamage() - p_225623_3_);
 
         light = LightTexture.pack(
-                entity.level.getBrightness(LightLayer.BLOCK, entity.blockPosition()),
-                entity.level.getBrightness(LightLayer.SKY, entity.blockPosition())
+                entity.level().getBrightness(LightLayer.BLOCK, entity.blockPosition()),
+                entity.level().getBrightness(LightLayer.SKY, entity.blockPosition())
         ); // Fixup the light to be that of the entity
 
         matrixStack.pushPose();

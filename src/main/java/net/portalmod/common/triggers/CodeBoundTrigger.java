@@ -21,7 +21,7 @@ public class CodeBoundTrigger extends SimpleCriterionTrigger<CodeBoundTrigger.In
         return id;
     }
 
-    protected CodeBoundTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entity, DeserializationContext condition) {
+    protected CodeBoundTrigger.Instance createInstance(JsonObject json, EntityPredicate.Composite entity, DeserializationContext condition) {
         return new CodeBoundTrigger.Instance(this.id, entity);
     }
 
@@ -30,7 +30,7 @@ public class CodeBoundTrigger extends SimpleCriterionTrigger<CodeBoundTrigger.In
     }
 
     public static class Instance extends AbstractCriterionTriggerInstance {
-        public Instance(ResourceLocation id, EntityPredicate.AndPredicate player) {
+        public Instance(ResourceLocation id, EntityPredicate.Composite player) {
             super(id, player);
         }
     }

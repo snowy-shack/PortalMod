@@ -121,8 +121,8 @@ public class RepulsionGelBlock extends AbstractGelBlock {
             if (state.getValue(WEST))  horizontalBounce(pos, entity, Direction.WEST);
         }
 
-        boolean bounceFromAbove = playerFallHeight > 0.1 && entity.isOnGround();
-        boolean bounceFromSpeed = entity.getDeltaMovement().length() > 0.2 && entity.isOnGround();
+        boolean bounceFromAbove = playerFallHeight > 0.1 && entity.onGround();
+        boolean bounceFromSpeed = entity.getDeltaMovement().length() > 0.2 && entity.onGround();
         boolean bounceFromJump = gelAffected.getWasOnGround() && entity.getDeltaMovement().y > 0.2;
 
         double heightInBlock = entity.position().y % 1;
@@ -134,7 +134,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
 
             entity.fallDistance = 0;
 
-            if (entity instanceof Player && !entity.level.isClientSide && playerFallHeight >= 100) {
+            if (entity instanceof Player && !entity.level().isClientSide && playerFallHeight >= 100) {
                 CriteriaTriggerInit.BOUNCE_ON_GEL.get().trigger((ServerPlayer) entity); // Leap of Faith advancement
             }
 
@@ -161,7 +161,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static void onPreTick(LivingEntity entity) {
         IGelAffected gelAffected = ((IGelAffected) entity);
         if (entity.getDeltaMovement().y < -0.1) {
-            if (entity.level.isClientSide) {
+            if (entity.level().isClientSide) {
                 if (entity instanceof Player) {
                     gelAffected.setBounced(false);
                     PacketInit.INSTANCE.sendToServer(new CRepulsionGelBouncePacket(false));
@@ -175,7 +175,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     }
 
     public static void onPostTick(LivingEntity entity) {
-        Level level = entity.level;
+        Level level = entity.level();
         BlockPos pos = new BlockPos(entity.position());
 
         BlockState state = level.getBlockState(pos);

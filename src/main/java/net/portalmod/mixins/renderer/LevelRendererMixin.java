@@ -80,7 +80,7 @@ public class LevelRendererMixin {
                     target = "Lnet/minecraft/client/renderer/FogRenderer;setupFog(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/FogRenderer$FogMode;FZF)V"
             )
     )
-    private void pmSetupFog(Camera camera, FogRenderer.FogType type, float renderDistance, boolean b, float partialTicks) {
+    private void pmSetupFog(Camera camera, FogRenderer.FogMode type, float renderDistance, boolean b, float partialTicks) {
         if(PortalRenderer.getInstance().currentlyRenderingPortals) {
             PortalEntity currentPortal = PortalRenderer.getInstance().portalChain.peekLast();
             if(currentPortal != null && currentPortal.getOtherPortal().isPresent()) {
@@ -203,7 +203,7 @@ public class LevelRendererMixin {
     )
     private int pmMaskRenderDistanceForAllChangedGuard(Options instance) {
         int override = PortalRenderer.getInstance().nestedBfsDistanceOverride;
-        return override > 0 ? override : instance.renderDistance;
+        return override > 0 ? override : instance.renderDistance().get();
     }
 
     // BEWARE: PORTAL RENDERING

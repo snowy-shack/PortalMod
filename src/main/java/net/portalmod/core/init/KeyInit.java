@@ -1,6 +1,7 @@
 package net.portalmod.core.init;
 
-import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+
 import net.portalmod.PortalMod;
 import org.lwjgl.glfw.GLFW;
 
@@ -19,6 +20,6 @@ public class KeyInit {
                 "key.category." + PortalMod.MODID
         );
 
-        ClientRegistry.registerKeyBinding(PORTALGUN_INTERACT);
+        KeyBindingHelper.registerKeyBinding(PORTALGUN_INTERACT);
     }
 }

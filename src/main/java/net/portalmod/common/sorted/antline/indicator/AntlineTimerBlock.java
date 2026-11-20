@@ -25,7 +25,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
@@ -91,7 +90,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
         if (player.isShiftKeyDown() && WrenchItem.usedWrench(player, hand)) {
             int newDuration = incrementDuration(blockState);
             world.setBlockAndUpdate(pos, blockState.setValue(DURATION, newDuration));
-            player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.antline_timer.duration", newDuration), true);
+            player.displayClientMessage(Component.translatable("actionbar.portalmod.antline_timer.duration", newDuration), true);
             WrenchItem.playUseSound(world, result.getLocation());
 
             return InteractionResult.SUCCESS;

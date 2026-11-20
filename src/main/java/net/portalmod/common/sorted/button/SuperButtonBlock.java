@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.button;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.blocks.QuadBlock;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -41,7 +42,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Vector3f;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
@@ -98,13 +98,13 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
                 }
                 
                 if(facing.getAxis() == Axis.X)
-                    matrix.rotateDeg(Vector3f.ZP, -90)
-                            .rotateDeg(Vector3f.YP, 90);
+                    matrix.rotateDeg(Axis.ZP, -90)
+                            .rotateDeg(Axis.YP, 90);
                 
                 if(facing.getAxis() == Axis.Z)
-                    matrix.rotateDeg(Vector3f.XP, 90);
+                    matrix.rotateDeg(Axis.XP, 90);
 
-                matrix.rotateDeg(Vector3f.YP, 90);
+                matrix.rotateDeg(Axis.YP, 90);
                 matrix.translate(new Vec3(-.5));
                 
                 SHAPES.put(facing, corner, shape.clone().transform(matrix));
@@ -121,7 +121,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 
             if (shouldCycle) {
                 ButtonMode newMode = this.cycleMode(blockState, world, pos);
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             }
 
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);

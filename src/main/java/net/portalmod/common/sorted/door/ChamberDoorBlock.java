@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.door;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -162,7 +163,7 @@ public class ChamberDoorBlock extends MultiBlock {
 
         Mat4 matrix = Mat4.identity();
         matrix.translate(new Vec3(.5));
-        matrix.rotateDeg(Vector3f.YN, facing + side);
+        matrix.rotateDeg(Axis.YN, facing + side);
         matrix.translate(new Vec3(-.5));
 
         return shapeGroup.clone()

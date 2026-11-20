@@ -1,5 +1,6 @@
 package net.portalmod.client.render;
 
+import com.mojang.math.Axis;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -21,7 +22,7 @@ public class PortalFirstPersonRenderer {
 
     public static void renderItem(LivingEntity p_228397_1_, ItemStack p_228397_2_, ItemTransforms.TransformType p_228397_3_, boolean p_228397_4_, PoseStack p_228397_5_, MultiBufferSource p_228397_6_, int p_228397_7_) {
         if (!p_228397_2_.isEmpty()) {
-            Minecraft.getInstance().getItemRenderer().renderStatic(p_228397_1_, p_228397_2_, p_228397_3_, p_228397_4_, p_228397_5_, p_228397_6_, p_228397_1_.level, p_228397_7_, OverlayTexture.NO_OVERLAY);
+            Minecraft.getInstance().getItemRenderer().renderStatic(p_228397_1_, p_228397_2_, p_228397_3_, p_228397_4_, p_228397_5_, p_228397_6_, p_228397_1_.level(), p_228397_7_, OverlayTexture.NO_OVERLAY);
         }
     }
 
@@ -80,8 +81,8 @@ public class PortalFirstPersonRenderer {
             applyItemArmTransform(transform, handside, equipProgress);
             int j = flag3 ? 1 : -1;
             transform.translate(((float)j * -0.4F), 0.8F, 0.3F);
-            transform.mulPose(Vector3f.YP.rotationDegrees((float)j * 65.0F));
-            transform.mulPose(Vector3f.ZP.rotationDegrees((float)j * -85.0F));
+            transform.mulPose(Axis.YP.rotationDegrees((float)j * 65.0F));
+            transform.mulPose(Axis.ZP.rotationDegrees((float)j * -85.0F));
 
         } else {
 //            float animation = Mth.sin(actualSwingProgress * (float)Math.PI);
@@ -90,10 +91,10 @@ public class PortalFirstPersonRenderer {
 
 //            float rotationAnimation = Mth.sin((actualSwingProgress - 0.5f) * 2 * (float)Math.PI);
             float rotationAnimation = Mth.sin((actualSwingProgress * 4 - 0.5f) * (float)Math.PI) / 2 + 0.5f;
-            transform.mulPose(Vector3f.XP.rotationDegrees(animation * 7));
+            transform.mulPose(Axis.XP.rotationDegrees(animation * 7));
 
             if(actualSwingProgress >= 0.5)
-                transform.mulPose(Vector3f.YP.rotationDegrees(rotationAnimation * 4));
+                transform.mulPose(Axis.YP.rotationDegrees(rotationAnimation * 4));
 
             applyItemArmTransform(transform, handside, equipProgress);
         }

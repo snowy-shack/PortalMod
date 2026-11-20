@@ -17,7 +17,7 @@ public class ShootMoonTrigger extends SimpleCriterionTrigger<ShootMoonTrigger.In
         return ID;
     }
 
-    protected ShootMoonTrigger.Instance createInstance(JsonObject json, EntityPredicate.AndPredicate entity, DeserializationContext condition) {
+    protected ShootMoonTrigger.Instance createInstance(JsonObject json, EntityPredicate.Composite entity, DeserializationContext condition) {
         return new ShootMoonTrigger.Instance(entity);
     }
 
@@ -26,7 +26,7 @@ public class ShootMoonTrigger extends SimpleCriterionTrigger<ShootMoonTrigger.In
     }
 
     public static class Instance extends AbstractCriterionTriggerInstance {
-        public Instance(EntityPredicate.AndPredicate player) {
+        public Instance(EntityPredicate.Composite player) {
             super(ShootMoonTrigger.ID, player);
         }
     }

@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
-@Mixin(ChunkRenderDispatcher.ChunkRender.class)
+@Mixin(ChunkRenderDispatcher.RenderChunk.class)
 public class ChunkRenderMixin {
     @Shadow @Final private Map<RenderType, VertexBuffer> buffers;
 

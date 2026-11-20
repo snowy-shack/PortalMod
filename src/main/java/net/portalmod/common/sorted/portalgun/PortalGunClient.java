@@ -62,8 +62,8 @@ public class PortalGunClient {
         Vec3 rayPath = player.getViewVector(partialTicks).scale(200);
         Vec3 from = player.getEyePosition(partialTicks);
         Vec3 to = from.add(rayPath);
-        ClipContext rayCtx = new ClipContext(from, to, ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.NONE, null);
-        BlockHitResult ray = PortalGun.customClip(player.level, rayCtx);
+        ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
+        BlockHitResult ray = PortalGun.customClip(player.level(), rayCtx);
         ItemStack itemStack = player.getMainHandItem();
 
         if(itemStack.hasTag()) {

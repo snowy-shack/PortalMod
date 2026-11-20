@@ -16,7 +16,7 @@ public class PortalAnimatedTextureHelper {
         ResourceManager rm = Minecraft.getInstance().getResourceManager();
 
         if(!TEXTURE_SIZES.containsKey(location)) {
-            try(SimpleTexture.TextureData data = SimpleTexture.TextureData.load(rm, location)) {
+            try(SimpleTexture.TextureImage data = SimpleTexture.TextureImage.load(rm, location)) {
                 TEXTURE_SIZES.put(location, Optional.of(new Dimension(data.getImage().getWidth(), data.getImage().getHeight())));
             } catch(Exception e) {
                 TEXTURE_SIZES.put(location, Optional.empty());

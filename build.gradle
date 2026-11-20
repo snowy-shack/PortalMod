@@ -24,6 +24,9 @@ loom {
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
+// TODO(port): the Forge data generators still need porting to Fabric's datagen API.
+// Their output is already committed in src/generated/resources, so they are skipped for now.
+sourceSets.main.java { exclude 'net/portalmod/core/datagen/**' }
 
 repositories {
     mavenCentral()
@@ -35,6 +38,9 @@ dependencies {
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    // javax.annotation.Nullable/Nonnull, used throughout the 1.16.5 code
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
     testImplementation 'junit:junit:4.13.2'
 }

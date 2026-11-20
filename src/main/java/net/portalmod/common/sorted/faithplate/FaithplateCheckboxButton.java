@@ -37,18 +37,18 @@ public class FaithplateCheckboxButton extends AbstractButton {
 
     public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind(TEXTURE);
+        RenderSystem.setShaderTexture(0, TEXTURE);
         RenderSystem.enableDepthTest();
         Font fontRenderer = minecraft.font;
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        blit(matrixStack, this.x, this.y, this.unavailable ? 20.0F : 0.0F,
+        blit(matrixStack, this.getX(), this.getY(), this.unavailable ? 20.0F : 0.0F,
                 this.ticked ? 20.0F : 0.0F, 20, this.height, 64, 64);
 
         drawString(matrixStack, fontRenderer, this.getMessage(),
-                this.x + 24, this.y + (this.height - 8) / 2, unavailable ? 0x7e7e7e : 0xFFFFFF);
+                this.getX() + 24, this.getY() + (this.height - 8) / 2, unavailable ? 0x7e7e7e : 0xFFFFFF);
     }
 }

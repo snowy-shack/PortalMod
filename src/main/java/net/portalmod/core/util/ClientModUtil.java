@@ -1,6 +1,5 @@
 package net.portalmod.core.util;
 
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.portalmod.PortalMod;
 
 import net.minecraft.client.Minecraft;
@@ -16,7 +15,7 @@ public class ClientModUtil {
         }
 
         // This may not always be accurate
-        boolean isClientSide = Thread.currentThread().getThreadGroup() != SidedThreadGroups.SERVER;
+        boolean isClientSide = PortalMod.getServer() == null || !PortalMod.getServer().isSameThread();
 
         ModUtil.sendChat(clientWorld, isClientSide, text);
     }

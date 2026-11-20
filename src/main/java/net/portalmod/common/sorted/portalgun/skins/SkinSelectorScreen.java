@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import java.awt.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,7 +29,6 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class SkinSelectorScreen extends Screen {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
@@ -81,7 +82,7 @@ public class SkinSelectorScreen extends Screen {
     private final PositionTextureVertexRenderer loadingBlob = new PositionTextureVertexRenderer(GL11.GL_QUADS);
 
     private SkinSelectorScreen() {
-        super(new TranslatableComponent("options." + PortalMod.MODID + ".skins.title"));
+        super(Component.translatable("options." + PortalMod.MODID + ".skins.title"));
         this.loadingStart = -1;
         this.skinEntryList = new ArrayList<>();
         this.loadingBlob.reset();
@@ -208,7 +209,7 @@ public class SkinSelectorScreen extends Screen {
         int height = 20;
         int x = this.getX() + SKIN_PREVIEW_X - APPLY_BUTTON_WIDTH + 1;
         int y = this.getY() + HEIGHT + 1;
-        TranslatableComponent text = new TranslatableComponent("options." + PortalMod.MODID + ".skins.apply");
+        MutableComponent text = Component.translatable("options." + PortalMod.MODID + ".skins.apply");
 
         this.applyButton = new Button(x, y, APPLY_BUTTON_WIDTH, height, text, button -> {
             ClientSkinManager.getInstance().onSkinSelected(
@@ -254,7 +255,7 @@ public class SkinSelectorScreen extends Screen {
     public void renderBackground(PoseStack matrixStack, int i) {
         super.renderBackground(matrixStack, i);
 
-        this.minecraft.getTextureManager().bind(TEXTURE);
+        RenderSystem.setShaderTexture(0, TEXTURE);
         blit(matrixStack, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
     }
 
@@ -327,7 +328,7 @@ public class SkinSelectorScreen extends Screen {
         if(this.getListHeight() <= this.listRegion.height)
             return;
 
-        Minecraft.getInstance().getTextureManager().bind(TEXTURE);
+        RenderSystem.setShaderTexture(0, TEXTURE);
 
         int yOffset = 0;
         int vOffset = 0;

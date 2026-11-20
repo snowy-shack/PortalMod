@@ -197,7 +197,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         AABB travelAABB = hitbox.expandTowards(capturedDelta);
         boolean tall = hitbox.getYsize() > hitbox.getXsize();
         boolean flinging = ((Flingable)entity).isFlinging();
-        List<PortalEntity> portalsInside = PortalEntity.getPortals(entity.level, travelAABB,
+        List<PortalEntity> portalsInside = PortalEntity.getPortals(entity.level(), travelAABB,
                 portal -> portal.getDirection().getAxis().isHorizontal() && portal.isOpen()
                         && portal.isEntityAlignedToPortal(entity));
 
@@ -227,7 +227,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
             return;
 
         Entity thiss = (Entity)(Object)this;
-        Level level = thiss.level;
+        Level level = thiss.level();
 
         net.minecraft.world.phys.Vec3 pos = thiss.position();
         if(pos.equals(ModUtil.getOldPos(thiss)))
@@ -264,7 +264,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         Stream<VoxelShape> stream2 = Stream.empty();
         if(axisalignedbb.expandTowards(vector).getSize() >= 1.0E-7D) {
             AABB aabb = axisalignedbb.expandTowards(vector).inflate(1.0E-7D);
-            stream2 = thiss.level.getEntities(thiss, aabb, entity ->
+            stream2 = thiss.level().getEntities(thiss, aabb, entity ->
                     entity instanceof Cube &&
                     !entity.isPassenger() &&
                     axisalignedbb.minY > entity.getBoundingBox().maxY - 0.001

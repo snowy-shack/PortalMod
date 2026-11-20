@@ -40,7 +40,7 @@ public class CFaithPlateLaunchPacket implements AbstractPacket<CFaithPlateLaunch
     @Override
     public boolean handle(Supplier<PacketContext> context) {
         context.get().enqueueWork(() -> {
-            Level level = context.get().getSender().level;
+            Level level = context.get().getSender().level();
             FaithPlateTileEntity be = (FaithPlateTileEntity)level.getBlockEntity(pos);
             if(be == null)
                 return;

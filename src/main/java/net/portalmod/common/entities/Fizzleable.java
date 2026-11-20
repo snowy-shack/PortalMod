@@ -31,7 +31,7 @@ public interface Fizzleable {
         Stream<BlockPos> collidedPositions = BlockPos.betweenClosedStream(movementBox);
 
         collidedPositions.forEach(pos -> {
-            BlockState state = entity.level.getBlockState(pos);
+            BlockState state = entity.level().getBlockState(pos);
             if (this.isInsideFizzler(pos, state, movementBox)) {
                 this.onTouchingFizzler();
             }

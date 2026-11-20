@@ -42,12 +42,12 @@ public class CTriggerEndConfigPacket implements AbstractPacket<CTriggerEndConfig
             if(sender == null)
                 return;
 
-            TriggerTileEntity blockEntity = (TriggerTileEntity)sender.level.getBlockEntity(pos);
+            TriggerTileEntity blockEntity = (TriggerTileEntity)sender.level().getBlockEntity(pos);
             if(blockEntity == null)
                 return;
 
             blockEntity.setField(this.start, this.end);
-            sender.level.sendBlockUpdated(pos, BlockInit.TRIGGER.get().defaultBlockState(),
+            sender.level().sendBlockUpdated(pos, BlockInit.TRIGGER.get().defaultBlockState(),
                     BlockInit.TRIGGER.get().defaultBlockState(), 3);
 
             TriggerSelectionServer.endConfiguration(sender);

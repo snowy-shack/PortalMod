@@ -1,5 +1,9 @@
 package net.portalmod.core.init;
 
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.portalmod.common.sorted.cube.Cube;
+import net.portalmod.common.sorted.turret.TurretEntity;
+
 import net.portalmod.core.registry.RegistryObject;
 import net.portalmod.core.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -67,4 +71,13 @@ public class EntityInit {
                     .build(new ResourceLocation(PortalMod.MODID, "portal").toString()));
     
 //    public static final RegistryObject<EntityType<PortalEntity>> PORTAL = null;
+
+    /** Default attributes for living entities (Forge: EntityAttributeCreationEvent). */
+    public static void registerAttributes() {
+        FabricDefaultAttributeRegistry.register(COMPANION_CUBE.get(), Cube.createAttributes());
+        FabricDefaultAttributeRegistry.register(STORAGE_CUBE.get(), Cube.createAttributes());
+        FabricDefaultAttributeRegistry.register(VINTAGE_CUBE.get(), Cube.createAttributes());
+        FabricDefaultAttributeRegistry.register(GABE.get(), Cube.createAttributes());
+        FabricDefaultAttributeRegistry.register(TURRET.get(), TurretEntity.createAttributes());
+    }
 }

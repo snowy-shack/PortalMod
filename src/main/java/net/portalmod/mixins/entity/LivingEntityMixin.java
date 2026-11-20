@@ -9,7 +9,7 @@ import net.portalmod.common.sorted.gel.IGelAffected;
 import net.portalmod.common.sorted.goo.GooBlock;
 import net.portalmod.common.sorted.portal.*;
 import net.portalmod.common.sorted.turret.TurretEntity;
-import net.portalmod.core.init.FluidInit;
+import net.portalmod.core.init.DamageTypeInit;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.injectors.LivingEntityInjector;
 import net.portalmod.core.interfaces.IDragCancelable;
@@ -92,7 +92,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     )
     private void pmLerpPosWithPortal(CallbackInfo info) {
         Deque<Tuple<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3>> lerpPositions = ((ITeleportLerpable)this).getLerpPositions();
-        if(lerpPositions.isEmpty() || !this.level.isClientSide)
+        if(lerpPositions.isEmpty() || !this.level().isClientSide)
             return;
 
         Tuple<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3> currentLerpPos = lerpPositions.pop();
@@ -135,7 +135,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     private boolean pmHasNearbyPortals(Entity entity) {
         net.minecraft.world.phys.Vec3 delta = new net.minecraft.world.phys.Vec3(entity.xo, entity.yo, entity.zo).subtract(entity.position());
         AABB aabb = entity.getBoundingBox().expandTowards(delta).inflate(2);
-        return !PortalEntity.getPortals(entity.level, aabb, portal -> true).isEmpty();
+        return !PortalEntity.getPortals(entity.level(), aabb, portal -> true).isEmpty();
     }
 
     // has to redirect setPos after lerping
@@ -175,7 +175,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 //            lerpPosQueue.poll();
 //        }
 
-        PortalEntity portal = (PortalEntity)instance.level.getEntity(((ITeleportable)instance).getLastUsedPortal());
+        PortalEntity portal = (PortalEntity)instance.level().getEntity(((ITeleportable)instance).getLastUsedPortal());
 
         if(!((ITeleportable)instance).hasLastUsedPortal() || portal == null) {
             instance.setPos(x, y, z);
@@ -320,7 +320,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         else
             entity.setDeltaMovement(velocity.x, velocity.y - 0.08, velocity.z);
 
-        if(entity.horizontalCollision && !entity.verticalCollision && !entity.level.isClientSide
+        if(entity.horizontalCollision && !entity.verticalCollision && !entity.level().isClientSide
                 && thiss.getItemBySlot(EquipmentSlot.FEET).getItem() != ItemInit.LONGFALL_BOOTS.get()) {
 
             float slamDamage = (float)(momentumFromLastTick * 3 - 10);
@@ -507,7 +507,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Override
     protected void spawnSprintParticle() {
-        Level level = this.level;
+        Level level = this.level();
         BlockPos pos = new BlockPos(this.position());
         BlockState state = level.getBlockState(pos);
 
@@ -518,11 +518,11 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
             int j = Mth.floor(this.getY() + (double)0.8F);
             int k = Mth.floor(this.getZ());
             BlockPos blockpos = new BlockPos(i, j, k);
-            BlockState blockstate = this.level.getBlockState(blockpos);
+            BlockState blockstate = this.level().getBlockState(blockpos);
             if(!blockstate.addRunningEffects(level, blockpos, this)) {
                 if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
                     net.minecraft.world.phys.Vec3 vector3d = this.getDeltaMovement();
-                    this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate).setPos(blockpos),
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blockstate).setPos(blockpos),
                             this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             this.getY() + 0.1D, this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getDimensions(this.getPose()).width,
                             vector3d.x * -4.0D, 1.5D, vector3d.z * -4.0D);
@@ -533,7 +533,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
-        Level level = this.level;
+        Level level = this.level();
         BlockPos nPos = new BlockPos(this.position());
         BlockState nState = level.getBlockState(nPos);
 
@@ -547,7 +547,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;getFluidState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/material/FluidState;"))
     public void pmAddGooResistance(net.minecraft.world.phys.Vec3 p_213352_1_, CallbackInfo ci) {
-        FluidState fluidState = this.level.getFluidState(this.blockPosition());
+        FluidState fluidState = this.level().getFluidState(this.blockPosition());
 
         if (GooBlock.isInGoo(this) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
             GooBlock.applyGooResistance(this);
@@ -563,10 +563,10 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V", ordinal = 2))
     public void pmHandleGooDamage(Level world, Entity entity, byte b, DamageSource damageSource) {
-        if (damageSource == FluidInit.GOO_DAMAGE && b == 2 && entity instanceof LivingEntity) {
+        if (damageSource.is(DamageTypeInit.GOO) && b == 2 && entity instanceof LivingEntity) {
             GooBlock.handleGooDamage((LivingEntity) entity, damageSource);
         } else {
-            this.level.broadcastEntityEvent(this, b);
+            this.level().broadcastEntityEvent(this, b);
         }
     }
 

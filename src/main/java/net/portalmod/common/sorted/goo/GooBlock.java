@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.goo;
 
+import net.portalmod.core.init.DamageTypeInit;
+
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.FluidInit;
 import net.portalmod.core.init.FluidTagInit;
@@ -30,7 +32,7 @@ public class GooBlock extends LiquidBlock {
     public static final float FOG_DENSITY_WRENCH = 0.2f;
     public static final int DAMAGE_AMOUNT = 4;
 
-    public GooBlock(Supplier<FlowingFluid> flowingFluid, Properties properties) {
+    public GooBlock(FlowingFluid flowingFluid, Properties properties) {
         super(flowingFluid, properties);
     }
 
@@ -69,11 +71,11 @@ public class GooBlock extends LiquidBlock {
         if(WrenchItem.holdingWrench(entity))
             return;
 
-        entity.hurt(FluidInit.GOO_DAMAGE, DAMAGE_AMOUNT);
+        entity.hurt(DamageTypeInit.goo(entity.level()), DAMAGE_AMOUNT);
     }
 
     public static void handleGooDamage(LivingEntity entity, DamageSource damageSource) {
-        entity.level.playSound(null, entity, SoundInit.GOO_DAMAGE.get(), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
+        entity.level().playSound(null, entity, SoundInit.GOO_DAMAGE.get(), entity.getSoundSource(), 1, ModUtil.randomSoundPitch());
     }
 
     @Nullable

@@ -1,5 +1,6 @@
 package net.portalmod.core.util;
 
+import com.mojang.math.Axis;
 import static org.lwjgl.opengl.GL11.GL_CLIP_PLANE0;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 import static org.lwjgl.opengl.GL11.glClipPlane;
@@ -26,7 +27,7 @@ import net.minecraft.core.Vec3i;
 public class RenderUtil {
     public static void bindTexture(Shader shader, String uniform, String path, int index) {
         RenderSystem.activeTexture(GL_TEXTURE0 + index);
-        Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, path));
+        RenderSystem.setShaderTexture(0, new ResourceLocation(PortalMod.MODID, path));
         shader.setInt(uniform, index);
     }
 
@@ -51,9 +52,9 @@ public class RenderUtil {
         float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
         clipMatrix.last().pose().setIdentity();
-        clipMatrix.mulPose(Vector3f.ZP.rotationDegrees(roll));
-        clipMatrix.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
-        clipMatrix.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180));
+        clipMatrix.mulPose(Axis.ZP.rotationDegrees(roll));
+        clipMatrix.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
+        clipMatrix.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180));
         clipMatrix.translate(offsetNormal.x, offsetNormal.y, offsetNormal.z);
         clipMatrix.translate(portalNormal.getX() * 0.0001f, portalNormal.getY() * 0.0001f, portalNormal.getZ() * 0.0001f);
         clipMatrix.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);

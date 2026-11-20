@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 public class EntityTickWrapper {
     public static void wrapTick(Entity entity, Consumer<Entity> action) {
         action.accept(entity);
-        if(!entity.level.isClientSide && !(entity instanceof Player)) {
+        if(!entity.level().isClientSide && !(entity instanceof Player)) {
             Deque<Tuple<Vec3, Vec3>> lerpPositions = ((ITeleportLerpable) entity).getLerpPositions();
             lerpPositions.add(new Tuple<>(ModUtil.getOldPos(entity), entity.position()));
 

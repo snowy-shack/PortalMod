@@ -25,7 +25,7 @@ public class EmptyGelContainer extends Item {
         Player player = context.getPlayer();
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = context.getLevel().getBlockState(clickedPos);
-        boolean creative = player.abilities.instabuild;
+        boolean creative = player.getAbilities().instabuild;
         Direction gelSide = context.getClickedFace().getOpposite();
 
         BooleanProperty sideProperty = AbstractGelBlock.STATES.get(gelSide);

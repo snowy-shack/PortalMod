@@ -27,7 +27,7 @@ public class ClientPlayerEntityMixin {
     )
     private void pmStopHoldingSoundOnDrop(boolean all, CallbackInfoReturnable<Boolean> info) {
         LocalPlayer thiss = (LocalPlayer)(Object)this;
-        ItemStack selected = thiss.inventory.getSelected();
+        ItemStack selected = thiss.getInventory().getSelected();
 
         if(selected.getItem() instanceof PortalGun && selected.hasTag()) {
             CompoundTag nbt = selected.getTag();
@@ -50,7 +50,7 @@ public class ClientPlayerEntityMixin {
     private void pmSendOldPosition(ClientPacketListener connection, Packet<?> packet) {
         connection.send(packet);
 
-        boolean hasPos = packet instanceof ServerboundMovePlayerPacket.PositionPacket || packet instanceof ServerboundMovePlayerPacket.PositionRotationPacket;
+        boolean hasPos = packet instanceof ServerboundMovePlayerPacket.Pos || packet instanceof ServerboundMovePlayerPacket.PosRot;
         if(!hasPos) {
             return;
         }

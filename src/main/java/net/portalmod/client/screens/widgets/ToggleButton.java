@@ -7,7 +7,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.ChatFormatting;
 
 public class ToggleButton extends Button {
@@ -31,7 +30,7 @@ public class ToggleButton extends Button {
 
     @Override
     public Component getMessage() {
-        return new TextComponent(super.getMessage().getString() + ": "
+        return Component.literal(super.getMessage().getString() + ": "
                 + (value ? ChatFormatting.GREEN + "ON" : ChatFormatting.RED + "OFF"));
     }
 

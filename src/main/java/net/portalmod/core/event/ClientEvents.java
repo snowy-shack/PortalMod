@@ -1,21 +1,20 @@
 package net.portalmod.core.event;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.portalmod.client.event.CameraSetupEvent;
+
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.EnvType;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.PlayerTickEvent;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
-import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.portalmod.PMState;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.PortalFirstPersonRenderer;
@@ -85,118 +84,128 @@ import net.minecraft.world.level.ClipContext;
 import org.joml.Vector3f;
 import net.minecraft.world.level.Level;
 
-@EventBusSubscriber(modid = PortalMod.MODID, bus = Bus.FORGE, value = EnvType.CLIENT)
+/**
+ * Client game event handlers. Forge called these through its event bus; on Fabric they are wired up
+ * in {@link #register()} to Fabric API callbacks, or called from hook mixins in
+ * {@code net.portalmod.mixins.hooks.client}.
+ */
+@Environment(EnvType.CLIENT)
 public class ClientEvents {
 
-    @SubscribeEvent
-    public static void onClientLogin(final ClientPlayerNetworkEvent.LoggedInEvent event) {
+    public static void register() {
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> onClientLogin());
+        ClientTickEvents.START_CLIENT_TICK.register(client -> clientTick(true));
+        ClientTickEvents.END_CLIENT_TICK.register(client -> clientTick(false));
+        WorldRenderEvents.LAST.register(ctx -> onRenderWorldLast(ctx.matrixStack()));
+        HudRenderCallback.EVENT.register((graphics, tickDelta) -> renderDebugStrings(graphics));
+    }
+
+    /** Client side of Forge's WorldEvent.Load; called when a ClientLevel is created. */
+    public static void onClientLevelLoad() {
+        ClientPortalManager.getInstance().clear();
+    }
+
+    public static void onClientLogin() {
         ClientSkinManager.getInstance().onClientLogin();
     }
 
-    @SubscribeEvent
-    public static void onPlayerRender(final RenderPlayerEvent.Pre event) {
+    /** Called after PlayerRenderer#setModelProperties (Forge: RenderPlayerEvent.Pre). */
+    public static void onPlayerRender(AbstractClientPlayer player, PlayerRenderer renderer) {
         HumanoidModel.ArmPose mainHand;
         HumanoidModel.ArmPose offHand;
         
-        if(event.getEntityLiving().getMainArm() == HumanoidArm.RIGHT) {
-            mainHand = event.getRenderer().getModel().rightArmPose;
-            offHand = event.getRenderer().getModel().leftArmPose;
+        if(player.getMainArm() == HumanoidArm.RIGHT) {
+            mainHand = renderer.getModel().rightArmPose;
+            offHand = renderer.getModel().leftArmPose;
         } else {
-            offHand = event.getRenderer().getModel().rightArmPose;
-            mainHand = event.getRenderer().getModel().leftArmPose;
+            offHand = renderer.getModel().rightArmPose;
+            mainHand = renderer.getModel().leftArmPose;
         }
         
-        if(event.getPlayer().getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof PortalGun)
+        if(player.getItemInHand(InteractionHand.MAIN_HAND).getItem() instanceof PortalGun)
             mainHand = ArmPose.BOW_AND_ARROW;
-        if(event.getPlayer().getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof PortalGun)
+        if(player.getItemInHand(InteractionHand.OFF_HAND).getItem() instanceof PortalGun)
             offHand = ArmPose.BOW_AND_ARROW;
         
         if(mainHand.isTwoHanded())
-            offHand = event.getEntityLiving().getOffhandItem().isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
+            offHand = player.getOffhandItem().isEmpty() ? HumanoidModel.ArmPose.EMPTY : HumanoidModel.ArmPose.ITEM;
         
-        if(event.getEntityLiving().getMainArm() == HumanoidArm.RIGHT) {
-            event.getRenderer().getModel().rightArmPose = mainHand;
-            event.getRenderer().getModel().leftArmPose = offHand;
+        if(player.getMainArm() == HumanoidArm.RIGHT) {
+            renderer.getModel().rightArmPose = mainHand;
+            renderer.getModel().leftArmPose = offHand;
         } else {
-            event.getRenderer().getModel().rightArmPose = offHand;
-            event.getRenderer().getModel().leftArmPose = mainHand;
+            renderer.getModel().rightArmPose = offHand;
+            renderer.getModel().leftArmPose = mainHand;
         }
     }
 
-    @SubscribeEvent
-    public static void screenOpen(final GuiOpenEvent event) {
-        if(!(event.getGui() instanceof TitleScreen)) return;
+    /** Lets the mod swap the title screen (Forge: GuiOpenEvent). Returns the screen to open. */
+    public static Screen screenOpen(Screen screen) {
+        if(!(screen instanceof TitleScreen)) return screen;
 
-        event.setGui(MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading));
+        Screen replacement = MainMenuInjector.getInjectedMenu(PortalModConfigManager.MENU.get(), MainMenuInjector.fading);
         MainMenuInjector.needsUpdate = false;
         MainMenuInjector.fading = false;
+        return replacement;
     }
     
     private static final ChangeDetector creerNameDetector = new ChangeDetector();
     
-    @SubscribeEvent
-    public static void renderLiving(final RenderLivingEvent.Pre<?, ?> event) {
-        if(event.getRenderer() instanceof CreerRenderer)
-            return;
+    /** Called before LivingEntityRenderer#render; returns true to cancel vanilla rendering (Forge: RenderLivingEvent.Pre). */
+    public static boolean renderLiving(LivingEntityRenderer<?, ?> renderer, LivingEntity livingEntity, float partialTicks, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int light) {
+        if(renderer instanceof CreerRenderer)
+            return false;
         
-        if(!CreerRenderer.isCreer(event.getEntity())) {
+        if(!CreerRenderer.isCreer(livingEntity)) {
             creerNameDetector.trigger(false);
-            return;
+            return false;
         }
         
         creerNameDetector.trigger(true);
         
-        Creeper entity = (Creeper)event.getEntity();
-        float partialTicks = event.getPartialRenderTick();
-        PoseStack matrixStack = event.getMatrixStack();
-        int light = event.getLight();
-        MultiBufferSource renderTypeBuffer = event.getBuffers();
+        Creeper entity = (Creeper)livingEntity;
         
         if(creerNameDetector.get())
             entity.refreshDimensions();
         
-        event.setCanceled(true);
         CreerRenderer.INSTANCE.get().render(entity, 0, partialTicks, matrixStack, renderTypeBuffer, light);
+        return true;
     }
 
-    @SubscribeEvent
-    public static void fogDensity(final EntityViewRenderEvent.FogDensity event) {
-        Camera info = event.getInfo();
-        if (info.getFluidInCamera().is(FluidTagInit.GOO)) {
-            event.setDensity(GooBlock.getFogDensity(info.getEntity()));
-            event.setCanceled(true);
-        }
+    /**
+     * Fog density inside goo, or null for vanilla fog (Forge: EntityViewRenderEvent.FogDensity).
+     * 1.17+ only has linear fog, so FogRendererHooksMixin turns this density into a fog distance.
+     */
+    public static Float fogDensity(Camera info) {
+        if (isCameraInGoo(info))
+            return GooBlock.getFogDensity(info.getEntity());
+        return null;
     }
 
-    @SubscribeEvent
-    public static void fogColor(final EntityViewRenderEvent.FogColors event) {
-        Camera info = event.getInfo();
-        if (info.getFluidInCamera().is(FluidTagInit.GOO)) {
-            Vector3f color = GooBlock.getFogColor().to3f();
-            event.setRed(color.x());
-            event.setGreen(color.y());
-            event.setBlue(color.z());
-        }
+    private static boolean isCameraInGoo(Camera info) {
+        return info.getEntity().level().getFluidState(info.getBlockPosition()).is(FluidTagInit.GOO);
     }
 
-    @SubscribeEvent
-    public static void entitySize(final EntityEvent.Size event) {
-        if(!CreerRenderer.isCreer(event.getEntity()))
-            return;
-        
-        EntityDimensions size = event.getOldSize();
-        event.setNewSize(EntityDimensions.scalable(size.width, 1f), true);
+    /** Fog colour inside goo, or null for vanilla (Forge: EntityViewRenderEvent.FogColors). */
+    public static Vector3f fogColor(Camera info) {
+        if (isCameraInGoo(info))
+            return GooBlock.getFogColor().to3f();
+        return null;
+    }
+
+    /** Changes the size of "creer" creepers (Forge: EntityEvent.Size). */
+    public static EntityDimensions entitySize(Entity entity, EntityDimensions size) {
+        if(!CreerRenderer.isCreer(entity))
+            return size;
+
+        return EntityDimensions.scalable(size.width, 1f);
     }
     
     private static boolean wasPressed = false;
     
-    @SubscribeEvent
-    public static void clientTick(final TickEvent.ClientTickEvent event) {
-        if(event.phase == TickEvent.Phase.END) {
+    public static void clientTick(boolean start) {
+        if(!start) {
             PortalFirstPersonRenderer.updateSwingTime();
-        }
-
-        if(event.phase != TickEvent.Phase.START) {
             return;
         }
 
@@ -216,7 +225,7 @@ public class ClientEvents {
                 net.minecraft.world.phys.Vec3 from = player.getEyePosition(0);
                 net.minecraft.world.phys.Vec3 to = from.add(rayPath);
 
-                ClipContext rayCtx = new ClipContext(from, to, ClipContext.BlockMode.OUTLINE, ClipContext.FluidMode.NONE, null);
+                ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null);
                 BlockHitResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
 
                 BlockPos pos = rayHit.getBlockPos();
@@ -260,7 +269,7 @@ public class ClientEvents {
         net.minecraft.world.phys.Vec3 from = player.getEyePosition(0);
         net.minecraft.world.phys.Vec3 to = from.add(rayPath);
 
-        ClipContext rayCtx = new ClipContext(from, to, ClipContext.BlockMode.OUTLINE, ClipContext.FluidMode.NONE, null);
+        ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null);
         BlockHitResult rayHit = Minecraft.getInstance().level.clip(rayCtx);
 
         // Drop entity
@@ -286,10 +295,10 @@ public class ClientEvents {
 
             // Use collision shapes to target the entity instead of visual shapes
             // todo: this increases the throwing lag even more ugh
-//            ClipContext collisionRayCtx = new ClipContext(from, to, ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.NONE, null);
+//            ClipContext collisionRayCtx = new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
 //            BlockHitResult collisionRayHit = Minecraft.getInstance().level.clip(collisionRayCtx);
 
-            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(player.level, new Vec3(from), new Vec3(to), portal -> true);
+            List<PortalEntity> portalChain = ModUtil.getPortalsAlongRay(player.level(), new Vec3(from), new Vec3(to), portal -> true);
             Mat4 portalMatrix = ModUtil.getMatrixFromPortalChain(portalChain);
             Pair<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3> ray = ModUtil.teleportRay(portalChain, from, to);
             AABB aabb = player.getBoundingBox().expandTowards(rayPath);
@@ -337,46 +346,40 @@ public class ClientEvents {
         }
     }
 
-    private static void consumeAllKeyPresses(InputConstants.Input k) {
+    private static void consumeAllKeyPresses(InputConstants.Key k) {
         KeyMapping[] keys = Minecraft.getInstance().options.keyMappings;
         for(KeyMapping key : keys)
             if(key.getKey() == k)
                 while(key.consumeClick());
     }
 
-    @SubscribeEvent
-    public static void onMouseClick(final InputEvent.RawMouseEvent event) {
+    /** Returns true to swallow the click (Forge: InputEvent.RawMouseEvent). */
+    public static boolean onMouseClick(int button, int action) {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if(player == null)
-            return;
+            return false;
 
         if(mc.overlay == null && mc.screen == null) {
             if(player.getMainHandItem().getItem() instanceof PortalGun) {
-                boolean handled = PortalGunClient.getInstance().handleMouseButtons(event.getButton(), event.getAction());
-
-                if(handled) {
-                    event.setCanceled(true);
-                }
+                return PortalGunClient.getInstance().handleMouseButtons(button, action);
             } else {
                 PortalGunClient.getInstance().resetPresses();
             }
         }
+        return false;
     }
     
-    @SubscribeEvent
-    public static void onRenderBlockOverlay(final RenderBlockOverlayEvent event) {
-        if(!PortalEntity.shouldRenderBlockOverlay(event.getPlayer().level, event.getBlockPos()))
-            event.setCanceled(true);
+    /** Returns false to hide the in-wall block overlay (Forge: RenderBlockOverlayEvent). */
+    public static boolean shouldRenderBlockOverlay(Player player, BlockPos pos) {
+        return PortalEntity.shouldRenderBlockOverlay(player.level(), pos);
     }
 
-    @SubscribeEvent
-    public static void onRenderWorldLast(final RenderWorldLastEvent event) {
-        DebugRenderer.renderAllShapes(event.getMatrixStack());
+    public static void onRenderWorldLast(PoseStack matrixStack) {
+        DebugRenderer.renderAllShapes(matrixStack);
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onCameraSetup(final EntityViewRenderEvent.CameraSetup event) {
+    public static void onCameraSetup(final CameraSetupEvent event) {
         PMState.cameraPosOverrideForRenderingSelf = null;
 
         if(Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
@@ -401,34 +404,31 @@ public class ClientEvents {
         PMState.cameraRoll = event.getRoll();
     }
 
-    @SubscribeEvent
-    public static void onFogSetup(final EntityViewRenderEvent.FogColors event) {
-        PortalRenderer.getInstance().clearColor = new Vec3(event.getRed(), event.getGreen(), event.getBlue());
+    /** Called with the final fog colour each frame. */
+    public static void onFogSetup(float red, float green, float blue) {
+        PortalRenderer.getInstance().clearColor = new Vec3(red, green, blue);
     }
 
     public static final List<String> debugStrings = new ArrayList<>();
-    
-    @SubscribeEvent
-    public static void onRenderOverlay(final RenderGameOverlayEvent.Post event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        Font fontRenderer = minecraft.font;
 
-        if(event.getType() == ElementType.CROSSHAIRS) {
-            PortalGunCrosshairRenderer.render(event.getMatrixStack());
+    /** Called after the vanilla crosshair is drawn (Forge: RenderGameOverlayEvent.Post CROSSHAIRS). */
+    public static void onRenderCrosshair(GuiGraphics graphics) {
+        PortalGunCrosshairRenderer.render(graphics);
 
-            if(PortalMod.WATERMARK) {
-                WatermarkRenderer.render(event.getMatrixStack());
-            }
-            
-        } else if(event.getType() == ElementType.SUBTITLES) {
-            int x = 2;
-            int y = 2;
-            int index = 0;
-            for(String text : debugStrings) {
-                fontRenderer.drawShadow(event.getMatrixStack(), text, x, y + fontRenderer.lineHeight * index++, 0xFFFFAA00);
-            }
-
-            debugStrings.clear();
+        if(PortalMod.WATERMARK) {
+            WatermarkRenderer.render(graphics);
         }
+    }
+
+    private static void renderDebugStrings(GuiGraphics graphics) {
+        Font fontRenderer = Minecraft.getInstance().font;
+        int x = 2;
+        int y = 2;
+        int index = 0;
+        for(String text : debugStrings) {
+            graphics.drawString(fontRenderer, text, x, y + fontRenderer.lineHeight * index++, 0xFFFFAA00);
+        }
+
+        debugStrings.clear();
     }
 }

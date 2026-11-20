@@ -116,7 +116,7 @@ public class CommonEvents {
 
         if(Fizzleable.isFizzleableItem(stack)) {
             ClipContext context = new ClipContext(player.getEyePosition(1), originalItemEntity.position(),
-                    ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.ANY, player);
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player);
 
             BlockHitResult result = ModUtil.customClip(level, context, pos -> {
                 BlockState state = level.getBlockState(pos);

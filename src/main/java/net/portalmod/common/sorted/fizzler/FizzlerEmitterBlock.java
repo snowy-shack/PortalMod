@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.fizzler;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.math.Mat4;
@@ -67,10 +68,10 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
         matrix.translate(new Vec3(.5));
 
         if (facing.getAxis() == Direction.Axis.Y) {
-            matrix.rotateDeg(Vector3f.ZP, facing == Direction.UP ? 90 : -90);
+            matrix.rotateDeg(Axis.ZP, facing == Direction.UP ? 90 : -90);
 
             if (!rotated) {
-                matrix.rotateDeg(Vector3f.XP, facing == Direction.UP ? -90 : 90);
+                matrix.rotateDeg(Axis.XP, facing == Direction.UP ? -90 : 90);
             }
 
             if (!lower ^ facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
@@ -78,10 +79,10 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
             }
         } else {
             int angle = facing.get2DDataValue() * -90 - 90;
-            matrix.rotateDeg(Vector3f.YP, angle);
+            matrix.rotateDeg(Axis.YP, angle);
 
             if (rotated) {
-                matrix.rotateDeg(Vector3f.XP, -90);
+                matrix.rotateDeg(Axis.XP, -90);
 
                 if (facing.getAxis() == Direction.Axis.X ^ facing.getAxisDirection() == Direction.AxisDirection.NEGATIVE) {
                     matrix.scale(1, -1, 1);

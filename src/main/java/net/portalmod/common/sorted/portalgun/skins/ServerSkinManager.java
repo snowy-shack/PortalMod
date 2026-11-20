@@ -1,7 +1,6 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
 import net.portalmod.core.network.PacketDistributor;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
 
@@ -28,7 +27,7 @@ public class ServerSkinManager extends SkinManager {
 
     @Override
     public File getModFolder() {
-        return new File(ServerLifecycleHooks.getCurrentServer().getServerDirectory(), "portalmod");
+        return new File(PortalMod.getServer().getServerDirectory(), "portalmod");
     }
 
     public void onServerLogin(ServerPlayer player) {

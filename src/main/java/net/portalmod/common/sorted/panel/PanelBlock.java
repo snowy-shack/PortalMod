@@ -205,8 +205,8 @@ public class PanelBlock extends Block implements PortalHelper {
         }
 
         int total = 0;
-        for (int i = 0; i < player.inventory.getContainerSize(); i++) {
-            ItemStack itemStack = player.inventory.getItem(i);
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack itemStack = player.getInventory().getItem(i);
             Item item = itemStack.getItem();
             if (item instanceof BlockItem && ((BlockItem) item).getBlock().is(block)) {
                 total += itemStack.getCount();
@@ -219,7 +219,7 @@ public class PanelBlock extends Block implements PortalHelper {
     }
 
     public static void removeBlockFromInventory(Player player, Block block) {
-        Inventory inventory = player.inventory;
+        Inventory inventory = player.getInventory();
 
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);

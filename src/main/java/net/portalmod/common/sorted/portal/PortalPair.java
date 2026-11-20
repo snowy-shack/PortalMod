@@ -39,7 +39,7 @@ public class PortalPair {
     }
 
     public boolean areInSameDimension(PortalEnd end, PortalEntity portal) {
-        return !this.has(end) || this.get(end).level.dimension() == portal.level.dimension();
+        return !this.has(end) || this.get(end).level().dimension() == portal.level().dimension();
     }
     
     public void set(PortalEnd end, PortalEntity portal) {

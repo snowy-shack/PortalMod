@@ -39,7 +39,7 @@ public class ClientSkinManager extends SkinManager {
     }
 
     public PortalGunAnimatedTexture getSkinTexture(String id) {
-        return (PortalGunAnimatedTexture)Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(id));
+        return (PortalGunAnimatedTexture)Minecraft.getInstance().getTextureManager().getTexture(this.getSkinLocation(id));
     }
 
     @Override
@@ -48,10 +48,10 @@ public class ClientSkinManager extends SkinManager {
     }
 
     protected void uploadSkin(PortalGunSkin skin, boolean overwrite) {
-        AbstractTexture currentTexture = Minecraft.getInstance().textureManager.getTexture(this.getSkinLocation(skin.skin_id));
+        AbstractTexture currentTexture = Minecraft.getInstance().getTextureManager().getTexture(this.getSkinLocation(skin.skin_id));
         if(!(currentTexture instanceof PortalGunAnimatedTexture) || overwrite) {
             PortalGunAnimatedTexture skinTexture = new PortalGunAnimatedTexture(skin.skin_id, skin.getFilename(), skin.framerate);
-            Minecraft.getInstance().textureManager.register(this.getSkinLocation(skin.skin_id), skinTexture);
+            Minecraft.getInstance().getTextureManager().register(this.getSkinLocation(skin.skin_id), skinTexture);
         }
     }
 

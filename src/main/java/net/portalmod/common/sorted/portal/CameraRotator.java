@@ -12,10 +12,10 @@ public class CameraRotator {
     public static void rotate(Entity entity, PortalEntity portal, PortalEntity targetPortal) {
         boolean isLocalPlayer = entity instanceof LocalPlayer;
 
-        float xRotOld = entity.xRot;
-        float yRotOld = entity.yRot;
-        float pitch = entity.xRot;
-        float yaw = entity.yRot;
+        float xRotOld = entity.getXRot();
+        float yRotOld = entity.getYRot();
+        float pitch = entity.getXRot();
+        float yaw = entity.getYRot();
 
         OrthonormalBasis portalBasis = portal.getSourceBasis();
         OrthonormalBasis targetPortalBasis = targetPortal.getDestinationBasis();
@@ -63,13 +63,13 @@ public class CameraRotator {
             }
         }
 
-        entity.xRot = entity.xRotO = pitch;
-        entity.yRot = entity.yRotO = yaw;
+        entity.setXRot(entity.xRotO = pitch);
+        entity.setYRot(entity.yRotO = yaw);
 
         if(isLocalPlayer) {
             LocalPlayer player = (LocalPlayer)entity;
-            float xRotDelta = player.xRot - xRotOld;
-            float yRotDelta = player.yRot - yRotOld;
+            float xRotDelta = player.getXRot() - xRotOld;
+            float yRotDelta = player.getYRot() - yRotOld;
 
             player.xBob  += xRotDelta;
             player.xBobO += xRotDelta;

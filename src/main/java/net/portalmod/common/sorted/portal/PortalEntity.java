@@ -1,9 +1,9 @@
 package net.portalmod.common.sorted.portal;
 
+import com.mojang.math.Axis;
 import com.google.common.collect.Lists;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.portalmod.core.network.IEntityAdditionalSpawnData;
+import net.portalmod.core.network.EntitySpawnPackets;
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
@@ -97,10 +97,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void tick() {
         if(this.getY() < -64.0D)
             this.outOfWorld();
-        if(!level.isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
+        if(!level().isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
             this.remove();
 
-        if(level.isClientSide) {
+        if(level().isClientSide) {
             PortalPhotonParticle.createLivingParticles(this);
         }
 
@@ -186,7 +186,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     private static net.minecraft.world.phys.Vec3 recursivelyTeleportEntity(Entity entity, net.minecraft.world.phys.Vec3 delta, PortalEntity justExited, int depth) {
-        if(depth > 100 || (!entity.level.isClientSide && entity instanceof Player))
+        if(depth > 100 || (!entity.level().isClientSide && entity instanceof Player))
             return delta;
 
         // Guard against broken/extreme movement state. Without this the pmCollide call below
@@ -200,11 +200,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             return delta;
 
         boolean inFluid = entity.isInWater() || entity.isInLava();
-        boolean flying = entity instanceof Player && ((Player)entity).abilities.flying;
+        boolean flying = entity instanceof Player && ((Player)entity).getAbilities().flying;
         boolean levitating = entity instanceof LivingEntity && ((LivingEntity)entity).hasEffect(MobEffects.LEVITATION);
         boolean shouldResetVelocityAtApex = !(entity instanceof FireworkRocketEntity || levitating);
 
-        if(!inFluid && !entity.isOnGround() && !flying && shouldResetVelocityAtApex) {
+        if(!inFluid && !entity.onGround() && !flying && shouldResetVelocityAtApex) {
             if(delta.y > 0 && delta.y * 0.98 - 0.08 < 0) {
                 delta = new net.minecraft.world.phys.Vec3(delta.x, 0, delta.z);
                 net.minecraft.world.phys.Vec3 dm = entity.getDeltaMovement();
@@ -214,7 +214,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         Vec3 positionToCenterVector = new Vec3(entity.getBoundingBox().getCenter()).sub(entity.position());
 
-        Level level = entity.level;
+        Level level = entity.level();
 
         // Do all cheap filters FIRST using an over-approximation of the travel path. pmCollide is
         // very expensive (it sweeps voxel shapes within the entity's expanded AABB) and previously
@@ -289,8 +289,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         double gravity = 0.08;
         if(entity instanceof LivingEntity)
-            gravity = Objects.requireNonNull(((LivingEntity)entity)
-                .getAttribute(ForgeMod.ENTITY_GRAVITY.get())).getValue();
+            gravity = 0.08D /* TODO(port): Forge ENTITY_GRAVITY attribute does not exist on Fabric; vanilla default */;
 
         net.minecraft.world.phys.Vec3 dm = entity.getDeltaMovement();
 
@@ -392,11 +391,11 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 && targetPortal.getDirection().getAxis() == Direction.Axis.Y
                 && portal.getDirection() == targetPortal.getDirection();
 
-        boolean shouldStopEntity = entity instanceof Player && ((Player) entity).abilities.flying
+        boolean shouldStopEntity = entity instanceof Player && ((Player) entity).getAbilities().flying
                 && portal.getDirection().getAxis().getPlane() != targetPortal.getDirection().getAxis().getPlane();
 
         if(entity instanceof Player && shouldDisableFlying) {
-            ((Player)entity).abilities.flying = false;
+            ((Player)entity).getAbilities().flying = false;
         }
 
         if(targetPortal.getDirection() == Direction.UP && portal.getDirection() != Direction.DOWN) {
@@ -421,13 +420,13 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             ((PortalHandler)entity).onTeleport(portal, targetPortal);
         }
 
-        if(entity instanceof Player && entity.level.isClientSide) {
+        if(entity instanceof Player && entity.level().isClientSide) {
             float pitch = 0.9f + (float)entity.getDeltaMovement().length() / 4 * 0.4f;
             level.playSound((Player)entity, targetPortal.position().x, targetPortal.position().y, targetPortal.position().z,
                     SoundInit.PORTAL_TELEPORT.get(), SoundSource.PLAYERS, 0.5f, pitch * ModUtil.randomSlightSoundPitch());
         }
 
-        if(justExited == null && entity instanceof Player && entity.level.isClientSide)
+        if(justExited == null && entity instanceof Player && entity.level().isClientSide)
                 // todo don't send from client instead do on server
                 PacketInit.INSTANCE.sendToServer(new CPlayerPortalTeleportPacket());
         ((ITeleportLerpable)entity).setHasUsedPortal(true);
@@ -452,7 +451,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public static net.minecraft.world.phys.Vec3 doFunneling(Entity entity, net.minecraft.world.phys.Vec3 delta) {
         final float funnelHeight = 32;
 
-        if(entity.level.isClientSide && !PortalModConfigManager.PORTAL_FUNNELING.get()) {
+        if(entity.level().isClientSide && !PortalModConfigManager.PORTAL_FUNNELING.get()) {
             return delta;
         }
 
@@ -464,7 +463,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         boolean moving = false;
         Supplier<Supplier<Boolean>> localPlayerMovingSupplier = () -> PortalEntityClient::isLocalPlayerMoving;
 
-        if(entity.level.isClientSide) {
+        if(entity.level().isClientSide) {
             moving = localPlayerMovingSupplier.get().get();
         }
 
@@ -480,7 +479,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
                 .expandTowards(3, 0, 3)
                 .expandTowards(-3, 0, -3);
 
-        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB,
+        List<PortalEntity> portals = getOpenPortals(entity.level(), travelAABB,
                 portal -> portal.getDirection() == Direction.UP && portal.position().y < entityPos.y);
 
         if(portals.isEmpty())
@@ -504,8 +503,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             return hDistance2 < hDistance1 ? portal2 : portal1;
         }).get();
 
-        ClipContext rayContext = new ClipContext(entity.getEyePosition(1), portal.position(), ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.ANY, entity);
-        BlockHitResult rayResult = entity.level.clip(rayContext);
+        ClipContext rayContext = new ClipContext(entity.getEyePosition(1), portal.position(), ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, entity);
+        BlockHitResult rayResult = entity.level().clip(rayContext);
 
         // don't if there's blocks in between
         if(rayResult.getType() != HitResult.Type.MISS)
@@ -534,10 +533,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     public void pushEntities() {
         AABB aabb = this.getBoundingBox();
-        List<Entity> entities = this.level.getEntities((Entity)null, aabb,
+        List<Entity> entities = this.level().getEntities((Entity)null, aabb,
                 entity -> !entity.isSpectator() && !(entity instanceof PortalEntity));
 
-        if(this.level.isClientSide) {
+        if(this.level().isClientSide) {
             entities = entities.stream()
                     .filter(entity -> entity instanceof Player && ((Player)entity).isLocalPlayer())
                     .collect(Collectors.toList());
@@ -571,7 +570,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             return false;
 
         if(((ITeleportable2)entity).hasJustUsedPortal()) {
-            PortalEntity portal = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
+            PortalEntity portal = (PortalEntity)entity.level().getEntity(((ITeleportable2)entity).getJustUsedPortal());
             if(portal == null)
                 return false;
 
@@ -581,10 +580,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         AABB travelAABB = entity.getBoundingBox().expandTowards(entity.getDeltaMovement());
 
-        boolean noneOfTheServersBusiness = !entity.level.isClientSide && entity instanceof Player;
+        boolean noneOfTheServersBusiness = !entity.level().isClientSide && entity instanceof Player;
         AABB actualAABB = noneOfTheServersBusiness ? travelAABB.inflate(3) : travelAABB;
 
-        List<PortalEntity> portals = getOpenPortals(entity.level, actualAABB, portal -> {
+        List<PortalEntity> portals = getOpenPortals(entity.level(), actualAABB, portal -> {
             Vec3 center = new Vec3(pos).blockCenter();
             Vec3 portalBlockCenter = new Vec3(portal.position()).blockCenter();
             boolean isBlockBehind = (float)center.clone().sub(portalBlockCenter).dot(portal.getNormal()) < 0;
@@ -596,7 +595,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             boolean justUsedPortalInFront = false;
 
             if(hasJustUsedPortal) {
-                PortalEntity justUsedPortal = (PortalEntity)entity.level.getEntity(((ITeleportable2)entity).getJustUsedPortal());
+                PortalEntity justUsedPortal = (PortalEntity)entity.level().getEntity(((ITeleportable2)entity).getJustUsedPortal());
                 if(justUsedPortal != null) {
                     justUsedPortalInFront = new Vec3(portal.position()).sub(justUsedPortal.position()).dot(justUsedPortal.getNormal()) > 0;
                 }
@@ -610,12 +609,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     public static VoxelShape getCollisionShape(Entity entity) {
         net.minecraft.world.phys.Vec3 delta = entity.getDeltaMovement();
-        if(entity.isOnGround())
+        if(entity.onGround())
             delta = delta.multiply(1, 0, 1);
 
         AABB travelAABB = entity.getBoundingBox().expandTowards(delta);
 
-        List<PortalEntity> portals = getOpenPortals(entity.level, travelAABB, portal -> true);
+        List<PortalEntity> portals = getOpenPortals(entity.level(), travelAABB, portal -> true);
 
         if(portals.isEmpty())
             return Shapes.empty();
@@ -699,8 +698,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         }
 
         matrix.translate(center.x, center.y, center.z);
-        matrix.mulPose(Vector3f.YP.rotationDegrees(yRot));
-        matrix.mulPose(Vector3f.XP.rotationDegrees(i * 90));
+        matrix.mulPose(Axis.YP.rotationDegrees(yRot));
+        matrix.mulPose(Axis.XP.rotationDegrees(i * 90));
         matrix.translate(-.5f, -1f, .5f);
     }
 
@@ -719,8 +718,8 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         }
 
         matrix.translate(center.x, center.y, center.z);
-        matrix.rotateDeg(Vector3f.YP, yRot);
-        matrix.rotateDeg(Vector3f.XP, i * 90);
+        matrix.rotateDeg(Axis.YP, yRot);
+        matrix.rotateDeg(Axis.XP, i * 90);
         matrix.translate(-.5f, -1f, .5f);
         return matrix;
     }
@@ -775,15 +774,15 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public void onReplaced() {
-        if(this.level.isClientSide)
+        if(this.level().isClientSide)
             return;
 
-        ((ServerLevel)this.level).removeEntity(this, false);
+        ((ServerLevel)this.level()).removeEntity(this, false);
         this.getOtherPortal().ifPresent(PortalEntity::pushEntities);
     }
 
     public boolean isOpen() {
-        if(this.level.isClientSide)
+        if(this.level().isClientSide)
             return ClientPortalManager.getInstance().hasPartial(this.gunUUID, this.end.other());
         return PortalManager.getInstance().has(this.gunUUID, this.end.other());
     }
@@ -816,30 +815,30 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         Vec3 n = new Vec3(this.getDirection().getNormal());
         Vec3 y = new Vec3(this.getUpVector().getNormal());
         Vec3 x = y.clone().cross(n);
-        return Direction.fromNormal((int)x.x, (int)x.y, (int)x.z);
+        return Direction.fromDelta((int)x.x, (int)x.y, (int)x.z);
     }
 
     public void setDirection(@Nonnull Direction direction) {
         this.direction = direction;
 
         if(direction.getAxis().isHorizontal()) {
-            this.xRot = 0.0F;
-            this.yRot = (float) (this.direction.get2DDataValue() * 90);
+            this.setXRot(0.0F);
+            this.setYRot((float) (this.direction.get2DDataValue() * 90));
         } else {
-            this.xRot = (float) (-90 * direction.getAxisDirection().getStep());
-            this.yRot = 0.0F;
+            this.setXRot((float) (-90 * direction.getAxisDirection().getStep()));
+            this.setYRot(0.0F);
         }
 
-        this.xRotO = this.xRot;
-        this.yRotO = this.yRot;
+        this.xRotO = this.getXRot();
+        this.yRotO = this.getYRot();
     }
 
     public boolean survives() {
-        if(this.level.isClientSide)
+        if(this.level().isClientSide)
             return true;
 
         Mat4 toAbsolute = this.getSourceBasis().getChangeOfBasisFromCanonicalMatrix();
-        VoxelShape collision = PortalPlacer.getCollision(this.level, this.direction, new Vec3(this.position()), toAbsolute, false);
+        VoxelShape collision = PortalPlacer.getCollision(this.level(), this.direction, new Vec3(this.position()), toAbsolute, false);
         return !PortalPlacer.portalCollides(this.direction, this.getBoundingBox().deflate(0.001), collision);
     }
 
@@ -880,7 +879,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public Optional<PortalEntity> getOtherPortal() {
-        if(this.level.isClientSide)
+        if(this.level().isClientSide)
             return Optional.ofNullable(ClientPortalManager.getInstance().get(this.gunUUID, this.end.other()));
         return Optional.ofNullable(PortalManager.getInstance().get(this.gunUUID, this.end.other()));
     }
@@ -889,7 +888,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void onRemovedFromWorld() {
         super.onRemovedFromWorld();
 
-        if(this.level.isClientSide)
+        if(this.level().isClientSide)
             return;
 
         boolean isPortalStillUsed = PortalManager.getInstance().get(this.gunUUID, this.end) == this;
@@ -898,7 +897,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             PortalManager.getInstance().remove(this.gunUUID, this);
             PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SForgetPortalPacket(this.gunUUID, this.end));
 
-            level.playSound(null, this.position().x, this.position().y, this.position().z,
+            level().playSound(null, this.position().x, this.position().y, this.position().z,
                     SoundInit.PORTAL_CLOSE.get(), SoundSource.NEUTRAL, .8f, ModUtil.randomSlightSoundPitch());
         }
     }
@@ -911,7 +910,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     public void push(double x, double y, double z) {}
 
     public boolean hurt(DamageSource source, float amount) {
-        if(this.level.isClientSide || !this.isAlive())
+        if(this.level().isClientSide || !this.isAlive())
             return false;
 
         Entity attacker = source.getEntity();
@@ -939,7 +938,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     public void move(MoverType moverType, net.minecraft.world.phys.Vec3 delta) {
-        if(!this.level.isClientSide && !this.removed && delta.lengthSqr() > 0.0D)
+        if(!this.level().isClientSide && !this.removed && delta.lengthSqr() > 0.0D)
             this.remove();
     }
 
@@ -976,12 +975,12 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         ItemStack handItem = player.getItemInHand(hand);
         if(handItem.getItem() == Items.NAME_TAG) {
             if(handItem.hasCustomHoverName()) {
-                if(!player.level.isClientSide && this.isAlive()) {
+                if(!player.level().isClientSide && this.isAlive()) {
                     this.setCustomName(handItem.getHoverName());
                     handItem.shrink(1);
                 }
 
-                return InteractionResult.sidedSuccess(player.level.isClientSide);
+                return InteractionResult.sidedSuccess(player.level().isClientSide);
             } else {
                 return InteractionResult.PASS;
             }
@@ -1008,7 +1007,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     @Override
     public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
+        return EntitySpawnPackets.create(this);
     }
 
     @Override

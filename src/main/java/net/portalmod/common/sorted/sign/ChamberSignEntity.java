@@ -85,7 +85,7 @@ public class ChamberSignEntity extends HangingEntity {
 
     public boolean isPowered() {
         Stream<BlockPos> boundingBoxPositions = BlockPos.betweenClosedStream(this.getBoundingBox().deflate(0.001));
-        return boundingBoxPositions.anyMatch(pos -> this.level.hasNeighborSignal(pos));
+        return boundingBoxPositions.anyMatch(pos -> this.level().hasNeighborSignal(pos));
     }
 
     @Override
@@ -116,7 +116,7 @@ public class ChamberSignEntity extends HangingEntity {
                 this.toggleIcon(x + y * 4);
             }
 
-            WrenchItem.playUseSound(this.level, this.position().add(pos));
+            WrenchItem.playUseSound(this.level(), this.position().add(pos));
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
@@ -247,8 +247,8 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     public boolean isValidWall(BlockPos pos) {
-        BlockState blockstate = this.level.getBlockState(pos);
-        return Block.canSupportCenter(this.level, pos, this.direction) || blockstate.getMaterial().isSolid() || DiodeBlock.isDiode(blockstate);
+        BlockState blockstate = this.level().getBlockState(pos);
+        return Block.canSupportCenter(this.level(), pos, this.direction) || blockstate.getMaterial().isSolid() || DiodeBlock.isDiode(blockstate);
     }
 
     public double offs(int p_190202_1_) {
@@ -270,7 +270,7 @@ public class ChamberSignEntity extends HangingEntity {
         this.playSound(SoundInit.CHAMBER_SIGN_PLACE.get(), 1.0F, ModUtil.randomSlightSoundPitch() * 0.9f);
 
         if (entity instanceof Player && ((Player) entity).isCreative()
-                || !this.level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) return;
+                || !this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) return;
 
         this.spawnAtLocation(ItemInit.CHAMBER_SIGN.get());
     }

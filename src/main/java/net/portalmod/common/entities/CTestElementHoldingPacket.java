@@ -58,7 +58,7 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
             if(sender == null)
                 return;
 
-            Entity entity = sender.level.getEntity(this.id);
+            Entity entity = sender.level().getEntity(this.id);
             if(!(entity instanceof TestElementEntity))
                 return;
 
@@ -69,7 +69,7 @@ public class CTestElementHoldingPacket implements AbstractPacket<CTestElementHol
             tee.serverOldPos = oldPosition;
             tee.setPos(this.position.x, this.position.y, this.position.z);
 
-            tee.yRot = this.rotation;
+            tee.setYRot(this.rotation);
             tee.yRotO = this.oldRotation;
             tee.yBodyRot = this.rotation;
             tee.yBodyRotO = this.oldRotation;

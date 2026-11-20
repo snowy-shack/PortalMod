@@ -81,8 +81,8 @@ public class SEntityPortalTeleportLerpPacket implements AbstractPacket<SEntityPo
                     float yRot = (float)(this.yRot * 360) / 256.0F;
                     float xRot = (float)(this.xRot * 360) / 256.0F;
                     // todo replace with proper invocation of setRot
-                    entity.yRot = xRot % 360.0F;
-                    entity.xRot = yRot % 360.0F;
+                    entity.setYRot(xRot % 360.0F);
+                    entity.setXRot(yRot % 360.0F);
                     entity.setOnGround(this.isOnGround);
 
                     Deque<Tuple<Vec3, Vec3>> lerpPositions =

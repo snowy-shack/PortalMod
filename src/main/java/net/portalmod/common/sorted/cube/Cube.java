@@ -46,7 +46,7 @@ public class Cube extends TestElementEntity {
         return new EntityDamageSource("cube", entity);
     }
 
-    public static AttributeSupplier.MutableAttribute createAttributes() {
+    public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes();
     }
 
@@ -83,7 +83,7 @@ public class Cube extends TestElementEntity {
         if (!this.isFizzling()) {
 
             // todo only super button
-            if (!this.level.isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
+            if (!this.level().isClientSide && this.isPassenger() && this.isActive() && !this.oldActive) {
                 CriteriaTriggerInit.CUBE_ON_BUTTON.get().trigger((ServerPlayer) this.getVehicle());
             }
 
@@ -98,7 +98,7 @@ public class Cube extends TestElementEntity {
             // todo better damage system
 
             AABB aabb = getBoundingBox().inflate(1.0E-7D);
-            List<Entity> entities = this.level.getEntities(this, aabb.inflate(1.0E-1D));
+            List<Entity> entities = this.level().getEntities(this, aabb.inflate(1.0E-1D));
 
             for (Entity entity : entities) {
                 AABB entityAABB = entity.getBoundingBox();
@@ -119,22 +119,22 @@ public class Cube extends TestElementEntity {
                 }
             }
 
-            if (this.isOnGround() && !this.wasOnGround && oldDeltaY < -0.3) {
+            if (this.onGround() && !this.wasOnGround && oldDeltaY < -0.3) {
                 float volume = Mth.clamp((float) -this.oldDeltaY, 0, 1);
-                this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundSource.NEUTRAL, volume, ModUtil.randomSoundPitch());
+                this.level().playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundSource.NEUTRAL, volume, ModUtil.randomSoundPitch());
             }
 
-            this.wasOnGround = this.isOnGround();
+            this.wasOnGround = this.onGround();
 
             // push when entity near (copied from BoatEntity)
             this.checkInsideBlocks();
-            List<Entity> list = this.level.getEntities(this, this.getBoundingBox().inflate(0.05, -0.01, 0.05), EntitySelector.pushableBy(this));
+            List<Entity> list = this.level().getEntities(this, this.getBoundingBox().inflate(0.05, -0.01, 0.05), EntitySelector.pushableBy(this));
             for(Entity entity : list) {
                 this.push(entity);
             }
         }
 
-        this.yBodyRot = this.yRot;
+        this.yBodyRot = this.getYRot();
 
         oldDeltaY = getDeltaMovement().y;
 
@@ -142,7 +142,7 @@ public class Cube extends TestElementEntity {
     }
 
     public void onSpawnedByPlayer() {
-        this.level.playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundSource.NEUTRAL, 0.5f, ModUtil.randomSoundPitch());
+        this.level().playSound(null, this.position().x, this.position().y, this.position().z, SoundInit.CUBE_HIT.get(), SoundSource.NEUTRAL, 0.5f, ModUtil.randomSoundPitch());
     }
 
     @Override
@@ -155,7 +155,7 @@ public class Cube extends TestElementEntity {
             for(int y = -1; y <= 1; y++) {
                 for(int x = -1; x <= 1; x++) {
                     BlockPos pos = new BlockPos(x, y, z).offset(this.blockPosition());
-                    BlockState state = this.level.getBlockState(pos);
+                    BlockState state = this.level().getBlockState(pos);
                     if(state.getBlock() == BlockInit.SUPER_BUTTON.get() && state.getValue(SuperButtonBlock.ACTIVE)) {
                         if(((SuperButtonBlock)BlockInit.SUPER_BUTTON.get()).getTrigger(state, pos).intersects(this.getBoundingBox())) {
                             return true;

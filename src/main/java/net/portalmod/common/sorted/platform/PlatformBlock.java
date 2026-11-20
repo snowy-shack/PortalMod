@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.platform;
 
+import com.mojang.math.Axis;
 import net.portalmod.common.blocks.FrameBlock;
 import net.portalmod.common.blocks.PortalableBlock;
 import net.portalmod.core.math.BiHashMap;
@@ -39,7 +40,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
@@ -91,8 +91,8 @@ public class PlatformBlock extends HalfTransparentBlock implements SimpleWaterlo
 
             Mat4 matrix = Mat4.identity();
             matrix.translate(new Vec3(.5));
-            matrix.rotateDeg(Vector3f.YN, angleY);
-            matrix.rotateDeg(Vector3f.XP, angleX);
+            matrix.rotateDeg(Axis.YN, angleY);
+            matrix.rotateDeg(Axis.XP, angleX);
             matrix.translate(new Vec3(-.5));
 
             SHAPES.put(facing, false, lowerShape.clone().transform(matrix));
@@ -125,7 +125,7 @@ public class PlatformBlock extends HalfTransparentBlock implements SimpleWaterlo
         BlockState cycled = state.cycle(BEAM);
         world.setBlockAndUpdate(pos, cycled);
 
-        player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.platform." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
+        player.displayClientMessage(Component.translatable("actionbar.portalmod.platform." + (cycled.getValue(BEAM) ? "beam" : "normal")), true);
 
         player.playSound(SoundEvents.STONE_PLACE, 1, 0.8f * ModUtil.randomSlightSoundPitch());
 

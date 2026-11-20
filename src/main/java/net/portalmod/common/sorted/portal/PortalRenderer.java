@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import com.mojang.math.Axis;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -274,7 +275,7 @@ public class PortalRenderer {
 
         glEnable(GL_TEXTURE_2D);
         RenderSystem.activeTexture(GL_TEXTURE0);
-        Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, path));
+        RenderSystem.setShaderTexture(0, new ResourceLocation(PortalMod.MODID, path));
 
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.enableDepthTest();
@@ -416,7 +417,7 @@ public class PortalRenderer {
 
         if(recursion == 0) {
             currentlyRenderingPortals = true;
-            fabulousGraphics = mc.options.graphicsMode == GraphicsStatus.FABULOUS;
+            fabulousGraphics = mc.options.graphicsMode().get() == GraphicsStatus.FABULOUS;
 
             if(fabulousGraphics) {
                 int w = mc.getWindow().getWidth();
@@ -644,7 +645,7 @@ public class PortalRenderer {
      */
     private static boolean cornerVisibleAlongRay(ClientLevel world, net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 corner,
                                                  @Nullable Entity viewer, boolean emitDebugParticles) {
-        ClipContext ctx = new ClipContext(from, corner, ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.NONE, viewer);
+        ClipContext ctx = new ClipContext(from, corner, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, viewer);
         BlockHitResult hit = ModUtil.customClip(world, ctx, pos ->
                 blockCountsAsOpaqueForPortalSight(world.getBlockState(pos))
                         ? Optional.empty()
@@ -784,9 +785,9 @@ public class PortalRenderer {
     private void setupMatrixStack(PoseStack matrixStack, Camera camera) {
         if(camera instanceof PortalCamera) {
             PortalCamera portalCamera = (PortalCamera)camera;
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(portalCamera.getRoll()));
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(portalCamera.getXRot()));
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(portalCamera.getYRot() + 180));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(portalCamera.getRoll()));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(portalCamera.getXRot()));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(portalCamera.getYRot() + 180));
         }
     }
 
@@ -814,14 +815,14 @@ public class PortalRenderer {
     private void setupSkyAndFog(Camera camera, float partialTicks) {
         Minecraft mc = Minecraft.getInstance();
         if(mc.level != null) {
-            FogRenderer.setupColor(camera, partialTicks, mc.level, mc.options.renderDistance,
+            FogRenderer.setupColor(camera, partialTicks, mc.level, mc.options.renderDistance().get(),
                     mc.gameRenderer.getDarkenWorldAmount(partialTicks));
             float renderDistance = mc.gameRenderer.getRenderDistance();
             boolean hasFog = mc.level.effects().isFoggyAt(Mth.floor(camera.getBlockPosition().getX()), Mth.floor(camera.getBlockPosition().getY()))
                     || mc.gui.getBossOverlay().shouldCreateWorldFog();
-            if(Minecraft.getInstance().options.renderDistance >= 4)
-                FogRenderer.setupFog(camera, FogRenderer.FogType.FOG_SKY, renderDistance, hasFog, partialTicks);
-            FogRenderer.setupFog(camera, FogRenderer.FogType.FOG_TERRAIN,
+            if(Minecraft.getInstance().options.renderDistance().get() >= 4)
+                FogRenderer.setupFog(camera, FogRenderer.FogMode.FOG_SKY, renderDistance, hasFog, partialTicks);
+            FogRenderer.setupFog(camera, FogRenderer.FogMode.FOG_TERRAIN,
                     Math.max(renderDistance - 16, 32), hasFog, partialTicks);
         }
     }
@@ -884,7 +885,7 @@ public class PortalRenderer {
                 fogCamera.setPosition(portal.getOtherPortal().get().position());
             }
 
-            FogRenderer.setupColor(fogCamera, partialTicks, mc.level, mc.options.renderDistance,
+            FogRenderer.setupColor(fogCamera, partialTicks, mc.level, mc.options.renderDistance().get(),
                     mc.gameRenderer.getDarkenWorldAmount(partialTicks));
 
             RenderSystem.stencilMask(0x7F);
@@ -935,7 +936,7 @@ public class PortalRenderer {
                         : PMState.cameraPosOverrideForRenderingSelf.clone().transform(PortalEntity.getPortalToPortalMatrix(portal, otherPortal));
 
                 PROFILE.push("saveRenderChunks");
-                ObjectList<LevelRenderer.LocalRenderInformationContainer> renderChunks = new ObjectArrayList<>();
+                ObjectList<LevelRenderer.RenderChunkInfo> renderChunks = new ObjectArrayList<>();
                 renderChunks.addAll(mc.levelRenderer.renderChunks);
                 PROFILE.pop();
 
@@ -983,8 +984,8 @@ public class PortalRenderer {
                 mc.levelRenderer.renderChunks.clear();
                 mc.levelRenderer.renderChunks.addAll(renderChunks);
 
-                BlockEntityRenderDispatcher.instance.prepare(portal.level, mc.getTextureManager(), mc.font, camera, mc.hitResult);
-                mc.levelRenderer.entityRenderDispatcher.prepare(portal.level, camera, mc.crosshairPickEntity);
+                BlockEntityRenderDispatcher.instance.prepare(portal.level(), mc.getTextureManager(), mc.font, camera, mc.hitResult);
+                mc.levelRenderer.entityRenderDispatcher.prepare(portal.level(), camera, mc.crosshairPickEntity);
                 PROFILE.pop();
 
                 currentCamera = camera;
@@ -1014,7 +1015,7 @@ public class PortalRenderer {
 
             glDisable(GL_CLIP_PLANE0);
             GL11.glEnable(GL_STENCIL_TEST);
-            RenderSystem.color4f(1, 1, 1, 1);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
 
             RenderSystem.stencilMask(0x80);
             RenderSystem.stencilFunc(GL_EQUAL, recursion, 0xFF);
@@ -1179,9 +1180,9 @@ public class PortalRenderer {
         PoseStack matrix = new PoseStack();
         float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
-        matrix.mulPose(Vector3f.ZP.rotationDegrees(roll));
-        matrix.mulPose(Vector3f.XP.rotationDegrees(camera.getXRot()));
-        matrix.mulPose(Vector3f.YP.rotationDegrees(camera.getYRot() + 180.0F));
+        matrix.mulPose(Axis.ZP.rotationDegrees(roll));
+        matrix.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
+        matrix.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180.0F));
         matrix.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
         return matrix.last().pose();
     }

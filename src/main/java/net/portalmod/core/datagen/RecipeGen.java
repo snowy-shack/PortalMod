@@ -28,10 +28,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.ItemLike;
 
 public class RecipeGen extends RecipeProvider {
-    public static final AbstractCriterionTriggerInstance ROOT_CRITERION = ItemUsedOnBlockTrigger.Instance.itemUsedOnBlock(
+    public static final AbstractCriterionTriggerInstance ROOT_CRITERION = ItemUsedOnBlockTrigger.TriggerInstance.itemUsedOnBlock(
             LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.CRAFTING_TABLE).build()),
             ItemPredicate.Builder.item());
-    public static final AbstractCriterionTriggerInstance CAKE_CRITERION = KilledTrigger.Instance.playerKilledEntity();
+    public static final AbstractCriterionTriggerInstance CAKE_CRITERION = KilledTrigger.TriggerInstance.playerKilledEntity();
 
     public static final AbstractCriterionTriggerInstance HAS_CUBE = RecipeProvider.has(ItemTagInit.CUBES);
     public static final AbstractCriterionTriggerInstance HAS_INDICATOR = RecipeProvider.has(ItemTagInit.INDICATORS);

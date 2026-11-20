@@ -35,7 +35,7 @@ public class CFaithPlateEndConfigPacket implements AbstractPacket<CFaithPlateEnd
             if(sender == null)
                 return;
 
-            FaithPlateTileEntity blockEntity = (FaithPlateTileEntity)sender.level.getBlockEntity(pos);
+            FaithPlateTileEntity blockEntity = (FaithPlateTileEntity)sender.level().getBlockEntity(pos);
             if(blockEntity == null)
                 return;
 

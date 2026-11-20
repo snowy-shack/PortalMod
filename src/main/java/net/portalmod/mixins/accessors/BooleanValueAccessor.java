@@ -11,7 +11,7 @@ import net.minecraft.world.level.GameRules;
 @Mixin(GameRules.BooleanValue.class)
 public interface BooleanValueAccessor {
     @Invoker(value = "create")
-    static GameRules.RuleType<GameRules.BooleanValue> pmCreate(boolean value, BiConsumer<MinecraftServer, GameRules.BooleanValue> consumer) {
+    static GameRules.Type<GameRules.BooleanValue> pmCreate(boolean value, BiConsumer<MinecraftServer, GameRules.BooleanValue> consumer) {
         throw new AssertionError();
     }
 }

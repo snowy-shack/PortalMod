@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.network.chat.Component;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
 
@@ -8,7 +9,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
 
 public class SkinEntryWidget extends AbstractWidget {
     private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/gui/skinselector.png");
@@ -19,7 +19,7 @@ public class SkinEntryWidget extends AbstractWidget {
     private boolean selected;
 
     public SkinEntryWidget(int x, int y, int width, int height, SkinSelectorScreen parent, SkinPreviewWidget skinPreviewWidget, PortalGunSkin skin) {
-        super(x, y, width, height, TextComponent.EMPTY);
+        super(x, y, width, height, Component.empty());
         this.parent = parent;
         this.skinPreviewWidget = skinPreviewWidget;
         this.skin = skin;
@@ -39,9 +39,9 @@ public class SkinEntryWidget extends AbstractWidget {
 
     protected void renderBackground(PoseStack matrixStack) {
         if(this.selected) {
-            RenderSystem.color4f(1, 1, 1, 1);
-            Minecraft.getInstance().getTextureManager().bind(TEXTURE);
-            blit(matrixStack, this.x, this.y, 0, 176, this.width, this.height, 512, 512);
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            RenderSystem.setShaderTexture(0, TEXTURE);
+            blit(matrixStack, this.getX(), this.getY(), 0, 176, this.width, this.height, 512, 512);
         }
     }
 
@@ -52,8 +52,8 @@ public class SkinEntryWidget extends AbstractWidget {
 
         String credit = (this.skin.artist != null) ? "- by " + this.skin.artist : "";
 
-        drawString(matrixStack, font, "§l" + this.skin.name + " §r" + credit, this.x + 7, this.y + 7, 16777215);
-        drawString(matrixStack, font, this.skin.description, this.x + 7, this.y + 7 + 10, 16777215);
+        drawString(matrixStack, font, "§l" + this.skin.name + " §r" + credit, this.getX() + 7, this.getY() + 7, 16777215);
+        drawString(matrixStack, font, this.skin.description, this.getX() + 7, this.getY() + 7 + 10, 16777215);
     }
 
     @Override

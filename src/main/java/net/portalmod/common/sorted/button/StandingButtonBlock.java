@@ -42,7 +42,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
@@ -168,7 +167,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
 
             if (shouldCycle) {
                 ButtonMode newMode = cycleMode(blockState, world, pos);
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.button_mode." + newMode.getSerializedName()), true);
             }
 
             this.setBlockStateValue(ACTIVE, false, blockState, world, pos);
@@ -183,7 +182,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         double reach = player.getAttributeValue(AttributeInit.BUTTON_REACH.get());
         if (blockState.getValue(HALF) == DoubleBlockHalf.UPPER && this.canPress(blockState)) {
             if (rayLength > reach) {
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.standing_button.too_far_away"), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.standing_button.too_far_away"), true);
                 return InteractionResult.CONSUME;
             }
 

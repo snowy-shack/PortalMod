@@ -17,7 +17,7 @@ public class PortalCamera extends Camera {
     }
 
     public PortalCamera(Camera camera, float partialTicks) {
-        this(camera.getEntity().level, camera.getEntity(), new Vec3(camera.getPosition()), camera.getXRot(), camera.getYRot(),
+        this(camera.getEntity().level(), camera.getEntity(), new Vec3(camera.getPosition()), camera.getXRot(), camera.getYRot(),
                 camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : 0, partialTicks);
     }
 

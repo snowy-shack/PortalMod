@@ -45,9 +45,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
@@ -107,12 +105,12 @@ public class PortalGun extends Item {
     public static void pickCube(Player player, ItemStack gun) {
         setHolding(gun, true);
 
-        player.level.playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
+        player.level().playSound(player, player, SoundInit.PORTALGUN_LIFT.get(),
                 SoundSource.PLAYERS, 1, ModUtil.randomSoundPitch());
 
         // Play lift animation
         Optional<UUID> uuid = getUUID(gun);
-        if (player.level instanceof ServerLevel && uuid.isPresent()) {
+        if (player.level() instanceof ServerLevel && uuid.isPresent()) {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                     new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.LIFT));
             return;
@@ -125,12 +123,12 @@ public class PortalGun extends Item {
     public static void dropCube(Player player, ItemStack gun) {
         setHolding(gun, false);
 
-        player.level.playSound(player, player,
+        player.level().playSound(player, player,
                 SoundInit.PORTALGUN_DROP.get(), SoundSource.PLAYERS, 1, ModUtil.randomSoundPitch());
 
         // Play drop animation
         Optional<UUID> uuid = getUUID(gun);
-        if (player.level instanceof ServerLevel && uuid.isPresent()) {
+        if (player.level() instanceof ServerLevel && uuid.isPresent()) {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                     new SPortalGunAnimationPacket(uuid.get(), PortalGunAnimation.DROP));
             return;
@@ -459,7 +457,7 @@ public class PortalGun extends Item {
     }
 
     public static void fizzleGunsInInventory(Player player) {
-        if (player.level.isClientSide) {
+        if (player.level().isClientSide) {
             // The server does not retain a player's old position or velocity, so it can miss
             // fast/oblique fizzler traversal where neither the old nor the new bounding box
             // intersects the fizzler but the swept segment between them does. The local
@@ -473,7 +471,7 @@ public class PortalGun extends Item {
 
         boolean didFizzleAny = false;
 
-        ArrayList<ItemStack> test = new ArrayList<>(player.inventory.items);
+        ArrayList<ItemStack> test = new ArrayList<>(player.getInventory().items);
         test.add(player.getOffhandItem());
 
         for (ItemStack itemStack : test) {
@@ -485,7 +483,7 @@ public class PortalGun extends Item {
         if (didFizzleAny) {
             PacketInit.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player),
                     new SPortalGunAnimationPacket(UUID.randomUUID(), PortalGunAnimation.FIZZLE));
-            player.level.playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
+            player.level().playSound(null, player.position().x, player.position().y, player.position().z, SoundInit.PORTALGUN_FIZZLE.get(), SoundSource.PLAYERS, 1f, ModUtil.randomSlightSoundPitch());
         }
     }
 
@@ -536,11 +534,11 @@ public class PortalGun extends Item {
         int rightColor = lock.equals("Right") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(rightColorName).getRGB();
 
         list.add(ModUtil.tooltipComponent("tooltip.portalmod.portalgun.colors"));
-        list.add(new TranslatableComponent("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(leftColor)))
+        list.add(Component.translatable("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(leftColor)))
                 .append("§7 & ")
-                .append(new TranslatableComponent("tooltip.portalmod.colors." + rightColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(rightColor))))
+                .append(Component.translatable("tooltip.portalmod.colors." + rightColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(rightColor))))
         );
-        if (Screen.hasControlDown()) list.add(new TextComponent(""));
+        if (Screen.hasControlDown()) list.add(Component.literal(""));
 
         ModUtil.addTooltip("portalgun", list);
     }

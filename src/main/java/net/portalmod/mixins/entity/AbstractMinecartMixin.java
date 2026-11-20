@@ -69,7 +69,7 @@ public class AbstractMinecartMixin {
             return;
         }
 
-        PortalEntity portal = (PortalEntity)instance.level.getEntity(((ITeleportable)instance).getLastUsedPortal());
+        PortalEntity portal = (PortalEntity)instance.level().getEntity(((ITeleportable)instance).getLastUsedPortal());
 
         PortalPair pair = PortalPairCache.CLIENT.get(portal.getGunUUID());
         if(pair == null) {

@@ -158,7 +158,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         RenderSystem.enableBlend();
 //        RenderSystem.disableCull(); // Causes transparent texture issues
 
-        Minecraft.getInstance().textureManager.bind(new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
+        RenderSystem.setShaderTexture(0, new ResourceLocation(PortalMod.MODID, "textures/entity/turret/laser.png"));
         LASER_BUFFER.bind();
         DefaultVertexFormat.POSITION_TEX_COLOR.setupBufferState(0L);
         if (turretState.isStanding() && turret.getHurtTime() == 0) LASER_BUFFER.draw(matrixStack.last().pose(), 7);

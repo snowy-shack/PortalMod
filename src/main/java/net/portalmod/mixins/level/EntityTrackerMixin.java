@@ -95,7 +95,7 @@ public abstract class EntityTrackerMixin {
     )
     private void pmLoadEntitiesThroughPortal(ServerPlayer player, CallbackInfo info) {
         info.cancel();
-        ChunkMap chunkManagerSuper = ((ServerChunkCache)this.entity.level.getChunkSource()).chunkMap;
+        ChunkMap chunkManagerSuper = ((ServerChunkCache)this.entity.level().getChunkSource()).chunkMap;
         int viewDistance = ((ChunkManagerAccessor)chunkManagerSuper).pmGetViewDistance();
         Int2ObjectMap<EntityTrackerMixin> entityMap = (Int2ObjectMap<EntityTrackerMixin>)
                 ((ChunkManagerAccessor)chunkManagerSuper).pmGetEntityMap();

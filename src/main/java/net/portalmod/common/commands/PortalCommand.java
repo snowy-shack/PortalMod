@@ -1,5 +1,6 @@
 package net.portalmod.common.commands;
 
+import net.minecraft.network.chat.Component;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -20,7 +21,6 @@ import net.minecraft.commands.arguments.UuidArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class PortalCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -144,7 +144,7 @@ public class PortalCommand {
     }
 
     private static TranslatableComponent getText(String key) {
-        return new TranslatableComponent("commands." + PortalMod.MODID + ".portal." + key);
+        return Component.translatable("commands." + PortalMod.MODID + ".portal." + key);
     }
 
     public enum HorizontalDirection {

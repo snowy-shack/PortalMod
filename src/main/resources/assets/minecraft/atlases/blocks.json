@@ -1,0 +1,7 @@
+{
+  "sources": [
+    { "type": "directory", "source": "antline", "prefix": "antline/" },
+    { "type": "directory", "source": "entity/faithplate", "prefix": "entity/faithplate/" },
+    { "type": "single", "resource": "portalmod:entity/autoportal" }
+  ]
+}

@@ -30,10 +30,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
@@ -57,7 +55,7 @@ public class ModUtil {
         net.minecraft.world.phys.Vec3 from = player.getEyePosition(0);
         net.minecraft.world.phys.Vec3 to = from.add(rayPath);
 
-        ClipContext rayCtx = new ClipContext(from, to, ClipContext.BlockMode.OUTLINE, ClipContext.FluidMode.ANY, null);
+        ClipContext rayCtx = new ClipContext(from, to, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, null);
         return level.clip(rayCtx);
     }
 
@@ -257,7 +255,7 @@ public class ModUtil {
     }
 
     public static MutableComponent tooltipComponent(String key, Object... args) {
-        return new TranslatableComponent(key, args).setStyle(TOOLTIP_STYLE);
+        return Component.translatable(key, args).setStyle(TOOLTIP_STYLE);
     }
 
     private static String getModifierKeyName() {
@@ -295,7 +293,7 @@ public class ModUtil {
 
         try {
             level.players().forEach(
-                    player -> player.displayClientMessage(new TextComponent(
+                    player -> player.displayClientMessage(Component.literal(
                             (isClientSide ? "§3§l[Client " : "§7§l[Server ") + String.format("%03d", lastChatNumber) + "]: §r" + formatted
                     ), false)
             );

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.autoportal;
 
+import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.DynamicTextureVertexBuilder;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -56,7 +57,7 @@ public class AutoPortalTER extends BlockEntityRenderer<AutoPortalTileEntity> {
             matrixStack.translate(normal.x, normal.y, normal.z);
             matrixStack.translate(0.5, 0.5, 0.5);
             matrixStack.last().pose().multiply(matrix.to4f());
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
             matrixStack.translate(0, -1.5, 0);
 
             VertexConsumer vertexBuilder = MATERIAL.buffer(renderBuffer, RenderType::entityTranslucent);

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import com.mojang.math.Axis;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
 
@@ -43,8 +44,8 @@ public class EulerConverter {
         float yaw = -(float)(Math.atan2(yawSin, yawCos) * 180 / Math.PI);
 
         Vec3 upUnrotated = up.clone()
-                .transform(new Mat4(Vector3f.YN.rotationDegrees(-yaw)))
-                .transform(new Mat4(Vector3f.XP.rotationDegrees(-pitch)));
+                .transform(new Mat4(Axis.YN.rotationDegrees(-yaw)))
+                .transform(new Mat4(Axis.XP.rotationDegrees(-pitch)));
         float rollSin = (float)Vec3.yAxis().cross(upUnrotated).dot(Vec3.zAxis());
         float rollCos = (float)Vec3.yAxis().dot(upUnrotated);
         float roll = (float)(Math.atan2(rollSin, rollCos) * 180 / Math.PI);
@@ -76,9 +77,9 @@ public class EulerConverter {
 
     public static OrthonormalBasis toVectors(Vec3 orientation) {
         Mat4 rotation = Mat4.identity()
-            .mul(new Mat4(Vector3f.YP.rotationDegrees(-(float)orientation.y)))
-            .mul(new Mat4(Vector3f.XP.rotationDegrees( (float)orientation.x)))
-            .mul(new Mat4(Vector3f.ZP.rotationDegrees( (float)orientation.z)));
+            .mul(new Mat4(Axis.YP.rotationDegrees(-(float)orientation.y)))
+            .mul(new Mat4(Axis.XP.rotationDegrees( (float)orientation.x)))
+            .mul(new Mat4(Axis.ZP.rotationDegrees( (float)orientation.z)));
 
         return new OrthonormalBasis(Vec3.xAxis().transform(rotation), Vec3.yAxis().transform(rotation));
     }

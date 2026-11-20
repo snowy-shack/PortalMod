@@ -1,46 +1,14 @@
 package net.portalmod.core.init;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraft.resources.ResourceLocation;
 import net.portalmod.PortalMod;
 
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
-
+/**
+ * Extra block-atlas sprites. Since 1.19.3 atlases are built from JSON
+ * (assets/minecraft/atlases/blocks.json); textures under block/ are included automatically.
+ */
 public class TextureInit {
-    private static final Registry BLOCKS = new Registry(TextureAtlas.LOCATION_BLOCKS);
-    
     private TextureInit() {}
-    
-    public static final ResourceLocation FAITHPLATE_TARGET = BLOCKS.register("block/faithplate_target");
-    
-    public static void register(TextureStitchEvent.Pre event) {
-        Registry.register(event);
-    }
-    
-    private static class Registry {
-        private static final Map<ResourceLocation, Registry> REGISTRIES = new HashMap<>();
-        private final List<ResourceLocation> ENTRIES = new ArrayList<>();
-        
-        public Registry(ResourceLocation phase) {
-            REGISTRIES.put(phase, this);
-        }
-        
-        public ResourceLocation register(String name) {
-            ResourceLocation location = new ResourceLocation(PortalMod.MODID, name);
-            ENTRIES.add(location);
-            return location;
-        }
-        
-        public static void register(TextureStitchEvent.Pre event) {
-            ResourceLocation phase = event.getMap().location();
-            if(REGISTRIES.containsKey(phase))
-                for(ResourceLocation entry : REGISTRIES.get(phase).ENTRIES)
-                    event.addSprite(entry);
-        }
-    }
+
+    public static final ResourceLocation FAITHPLATE_TARGET = new ResourceLocation(PortalMod.MODID, "block/faithplate_target");
 }

@@ -2,7 +2,6 @@ package net.portalmod.common.sorted.portal;
 
 import com.mojang.datafixers.util.Pair;
 import net.portalmod.core.network.PacketDistributor;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.math.Vec3;
@@ -45,7 +44,7 @@ public class PortalManager extends SavedData {
 
     public void tick() {
         for(PortalEntity portal : this.pendingRemovals) {
-            ((ServerLevel)portal.level).removeEntity(portal, false);
+            ((ServerLevel)portal.level()).removeEntity(portal, false);
         }
         this.pendingRemovals.clear();
 
@@ -89,7 +88,7 @@ public class PortalManager extends SavedData {
                 CompoundTag primary = pair.getCompound("primary");
                 ResourceLocation rl = new ResourceLocation(primary.getString("level"));
                 ResourceKey<Level> rk = ResourceKey.create(Registry.DIMENSION_REGISTRY, rl);
-                Level level = ServerLifecycleHooks.getCurrentServer().getLevel(rk);
+                Level level = PortalMod.getServer().getLevel(rk);
 
                 PortalEntity blue = new PortalEntity(level);
                 blue.load(primary);
@@ -106,7 +105,7 @@ public class PortalManager extends SavedData {
                 CompoundTag secondary = pair.getCompound("secondary");
                 ResourceLocation rl = new ResourceLocation(secondary.getString("level"));
                 ResourceKey<Level> rk = ResourceKey.create(Registry.DIMENSION_REGISTRY, rl);
-                Level level = ServerLifecycleHooks.getCurrentServer().getLevel(rk);
+                Level level = PortalMod.getServer().getLevel(rk);
 
                 PortalEntity orange = new PortalEntity(level);
                 orange.load(secondary);
@@ -130,13 +129,13 @@ public class PortalManager extends SavedData {
             if(pair.has(PortalEnd.PRIMARY)) {
                 CompoundTag blueNbt = new CompoundTag();
                 pair.get(PortalEnd.PRIMARY).saveGlobal(blueNbt);
-                blueNbt.putString("level", pair.get(PortalEnd.PRIMARY).level.dimension().location().toString());
+                blueNbt.putString("level", pair.get(PortalEnd.PRIMARY).level().dimension().location().toString());
                 pairNbt.put("primary", blueNbt);
             }
             if(pair.has(PortalEnd.SECONDARY)) {
                 CompoundTag orangeNbt = new CompoundTag();
                 pair.get(PortalEnd.SECONDARY).saveGlobal(orangeNbt);
-                orangeNbt.putString("level", pair.get(PortalEnd.SECONDARY).level.dimension().location().toString());
+                orangeNbt.putString("level", pair.get(PortalEnd.SECONDARY).level().dimension().location().toString());
                 pairNbt.put("secondary", orangeNbt);
             }
             nbt.put(uuid.toString(), pairNbt);
@@ -150,7 +149,7 @@ public class PortalManager extends SavedData {
     }
 
     private static Level getOverworld() {
-        return ServerLifecycleHooks.getCurrentServer().getLevel(Level.OVERWORLD);
+        return PortalMod.getServer().getLevel(Level.OVERWORLD);
     }
 
     private static void getStorageAndSetDirty() {
@@ -166,12 +165,12 @@ public class PortalManager extends SavedData {
 
         if(!pair.areInSameDimension(PortalEnd.PRIMARY, portal)) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
-            ((ServerLevel)primary.level).removeEntity(primary, false);
+            ((ServerLevel)primary.level()).removeEntity(primary, false);
         }
 
         if(!pair.areInSameDimension(PortalEnd.SECONDARY, portal)) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
-            ((ServerLevel)secondary.level).removeEntity(secondary, false);
+            ((ServerLevel)secondary.level()).removeEntity(secondary, false);
         }
 
         pair.computeIfPresent(end, PortalEntity::onReplaced);
@@ -180,11 +179,11 @@ public class PortalManager extends SavedData {
         portalMap.put(gunUUID, pair);
 
         ChunkPos chunkPos = new ChunkPos(Mth.floor(portal.getX()) >> 4, Mth.floor(portal.getZ()) >> 4);
-        HashMap<ChunkPos, List<PortalEntity>> chunks = portalsPerChunk.getOrDefault(portal.level.dimension(), new HashMap<>());
+        HashMap<ChunkPos, List<PortalEntity>> chunks = portalsPerChunk.getOrDefault(portal.level().dimension(), new HashMap<>());
         List<PortalEntity> portals = chunks.getOrDefault(chunkPos, new ArrayList<>());
         portals.add(portal);
         chunks.put(chunkPos, portals);
-        portalsPerChunk.put(portal.level.dimension(), chunks);
+        portalsPerChunk.put(portal.level().dimension(), chunks);
 
         PacketInit.INSTANCE.send(PacketDistributor.ALL.noArg(), new SPortalPairPacket(gunUUID, new PartialPortalPair(pair)));
 
@@ -196,7 +195,7 @@ public class PortalManager extends SavedData {
             pair.remove(portal);
             portal.inChunk = false;
 
-            ResourceKey<Level> dimension = portal.level.dimension();
+            ResourceKey<Level> dimension = portal.level().dimension();
             ChunkPos chunkPos = new ChunkPos(Mth.floor(portal.getX()) >> 4, Mth.floor(portal.getZ()) >> 4);
             if(portalsPerChunk.containsKey(dimension)) {
                 if(portalsPerChunk.get(dimension).containsKey(chunkPos)) {

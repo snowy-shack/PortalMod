@@ -148,7 +148,7 @@ public class FizzlerEmitterTileEntity extends BlockEntity implements TickableBlo
         Direction backwards = state.getValue(FizzlerEmitterBlock.FACING).getOpposite();
 
         Vec3i perpendicular = up.getNormal().cross(backwards.getNormal());
-        Direction side = Direction.fromNormal(perpendicular.getX(), perpendicular.getY(), perpendicular.getZ());
+        Direction side = Direction.fromDelta(perpendicular.getX(), perpendicular.getY(), perpendicular.getZ());
 
         return new ArrayList<>(Arrays.asList(
                 pos.relative(side),

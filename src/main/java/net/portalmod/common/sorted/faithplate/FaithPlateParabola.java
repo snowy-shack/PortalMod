@@ -130,7 +130,7 @@ public class FaithPlateParabola {
             if (!state.getCollisionShape(world, pos).isEmpty() && !state.is(be.getBlockState().getBlock())) {
                 BlockPos prevBlock = new BlockPos(prev.x, prev.y, prev.z);
                 Vec3i diff = pos.subtract(prevBlock);
-                Direction face = Direction.fromNormal(diff.getX(), diff.getY(), diff.getZ());
+                Direction face = Direction.fromDelta(diff.getX(), diff.getY(), diff.getZ());
 
                 if (face == null) face = getNearestCubeFace(new net.minecraft.world.phys.Vec3(current.x, current.y, current.z)).getOpposite();
 

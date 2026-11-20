@@ -56,12 +56,9 @@ public class PortalServerProofManager {
             if(server == null || server.getTickCount() != this.tick)
                 return false;
 
-            AttributeInstance attribute = player.getAttribute(net.minecraftforge.common.ForgeMod.REACH_DISTANCE.get());
-            if(attribute == null)
-                return false;
-
             List<Entity> entities = Arrays.stream(this.portalChain).mapToObj(level::getEntity).collect(Collectors.toList());
-            double reach = attribute.getValue() + (breakBlock ? 1 : 3);
+            // Forge had a REACH_DISTANCE attribute; vanilla 1.20.1 uses fixed reach (4.5 survival, 5 creative).
+            double reach = (player.isCreative() ? 5.0D : 4.5D) + (breakBlock ? 1 : 3);
             reach *= reach;
             Vec3 blockPos = new Vec3(pos).add(0.5);
             Vec3 updatingPosition = new Vec3(player.position()).add(0, breakBlock ? 1.5 : 0, 0);

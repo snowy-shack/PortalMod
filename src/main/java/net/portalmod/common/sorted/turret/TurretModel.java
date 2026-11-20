@@ -76,7 +76,7 @@ public class TurretModel<T extends TurretEntity> extends EntityModel<T> {
 	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		float wingOffset, yaw, pitch;
 
-		float yRod = -(float) Math.toRadians(entity.yRot);
+		float yRod = -(float) Math.toRadians(entity.getYRot());
 
 		Vec3 laserDir = entity.turretToTarget.normalize();
 

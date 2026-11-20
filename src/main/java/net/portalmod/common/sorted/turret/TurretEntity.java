@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.turret;
 
+import net.minecraft.network.chat.Component;
 import com.mojang.datafixers.util.Pair;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -41,7 +42,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
 public class TurretEntity extends TestElementEntity {
@@ -106,12 +106,12 @@ public class TurretEntity extends TestElementEntity {
 
     @Override
     public void tick() {
-        boolean serverSide = !this.level.isClientSide;
+        boolean serverSide = !this.level().isClientSide;
 
         super.tick();
 
-        this.yHeadRot = this.yRot;
-        this.yBodyRot = this.yRot;
+        this.yHeadRot = this.getYRot();
+        this.yBodyRot = this.getYRot();
         if (this.isFizzling()) return;
 
         // If it's being held with a Portal Gun
@@ -127,7 +127,7 @@ public class TurretEntity extends TestElementEntity {
         // Tipping over
         Vec3 deltaMovement = getDeltaMovement();
         Vec3 motionXZ = new Vec3(deltaMovement.x, 0, deltaMovement.z);
-        if (motionXZ.length() > 0.01 && this.getState().isStanding() && this.onGround) {
+        if (motionXZ.length() > 0.01 && this.getState().isStanding() && this.onGround()) {
             if (serverSide) {
                 this.setState(TurretState.FALLING);
                 this.setTipDirectionRight(this.getLookAngle().yRot(90).dot(deltaMovement) < 0);
@@ -198,8 +198,8 @@ public class TurretEntity extends TestElementEntity {
         long tickTime = this.tickCount + this.getId();
 
         // Particles
-        if (this.canShoot() && tickTime % 2 == 0 && this.level.isClientSide) {
-            TurretSparkParticle.createGlowParticles(this.level, this, this.turretToTarget);
+        if (this.canShoot() && tickTime % 2 == 0 && this.level().isClientSide) {
+            TurretSparkParticle.createGlowParticles(this.level(), this, this.turretToTarget);
         }
 
         // 4 shots fired per sound
@@ -222,7 +222,7 @@ public class TurretEntity extends TestElementEntity {
         AABB eyeToEye = new AABB(you, theGuySheTellsYouNotToWorryAbout);
 
         // Cube shield
-        for (Cube cube : this.level.getNearbyEntities(Cube.class, TargetingConditions.DEFAULT, this, eyeToEye)) {
+        for (Cube cube : this.level().getNearbyEntities(Cube.class, TargetingConditions.DEFAULT, this, eyeToEye)) {
             AABB cubeAABB = cube.getBoundingBox();
             if (cubeAABB.clip(you, theGuySheTellsYouNotToWorryAbout).isPresent()) {
                 cube.playSound(SoundInit.CUBE_HIT.get(), 0.75f, ModUtil.randomSoundPitch()); // A cube intercepted the bullets
@@ -242,7 +242,7 @@ public class TurretEntity extends TestElementEntity {
 
         // Friendly Fire advancement
         if (targetEntity instanceof Monster) {
-            Player nearestPlayer = level.getNearestPlayer(this, 10);
+            Player nearestPlayer = level().getNearestPlayer(this, 10);
             if (nearestPlayer instanceof ServerPlayer) {
                 CriteriaTriggerInit.TURRET_DEFENSE.get().trigger((ServerPlayer) nearestPlayer);
             }
@@ -277,14 +277,14 @@ public class TurretEntity extends TestElementEntity {
         HitType hitType = HitType.CLEAR;
         while (true) {
             context = new ClipContext(startPos, endPos,
-                    ClipContext.BlockMode.COLLIDER, ClipContext.FluidMode.NONE, this);
-            rayTraceResult = this.level.clip(context);
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this);
+            rayTraceResult = this.level().clip(context);
 
             if (rayTraceResult.getType() == HitResult.Type.MISS || startPos.distanceToSqr(endPos) <= 0.1) {
                 return new Pair<>(hitType, transparentBlockPos != null ? transparentBlockPos : endPos);
             }
 
-            BlockState blockState = this.level.getBlockState(rayTraceResult.getBlockPos());
+            BlockState blockState = this.level().getBlockState(rayTraceResult.getBlockPos());
             Block block = blockState.getBlock();
 
             if (hitType != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hitType = HitType.PERMEABLE;
@@ -306,7 +306,7 @@ public class TurretEntity extends TestElementEntity {
         Vec3 turretPos = new Vec3(this.getX(), this.getEyeY(), this.getZ());
         Vec3 targetPos = new Vec3(targetEntity.getX(), targetEntity.getEyeY(), targetEntity.getZ());
 
-        if (targetEntity.level != this.level || targetPos.distanceToSqr(turretPos) > this.viewDistance * this.viewDistance) return HitType.SOLID;
+        if (targetEntity.level() != this.level() || targetPos.distanceToSqr(turretPos) > this.viewDistance * this.viewDistance) return HitType.SOLID;
 
         return this.traceAsFarAsPossible(turretPos, targetPos).getFirst();
     }
@@ -319,7 +319,7 @@ public class TurretEntity extends TestElementEntity {
 
         // Map entities to their distances
         Map<LivingEntity, Double> entityDistances = new HashMap<>();
-        for (LivingEntity entity : this.level.getNearbyEntities(LivingEntity.class, new TargetingConditions().selector(TARGETS), this, searchBox)) {
+        for (LivingEntity entity : this.level().getNearbyEntities(LivingEntity.class, new TargetingConditions().selector(TARGETS), this, searchBox)) {
             Vec3 ray = entity.position().subtract(this.position());
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();
@@ -382,18 +382,18 @@ public class TurretEntity extends TestElementEntity {
         return this.targetEntity != null;
     }
 
-    public static AttributeSupplier.MutableAttribute createAttributes() {
+    public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes();
     }
 
     public void onSpawnedByPlayer(Player player) {
         if (player.isCreative()) {
             this.setInfiniteAmmo(true);
-            player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.turret.infinite_ammo"), true);
+            player.displayClientMessage(Component.translatable("actionbar.portalmod.turret.infinite_ammo"), true);
             //TODO: add particles (happy_villager probably)
         }
 
-        this.yRot = player.isShiftKeyDown() ? player.yRot : Math.round(player.yRot / 45) * 45;
+        this.setYRot(player.isShiftKeyDown() ? player.getYRot() : Math.round(player.getYRot() / 45) * 45);
     }
 
     @Override
@@ -431,12 +431,12 @@ public class TurretEntity extends TestElementEntity {
         if (holdingItem.getItem() == ItemInit.BULLETS.get()) {
 
             if (this.getAmmo() >= MAX_BULLETS * AMMO_PER_BULLET) {
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.turret.full"), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.turret.full"), true);
                 return InteractionResult.PASS;
             }
 
             if (this.getInfiniteAmmo()) {
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.turret.infinite_ammo"), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.turret.infinite_ammo"), true);
                 return InteractionResult.PASS;
             }
 
@@ -446,7 +446,7 @@ public class TurretEntity extends TestElementEntity {
                 holdingItem.shrink(bulletStoreAmount);
             }
 
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.setWiggle(10);
                 this.setHurtDir(-this.getHurtDir());
                 this.playSound(SoundInit.TURRET_STOCK.get(), 1, ModUtil.randomSlightSoundPitch());
@@ -457,12 +457,12 @@ public class TurretEntity extends TestElementEntity {
         else if (holdingItem.getItem() instanceof WrenchItem) {
 
             if (this.getInfiniteAmmo()) {
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.turret.infinite_ammo"), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.turret.infinite_ammo"), true);
                 return InteractionResult.PASS;
             }
 
             if (this.getAmmo() == 0) {
-                player.displayClientMessage(new TranslatableComponent("actionbar.portalmod.turret.empty"), true);
+                player.displayClientMessage(Component.translatable("actionbar.portalmod.turret.empty"), true);
                 return InteractionResult.CONSUME;
             }
 
@@ -474,7 +474,7 @@ public class TurretEntity extends TestElementEntity {
 
             this.setAmmo(0);
 
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.setWiggle(10);
                 this.setHurtDir(-this.getHurtDir());
                 this.playSound(SoundInit.TURRET_STOCK.get(), 1, ModUtil.randomSlightSoundPitch());

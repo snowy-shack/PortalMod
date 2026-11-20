@@ -1,5 +1,6 @@
 package net.portalmod.mixins;
 
+import net.minecraft.network.chat.Component;
 import java.io.IOException;
 
 import org.lwjgl.glfw.GLFW;
@@ -15,7 +16,6 @@ import net.portalmod.client.render.Shader;
 
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.TranslatableComponent;
 
 @Mixin(KeyboardHandler.class)
 public abstract class KeyboardListenerMixin {
@@ -40,7 +40,7 @@ public abstract class KeyboardListenerMixin {
 
             info.setReturnValue(true);
         } else if(key == GLFW.GLFW_KEY_Q) {
-            Minecraft.getInstance().gui.getChat().addMessage(new TranslatableComponent("debug." + PortalMod.MODID + ".reload_shaders.help"));
+            Minecraft.getInstance().gui.getChat().addMessage(Component.translatable("debug." + PortalMod.MODID + ".reload_shaders.help"));
         }
     }
 }

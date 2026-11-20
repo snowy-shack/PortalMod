@@ -200,7 +200,7 @@ public class BlockInit {
             () -> new FizzlerFieldBlock(BlockBehaviour.Properties.copy(Blocks.AIR).noOcclusion().strength(-1.0F,3600000.0F).noDrops().lightLevel(blockState -> 10)));
 
     public static final RegistryObject<LiquidBlock> GOO = BLOCKS.register("goo",
-            () -> new GooBlock(FluidInit.GOO_FLUID, BlockBehaviour.Properties.of(Material.WATER, MaterialColor.PODZOL)));
+            () -> new GooBlock(FluidInit.GOO_FLUID.get(), BlockBehaviour.Properties.of(Material.WATER, MaterialColor.PODZOL)));
 
 
 

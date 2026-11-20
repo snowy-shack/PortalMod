@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portalgun;
 
+import com.mojang.math.Axis;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
 import net.portalmod.core.init.AnimationInit;
@@ -49,8 +50,8 @@ public class PortalGunISTER extends BlockEntityWithoutLevelRenderer {
             
         case GUI:
             matrixStack.translate(.55, .3, 0);
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(30));
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(-135));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(30));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(-135));
             break;
             
         case HEAD:
@@ -68,8 +69,8 @@ public class PortalGunISTER extends BlockEntityWithoutLevelRenderer {
             
         case FIXED:
             matrixStack.translate(.5, .3, .45);
-//            matrixStack.mulPose(Vector3f.XP.rotationDegrees(30));
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(90));
+//            matrixStack.mulPose(Axis.XP.rotationDegrees(30));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(90));
             matrixStack.scale(1.3f, 1.3f, 1.3f);
             break;
             
@@ -98,9 +99,9 @@ public class PortalGunISTER extends BlockEntityWithoutLevelRenderer {
                     + .5 * AnimationInit.LIFT.compute(System.currentTimeMillis()));
             
             matrixStack.translate(0, 0, .5);
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(yRot));
-            matrixStack.mulPose(Vector3f.XP.rotationDegrees(xRot));
-            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(zRot));
+            matrixStack.mulPose(Axis.YP.rotationDegrees(yRot));
+            matrixStack.mulPose(Axis.XP.rotationDegrees(xRot));
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(zRot));
             matrixStack.translate(0, 0, -.5);
         } else {
             animate = false;
@@ -187,10 +188,10 @@ public class PortalGunISTER extends BlockEntityWithoutLevelRenderer {
     public static void renderGun(PoseStack matrixStack, UUID gunUUID, PortalGunModel model, MultiBufferSource renderTypeBuffer, PortalGunAnimatedTexture texture, Colour stripeColour, Colour lastPortalColor, Colour tint, boolean gunLightOn, boolean animate, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
 
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
         matrixStack.translate(0, -1.5, 0);
 
-        MultiBufferSource.Impl irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
+        MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource();
         irendertypebuffer$impl.endBatch();
 
         VertexConsumer ivertexbuilder = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture.getTextureLocation()));

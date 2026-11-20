@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.sign;
 
+import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
 
@@ -30,15 +31,15 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
         matrixStack.pushPose();
 
         // Flip for whatever reason
-        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
 
         // Rotate
-        matrixStack.mulPose(Vector3f.YP.rotationDegrees(rotation + 180));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(rotation + 180));
 
         // Move down + z-fight fix
         matrixStack.translate(0, -1.505, -0.005);
 
-        int light = enabled ? LightTexture.pack(15, 15) : LevelRenderer.getLightColor(entity.level, entity.getPos().above());
+        int light = enabled ? LightTexture.pack(15, 15) : LevelRenderer.getLightColor(entity.level(), entity.getPos().above());
 
         this.model.changeModel(entity);
         this.model.renderToBuffer(matrixStack, renderTypeBuffer.getBuffer(this.model.renderType(enabled ? TEXTURE_ON : TEXTURE_OFF)),

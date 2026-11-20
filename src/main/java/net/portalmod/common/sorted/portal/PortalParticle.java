@@ -155,7 +155,7 @@ public class PortalParticle extends TextureSheetParticle {
         }
     }
     public static class PortalParticleData extends SimpleParticleType {
-        public static final ParticleOptions.IDeserializer<PortalParticleData> DESERIALIZER = new ParticleOptions.IDeserializer<PortalParticleData>() {
+        public static final ParticleOptions.Deserializer<PortalParticleData> DESERIALIZER = new ParticleOptions.Deserializer<PortalParticleData>() {
             @Override
             public PortalParticleData fromCommand(ParticleType<PortalParticleData> type, StringReader reader) throws CommandSyntaxException {
                 reader.expect(' ');

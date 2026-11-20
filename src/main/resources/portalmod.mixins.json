@@ -33,7 +33,10 @@
         "level.chunk.ChunkSerializerMixin",
         "network.PlayerInteractionManagerMixin",
         "network.ServerPlayNetHandlerMixin",
-        "screen.ContainerMixin"
+        "screen.ContainerMixin",
+        "hooks.ItemEntityHooksMixin",
+        "hooks.LivingEntityHooksMixin",
+        "hooks.PlayerHooksMixin"
     ],
     "client": [
         "KeyBindingMixin",
@@ -68,10 +71,20 @@
         "renderer.LevelRendererMixin",
         "renderer.LivingRendererMixin",
         "screen.CreativeScreenMixin",
-        "screen.OptionsScreenMixin"
+        "screen.OptionsScreenMixin",
+        "hooks.client.ClientLevelHooksMixin",
+        "hooks.client.EntityHooksMixin",
+        "hooks.client.FogRendererHooksMixin",
+        "hooks.client.GameRendererHooksMixin",
+        "hooks.client.GuiHooksMixin",
+        "hooks.client.LivingEntityRendererHooksMixin",
+        "hooks.client.MinecraftHooksMixin",
+        "hooks.client.MouseHandlerHooksMixin",
+        "hooks.client.PlayerRendererHooksMixin",
+        "hooks.client.ScreenEffectRendererHooksMixin"
     ],
     "minVersion": "0.8",
     "injectors": {
         "defaultRequire": 1
-  }
+    }
 }

@@ -18,7 +18,7 @@ public interface ActiveRenderInfoAccessor {
     Vec3 pmGetPosition();
 
     @Accessor(value = "blockPosition")
-    BlockPos.Mutable pmGetBlockPosition();
+    BlockPos.MutableBlockPos pmGetBlockPosition();
 
     @Accessor(value = "eyeHeight")
     float pmGetEyeHeight();

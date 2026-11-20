@@ -26,7 +26,7 @@ public class LivingEntityInjector {
     public static void onPostTick(LivingEntity entity) {
         RepulsionGelBlock.onPostTick(entity);
         IGelAffected gelAffected = (IGelAffected) entity;
-        gelAffected.setWasOnGround(entity.isOnGround());
+        gelAffected.setWasOnGround(entity.onGround());
         gelAffected.setLastLastDeltaMovement(gelAffected.getLastDeltaMovement());
         gelAffected.setLastDeltaMovement(entity.getDeltaMovement());
         gelAffected.setHorizontalBounced(false);
@@ -38,11 +38,11 @@ public class LivingEntityInjector {
         boolean isInGoo = false;
 
         for(BlockPos pos : blockPoses) {
-            FluidState fluidstate = entity.level.getFluidState(pos);
+            FluidState fluidstate = entity.level().getFluidState(pos);
             if(!fluidstate.is(FluidTagInit.GOO))
                 continue;
 
-            float height = pos.getY() + fluidstate.getHeight(entity.level, pos);
+            float height = pos.getY() + fluidstate.getHeight(entity.level(), pos);
             if(height >= aabb.minY) {
                 isInGoo = true;
                 break;
@@ -50,7 +50,7 @@ public class LivingEntityInjector {
         }
 
         return (
-            (includeOnGround && entity.isOnGround()) ||
+            (includeOnGround && entity.onGround()) ||
             entity.isInWall() ||
             entity.isInWater() ||
             entity.isInLava() ||
@@ -58,7 +58,7 @@ public class LivingEntityInjector {
             entity.isNoGravity() ||
             entity.hasEffect(MobEffects.LEVITATION) ||
             (entity instanceof Player &&
-                ((Player) entity).abilities.flying
+                ((Player) entity).getAbilities().flying
             )
         );
     }

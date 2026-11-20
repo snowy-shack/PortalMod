@@ -34,12 +34,12 @@ public class PlayerEntityInjector {
 //        }
 //        player.travel(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza));
 
-        if (player.abilities.flying && !player.isPassenger()) {
+        if (player.getAbilities().flying && !player.isPassenger()) {
             wasFlying = true;
 
             double d5 = player.getDeltaMovement().y;
             float f = player.flyingSpeed;
-            player.flyingSpeed = player.abilities.getFlyingSpeed() * (float)(player.isSprinting() ? 2 : 1);
+            player.flyingSpeed = player.getAbilities().getFlyingSpeed() * (float)(player.isSprinting() ? 2 : 1);
 
 
 
@@ -47,14 +47,14 @@ public class PlayerEntityInjector {
 
             if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
                 BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
-                float f3 = player.level.getBlockState(blockpos).getSlipperiness(player.level, blockpos, player);
-                float f4 = player.isOnGround() ? f3 * 0.91F : 0.91F;
+                float f3 = player.level().getBlockState(blockpos).getSlipperiness(player.level(), blockpos, player);
+                float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
                 Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
                 double d2 = vector3d5.y;
                 if (player.hasEffect(MobEffects.LEVITATION)) {
                     d2 += (0.05D * (double)(player.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
                     player.fallDistance = 0.0F;
-                } else if (player.level.isClientSide && !player.level.hasChunkAt(blockpos)) {
+                } else if (player.level().isClientSide && !player.level().hasChunkAt(blockpos)) {
                     if (player.getY() > 0.0D) {
                         d2 = -0.1D;
                     } else {
@@ -97,14 +97,14 @@ public class PlayerEntityInjector {
 
             if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
                 BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
-                float f3 = player.level.getBlockState(blockpos).getSlipperiness(player.level, blockpos, player);
-                float f4 = player.isOnGround() ? f3 * 0.91F : 0.91F;
+                float f3 = player.level().getBlockState(blockpos).getSlipperiness(player.level(), blockpos, player);
+                float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
                 Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
                 double d2 = vector3d5.y;
                 if (player.hasEffect(MobEffects.LEVITATION)) {
                     d2 += (0.05D * (double)(player.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vector3d5.y) * 0.2D;
                     player.fallDistance = 0.0F;
-                } else if (player.level.isClientSide && !player.level.hasChunkAt(blockpos)) {
+                } else if (player.level().isClientSide && !player.level().hasChunkAt(blockpos)) {
                     if (player.getY() > 0.0D) {
                         d2 = -0.1D;
                     } else {
@@ -132,7 +132,7 @@ public class PlayerEntityInjector {
 //        if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
 //            BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
 //            float f3 = player.level.getBlockState(blockpos).getSlipperiness(player.level, blockpos, player);
-//            float f4 = player.isOnGround() ? f3 * 0.91F : 0.91F;
+//            float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
 //            Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
 //            double d2 = vector3d5.y;
 //            if (player.hasEffect(MobEffects.LEVITATION)) {
