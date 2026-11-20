@@ -139,15 +139,15 @@ public class PortalGun extends Item implements CreativeTabFiller {
                 PortalGunGrabSoundClient.handlePacket(player, false));
     }
 
-    @Override
+    /** Called by ServerPlayerHooksMixin when the player drops this item (Forge: Item#onDroppedByPlayer). */
     public boolean onDroppedByPlayer(ItemStack item, Player player) {
         dropCube(player, item);
 
-        return super.onDroppedByPlayer(item, player);
+        return true;
     }
 
     public static BlockHitResult customClip(Level level, ClipContext context) {
-        return BlockGetter.traverseBlocks(context, (ctx, pos) -> {
+        return BlockGetter.traverseBlocks(context.getFrom(), context.getTo(), context, (ctx, pos) -> {
             BlockState blockstate = level.getBlockState(pos);
 
             if (blockstate.is(BlockTagInit.PORTAL_TRANSPARENT))
@@ -531,8 +531,8 @@ public class PortalGun extends Item implements CreativeTabFiller {
         String leftColorName = lock.equals("Left") ? "locked" : getLeftDyeColour(nbt).toString();
         String rightColorName = lock.equals("Right") ? "locked" : getRightDyeColour(nbt).toString();
 
-        int leftColor = lock.equals("Left") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(leftColorName).getRGB();
-        int rightColor = lock.equals("Right") ? DyeColor.LIGHT_GRAY.getColorValue() : PortalColors.getColor(rightColorName).getRGB();
+        int leftColor = lock.equals("Left") ? ModUtil.dyeColorValue(DyeColor.LIGHT_GRAY) : PortalColors.getColor(leftColorName).getRGB();
+        int rightColor = lock.equals("Right") ? ModUtil.dyeColorValue(DyeColor.LIGHT_GRAY) : PortalColors.getColor(rightColorName).getRGB();
 
         list.add(ModUtil.tooltipComponent("tooltip.portalmod.portalgun.colors"));
         list.add(Component.translatable("tooltip.portalmod.colors." + leftColorName).setStyle(Style.EMPTY.withColor(TextColor.fromRgb(leftColor)))

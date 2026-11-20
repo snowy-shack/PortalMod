@@ -67,7 +67,6 @@ public class EntityInit {
             () -> EntityType.Builder.<PortalEntity>of(PortalEntity::new, MobCategory.MISC)
                     .clientTrackingRange(10)
                     .updateInterval(Integer.MAX_VALUE)
-                    .setCustomClientFactory((spawnEntity, level) -> new PortalEntity(level))
                     .build(new ResourceLocation(PortalMod.MODID, "portal").toString()));
     
 //    public static final RegistryObject<EntityType<PortalEntity>> PORTAL = null;

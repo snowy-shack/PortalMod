@@ -26,6 +26,9 @@ public interface ActiveRenderInfoAccessor {
     @Accessor(value = "eyeHeightOld")
     float pmGetEyeHeightOld();
 
+    @Invoker(value = "setPosition")
+    void pmInvokeSetPosition(Vec3 position);
+
     @Invoker(value = "setRotation")
     void pmSetRotation(float yaw, float pitch);
 }

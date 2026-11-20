@@ -242,11 +242,11 @@ public class BlockInit {
     }
 
     public static RegistryObject<Block> registerLunecastStairs(String name) {
-        return BLOCKS.register(name + "_stairs", () -> new StairBlock(() -> LUNECAST.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.WHITE_CONCRETE)));
+        return BLOCKS.register(name + "_stairs", () -> new StairBlock(LUNECAST.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.WHITE_CONCRETE)));
     }
 
     public static RegistryObject<Block> registerBlackplateStairs(String name) {
-        return BLOCKS.register(name + "_stairs", () -> new StairBlock(() -> BLACKPLATE.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.BLACK_CONCRETE)));
+        return BLOCKS.register(name + "_stairs", () -> new StairBlock(BLACKPLATE.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
     /** What Material.STONE used to give: stone sounds/instrument. */

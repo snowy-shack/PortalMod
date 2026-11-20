@@ -1,5 +1,6 @@
 package net.portalmod.mixins.renderer;
 
+import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.client.render.PortalCamera;
 import net.portalmod.common.sorted.fizzler.FizzlerFieldBlock;
@@ -66,7 +67,7 @@ public class LevelRendererMixin {
             PortalEntity currentPortal = PortalRenderer.getInstance().portalChain.peekLast();
             if(currentPortal != null && currentPortal.getOtherPortal().isPresent()) {
                 camera = new PortalCamera(camera, partialTicks);
-                camera.setPosition(currentPortal.getOtherPortal().get().position());
+                ((ActiveRenderInfoAccessor) camera).pmInvokeSetPosition(currentPortal.getOtherPortal().get().position());
             }
         }
 
@@ -85,7 +86,7 @@ public class LevelRendererMixin {
             PortalEntity currentPortal = PortalRenderer.getInstance().portalChain.peekLast();
             if(currentPortal != null && currentPortal.getOtherPortal().isPresent()) {
                 camera = new PortalCamera(camera, partialTicks);
-                camera.setPosition(currentPortal.getOtherPortal().get().position());
+                ((ActiveRenderInfoAccessor) camera).pmInvokeSetPosition(currentPortal.getOtherPortal().get().position());
             }
         }
 

@@ -1,5 +1,6 @@
 package net.portalmod.core.event;
 
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
@@ -57,7 +58,7 @@ public class ClientModEvents {
         clientSetup();
         // The window and main framebuffer only exist once the client has fully started.
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-            client.getMainRenderTarget().enableStencil();
+            ((net.portalmod.core.interfaces.StencilTarget) client.getMainRenderTarget()).pmEnableStencil();
             ShaderInit.REGISTRY.registerAll();
         });
         ModelLoadingPlugin.register(net.portalmod.client.render.PortalModModels::initialize);
@@ -125,7 +126,7 @@ public class ClientModEvents {
         net.portalmod.common.sorted.portalgun.PortalGunISTER portalGunRenderer = new net.portalmod.common.sorted.portalgun.PortalGunISTER();
         BuiltinItemRendererRegistry.INSTANCE.register(ItemInit.PORTALGUN.get(), portalGunRenderer::renderByItem);
 
-        registerItemProperty(ItemInit.PORTALGUN.get(), "color",  PortalGun::getColorOverride);
+        registerItemProperty(ItemInit.PORTALGUN.get(), "color", (stack, level, entity, seed) -> PortalGun.getColorOverride(stack, level, entity));
 
         FluidRenderHandlerRegistry.INSTANCE.register(FluidInit.GOO_FLUID.get(), FluidInit.GOO_FLOWING.get(),
                 new SimpleFluidRenderHandler(new ResourceLocation(PortalMod.MODID, "block/goo_still"),
@@ -133,7 +134,7 @@ public class ClientModEvents {
 
     }
 
-    private static void registerItemProperty(Item item, String name, ItemPropertyFunction getter) {
+    private static void registerItemProperty(Item item, String name, ClampedItemPropertyFunction getter) {
         ItemProperties.register(item, new ResourceLocation(PortalMod.MODID, name), getter);
     }
 }

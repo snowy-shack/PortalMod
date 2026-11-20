@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.core.registries.Registries;
 import com.mojang.datafixers.util.Pair;
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.PortalMod;
@@ -87,7 +88,7 @@ public class PortalManager extends SavedData {
             if(pair.contains("primary")) {
                 CompoundTag primary = pair.getCompound("primary");
                 ResourceLocation rl = new ResourceLocation(primary.getString("level"));
-                ResourceKey<Level> rk = ResourceKey.create(Registry.DIMENSION_REGISTRY, rl);
+                ResourceKey<Level> rk = ResourceKey.create(Registries.DIMENSION, rl);
                 Level level = PortalMod.getServer().getLevel(rk);
 
                 PortalEntity blue = new PortalEntity(level);
@@ -104,7 +105,7 @@ public class PortalManager extends SavedData {
             if(pair.contains("secondary")) {
                 CompoundTag secondary = pair.getCompound("secondary");
                 ResourceLocation rl = new ResourceLocation(secondary.getString("level"));
-                ResourceKey<Level> rk = ResourceKey.create(Registry.DIMENSION_REGISTRY, rl);
+                ResourceKey<Level> rk = ResourceKey.create(Registries.DIMENSION, rl);
                 Level level = PortalMod.getServer().getLevel(rk);
 
                 PortalEntity orange = new PortalEntity(level);

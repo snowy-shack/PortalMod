@@ -202,7 +202,7 @@ public class Shader {
     }
     
     public Shader setMatrix(String name, Matrix4f matrix) {
-        matrix.store(MATRIX_BUFFER);
+        matrix.get(MATRIX_BUFFER);
         setMatrix(name, MATRIX_BUFFER);
         return this;
     }

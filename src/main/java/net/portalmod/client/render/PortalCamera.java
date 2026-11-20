@@ -27,11 +27,11 @@ public class PortalCamera extends Camera {
     }
 
     public void setPitch(float pitch) {
-        this.setAnglesInternal(this.getYRot(), pitch);
+        this.setRotation(this.getYRot(), pitch);
     }
 
     public void setYaw(float yaw) {
-        this.setAnglesInternal(yaw, this.getXRot());
+        this.setRotation(yaw, this.getXRot());
     }
 
     public void setRoll(float roll) {

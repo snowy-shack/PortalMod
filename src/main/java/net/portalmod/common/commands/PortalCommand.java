@@ -96,7 +96,7 @@ public class PortalCommand {
             throw new SimpleCommandExceptionType(getText("open.failed")).create();
         }
 
-        source.sendSuccess(getText("open.success"), true);
+        source.sendSuccess(() -> getText("open.success"), true);
         return 1;
     }
 
@@ -116,7 +116,7 @@ public class PortalCommand {
                 pair.get(PortalEnd.SECONDARY).discard();
         }
 
-        source.sendSuccess(getText("close.double.success"), true);
+        source.sendSuccess(() -> getText("close.double.success"), true);
         return 1;
     }
 
@@ -132,11 +132,11 @@ public class PortalCommand {
                 pair.get(PortalEnd.PRIMARY).discard();
             if(pair.has(PortalEnd.SECONDARY))
                 pair.get(PortalEnd.SECONDARY).discard();
-            source.sendSuccess(getText("close.double.success"), true);
+            source.sendSuccess(() -> getText("close.double.success"), true);
         } else {
             if(pair.has(end)) {
                 pair.get(end).discard();
-                source.sendSuccess(getText("close.single.success"), true);
+                source.sendSuccess(() -> getText("close.single.success"), true);
             } else {
                 throw new SimpleCommandExceptionType(getText("close.single.failed.null")).create();
             }

@@ -208,7 +208,7 @@ public class PanelBlock extends Block implements PortalHelper {
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             ItemStack itemStack = player.getInventory().getItem(i);
             Item item = itemStack.getItem();
-            if (item instanceof BlockItem && ((BlockItem) item).getBlock().is(block)) {
+            if (item instanceof BlockItem && (((BlockItem) item).getBlock() == block)) {
                 total += itemStack.getCount();
                 if (total >= 2) {
                     return true;
@@ -224,7 +224,7 @@ public class PanelBlock extends Block implements PortalHelper {
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack itemStack = inventory.getItem(i);
             Item item = itemStack.getItem();
-            if (item instanceof BlockItem && ((BlockItem) item).getBlock().is(block)
+            if (item instanceof BlockItem && (((BlockItem) item).getBlock() == block)
                     // May not remove one from the selected hand if its count is 1, because it will already get removed by default
                     && !(i == inventory.selected && itemStack.getCount() == 1)) {
                 itemStack.shrink(1);

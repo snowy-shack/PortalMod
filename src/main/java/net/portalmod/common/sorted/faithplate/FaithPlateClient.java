@@ -22,7 +22,7 @@ public class FaithPlateClient {
         // todo animate only if successful
 
 //                be.animStart = System.currentTimeMillis();
-        FaithPlateTER ter = (FaithPlateTER) BlockEntityRenderDispatcher.instance.getRenderer(be);
+        FaithPlateTER ter = (FaithPlateTER) Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(be);
         ((FaithPlatePlateModel)ter.getPlateModel()).startAnimation(be, "launch");
         level.playSound(Minecraft.getInstance().player,
                 packet.pos.getX() + .5, packet.pos.getY() + .5, packet.pos.getZ() + .5,

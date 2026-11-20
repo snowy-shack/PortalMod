@@ -1,5 +1,6 @@
 package net.portalmod.core.util;
 
+import net.minecraft.world.item.DyeColor;
 import com.mojang.datafixers.util.Pair;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.portal.PortalEntity;
@@ -60,7 +61,7 @@ public class ModUtil {
     }
 
     public static BlockHitResult customClip(Level level, ClipContext context, Function<BlockPos, Optional<VoxelShape>> shapeOverride) {
-        return BlockGetter.traverseBlocks(context, (ctx, pos) -> {
+        return BlockGetter.traverseBlocks(context.getFrom(), context.getTo(), context, (ctx, pos) -> {
             BlockState blockstate = level.getBlockState(pos);
             FluidState fluidstate = level.getFluidState(pos);
 
@@ -328,5 +329,11 @@ public class ModUtil {
         entity.xOld = x;
         entity.yOld = y;
         entity.zOld = z;
+    }
+
+    /** 1.16 DyeColor#getColorValue (the dye's RGB colour); 1.20 only exposes it as floats. */
+    public static int dyeColorValue(DyeColor color) {
+        float[] c = color.getTextureDiffuseColors();
+        return (Math.round(c[0] * 255) << 16) | (Math.round(c[1] * 255) << 8) | Math.round(c[2] * 255);
     }
 }

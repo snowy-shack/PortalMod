@@ -95,7 +95,7 @@ public class Mat4 {
     private static final FloatBuffer temp = FloatBuffer.allocate(16);
 
     public Mat4(Matrix4f m) {
-        m.store(temp);
+        m.get(temp);
         this.m00 = temp.get(0);
         this.m01 = temp.get(1);
         this.m02 = temp.get(2);
@@ -329,17 +329,18 @@ public class Mat4 {
     }
 
     public Matrix4f to4f() {
-        return new Matrix4f(new float[] {
+        // Forge 1.16 read this array row by row; JOML reads column by column, so transpose.
+        return new Matrix4f().set(new float[] {
                 (float)m00, (float)m01, (float)m02, (float)m03,
                 (float)m10, (float)m11, (float)m12, (float)m13,
                 (float)m20, (float)m21, (float)m22, (float)m23,
                 (float)m30, (float)m31, (float)m32, (float)m33
-        });
+        }).transpose();
     }
 
     public FloatBuffer toBuffer() {
         FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        this.store(buffer);
+        this.get(buffer);
         return buffer;
     }
 }

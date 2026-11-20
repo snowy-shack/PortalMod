@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
@@ -197,7 +198,7 @@ public class PortalParticle extends TextureSheetParticle {
         @Override
         public String writeToString() {
             return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f %d",
-                    Registry.PARTICLE_TYPE.getKey(this.getType()), this.r, this.g, this.b, this.a, this.direction.get3DDataValue());
+                    BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), this.r, this.g, this.b, this.a, this.direction.get3DDataValue());
         }
         @Override
         public SimpleParticleType getType() {

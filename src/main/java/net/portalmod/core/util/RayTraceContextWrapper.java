@@ -14,7 +14,7 @@ public class RayTraceContextWrapper extends ClipContext {
     private Vec3 to;
 
     public RayTraceContextWrapper(ClipContext context) {
-        super(Vec3.ZERO, Vec3.ZERO, BlockMode.COLLIDER, FluidMode.ANY, null);
+        super(Vec3.ZERO, Vec3.ZERO, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, null);
         this.wrapped = context;
     }
 

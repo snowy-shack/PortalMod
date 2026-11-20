@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.cubedropper;
 
+import net.minecraft.util.RandomSource;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.SpawnEggItem;
 
 import net.portalmod.common.entities.TestElementEntity;
@@ -119,7 +121,7 @@ public class CubeDropperTileEntity extends BlockEntity implements IndicatorActiv
         // Create new entity using nbt
         Entity entity = EntityType.loadEntityRecursive(this.entityNBT, this.level, e -> {
             e.moveTo(new Vec3(this.getBlockPos().south().east()).to3d());
-            e.setYRot((ModUtil.symmetricRandom(15) + e.rotate(Rotation.getRandom(new Random()))));
+            e.setYRot((ModUtil.symmetricRandom(15) + e.rotate(Rotation.getRandom(RandomSource.create()))));
             e.setYBodyRot(e.getYRot());
             e.setYHeadRot(e.getYRot());
             return e;
@@ -240,7 +242,7 @@ public class CubeDropperTileEntity extends BlockEntity implements IndicatorActiv
 
     public void setEntityNBT(EntityType<?> entityType) {
         this.entityNBT = new CompoundTag();
-        this.entityNBT.putString("id", Registry.ENTITY_TYPE.getKey(entityType).toString());
+        this.entityNBT.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString());
     }
 
     public boolean hasEntityNBT() {

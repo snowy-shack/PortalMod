@@ -289,13 +289,13 @@ public class TurretEntity extends TestElementEntity {
             BlockState blockState = this.level().getBlockState(rayTraceResult.getBlockPos());
             Block block = blockState.getBlock();
 
-            if (hitType != HitType.TRANSPARENT && block.is(BlockTagInit.BLOCK_PERMEABLE)) hitType = HitType.PERMEABLE;
-            if (block.is(BlockTagInit.BLOCK_TRANSPARENT) && transparentBlockPos == null) {
+            if (hitType != HitType.TRANSPARENT && block.builtInRegistryHolder().is(BlockTagInit.BLOCK_PERMEABLE)) hitType = HitType.PERMEABLE;
+            if (block.builtInRegistryHolder().is(BlockTagInit.BLOCK_TRANSPARENT) && transparentBlockPos == null) {
                 transparentBlockPos = rayTraceResult.getLocation();
                 hitType = HitType.TRANSPARENT;
             }
 
-            if (!block.is(BlockTagInit.BLOCK_PERMEABLE) && !block.is(BlockTagInit.BLOCK_TRANSPARENT)) {
+            if (!block.builtInRegistryHolder().is(BlockTagInit.BLOCK_PERMEABLE) && !block.builtInRegistryHolder().is(BlockTagInit.BLOCK_TRANSPARENT)) {
                 return new Pair<>(HitType.SOLID, transparentBlockPos != null ? transparentBlockPos : rayTraceResult.getLocation());
             }
 

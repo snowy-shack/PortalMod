@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.portal;
 
+import net.portalmod.core.interfaces.StencilTarget;
+
+import net.portalmod.mixins.accessors.ActiveRenderInfoAccessor;
 import com.mojang.math.Axis;
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -66,7 +69,7 @@ public class PortalRenderer {
     private static final PositionTextureVertexRenderer screenQuad = new PositionTextureVertexRenderer(GL_QUADS);
     private static final PositionTextureVertexRenderer blitQuad = new PositionTextureVertexRenderer(GL_QUADS);
 
-    private static final RenderTarget tempFBO = new RenderTarget(
+    private static final RenderTarget tempFBO = new com.mojang.blaze3d.pipeline.TextureTarget(
             Minecraft.getInstance().getWindow().getWidth(),
             Minecraft.getInstance().getWindow().getHeight(),
             true,
@@ -426,7 +429,7 @@ public class PortalRenderer {
                 if(tempFBO.width != w || tempFBO.height != h)
                     tempFBO.resize(w, h, Minecraft.ON_OSX);
 
-                tempFBO.enableStencil();
+                ((StencilTarget) tempFBO).pmEnableStencil();
                 tempFBO.bindWrite(false);
                 GL11.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             }
@@ -536,7 +539,7 @@ public class PortalRenderer {
     private float[] computePortalNdcRect(PortalEntity portal, Camera camera, Matrix4f projectionMatrix) {
         AABB bb = portal.getBoundingBox();
         Matrix4f view = getViewMatrix(camera);
-        Matrix4f mvp = projectionMatrix.copy();
+        Matrix4f mvp = new Matrix4f(projectionMatrix);
         mvp.mul(view);
 
         float xMin =  Float.POSITIVE_INFINITY, yMin =  Float.POSITIVE_INFINITY;
@@ -663,8 +666,8 @@ public class PortalRenderer {
         if(emitDebugParticles) {
             // Corner sample: green = ray reached it (portal will render), red = occluded.
             DustParticleOptions cornerDust = visible
-                    ? new DustParticleOptions(0.1F, 1.0F, 0.2F, 0.2F)
-                    : new DustParticleOptions(1.0F, 0.15F, 0.1F, 0.2F);
+                    ? new DustParticleOptions(new org.joml.Vector3f(0.1F, 1.0F, 0.2F), 0.2F)
+                    : new DustParticleOptions(new org.joml.Vector3f(1.0F, 0.15F, 0.1F), 0.2F);
             world.addParticle(cornerDust, corner.x, corner.y, corner.z, 0, 0, 0);
 
             if(!visible && hit.getType() != HitResult.Type.MISS) {
@@ -672,7 +675,7 @@ public class PortalRenderer {
                 // are working correctly, this should be on the solid wall behind them,
                 // not on the grate itself.
                 net.minecraft.world.phys.Vec3 h = hit.getLocation();
-                DustParticleOptions hitDust = new DustParticleOptions(1.0F, 0.9F, 0.2F, 0.2F);
+                DustParticleOptions hitDust = new DustParticleOptions(new org.joml.Vector3f(1.0F, 0.9F, 0.2F), 0.2F);
                 world.addParticle(hitDust, h.x, h.y, h.z, 0, 0, 0);
             }
         }
@@ -751,7 +754,7 @@ public class PortalRenderer {
         Camera fogCamera = camera;
         if(portal.getOtherPortal().isPresent()) {
             fogCamera = new PortalCamera(camera, partialTicks);
-            fogCamera.setPosition(portal.getOtherPortal().get().position());
+            ((ActiveRenderInfoAccessor) fogCamera).pmInvokeSetPosition(portal.getOtherPortal().get().position());
         }
 
         setupSkyAndFog(fogCamera, partialTicks);
@@ -867,7 +870,7 @@ public class PortalRenderer {
         Matrix4f modelMatrix = getModelMatrix(portal, camera, portal.getWallAttachmentDistance(camera));
         Matrix4f viewMatrix = getViewMatrix(camera);
 
-        Matrix4f modelView = viewMatrix.copy();
+        Matrix4f modelView = new Matrix4f(viewMatrix);
         modelView.mul(modelMatrix);
 
         {
@@ -882,7 +885,7 @@ public class PortalRenderer {
             Camera fogCamera = portalCamera;
             if(portal.getOtherPortal().isPresent()) {
                 fogCamera = new PortalCamera(portalCamera, partialTicks);
-                fogCamera.setPosition(portal.getOtherPortal().get().position());
+                ((ActiveRenderInfoAccessor) fogCamera).pmInvokeSetPosition(portal.getOtherPortal().get().position());
             }
 
             FogRenderer.setupColor(fogCamera, partialTicks, mc.level, mc.options.renderDistance().get(),
@@ -984,7 +987,7 @@ public class PortalRenderer {
                 mc.levelRenderer.renderChunks.clear();
                 mc.levelRenderer.renderChunks.addAll(renderChunks);
 
-                BlockEntityRenderDispatcher.instance.prepare(portal.level(), mc.getTextureManager(), mc.font, camera, mc.hitResult);
+                Minecraft.getInstance().getBlockEntityRenderDispatcher().prepare(portal.level(), mc.getTextureManager(), mc.font, camera, mc.hitResult);
                 mc.levelRenderer.entityRenderDispatcher.prepare(portal.level(), camera, mc.crosshairPickEntity);
                 PROFILE.pop();
 

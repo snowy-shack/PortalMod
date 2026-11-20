@@ -1,5 +1,6 @@
 package net.portalmod.core.init;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.PortalMod;
 
 import net.minecraft.stats.StatFormatter;
@@ -15,7 +16,7 @@ public class StatsInit {
     
     private static ResourceLocation makeCustomStat(String name, StatFormatter formatter) {
         ResourceLocation resourcelocation = new ResourceLocation(PortalMod.MODID, name);
-        Registry.register(Registry.CUSTOM_STAT, resourcelocation, resourcelocation);
+        Registry.register(BuiltInRegistries.CUSTOM_STAT, resourcelocation, resourcelocation);
         Stats.CUSTOM.get(resourcelocation, formatter);
         return resourcelocation;
     }

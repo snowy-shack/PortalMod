@@ -25,10 +25,13 @@ public class AnimatedModel extends Model {
     public static final Target YROT = (model, yRot) -> model.yRot = yRot;
     public static final Target ZROT = (model, zRot) -> model.zRot = zRot;
 
-    public AnimatedModel(int texWidth, int texHeight) {
+    public AnimatedModel() {
         super(RenderType::entityCutoutNoCull);
-        this.texWidth = texWidth;
-        this.texHeight = texHeight;
+    }
+
+    /** Texture size is part of the LayerDefinition since 1.17; kept for old callers. */
+    public AnimatedModel(int texWidth, int texHeight) {
+        this();
     }
 
     protected void attachAnimation(String name, ModelPart model, Target target, Animation animation) {

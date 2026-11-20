@@ -61,7 +61,7 @@ public class PortalPlacer {
         Block shotBlock = shotBlockState.getBlock();
 
         if(!(PortalableBlock.isPortalable(shotBlockState, face, level)
-                || shotBlock.is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face, level)))
+                || shotBlock.builtInRegistryHolder().is(BlockTagInit.PORTAL_INHERITING) && PortalableBlock.isPortalable(behindBlockState, face, level)))
             return null;
 
         if(player != null) {

@@ -39,7 +39,7 @@ public class PortalGunClient {
     private void handleLeftClick() {
         LocalPlayer player = Minecraft.getInstance().player;
 
-        if (player.hasPassenger(TestElementEntity.class)) {
+        if (player.hasPassenger(e -> e instanceof TestElementEntity)) {
             TestElementEntity.dropHeldEntities(player, true, false, player.getMainHandItem());
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.THROW_ENTITY).build());
         } else {
@@ -48,7 +48,7 @@ public class PortalGunClient {
     }
 
     private void handleRightClick() {
-        if (!Minecraft.getInstance().player.hasPassenger(TestElementEntity.class)) {
+        if (!Minecraft.getInstance().player.hasPassenger(e -> e instanceof TestElementEntity)) {
             this.shootPortal(PortalEnd.SECONDARY);
         }
     }

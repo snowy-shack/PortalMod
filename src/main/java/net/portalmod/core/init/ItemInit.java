@@ -111,7 +111,7 @@ public class ItemInit {
 
     // Discs
     public static final RegistryObject<Item> DISC_RAIN = ITEMS.register("music_disc_rain",
-            () -> new RecordItem(1, SoundInit.DISC_RAIN, properties().stacksTo(1).rarity(Rarity.RARE)));
+            () -> new RecordItem(1, SoundInit.DISC_RAIN.get(), properties().stacksTo(1).rarity(Rarity.RARE), 185)); // 185 s = length of disc/rain.ogg
 
     public static final RegistryObject<Item> FOREST_CAKE = ITEMS.register("forest_cake",
             () -> new BlockItem(BlockInit.FOREST_CAKE.get(), properties().stacksTo(1)));
@@ -210,8 +210,8 @@ public class ItemInit {
                 BucketItem bucketitem = (BucketItem)p_82487_2_.getItem();
                 BlockPos blockpos = p_82487_1_.getPos().relative(p_82487_1_.getBlockState().getValue(DispenserBlock.FACING));
                 Level world = p_82487_1_.getLevel();
-                if (bucketitem.emptyBucket(null, world, blockpos, null)) {
-                    bucketitem.checkExtraContent(world, p_82487_2_, blockpos);
+                if (bucketitem.emptyContents(null, world, blockpos, null)) {
+                    bucketitem.checkExtraContent(null, world, p_82487_2_, blockpos);
                     return new ItemStack(Items.BUCKET);
                 } else {
                     return this.defaultDispenseItemBehavior.dispense(p_82487_1_, p_82487_2_);

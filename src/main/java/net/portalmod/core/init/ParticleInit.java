@@ -43,7 +43,7 @@ public class ParticleInit {
     /** Client only: called from the client entrypoint. */
     public static void registerParticleFactories() {
         ParticleFactoryRegistry particleEngine = ParticleFactoryRegistry.getInstance();
-        particleEngine.register(ParticleInit.PORTAL_PARTICLE.get(), PortalParticle.Provider::new);
+        particleEngine.register(ParticleInit.PORTAL_PARTICLE.get(), PortalParticle.Factory::new);
         particleEngine.register(ParticleInit.PORTAL_PHOTON.get(), PortalPhotonParticle.Factory::new);
         particleEngine.register(ParticleInit.FIZZLE_GLOW.get(), FizzleGlowParticle.Factory::new);
         particleEngine.register(ParticleInit.FIZZLE_FLAKE_FALLING.get(), FizzleFlakeParticle.FallingFactory::new);

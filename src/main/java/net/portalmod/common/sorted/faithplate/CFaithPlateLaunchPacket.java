@@ -52,7 +52,7 @@ public class CFaithPlateLaunchPacket implements AbstractPacket<CFaithPlateLaunch
 //                    .distanceTo(context.get().getSender().getPosition(0)) > 3)
 //                return;
 
-//            FaithPlateTER ter = (FaithPlateTER)BlockEntityRenderDispatcher.instance.getRenderer(be);
+//            FaithPlateTER ter = (FaithPlateTER)Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(be);
 //            ((FaithPlatePlateModel)ter.getPlateModel()).startAnimation(be, "launch");
 //            level.playSound(Minecraft.getInstance().player,
 //                pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5,

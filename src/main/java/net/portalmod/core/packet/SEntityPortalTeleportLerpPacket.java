@@ -77,7 +77,7 @@ public class SEntityPortalTeleportLerpPacket implements AbstractPacket<SEntityPo
                 Entity entity = Minecraft.getInstance().level.getEntity(this.entityId);
                 if(entity != null && entity != Minecraft.getInstance().player) {
                     Vec3 lastPos = this.lerpPositions.peekLast().getB();
-                    entity.setPacketCoordinates(lastPos.x, lastPos.y, lastPos.z);
+                    entity.syncPacketPositionCodec(lastPos.x, lastPos.y, lastPos.z);
 
                     float yRot = (float)(this.yRot * 360) / 256.0F;
                     float xRot = (float)(this.xRot * 360) / 256.0F;

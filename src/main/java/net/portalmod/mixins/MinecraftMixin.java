@@ -1,5 +1,6 @@
 package net.portalmod.mixins;
 
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.portalmod.common.sorted.portalgun.PortalGun;
 import net.portalmod.core.init.KeyInit;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +36,7 @@ public class MinecraftMixin {
     private void pmCancelInventoryOpen(Minecraft minecraft, Screen screen) {
         if (minecraft.player != null
                 && minecraft.player.getMainHandItem().getItem() instanceof PortalGun
-                && KeyInit.PORTALGUN_INTERACT.getKey() == minecraft.options.keyInventory.getKey()) {
+                && KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT) == KeyBindingHelper.getBoundKeyOf(minecraft.options.keyInventory)) {
             return;
         }
 

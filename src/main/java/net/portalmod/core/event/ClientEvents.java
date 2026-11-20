@@ -1,5 +1,7 @@
 package net.portalmod.core.event;
 
+import net.portalmod.common.sorted.portal.ClientPortalManager;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -274,18 +276,18 @@ public class ClientEvents {
 
         // Drop entity
         ItemStack itemStack = player.getMainHandItem();
-        if (player.hasPassenger(TestElementEntity.class)) {
+        if (player.hasPassenger(e -> e instanceof TestElementEntity)) {
             TestElementEntity.dropHeldEntities(player, false, false, itemStack);
             PacketInit.INSTANCE.sendToServer(new CPortalGunInteractionPacket.Builder(PortalGunInteraction.DROP_ENTITY).build());
 
-            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            consumeAllKeyPresses(KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT));
             return;
         }
 
         // Press block
         Block block = Minecraft.getInstance().level.getBlockState(rayHit.getBlockPos()).getBlock();
         if (block instanceof InteractKeyInteractable && ((InteractKeyInteractable) block).interactKeyInteract(player, rayHit)) {
-            consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+            consumeAllKeyPresses(KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT));
             return;
         }
 
@@ -339,7 +341,7 @@ public class ClientEvents {
             if (entity instanceof TestElementEntity && distance.magnitude() < grabReach + entity.getBbWidth() / 2) {
                 ((TestElementEntity) entity).pickUp(player);
 
-                consumeAllKeyPresses(KeyInit.PORTALGUN_INTERACT.getKey());
+                consumeAllKeyPresses(KeyBindingHelper.getBoundKeyOf(KeyInit.PORTALGUN_INTERACT));
             }
         } catch (Exception e) {
             PortalMod.LOGGER.error("Error while picking up entity", e);
@@ -349,7 +351,7 @@ public class ClientEvents {
     private static void consumeAllKeyPresses(InputConstants.Key k) {
         KeyMapping[] keys = Minecraft.getInstance().options.keyMappings;
         for(KeyMapping key : keys)
-            if(key.getKey() == k)
+            if(KeyBindingHelper.getBoundKeyOf(key) == k)
                 while(key.consumeClick());
     }
 
@@ -413,10 +415,10 @@ public class ClientEvents {
 
     /** Called after the vanilla crosshair is drawn (Forge: RenderGameOverlayEvent.Post CROSSHAIRS). */
     public static void onRenderCrosshair(GuiGraphics graphics) {
-        PortalGunCrosshairRenderer.render(graphics);
+        PortalGunCrosshairRenderer.render(graphics.pose());
 
         if(PortalMod.WATERMARK) {
-            WatermarkRenderer.render(graphics);
+            WatermarkRenderer.render(graphics.pose());
         }
     }
 
