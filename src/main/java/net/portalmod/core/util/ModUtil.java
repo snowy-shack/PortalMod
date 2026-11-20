@@ -336,4 +336,12 @@ public class ModUtil {
         float[] c = color.getTextureDiffuseColors();
         return (Math.round(c[0] * 255) << 16) | (Math.round(c[1] * 255) << 8) | Math.round(c[2] * 255);
     }
+
+    /**
+     * 1.16 Shapes.box went through an AABB, which sorts min/max; 1.20.1 throws if min > max.
+     * Transformed (rotated/mirrored) boxes can have swapped corners, so keep the 1.16 behaviour.
+     */
+    public static net.minecraft.world.phys.shapes.VoxelShape box(double x1, double y1, double z1, double x2, double y2, double z2) {
+        return net.minecraft.world.phys.shapes.Shapes.create(new net.minecraft.world.phys.AABB(x1, y1, z1, x2, y2, z2));
+    }
 }

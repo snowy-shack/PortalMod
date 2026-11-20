@@ -21,13 +21,13 @@ import net.minecraft.world.level.Level;
 public class ItemRendererMixin {
 
     @Inject(
-                        method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/block/model/ItemTransforms$ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;II)V",
+                        method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;render(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/block/model/ItemTransforms$ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IILnet/minecraft/client/resources/model/BakedModel;)V"
+                    target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;render(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IILnet/minecraft/client/resources/model/BakedModel;)V"
             )
     )
-    private void pmSetPortalGunOwner(LivingEntity entity, ItemStack itemStack, ItemDisplayContext transformType, boolean b, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, Level level, int packedLight, int packedOverlay, CallbackInfo info) {
+    private void pmSetPortalGunOwner(LivingEntity entity, ItemStack itemStack, ItemDisplayContext transformType, boolean b, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, Level level, int packedLight, int packedOverlay, int seed, CallbackInfo info) {
         PortalGunISTER.renderingPortalGunOwner = (entity instanceof Player) ? entity.getUUID() : null;
     }
 }

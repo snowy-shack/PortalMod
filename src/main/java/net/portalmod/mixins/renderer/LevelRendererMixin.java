@@ -116,64 +116,10 @@ public class LevelRendererMixin {
     }
 
     // BEWARE: PORTAL RENDERING
-    @ModifyArgs(
-                        method = "renderLevel",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/LevelRenderer;renderChunkLayer(Lnet/minecraft/client/renderer/RenderType;Lcom/mojang/blaze3d/vertex/PoseStack;DDD)V"
-            )
-    )
-    private void pmSwitchToPortalTransparency(Args args) {
-        RenderType renderType = args.get(0);
-        if(renderType == RenderType.translucent() && PortalRenderer.getInstance().currentlyRenderingPortals)
-            args.set(0, PortalTransparencyHandler.PORTAL_TRANSLUCENT);
-    }
+    // TODO(port): 1.16 drew translucent chunks seen through portals with a separate, re-sorted
+    // "portal_translucent" layer (hooks on renderChunkLayer + ChunkRenderMixin). The re-sort is
+    // disabled (see PortalTransparencyHandler), so the vanilla translucent layer is used for now.
 
-    // BEWARE: PORTAL RENDERING
-    @Redirect(
-                        method = "renderChunkLayer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;",
-                    ordinal = 1
-            )
-    )
-    private RenderType pmRenderPortalTransparencyBackwards() {
-        return PortalRenderer.getInstance().currentlyRenderingPortals ? PortalTransparencyHandler.PORTAL_TRANSLUCENT : RenderType.translucent();
-    }
-
-    // BEWARE: PORTAL RENDERING
-    @Redirect(
-                        method = "renderChunkLayer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$CompiledChunk;isEmpty(Lnet/minecraft/client/renderer/RenderType;)Z"
-            )
-    )
-    private boolean pmIsPortalTransparencyEmpty(ChunkRenderDispatcher.CompiledChunk compiledChunk, RenderType renderType) {
-        return compiledChunk.isEmpty(renderType == PortalTransparencyHandler.PORTAL_TRANSLUCENT ? RenderType.translucent() : renderType);
-    }
-
-    // BEWARE: PORTAL RENDERING
-    @Inject(
-                        method = "renderChunkLayer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/RenderType;setupRenderState()V",
-                    shift = At.Shift.AFTER
-            )
-    )
-    private void pmResortPortalTransparency(RenderType renderType, PoseStack matrixStack, double x, double y, double z, CallbackInfo ci) {
-        // todo probably optimize a bit
-        // todo do asynchronously
-        if(renderType == PortalTransparencyHandler.PORTAL_TRANSLUCENT) {
-            Minecraft.getInstance().getProfiler().push("pm_translucent_sort");
-            PortalTransparencyHandler.resortTransparency(PortalRenderer.getInstance().currentCamera);
-            Minecraft.getInstance().getProfiler().pop();
-        }
-    }
-
-    // BEWARE: PORTAL RENDERING
     @Redirect(
                         method = "setupRender",
             at = @At(
@@ -196,15 +142,14 @@ public class LevelRendererMixin {
     @Redirect(
             method = "setupRender",
             at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/client/Options;renderDistance:I",
-                    opcode = org.objectweb.asm.Opcodes.GETFIELD,
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/Options;getEffectiveRenderDistance()I",
                     ordinal = 0
             )
     )
     private int pmMaskRenderDistanceForAllChangedGuard(Options instance) {
         int override = PortalRenderer.getInstance().nestedBfsDistanceOverride;
-        return override > 0 ? override : instance.renderDistance().get();
+        return override > 0 ? override : instance.getEffectiveRenderDistance();
     }
 
     // BEWARE: PORTAL RENDERING

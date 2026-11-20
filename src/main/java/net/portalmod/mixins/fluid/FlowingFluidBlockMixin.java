@@ -1,5 +1,7 @@
 package net.portalmod.mixins.fluid;
 
+import org.spongepowered.asm.mixin.Final;
+
 import net.portalmod.core.init.FluidTagInit;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,7 +32,7 @@ public abstract class FlowingFluidBlockMixin extends Block implements BucketPick
 
     @Shadow public abstract FluidState getFluidState(BlockState p_204507_1_);
 
-    @Shadow public abstract FlowingFluid getFluid();
+    @Shadow @Final protected FlowingFluid fluid;
 
     public FlowingFluidBlockMixin(Properties p_i48440_1_) {
         super(p_i48440_1_);
@@ -45,20 +47,20 @@ public abstract class FlowingFluidBlockMixin extends Block implements BucketPick
         for(Direction direction : Direction.values()) {
             if (direction != Direction.UP) {
                 BlockPos relativePos = pos.relative(direction);
-                if (this.getFluid().is(FluidTagInit.GOO)) {
+                if (this.fluid.is(FluidTagInit.GOO)) {
                     if (portalMod$handleFluidInteraction(FluidTags.WATER, Blocks.SOUL_SAND, Blocks.SOUL_SOIL, world, relativePos) ||
                             portalMod$handleFluidInteraction(FluidTags.LAVA, Blocks.NETHERRACK, Blocks.OBSIDIAN, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
                     }
                 }
-                if (this.getFluid().is(FluidTags.WATER)) {
+                if (this.fluid.is(FluidTags.WATER)) {
                     if (portalMod$handleFluidInteraction(FluidTagInit.GOO, Blocks.SOUL_SAND, Blocks.SOUL_SAND, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;
                     }
                 }
-                if (this.getFluid().is(FluidTags.LAVA)) {
+                if (this.fluid.is(FluidTags.LAVA)) {
                     if (portalMod$handleFluidInteraction(FluidTagInit.GOO, Blocks.NETHERRACK, Blocks.NETHERRACK, world, relativePos)) {
                         cir.setReturnValue(false);
                         return;

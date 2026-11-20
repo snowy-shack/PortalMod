@@ -1,5 +1,7 @@
 package net.portalmod.core.math;
 
+import net.portalmod.core.util.ModUtil;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class VoxelShapeGroup {
         shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
             Vec3 min = new Vec3(minX, minY, minZ).transform(matrix);
             Vec3 max = new Vec3(maxX, maxY, maxZ).transform(matrix);
-            VoxelShape box = Shapes.box(min.x, min.y, min.z, max.x, max.y, max.z);
+            VoxelShape box = ModUtil.box(min.x, min.y, min.z, max.x, max.y, max.z);
             transformed[0] = Shapes.or(transformed[0], box);
         });
         return transformed[0];
@@ -64,7 +66,7 @@ public class VoxelShapeGroup {
         public Builder() {}
         
         public Builder(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-            this.add(Shapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+            this.add(ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
         }
         
         public Builder add(VoxelShape shape) {
@@ -77,7 +79,7 @@ public class VoxelShapeGroup {
         }
         
         public Builder add(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-            return this.add(Shapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+            return this.add(ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
         }
         
         public Builder addPart(String key, VoxelShape part) {
@@ -86,7 +88,7 @@ public class VoxelShapeGroup {
         }
         
         public Builder addPart(String key, double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-            return this.addPart(key, Shapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+            return this.addPart(key, ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
         }
         
         public VoxelShapeGroup build() {

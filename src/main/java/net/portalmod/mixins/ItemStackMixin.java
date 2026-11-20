@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 @Mixin(ItemStack.class)
 public class ItemStackMixin {
     @Inject(
-                        method = "tagMatches",
+                        method = "isSameItemSameTags",
             at = @At("HEAD"),
             cancellable = true
     )

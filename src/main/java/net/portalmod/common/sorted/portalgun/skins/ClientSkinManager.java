@@ -48,7 +48,8 @@ public class ClientSkinManager extends SkinManager {
     }
 
     protected void uploadSkin(PortalGunSkin skin, boolean overwrite) {
-        AbstractTexture currentTexture = Minecraft.getInstance().getTextureManager().getTexture(this.getSkinLocation(skin.skin_id));
+        // Two-argument getTexture only looks the texture up; the one-argument form would try to load it from a file first.
+        AbstractTexture currentTexture = Minecraft.getInstance().getTextureManager().getTexture(this.getSkinLocation(skin.skin_id), null);
         if(!(currentTexture instanceof PortalGunAnimatedTexture) || overwrite) {
             PortalGunAnimatedTexture skinTexture = new PortalGunAnimatedTexture(skin.skin_id, skin.getFilename(), skin.framerate);
             Minecraft.getInstance().getTextureManager().register(this.getSkinLocation(skin.skin_id), skinTexture);

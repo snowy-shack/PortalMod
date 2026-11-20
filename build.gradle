@@ -20,6 +20,10 @@ loom {
         configureEach {
             ideConfigGenerated true
         }
+        client {
+            // Applies every mixin at startup to catch broken injection points early.
+            vmArg "-Dportalmod.auditMixins=true"
+        }
     }
 }
 

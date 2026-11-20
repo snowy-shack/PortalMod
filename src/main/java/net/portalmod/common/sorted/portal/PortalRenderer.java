@@ -275,23 +275,17 @@ public class PortalRenderer {
                 + "mask"
                 + (spawning ? "_spawning" + age : "")
                 + ".png";
-
-        glEnable(GL_TEXTURE_2D);
         RenderSystem.activeTexture(GL_TEXTURE0);
         RenderUtil.bindTextureNow(new ResourceLocation(PortalMod.MODID, path));
 
         RenderSystem.colorMask(false, false, false, false);
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
-
-        GL11.glEnable(GL_ALPHA_TEST);
         glEnable(GL_DEPTH_CLAMP);
         RenderSystem.depthMask(false);
         portalMesh.render(ShaderInit.PORTAL_MASK.get());
         RenderSystem.depthMask(true);
         glDisable(GL_DEPTH_CLAMP);
-        GL11.glDisable(GL_ALPHA_TEST);
-
         RenderSystem.colorMask(true, true, true, true);
 
         RenderSystem.bindTexture(0);
@@ -322,8 +316,6 @@ public class PortalRenderer {
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableCull();
-
-        GL11.glEnable(GL_ALPHA_TEST);
         glEnable(GL_DEPTH_CLAMP);
         RenderSystem.depthFunc(GL_ALWAYS);
         RenderSystem.colorMask(false, false, false, false);
@@ -331,8 +323,6 @@ public class PortalRenderer {
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthFunc(GL_LESS);
         glDisable(GL_DEPTH_CLAMP);
-        GL11.glDisable(GL_ALPHA_TEST);
-
         RenderSystem.bindTexture(0);
         unbindBuffer();
     }
@@ -475,9 +465,6 @@ public class PortalRenderer {
             RenderSystem.stencilMask(0xFF);
             RenderSystem.clear(GL_STENCIL_BUFFER_BIT, false);
         }
-
-        GL11.glEnable(GL_ALPHA_TEST);
-
         PROFILE.pop();
         if(isOuter) {
             PROFILE.pop();

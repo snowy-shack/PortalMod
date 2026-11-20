@@ -52,7 +52,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     @Shadow @Final public Abilities abilities;
-    @Shadow @Nullable private Pose forcedPose;
 
     @Unique
     private boolean clientJustPortaled = false;
@@ -180,8 +179,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IClientT
     }
 
     public Pose pmGetNextPose() {
-        if(this.forcedPose != null)
-            return forcedPose;
+        // (Forge's forcedPose does not exist in vanilla 1.20.1.)
 
         if(this.canEnterPose(Pose.SWIMMING)) {
             Pose pose;

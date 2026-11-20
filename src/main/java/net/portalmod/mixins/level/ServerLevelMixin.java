@@ -22,9 +22,7 @@ import net.minecraft.server.level.ServerLevel;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin {
-    @Shadow @Final private static Logger LOGGER;
 
-    @Shadow protected abstract boolean isUUIDUsed(Entity p_217478_1_);
 
     @Redirect(
                         method = "tickNonPassenger",
@@ -60,13 +58,6 @@ public abstract class ServerLevelMixin {
 //            chunk.addEntity(entity);
 //    }
 
-    @Inject(
-                        method = "updateChunkPos",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void pmDoNotUpdateChunkPosForPortal(Entity entity, CallbackInfo info) {
-        if(entity instanceof PortalEntity)
-            info.cancel();
-    }
+    // 1.16 kept portals out of chunk-position updates (updateChunkPos). 1.17+ tracks entities in
+    // entity sections instead and has no such method; portals do not move, so nothing replaces it.
 }

@@ -35,13 +35,5 @@ public class ClientLevelMixin {
         EntityTickWrapper.wrapTick(entity, Entity::rideTick);
     }
 
-    @Inject(
-                        method = "updateChunkPos",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void pmDoNotUpdateChunkPosForPortal(Entity entity, CallbackInfo info) {
-        if(entity instanceof PortalEntity)
-            info.cancel();
-    }
+    // updateChunkPos no longer exists in 1.17+ (see ServerLevelMixin).
 }

@@ -60,6 +60,12 @@ public class ClientModEvents {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             ((net.portalmod.core.interfaces.StencilTarget) client.getMainRenderTarget()).pmEnableStencil();
             ShaderInit.REGISTRY.registerAll();
+            // Needs the texture manager, which exists only once the client has started.
+            ClientSkinManager.getInstance().onClientStartup();
+            // Dev check: -Dportalmod.auditMixins=true applies every mixin now, so broken
+            // injection points fail at startup instead of later in game.
+            if (Boolean.getBoolean("portalmod.auditMixins"))
+                org.spongepowered.asm.mixin.MixinEnvironment.getCurrentEnvironment().audit();
         });
         ModelLoadingPlugin.register(net.portalmod.client.render.PortalModModels::initialize);
     }
@@ -79,7 +85,6 @@ public class ClientModEvents {
     private static void clientSetup() {
         registerModelLayers();
         net.portalmod.common.sorted.longfallboots.LongFallBootsClient.register();
-        ClientSkinManager.getInstance().onClientStartup();
 
         KeyInit.init();
 

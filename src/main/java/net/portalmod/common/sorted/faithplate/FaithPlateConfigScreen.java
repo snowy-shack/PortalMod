@@ -318,6 +318,8 @@ public class FaithPlateConfigScreen extends Screen {
                     .setFloat("atlasSize", 512, 512)
                     .setFloat("height", (float) parent.parabola.getHeight());
 
+            // TODO(port): glBegin/glEnd do not exist in the core-profile GL context 1.17+ uses, so this
+            // full-screen quad draws nothing. Replace with a VertexBuffer quad (see PositionTextureVertexRenderer).
             glBegin(GL_QUADS);
                 glVertex2f(-1, -1);
                 glVertex2f( 1, -1);

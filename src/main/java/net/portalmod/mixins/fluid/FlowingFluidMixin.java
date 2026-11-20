@@ -1,5 +1,7 @@
 package net.portalmod.mixins.fluid;
 
+import net.minecraft.world.level.Level;
+
 import net.portalmod.core.init.FluidTagInit;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,12 +26,12 @@ public abstract class FlowingFluidMixin {
     @Shadow protected abstract int getDropOff(LevelReader p_204528_1_);
 
     @Inject(
-            method = "getNewLiquid(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/material/FluidState;",
+            method = "getNewLiquid(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/material/FluidState;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FlowingFluid;getDropOff(Lnet/minecraft/world/level/LevelReader;)I"),
             locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
-    public void pmSpread5Blocks(LevelReader p_205576_1_, BlockPos p_205576_2_, BlockState p_205576_3_, CallbackInfoReturnable<FluidState> cir, int i) {
+    public void pmSpread5Blocks(Level p_205576_1_, BlockPos p_205576_2_, BlockState p_205576_3_, CallbackInfoReturnable<FluidState> cir, int i) {
         int k = i - this.getDropOff(p_205576_1_);
         if (this.getSource().is(FluidTagInit.GOO)) {
             if (i == 4 || i == 2) {

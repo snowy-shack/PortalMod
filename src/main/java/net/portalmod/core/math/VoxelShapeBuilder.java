@@ -1,5 +1,7 @@
 package net.portalmod.core.math;
 
+import net.portalmod.core.util.ModUtil;
+
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 
@@ -14,7 +16,7 @@ public class VoxelShapeBuilder {
     }
     
     public VoxelShapeBuilder add(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
-        return this.add(Shapes.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
+        return this.add(ModUtil.box(minX / 16f, minY / 16f, minZ / 16f, maxX / 16f, maxY / 16f, maxZ / 16f));
     }
     
     public VoxelShape build() {

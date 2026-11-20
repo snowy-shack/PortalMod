@@ -156,13 +156,12 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
         return this.maybeBackOffFromEdge(PortalEntity.teleportEntity(thiss, PortalEntity.doFunneling(thiss, delta)), moverType);
     }
 
+    // 1.20.1 move() sets onGround through setOnGroundWithKnownMovement instead of a field write.
     @Inject(
                         method = "move",
             at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/world/entity/Entity;onGround:Z",
-                    opcode = Opcodes.PUTFIELD,
-                    ordinal = 0,
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/Entity;setOnGroundWithKnownMovement(ZLnet/minecraft/world/phys/Vec3;)V",
                     shift = At.Shift.AFTER
             )
     )
@@ -357,8 +356,10 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
 //            info.setReturnValue(((PropulsionGelBlock)state.getBlock()).getSpeedFactor(pos, state, entity));
 //    }
 
-    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
-    public void pmAddFlowingGooPhysics(CallbackInfoReturnable<Boolean> cir, double d0, boolean flag) {
-        cir.setReturnValue(this.isInWater() || flag || this.updateFluidHeightAndDoFluidPushing(FluidTagInit.GOO, GooBlock.FLOW_PUSH_STRENGTH));
+    // Vanilla returns isInWater() || inLava; add goo pushing on top (no local capture needed).
+    @Inject(method = "updateInWaterStateAndDoFluidPushing", at = @At(value = "RETURN"), cancellable = true)
+    public void pmAddFlowingGooPhysics(CallbackInfoReturnable<Boolean> cir) {
+        boolean inGoo = this.updateFluidHeightAndDoFluidPushing(FluidTagInit.GOO, GooBlock.FLOW_PUSH_STRENGTH);
+        cir.setReturnValue(cir.getReturnValueZ() || inGoo);
     }
 }

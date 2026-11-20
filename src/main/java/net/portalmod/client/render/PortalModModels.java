@@ -3,24 +3,22 @@ package net.portalmod.client.render;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.antline.AntlineBakedModel;
-import net.portalmod.common.sorted.button.SuperButtonUnbakedModel;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.function.Function;
+import net.portalmod.common.sorted.button.QuadBlockCorner;
+import net.portalmod.common.sorted.button.SuperButtonBakedModel;
+import net.portalmod.common.sorted.button.SuperButtonModelTransform;
 
 /**
  * Custom block models, registered with Fabric's model loading API.
  * (Forge used "loader" entries in the model JSON; vanilla ignores that key.)
+ *
+ * The JSON models are loaded and baked by vanilla as usual (item models use them as parents,
+ * and vanilla only accepts plain JSON models as parents); afterwards the baked result is
+ * replaced with the mod's own baked model.
  */
 @Environment(EnvType.CLIENT)
 public final class PortalModModels {
@@ -31,31 +29,26 @@ public final class PortalModModels {
     private PortalModModels() {}
 
     public static void initialize(ModelLoadingPlugin.Context context) {
-        // Antline geometry is generated in code from the block entity's data.
-        context.resolveModel().register(ctx -> ANTLINE.equals(ctx.id()) ? new CodeModel(AntlineBakedModel::new) : null);
-
-        // The super button keeps its JSON geometry but needs a rotated copy per facing/corner.
-        context.modifyModelOnLoad().register((model, ctx) -> {
+        context.modifyModelAfterBake().register((model, ctx) -> {
             ResourceLocation id = ctx.id();
-            if (SUPER_BUTTON.equals(id) || SUPER_BUTTON_PRESSED.equals(id))
-                return new SuperButtonUnbakedModel(model);
+
+            // Antline geometry is generated in code from the block entity's data.
+            if (ANTLINE.equals(id))
+                return new AntlineBakedModel();
+
+            // The super button keeps its JSON geometry but needs a rotated copy per facing/corner.
+            if (SUPER_BUTTON.equals(id) || SUPER_BUTTON_PRESSED.equals(id)) {
+                SuperButtonBakedModel button = new SuperButtonBakedModel(model);
+                for (Direction facing : Direction.values()) {
+                    for (QuadBlockCorner corner : QuadBlockCorner.values()) {
+                        BakedModel variant = ctx.sourceModel().bake(ctx.baker(), ctx.textureGetter(),
+                                new SuperButtonModelTransform(facing, corner), id);
+                        button.addVariant(facing, corner, variant);
+                    }
+                }
+                return button;
+            }
             return model;
         });
-    }
-
-    /** An unbaked model whose baked form is built entirely in code. */
-    private record CodeModel(java.util.function.Supplier<BakedModel> factory) implements UnbakedModel {
-        @Override
-        public Collection<ResourceLocation> getDependencies() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public void resolveParents(Function<ResourceLocation, UnbakedModel> resolver) {}
-
-        @Override
-        public BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> sprites, ModelState state, ResourceLocation location) {
-            return factory.get();
-        }
     }
 }

@@ -3,6 +3,7 @@ package net.portalmod.mixins.accessors;
 import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
@@ -13,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 @Mixin(SplashManager.class)
 public interface SplashesAccessor {
+    @Mutable
     @Accessor(value = "SPLASHES_LOCATION")
     static void pmSetLocation(ResourceLocation value) {
         throw new AssertionError();

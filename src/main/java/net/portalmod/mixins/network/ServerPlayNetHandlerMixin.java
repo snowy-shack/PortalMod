@@ -1,5 +1,9 @@
 package net.portalmod.mixins.network;
 
+import org.spongepowered.asm.mixin.injection.Constant;
+
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+
 import net.portalmod.common.sorted.portal.IClientTeleportable;
 import net.portalmod.common.sorted.portal.PortalServerProofManager;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -80,16 +84,27 @@ public class ServerPlayNetHandlerMixin {
 
     @Redirect(
                         method = "handleUseItemOn",
+            // 1.20.1 uses a fixed squared reach instead of Forge's reach attribute.
             at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;getValue()D"
+                    value = "FIELD",
+                    target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;MAX_INTERACTION_DISTANCE:D",
+                    opcode = org.objectweb.asm.Opcodes.GETSTATIC
             )
     )
-    private double pmAllowThroughPortalBreakReach(AttributeInstance attribute) {
+    private double pmAllowThroughPortalBreakReach() {
         ServerGamePacketListenerImpl thiss = (ServerGamePacketListenerImpl)(Object)this;
         if(PortalServerProofManager.getInstance().hasBelievableProof(thiss.player, this.pmCapturedBlockPos, false))
             return Double.POSITIVE_INFINITY;
 
-        return attribute.getValue();
+        return ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE;
+    }
+
+    /** Second vanilla check (player within 8 blocks of the block); same through-portal exception. */
+    @ModifyConstant(method = "handleUseItemOn", constant = @Constant(doubleValue = 64.0))
+    private double pmAllowThroughPortalUseDistance(double distanceSqr) {
+        ServerGamePacketListenerImpl thiss = (ServerGamePacketListenerImpl)(Object)this;
+        if(PortalServerProofManager.getInstance().hasBelievableProof(thiss.player, this.pmCapturedBlockPos, false))
+            return Double.POSITIVE_INFINITY;
+        return distanceSqr;
     }
 }

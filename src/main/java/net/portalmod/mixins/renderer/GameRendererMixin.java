@@ -50,23 +50,8 @@ public abstract class GameRendererMixin {
 
     @Shadow private float renderDistance;
 
-    // BEWARE: PORTAL RENDERING
-    @Inject(
-                        method = "getProjectionMatrix",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void pmGetProjectionMatrix(Camera camera, float partialTicks, boolean b, CallbackInfoReturnable<Matrix4f> info) {
-        PoseStack matrixstack = new PoseStack();
-        matrixstack.last().pose().identity();
-        if(this.zoom != 1.0F) {
-            matrixstack.translate(this.zoomX, -this.zoomY, 0.0D);
-            matrixstack.scale(this.zoom, this.zoom, 1.0F);
-        }
-
-        matrixstack.last().pose().mul(MatrixUtil.perspective(this.getFov(camera, partialTicks, b), (float)this.minecraft.getMainRenderTarget().width / (float)this.minecraft.getMainRenderTarget().height, 0.05F, this.renderDistance * 4.0F));
-        info.setReturnValue(matrixstack.last().pose());
-    }
+    // The 1.16 getProjectionMatrix override (perspective with near 0.05, far renderDistance * 4, zoom)
+    // matches vanilla 1.20.1's own implementation, so it was dropped.
 
     @Redirect(
                         method = "pick",

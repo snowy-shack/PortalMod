@@ -75,13 +75,12 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Shadow protected abstract boolean isAffectedByFluids();
 
-    @Shadow public abstract boolean canStandOnFluid(Fluid p_230285_1_);
+    @Shadow public abstract boolean canStandOnFluid(FluidState fluidState);
 
     @Shadow public abstract Iterable<ItemStack> getArmorSlots();
 
     @Shadow public abstract EntityDimensions getDimensions(Pose p_213305_1_);
 
-    @Shadow public abstract Packet<ClientGamePacketListener> getAddEntityPacket();
 
     @Shadow public abstract void stopRiding();
 
@@ -264,24 +263,23 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         return this.pmCancelDrag;
     }
 
+    // Ground movement: vanilla sets (x * friction, y * 0.98, z * friction). When drag is cancelled we
+    // undo only the vertical 0.98 factor, like 1.16 did. In 1.20.1 this is the 4th setDeltaMovement(DDD)
+    // in travel (the 3rd is the new "discard friction" branch).
     @Inject(
                         method = "travel",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;setDeltaMovement(DDD)V",
-                    ordinal = 2,
+                    ordinal = 3,
                     shift = At.Shift.AFTER
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
+            )
     )
-    private void pmCancelApplyDrag(net.minecraft.world.phys.Vec3 delta, CallbackInfo info, double d0, AttributeInstance gravity, boolean flag, FluidState fluidstate, BlockPos blockpos, float f3, float f4, net.minecraft.world.phys.Vec3 vector3d5, double d2) {
+    private void pmCancelApplyDrag(net.minecraft.world.phys.Vec3 delta, CallbackInfo info) {
         if(this.pmCancelDrag) {
-//            double gravity = Objects.requireNonNull(entity.getAttribute(ForgeMod.ENTITY_GRAVITY.get())).getValue();
-//            entity.setDeltaMovement(x, entity.getDeltaMovement().y - gravity, z);
-//            entity.setDeltaMovement(x, y / 0.98, z);
-            ((LivingEntity)(Object)this).setDeltaMovement(vector3d5.x * (double)f4, d2, vector3d5.z * (double)f4);
-//        } else {
-////            entity.setDeltaMovement(x, y, z);
+            LivingEntity self = (LivingEntity)(Object)this;
+            net.minecraft.world.phys.Vec3 v = self.getDeltaMovement();
+            self.setDeltaMovement(v.x, v.y / (double)0.98F, v.z);
         }
     }
 
@@ -550,7 +548,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     public void pmAddGooResistance(net.minecraft.world.phys.Vec3 p_213352_1_, CallbackInfo ci) {
         FluidState fluidState = this.level().getFluidState(this.blockPosition());
 
-        if (GooBlock.isInGoo(this) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState.getType())) {
+        if (GooBlock.isInGoo(this) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidState)) {
             GooBlock.applyGooResistance(this);
         }
     }
@@ -562,12 +560,13 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         }
     }
 
-    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastEntityEvent(Lnet/minecraft/world/entity/Entity;B)V", ordinal = 2))
-    public void pmHandleGooDamage(Level world, Entity entity, byte b, DamageSource damageSource) {
-        if (damageSource.is(DamageTypeInit.GOO) && b == 2 && entity instanceof LivingEntity) {
+    // 1.19.4+: the hurt effect is sent with broadcastDamageEvent instead of entity event 2.
+    @Redirect(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;broadcastDamageEvent(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)V"))
+    public void pmHandleGooDamage(Level world, Entity entity, DamageSource damageSource) {
+        if (damageSource.is(DamageTypeInit.GOO) && entity instanceof LivingEntity) {
             GooBlock.handleGooDamage((LivingEntity) entity, damageSource);
         } else {
-            this.level().broadcastEntityEvent(this, b);
+            world.broadcastDamageEvent(entity, damageSource);
         }
     }
 
@@ -583,7 +582,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
         if (!(instance instanceof TestElementEntity)) stopRiding();
     }
 
-    @Inject(method = "canSee", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "hasLineOfSight", at = @At("HEAD"), cancellable = true)
     public void pmCanSee(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof TurretEntity && !((TurretEntity) entity).getState().isStanding()) {
             cir.setReturnValue(false);

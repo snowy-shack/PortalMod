@@ -4,15 +4,22 @@
     "requirement": {
       "trigger": "minecraft:item_used_on_block",
       "conditions": {
-        "location": {
-          "dimension": "minecraft:the_end",
-          "block": {
-            "block": "portalmod:radio",
-            "state": {
-              "state": "active"
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "dimension": "minecraft:the_end",
+              "block": {
+                "blocks": [
+                  "portalmod:radio"
+                ],
+                "state": {
+                  "state": "active"
+                }
+              }
             }
           }
-        }
+        ]
       }
     }
   },
