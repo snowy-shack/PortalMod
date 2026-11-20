@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.turret;
 
+import net.minecraft.tags.DamageTypeTags;
 import net.portalmod.core.init.DamageTypeInit;
 
 import net.minecraft.network.chat.Component;
@@ -65,7 +66,7 @@ public class TurretEntity extends TestElementEntity {
             !(e instanceof TestElementEntity)
             && !e.isSpectator()
             && !(e instanceof Player && ((Player) e).isCreative())
-            && !(e.isBaby() && e.getClassification(false) != MobCategory.MONSTER)
+            && !(e.isBaby() && e.getType().getCategory() != MobCategory.MONSTER)
             && !e.isInvisible()
             && !WrenchItem.holdingWrench(e);
 
@@ -253,7 +254,7 @@ public class TurretEntity extends TestElementEntity {
 
     @Override
     public boolean hurt(DamageSource source, float damage) {
-        if (source.isProjectile()) {
+        if (source.is(DamageTypeTags.IS_PROJECTILE)) {
             if (this.getState().isStanding()) {
                 this.setState(TurretState.FALLING);
                 this.setTipDirectionRight(new Random().nextBoolean());
@@ -320,7 +321,7 @@ public class TurretEntity extends TestElementEntity {
 
         // Map entities to their distances
         Map<LivingEntity, Double> entityDistances = new HashMap<>();
-        for (LivingEntity entity : this.level().getNearbyEntities(LivingEntity.class, new TargetingConditions().selector(TARGETS), this, searchBox)) {
+        for (LivingEntity entity : this.level().getNearbyEntities(LivingEntity.class, TargetingConditions.forCombat().selector(TARGETS), this, searchBox)) {
             Vec3 ray = entity.position().subtract(this.position());
             double cosine = ray.normalize().dot(this.getLookAngle());
             double distanceSqr = ray.lengthSqr();

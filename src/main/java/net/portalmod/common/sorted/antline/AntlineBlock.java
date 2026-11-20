@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline;
 
+import net.portalmod.core.interfaces.PlayerRemovableBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.core.util.ClientOnly;
 import net.portalmod.core.network.PacketDistributor;
@@ -38,7 +39,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 
-public class AntlineBlock extends Block implements EntityBlock {
+public class AntlineBlock extends Block implements EntityBlock, PlayerRemovableBlock {
 //    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     /**
@@ -419,7 +420,6 @@ public class AntlineBlock extends Block implements EntityBlock {
                 () -> level.getChunkAt(pos)), new SAntlineUpdatePacket(pos, nbtA));
     }
 
-    @Override
     public boolean removedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         Vec3 rayPath = player.getViewVector(0).scale(7);
         Vec3 from = player.getEyePosition(0);

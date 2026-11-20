@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.button;
 
+import net.minecraft.util.RandomSource;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.blocks.InteractKeyInteractable;
 import net.portalmod.common.items.WrenchItem;
@@ -129,7 +130,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
         Boolean wasActive = blockState.getValue(ACTIVE);
 
         this.setBlockStateValue(PRESSED, true, blockState, world, pos);
-        world.getBlockTicks().scheduleTick(pos, this, BUTTON_DELAY);
+        world.scheduleTick(pos, this, BUTTON_DELAY);
 
         if (mode == ButtonMode.NORMAL || mode == ButtonMode.PERSISTENT && !wasActive) {
             this.setActivated(true, blockState, world, pos);
@@ -147,7 +148,7 @@ public class StandingButtonBlock extends DoubleBlock implements AntlineActivator
     }
 
     @Override
-    public void tick(BlockState blockState, ServerLevel world, BlockPos pos, Random random) {
+    public void tick(BlockState blockState, ServerLevel world, BlockPos pos, RandomSource random) {
         if (blockState.getValue(PRESSED)) {
             this.setBlockStateValue(PRESSED, false, blockState, world, pos);
             world.updateNeighborsAt(pos, this);

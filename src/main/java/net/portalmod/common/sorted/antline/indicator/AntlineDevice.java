@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline.indicator;
 
+import net.portalmod.core.interfaces.CustomPushReaction;
 import com.mojang.math.Axis;
 import net.portalmod.common.sorted.antline.AntlineConnector;
 import net.portalmod.core.math.BiHashMap;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.BlockGetter;
  * <p>
  * Handles the shape and rotation blockstates.
  */
-public class AntlineDevice extends FaceAttachedHorizontalDirectionalBlock implements AntlineConnector {
+public class AntlineDevice extends FaceAttachedHorizontalDirectionalBlock implements AntlineConnector, CustomPushReaction {
     private static final BiHashMap<Direction, AttachFace, VoxelShapeGroup> SHAPE = new BiHashMap<>();
 
     public AntlineDevice(Properties properties) {
@@ -67,7 +68,6 @@ public class AntlineDevice extends FaceAttachedHorizontalDirectionalBlock implem
         builder.add(FACING, FACE);
     }
 
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.DESTROY;
     }

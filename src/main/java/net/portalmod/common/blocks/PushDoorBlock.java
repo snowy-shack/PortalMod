@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.util.RandomSource;
 import net.portalmod.common.sorted.portalgun.CPortalGunInteractionPacket;
 import net.portalmod.common.sorted.portalgun.PortalGunInteraction;
 import net.portalmod.core.init.PacketInit;
@@ -58,7 +59,7 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
             if (!blockState.getValue(OPEN)) open(blockState, world, blockPos);
             if (blockState.getValue(OPEN)) close(blockState, world, blockPos);
 
-            world.getBlockTicks().scheduleTick(blockPos, this, 20);
+            world.scheduleTick(blockPos, this, 20);
 
             return true;
         }
@@ -80,12 +81,12 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
     }
 
     @Override
-    public void fallOn(Level p_180658_1_, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
-        super.fallOn(p_180658_1_, p_180658_2_, p_180658_3_, p_180658_4_);
+    public void fallOn(Level p_180658_1_, BlockState fallState, BlockPos p_180658_2_, Entity p_180658_3_, float p_180658_4_) {
+        super.fallOn(p_180658_1_, fallState, p_180658_2_, p_180658_3_, p_180658_4_);
     }
 
     @Override
-    public void tick(BlockState blockState, ServerLevel world, BlockPos blockPos, Random random) {
+    public void tick(BlockState blockState, ServerLevel world, BlockPos blockPos, RandomSource random) {
         // Get whether there is a player within 1 block
         boolean playerNearby = !world.getEntitiesOfClass(
                 Player.class,
@@ -94,7 +95,7 @@ public class PushDoorBlock extends DoorBlock implements InteractKeyInteractable 
         ).isEmpty();
 
         if (playerNearby) {
-            world.getBlockTicks().scheduleTick(blockPos, this, 5);
+            world.scheduleTick(blockPos, this, 5);
             return;
         }
         // Close

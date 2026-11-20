@@ -34,7 +34,11 @@
         "screen.ContainerMixin",
         "hooks.ItemEntityHooksMixin",
         "hooks.LivingEntityHooksMixin",
-        "hooks.PlayerHooksMixin"
+        "hooks.PlayerHooksMixin",
+        "hooks.BlockStateHooksMixin",
+        "hooks.RedStoneWireHooksMixin",
+        "hooks.ServerPlayerGameModeHooksMixin",
+        "hooks.ServerPlayerHooksMixin"
     ],
     "client": [
         "KeyBindingMixin",
@@ -80,7 +84,8 @@
         "hooks.client.MouseHandlerHooksMixin",
         "hooks.client.PlayerRendererHooksMixin",
         "hooks.client.ScreenEffectRendererHooksMixin",
-        "accessors.LogoRendererAccessor"
+        "accessors.LogoRendererAccessor",
+        "hooks.client.MultiPlayerGameModeHooksMixin"
     ],
     "minVersion": "0.8",
     "injectors": {

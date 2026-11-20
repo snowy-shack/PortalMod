@@ -1,5 +1,6 @@
 package net.portalmod.common.items;
 
+import net.portalmod.core.interfaces.SneakBypassUse;
 import net.portalmod.common.sorted.faithplate.CFaithPlateEndConfigPacket;
 import net.portalmod.common.sorted.faithplate.CFaithPlateUpdatedPacket;
 import net.portalmod.common.sorted.faithplate.FaithPlateTER;
@@ -33,7 +34,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.Level;
 
-public class WrenchItem extends Item {
+public class WrenchItem extends Item implements SneakBypassUse {
     public WrenchItem(Properties properties) {
         super(properties);
     }
@@ -140,7 +141,6 @@ public class WrenchItem extends Item {
         return clickPos;
     }
 
-    @Override
     public boolean doesSneakBypassUse(ItemStack stack, LevelReader world, BlockPos pos, Player player) {
         return true;
     }

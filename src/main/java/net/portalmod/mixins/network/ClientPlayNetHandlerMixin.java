@@ -1,5 +1,6 @@
 package net.portalmod.mixins.network;
 
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.common.sorted.sign.ChamberSignEntity;
 import net.portalmod.core.interfaces.ITeleportLerpable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -63,7 +64,7 @@ public class ClientPlayNetHandlerMixin {
             return;
 
         Vec3 pos = lerpPositions.peekLast().getB();
-        entity.setPosAndOldPos(pos.x, pos.y, pos.z);
+        ModUtil.setPosAndOldPos(entity, pos.x, pos.y, pos.z);
         lerpPositions.clear();
     }
 }

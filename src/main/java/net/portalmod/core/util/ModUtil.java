@@ -318,4 +318,15 @@ public class ModUtil {
         }
         return 0;
     }
+
+    /** 1.16 Entity#setPosAndOldPos: move the entity and reset its previous position (no interpolation). */
+    public static void setPosAndOldPos(Entity entity, double x, double y, double z) {
+        entity.setPos(x, y, z);
+        entity.xo = x;
+        entity.yo = y;
+        entity.zo = z;
+        entity.xOld = x;
+        entity.yOld = y;
+        entity.zOld = z;
+    }
 }

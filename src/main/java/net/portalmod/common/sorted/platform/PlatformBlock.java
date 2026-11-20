@@ -172,7 +172,7 @@ public class PlatformBlock extends HalfTransparentBlock implements SimpleWaterlo
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
-            world.getFluidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
         if (direction == state.getValue(FACING).getOpposite() && hasBeamBelow(state, world, pos)) {

@@ -124,11 +124,11 @@ public class FaithPlateParabola {
             }
 
             Vec3 current = new Vec3(x, y, z);
-            BlockPos pos = new BlockPos(x, y, z);
+            BlockPos pos = BlockPos.containing(x, y, z);
             BlockState state = world.getBlockState(pos.offset(be.getBlockPos()));
 
             if (!state.getCollisionShape(world, pos).isEmpty() && !state.is(be.getBlockState().getBlock())) {
-                BlockPos prevBlock = new BlockPos(prev.x, prev.y, prev.z);
+                BlockPos prevBlock = BlockPos.containing(prev.x, prev.y, prev.z);
                 Vec3i diff = pos.subtract(prevBlock);
                 Direction face = Direction.fromDelta(diff.getX(), diff.getY(), diff.getZ());
 

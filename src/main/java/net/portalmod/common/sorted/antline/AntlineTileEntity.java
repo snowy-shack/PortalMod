@@ -98,7 +98,6 @@ public class AntlineTileEntity extends BlockEntity {
         return sideMap;
     }
 
-    @Override
     public void rotate(Rotation rotation) {
         SideMap initial = (SideMap) this.sideMap.clone();
 
@@ -114,7 +113,6 @@ public class AntlineTileEntity extends BlockEntity {
         this.sideMap.get(Direction.DOWN).rotate(ModUtil.getRotationAmount(rotation));
     }
 
-    @Override
     public void mirror(Mirror mirror) {
         if (mirror == Mirror.NONE) return;
 

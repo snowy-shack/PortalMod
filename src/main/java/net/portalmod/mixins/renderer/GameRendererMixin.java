@@ -64,7 +64,7 @@ public abstract class GameRendererMixin {
             matrixstack.scale(this.zoom, this.zoom, 1.0F);
         }
 
-        matrixstack.last().pose().multiply(MatrixUtil.perspective(this.getFov(camera, partialTicks, b), (float)this.minecraft.getMainRenderTarget().width / (float)this.minecraft.getMainRenderTarget().height, 0.05F, this.renderDistance * 4.0F));
+        matrixstack.last().pose().mul(MatrixUtil.perspective(this.getFov(camera, partialTicks, b), (float)this.minecraft.getMainRenderTarget().width / (float)this.minecraft.getMainRenderTarget().height, 0.05F, this.renderDistance * 4.0F));
         info.setReturnValue(matrixstack.last().pose());
     }
 

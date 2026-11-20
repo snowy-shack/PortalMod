@@ -56,7 +56,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
         }
 
         if (!turretState.isStanding()) {
-            Vector3f lookAngle = new Vector3f(turret.getLookAngle().multiply(1, 0, 1).normalize());
+            Vector3f lookAngle = turret.getLookAngle().multiply(1, 0, 1).normalize().toVector3f();
 
             matrixStack.pushPose();
             float progress = (turretState == TurretState.FALLING ? fallAnimTick / turret.fallDuration : 1);

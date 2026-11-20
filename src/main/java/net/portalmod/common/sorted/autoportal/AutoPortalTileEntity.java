@@ -66,7 +66,7 @@ public class AutoPortalTileEntity extends BlockEntity implements IndicatorActiva
         if(this.level != null) {
             PortalEntity portal = (PortalEntity)((ServerLevel) this.level).getEntity(this.lastOpenedUUID);
             if(portal != null) {
-                portal.remove();
+                portal.discard();
             }
         }
 
@@ -247,7 +247,6 @@ public class AutoPortalTileEntity extends BlockEntity implements IndicatorActiva
         return new AABB(this.getBlockPos()).inflate(1);
     }
     
-    @Override
     public double getViewDistance() {
         return 256.0D;
     }

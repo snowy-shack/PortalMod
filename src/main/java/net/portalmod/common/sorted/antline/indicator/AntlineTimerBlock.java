@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline.indicator;
 
+import net.minecraft.util.RandomSource;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.init.BlockInit;
@@ -106,7 +107,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (level.isClientSide) return;
 
         count(level, pos, state);
@@ -159,7 +160,7 @@ public class AntlineTimerBlock extends AntlineOutput implements AntlineActivated
         double timePassed = Math.round(currentSteps * totalSteps * stepFactor);
         double targetTime = Math.round((currentSteps+1) * totalSteps * stepFactor);
         int ticks = (int) (targetTime - timePassed);
-        level.getBlockTicks().scheduleTick(pos, BlockInit.ANTLINE_TIMER.get(), ticks);
+        level.scheduleTick(pos, BlockInit.ANTLINE_TIMER.get(), ticks);
     }
 
     @Override

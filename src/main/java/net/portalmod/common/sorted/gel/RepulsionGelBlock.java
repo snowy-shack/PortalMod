@@ -23,9 +23,9 @@ public class RepulsionGelBlock extends AbstractGelBlock {
     public static float minBounceHeight = 4; // blocks
 
     @Override
-    public void fallOn(Level world, BlockPos blockPos, Entity entity, float fallDistance) {
+    public void fallOn(Level world, BlockState fallState, BlockPos blockPos, Entity entity, float fallDistance) {
         if (!entity.isShiftKeyDown()) {
-            super.fallOn(world, blockPos, entity, fallDistance); // Negate fall damage unless shifting
+            super.fallOn(world, fallState, blockPos, entity, fallDistance); // Negate fall damage unless shifting
         }
     }
 
@@ -176,7 +176,7 @@ public class RepulsionGelBlock extends AbstractGelBlock {
 
     public static void onPostTick(LivingEntity entity) {
         Level level = entity.level();
-        BlockPos pos = new BlockPos(entity.position());
+        BlockPos pos = BlockPos.containing(entity.position());
 
         BlockState state = level.getBlockState(pos);
         BlockState stateAbove = level.getBlockState(pos.above());

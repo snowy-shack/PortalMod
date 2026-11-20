@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+
 import net.minecraft.client.gui.GuiGraphics;
 
 import net.portalmod.core.util.MatrixUtil;
@@ -151,7 +153,7 @@ public class ColorPickerWidget extends AbstractWidget {
     private void setupProjection(PoseStack matrixStack) {
         Window mainWindow = Minecraft.getInstance().getWindow();
         matrixStack.scale(1, -1, 1);
-        matrixStack.last().pose().multiply(MatrixUtil.orthographic(
+        matrixStack.last().pose().mul(MatrixUtil.orthographic(
                 (float)(mainWindow.getWidth() / mainWindow.getGuiScale()),
                 (float)(mainWindow.getHeight() / mainWindow.getGuiScale()),
                 1000,
@@ -206,7 +208,7 @@ public class ColorPickerWidget extends AbstractWidget {
     }
 
     private void blitRect(PoseStack matrixStack, Rectangle rect, int u, int v) {
-        blit(matrixStack, rect.x, rect.y, u, v, rect.width, rect.height, 512, 512);
+        graphics.blit(TEXTURE, rect.x, rect.y, u, v, rect.width, rect.height, 512, 512);
     }
 
     private void renderSVPicker(PoseStack matrixStack) {
@@ -494,5 +496,10 @@ public class ColorPickerWidget extends AbstractWidget {
         if(this.huePickerCursorDragging) {
             this.setHuePickerCursorPosition((int)y);
         }
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        this.defaultButtonNarrationText(output);
     }
 }

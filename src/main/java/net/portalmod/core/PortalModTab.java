@@ -1,5 +1,10 @@
 package net.portalmod.core;
 
+import java.util.List;
+import java.util.ArrayList;
+import net.portalmod.core.interfaces.CreativeTabFiller;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,7 +28,17 @@ public final class PortalModTab {
     public static final CreativeModeTab INSTANCE = FabricItemGroup.builder()
             .title(Component.translatable("itemGroup." + PortalMod.MODID))
             .icon(() -> new ItemStack(ItemInit.RADIO.get()))
-            .displayItems((params, output) -> ItemInit.ITEMS.getEntries().forEach(item -> output.accept(item.get())))
+            .displayItems((params, output) -> ItemInit.ITEMS.getEntries().forEach(entry -> {
+                Item item = entry.get();
+                Object filler = item instanceof BlockItem blockItem ? blockItem.getBlock() : item;
+                if (filler instanceof CreativeTabFiller tabFiller) {
+                    List<ItemStack> stacks = new ArrayList<>();
+                    tabFiller.fillCreativeTab(stacks);
+                    stacks.forEach(output::accept);
+                } else {
+                    output.accept(item);
+                }
+            }))
             .build();
 
     private PortalModTab() {}

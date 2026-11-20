@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.radio;
 
+import net.portalmod.core.interfaces.CustomPushReaction;
 import javax.annotation.Nullable;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -31,7 +32,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.Level;
 
-public class RadioBlock extends Block implements EntityBlock {
+public class RadioBlock extends Block implements EntityBlock, CustomPushReaction {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<RadioState> STATE = EnumProperty.create("state", RadioState.class);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -124,7 +125,6 @@ public class RadioBlock extends Block implements EntityBlock {
         return state;
     }
     
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.DESTROY;
     }

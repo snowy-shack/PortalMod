@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.gel.container;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.common.sorted.gel.AbstractGelBlock;
 import net.portalmod.core.init.ItemInit;
 import net.portalmod.core.init.SoundInit;
@@ -48,7 +49,7 @@ public class GelContainer extends BlockItem {
         int gelAmount = getAmount(itemStack);
 
         BooleanProperty sideProperty = AbstractGelBlock.STATES.get(gelSide);
-        boolean pickUpGel = clickedState.getBlock().is(this.getBlock())
+        boolean pickUpGel = clickedState.is(this.getBlock())
                 && clickedState.getValue(sideProperty)
                 && (gelAmount < maxAmount || creative);
 
@@ -132,6 +133,6 @@ public class GelContainer extends BlockItem {
 
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
-        ModUtil.addTooltip(this.getBlock().getRegistryName().getPath(), list);
+        ModUtil.addTooltip(BuiltInRegistries.BLOCK.getKey(this.getBlock()).getPath(), list);
     }
 }

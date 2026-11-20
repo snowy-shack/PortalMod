@@ -59,8 +59,8 @@ public class FaithPlateTileEntity extends BlockEntity implements IndicatorActiva
         super(type, pos, state);
     }
     
-    public FaithPlateTileEntity() {
-        this(TileEntityTypeInit.FAITHPLATE.get());
+    public FaithPlateTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.FAITHPLATE.get(), pos, state);
     }
     
     public void tick() {
@@ -257,14 +257,13 @@ public class FaithPlateTileEntity extends BlockEntity implements IndicatorActiva
 
     public float getPredictedHeight(net.minecraft.world.phys.Vec3 absoluteTargetPos) {
         if (height != null) return height;
-        return Math.max(1, (float) (new BlockPos(absoluteTargetPos).distManhattan(this.getBlockPos()) / 4.0));
+        return Math.max(1, (float) (BlockPos.containing(absoluteTargetPos).distManhattan(this.getBlockPos()) / 4.0));
     }
 
     public int getCooldown() {
         return cooldown;
     }
 
-    @Override
     public void rotate(Rotation rotation) {
         net.minecraft.world.phys.Vec3 newTarget = this.targetPos;
         switch(rotation) {
@@ -279,7 +278,6 @@ public class FaithPlateTileEntity extends BlockEntity implements IndicatorActiva
         this.targetFace = rotation.rotate(this.targetFace);
     }
 
-    @Override
     public void mirror(Mirror mirror) {
         this.targetPos = new Vec3(this.targetPos).mul(mirror == Mirror.FRONT_BACK ? -1 : 1, 1, mirror == Mirror.LEFT_RIGHT ? -1 : 1).to3d();
         this.targetFace = mirror.mirror(this.targetFace);
@@ -293,7 +291,7 @@ public class FaithPlateTileEntity extends BlockEntity implements IndicatorActiva
     }
     
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
-        load(state, tag);
+        load(tag);
     }
     
     // block update
@@ -311,7 +309,6 @@ public class FaithPlateTileEntity extends BlockEntity implements IndicatorActiva
         return new AABB(this.getBlockPos()).inflate(1E30);
     }
     
-    @Override
     public double getViewDistance() {
         return 256.0D;
     }

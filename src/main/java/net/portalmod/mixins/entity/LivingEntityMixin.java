@@ -1,5 +1,6 @@
 package net.portalmod.mixins.entity;
 
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -80,7 +81,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
 
     @Shadow public abstract EntityDimensions getDimensions(Pose p_213305_1_);
 
-    @Shadow public abstract Packet<?> getAddEntityPacket();
+    @Shadow public abstract Packet<ClientGamePacketListener> getAddEntityPacket();
 
     @Shadow public abstract void stopRiding();
 
@@ -508,7 +509,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     @Override
     protected void spawnSprintParticle() {
         Level level = this.level();
-        BlockPos pos = new BlockPos(this.position());
+        BlockPos pos = BlockPos.containing(this.position());
         BlockState state = level.getBlockState(pos);
 
         if (!(state.getBlock() instanceof AbstractGelBlock)) {
@@ -534,7 +535,7 @@ public abstract class LivingEntityMixin extends Entity implements Flingable, IDr
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
         Level level = this.level();
-        BlockPos nPos = new BlockPos(this.position());
+        BlockPos nPos = BlockPos.containing(this.position());
         BlockState nState = level.getBlockState(nPos);
 
         if (!(nState.getBlock() instanceof AbstractGelBlock)) {

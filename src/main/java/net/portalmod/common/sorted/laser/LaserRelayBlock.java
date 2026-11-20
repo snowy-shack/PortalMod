@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.laser;
 
+import net.portalmod.core.interfaces.CustomPushReaction;
 import net.portalmod.core.math.VoxelShapeBuilder;
 
 import net.minecraft.world.level.block.Block;
@@ -12,7 +13,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.BlockGetter;
 
-public class LaserRelayBlock extends Block {
+public class LaserRelayBlock extends Block implements CustomPushReaction {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     
 //    private static final HashMap<Direction, VoxelShapeGroup> SHAPES = new HashMap<>();
@@ -70,7 +71,6 @@ public class LaserRelayBlock extends Block {
         return SHAPE;
     }
     
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.DESTROY;
     }

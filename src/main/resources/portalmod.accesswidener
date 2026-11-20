@@ -1,1 +1,10 @@
 accessWidener v2 named
+
+# Fabric replacement for the Forge access transformer (META-INF/accesstransformer.cfg).
+accessible field net/minecraft/client/renderer/LevelRenderer renderBuffers Lnet/minecraft/client/renderer/RenderBuffers;
+accessible field net/minecraft/client/renderer/LevelRenderer entityRenderDispatcher Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;
+accessible field net/minecraft/client/renderer/LevelRenderer level Lnet/minecraft/client/multiplayer/ClientLevel;
+accessible field net/minecraft/client/renderer/LevelRenderer renderedEntities I
+accessible class net/minecraft/client/renderer/LevelRenderer$RenderChunkInfo
+accessible field net/minecraft/client/Minecraft overlay Lnet/minecraft/client/gui/screens/Overlay;
+accessible field net/minecraft/client/renderer/GameRenderer lightTexture Lnet/minecraft/client/renderer/LightTexture;

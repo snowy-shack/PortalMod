@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+
 import net.minecraft.client.gui.GuiGraphics;
 
 import net.minecraft.network.chat.Component;
@@ -63,5 +65,10 @@ public class SkinEntryWidget extends AbstractWidget {
     @Override
     public void onClick(double x, double y) {
         this.parent.selectEntry(this, true);
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        this.defaultButtonNarrationText(output);
     }
 }

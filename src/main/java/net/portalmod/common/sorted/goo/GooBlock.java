@@ -79,7 +79,6 @@ public class GooBlock extends LiquidBlock {
     }
 
     @Nullable
-    @Override
     public BlockPathTypes getAiPathNodeType(BlockState state, BlockGetter world, BlockPos pos, @Nullable Mob entity) {
         return BlockPathTypes.LAVA;
     }

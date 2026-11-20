@@ -44,7 +44,7 @@ public class PortalManager extends SavedData {
 
     public void tick() {
         for(PortalEntity portal : this.pendingRemovals) {
-            ((ServerLevel)portal.level()).removeEntity(portal, false);
+            portal.discard();
         }
         this.pendingRemovals.clear();
 
@@ -165,12 +165,12 @@ public class PortalManager extends SavedData {
 
         if(!pair.areInSameDimension(PortalEnd.PRIMARY, portal)) {
             PortalEntity primary = pair.get(PortalEnd.PRIMARY);
-            ((ServerLevel)primary.level()).removeEntity(primary, false);
+            primary.discard();
         }
 
         if(!pair.areInSameDimension(PortalEnd.SECONDARY, portal)) {
             PortalEntity secondary = pair.get(PortalEnd.SECONDARY);
-            ((ServerLevel)secondary.level()).removeEntity(secondary, false);
+            secondary.discard();
         }
 
         pair.computeIfPresent(end, PortalEntity::onReplaced);

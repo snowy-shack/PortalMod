@@ -81,7 +81,7 @@ public class CubeDropperTileEntity extends BlockEntity implements IndicatorActiv
         if (entity instanceof TestElementEntity) {
             ((TestElementEntity) entity).startFizzling();
         } else if (entity != null && entity.isAlive()) {
-            entity.remove();
+            entity.discard();
         }
 
         this.entityUUIDs.remove(0);
@@ -148,7 +148,7 @@ public class CubeDropperTileEntity extends BlockEntity implements IndicatorActiv
                     if (entity instanceof TestElementEntity) {
                         ((TestElementEntity) entity).startFizzling();
                     } else if (entity.isAlive()) {
-                        entity.remove();
+                        entity.discard();
                     }
                 }
             }

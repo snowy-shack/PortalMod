@@ -1,5 +1,7 @@
 package net.portalmod.common.blocks;
 
+import net.portalmod.core.interfaces.StickyBlock;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.mojang.math.Axis;
 import net.portalmod.common.sorted.platform.BeamBearer;
 import net.portalmod.common.sorted.platform.PlatformBeamBlock;
@@ -41,7 +43,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 
-public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomPushBehavior, BeamBearer {
+public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomPushBehavior, BeamBearer, StickyBlock {
     public static Set<Block> FRAME_BLOCKS = new HashSet<>();
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
@@ -110,7 +112,7 @@ public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomP
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (FRAME_BLOCKS.isEmpty()) {
-            DefaultedRegistry.BLOCK.stream().filter(this::holdingCausesFullHitbox).forEach(block -> FRAME_BLOCKS.add(block));
+            BuiltInRegistries.BLOCK.stream().filter(this::holdingCausesFullHitbox).forEach(block -> FRAME_BLOCKS.add(block));
         }
 
         // Sadly we can't access the held item itself, we can only test whether a particular item is held.
@@ -158,7 +160,7 @@ public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomP
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor world, BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
-            world.getFluidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
         return state;
     }
@@ -174,12 +176,10 @@ public class FrameBlock extends Block implements SimpleWaterloggedBlock, CustomP
         return state.getValue(BEAM) ? state.getValue(FACING) : null;
     }
 
-    @Override
     public boolean isStickyBlock(BlockState state) {
         return true;
     }
 
-    @Override
     public boolean canStickTo(BlockState state, BlockState other) {
         return this.canStickTo(other);
     }

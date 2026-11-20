@@ -187,7 +187,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level().isClientSide) {
             this.dropAllDeathLoot(DamageTypeInit.source(this.level(), DamageTypeInit.FIZZLE));
         }
-        this.remove();
+        this.discard();
     }
 
     public void awardKill() {
@@ -200,7 +200,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
                 CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(
                         (ServerPlayer) holder,
                         this,
-                        DamageSource.playerAttack((Player) holder)
+                        this.damageSources().playerAttack((Player) holder)
                 );
             }
         }
@@ -382,7 +382,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
             Vec3 oldPos = eyeOldPos.clone().add(oldRidingVec);
             Vec3 center = new Vec3(this.getBoundingBox().getCenter()).sub(0, this.getBoundingBox().getYsize() / 2, 0);
             this.setBoundingBox(this.getBoundingBox().move(center.negate().to3d()).move(oldPos.to3d()));
-            this.setPosAndOldPos(oldPos.x, oldPos.y, oldPos.z);
+            ModUtil.setPosAndOldPos(this, oldPos.x, oldPos.y, oldPos.z);
 
             // move the entity
             this.move(MoverType.SELF, ridingPos.subtract(ModUtil.getOldPos(this)));
@@ -537,8 +537,8 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     }
 
     @Override
-    public void remove(boolean keepData) {
-        super.remove(keepData);
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
         this.dropIfPickedUp();
     }
 
@@ -582,7 +582,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         this.setDamage(this.getDamage() + damage * 10.0F);
         this.markHurt();
         if (creative || this.getDamage() > 40.0F) {
-            this.remove();
+            this.discard();
             if (!creative && !this.isFromDropper() && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                 this.dropAllDeathLoot(source);
             }
@@ -590,7 +590,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
     }
 
     @Override
-    public void animateHurt() {
+    public void animateHurt(float yaw) {
         this.setHurtDir(-this.getHurtDir());
         this.setHurtTime(10);
         this.setDamage(this.getDamage() + this.getDamage() * 10.0F);

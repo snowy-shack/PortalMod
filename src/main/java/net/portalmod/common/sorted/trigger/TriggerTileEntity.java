@@ -31,8 +31,8 @@ public class TriggerTileEntity extends BlockEntity {
         super(type, pos, state);
     }
 
-    public TriggerTileEntity() {
-        this(TileEntityTypeInit.TRIGGER.get());
+    public TriggerTileEntity(BlockPos pos, BlockState state) {
+        this(TileEntityTypeInit.TRIGGER.get(), pos, state);
     }
     
     public void tick() {
@@ -149,13 +149,11 @@ public class TriggerTileEntity extends BlockEntity {
         }
     }
 
-    @Override
     public void rotate(Rotation rotation) {
         this.fieldStart = this.fieldStart.rotate(rotation);
         this.fieldEnd = this.fieldEnd.rotate(rotation);
     }
 
-    @Override
     public void mirror(Mirror mirror) {
         int flipX = mirror == Mirror.FRONT_BACK ? -1 : 1;
         int flipZ = mirror == Mirror.LEFT_RIGHT ? -1 : 1;
@@ -171,7 +169,7 @@ public class TriggerTileEntity extends BlockEntity {
     }
     
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
-        load(state, tag);
+        load(tag);
     }
     
     // block update
@@ -189,7 +187,6 @@ public class TriggerTileEntity extends BlockEntity {
         return new AABB(this.getBlockPos()).inflate(1E30);
     }
     
-    @Override
     public double getViewDistance() {
         return 256.0D;
     }

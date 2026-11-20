@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.portalmod.core.interfaces.CreativeTabFiller;
 import net.portalmod.core.util.ClientOnly;
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.common.entities.TestElementEntity;
@@ -50,7 +51,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 
-public class PortalGun extends Item {
+public class PortalGun extends Item implements CreativeTabFiller {
 
     public String defaultLeftColor;
     public String defaultRightColor;
@@ -302,7 +303,8 @@ public class PortalGun extends Item {
     }
 
     @Override
-    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+    public boolean allowNbtUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+        boolean slotChanged = false; // Fabric only asks about NBT changes on the same slot
         Optional<UUID> newUUID = getUUID(newStack);
         Optional<UUID> oldUUID = getUUID(oldStack);
         return slotChanged || oldUUID.isPresent() && newUUID.isPresent() && !oldUUID.equals(newUUID);
@@ -355,9 +357,8 @@ public class PortalGun extends Item {
         if (!nbt.contains("Locked"))      nbt.putString("Locked", "None");
     }
 
-    @Override
-    public void fillItemCategory(CreativeModeTab itemGroup, NonNullList<ItemStack> itemStacks) {
-        if (this.allowdedIn(itemGroup)) {
+    public void fillCreativeTab(java.util.List<ItemStack> itemStacks) {
+        if (true) {
             itemStacks.add(new ItemStack(this));
             itemStacks.add(modifyColors(new ItemStack(this), "light_blue", "purple", "light_blue"));
             itemStacks.add(modifyColors(new ItemStack(this), "yellow", "red", "orange"));

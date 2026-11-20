@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.portalmod.core.interfaces.CustomPushReaction;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 
-public abstract class MultiBlock extends Block {
+public abstract class MultiBlock extends Block implements CustomPushReaction {
 
     private final Map<Property<?>, Comparable<?>> mainProperties = new HashMap<>();
 
@@ -83,7 +84,7 @@ public abstract class MultiBlock extends Block {
     public <T extends Comparable<T>> void setBlockStateValue(Property<T> property, T value, BlockState blockState, Level world, BlockPos pos) {
         for (BlockPos multiBlockPos : this.getAllPositions(blockState, pos)) {
             BlockState multiBlockState = world.getBlockState(multiBlockPos);
-            if (multiBlockState.getBlock().is(this)) {
+            if (multiBlockState.is(this)) {
                 world.setBlock(multiBlockPos, multiBlockState.setValue(property, value), 2);
             }
         }
@@ -164,14 +165,13 @@ public abstract class MultiBlock extends Block {
         BlockPos mainPos = this.getMainPosition(blockState, pos);
         if (!pos.equals(mainPos)) {
             BlockState mainBlockState = world.getBlockState(mainPos);
-            if (mainBlockState.getBlock().is(this)) {
+            if (mainBlockState.is(this)) {
                 world.setBlock(mainPos, Blocks.AIR.defaultBlockState(), 35);
                 world.levelEvent(player, 2001, mainPos, Block.getId(mainBlockState));
             }
         }
     }
 
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.BLOCK;
     }

@@ -1,5 +1,6 @@
 package net.portalmod.core.packet;
 
+import net.portalmod.core.util.ModUtil;
 import net.portalmod.core.util.ClientOnly;
 import net.portalmod.core.network.PacketContext;
 import net.portalmod.core.interfaces.ITeleportLerpable;
@@ -89,7 +90,7 @@ public class SEntityPortalTeleportLerpPacket implements AbstractPacket<SEntityPo
                             ((ITeleportLerpable)entity).getLerpPositions();
                     if(!lerpPositions.isEmpty()) {
                         Vec3 pos = lerpPositions.peekLast().getB();
-                        entity.setPosAndOldPos(pos.x, pos.y, pos.z);
+                        ModUtil.setPosAndOldPos(entity, pos.x, pos.y, pos.z);
                         lerpPositions.clear();
                     }
                     lerpPositions.addAll(this.lerpPositions);

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.laser;
 
+import net.portalmod.core.interfaces.CustomPushReaction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 import net.minecraft.world.level.BlockGetter;
 
-public class LaserEmitterBlock extends Block {
+public class LaserEmitterBlock extends Block implements CustomPushReaction {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     
     private static final Map<Direction, VoxelShapeGroup> SHAPES = new HashMap<>();
@@ -71,7 +72,6 @@ public class LaserEmitterBlock extends Block {
         return SHAPES.get(state.getValue(FACING)).getShape();
     }
     
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.DESTROY;
     }

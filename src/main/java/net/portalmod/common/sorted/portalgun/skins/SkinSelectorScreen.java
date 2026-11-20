@@ -256,9 +256,9 @@ public class SkinSelectorScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int i) {
+    public void renderBackground(GuiGraphics graphics) {
         PoseStack matrixStack = graphics.pose();
-        super.renderBackground(matrixStack, i);
+        super.renderBackground(graphics);
 
         RenderSystem.setShaderTexture(0, TEXTURE);
         graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
@@ -270,17 +270,17 @@ public class SkinSelectorScreen extends Screen {
         graphics.drawString(this.font, this.title, (int) ((float)this.getX() + 8), (int) ((float)this.getY() + 6), 4210752, false);
 
         if(!this.isLoading()) {
-            this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+            this.skinPreviewWidget.render(graphics, mouseX, mouseY, partialTicks);
             this.renderColorPicker(matrixStack, mouseX, mouseY, partialTicks);
             this.renderSkinList(matrixStack, mouseX, mouseY, partialTicks);
-            this.renderScrollbar(matrixStack);
+            this.renderScrollbar(graphics);
         } else {
             this.renderLoadingBlob();
         }
 
-        this.infoButton.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.refreshButton.render(matrixStack, mouseX, mouseY, partialTicks);
-        this.applyButton.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.infoButton.render(graphics, mouseX, mouseY, partialTicks);
+        this.refreshButton.render(graphics, mouseX, mouseY, partialTicks);
+        this.applyButton.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     private void setupScissorTest(Rectangle rect) {
@@ -315,7 +315,7 @@ public class SkinSelectorScreen extends Screen {
             return;
 
         this.setupScissorTest(this.colorPickerMaskRegion);
-        this.colorPickerWidget.render(matrixStack, mouseX, mouseY, partialTicks);
+        this.colorPickerWidget.render(graphics, mouseX, mouseY, partialTicks);
         RenderSystem.disableScissor();
     }
 
@@ -324,7 +324,7 @@ public class SkinSelectorScreen extends Screen {
         matrixStack.translate(0, -this.scrollOffset * this.getScrollableRange(), 0);
 
         this.setupScissorTest(this.listRegion);
-        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(matrixStack, mouseX, mouseY, partialTicks));
+        this.skinEntryList.forEach(skinEntryWidget -> skinEntryWidget.render(graphics, mouseX, mouseY, partialTicks));
         RenderSystem.disableScissor();
 
         matrixStack.popPose();
@@ -355,7 +355,7 @@ public class SkinSelectorScreen extends Screen {
 
     private void blitScrollbarThumbPart(PoseStack matrixStack, int yOffset, int vOffset, int height) {
         Rectangle thumbRegion = this.getScrollbarThumbRegion();
-        blit(matrixStack, thumbRegion.x, thumbRegion.y + yOffset,
+        graphics.blit(TEXTURE, thumbRegion.x, thumbRegion.y + yOffset,
                 SCROLLBAR_THUMB_U, SCROLLBAR_THUMB_V + vOffset,
                 SCROLLBAR_THUMB_WIDTH, height, 512, 512);
     }

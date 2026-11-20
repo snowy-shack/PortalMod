@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline.indicator;
 
+import net.portalmod.core.interfaces.RedstoneConnectable;
 import net.portalmod.common.sorted.antline.AntlineActivated;
 import net.portalmod.core.util.ModUtil;
 
@@ -21,7 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated, IndicatorActivated {
+public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated, IndicatorActivated, RedstoneConnectable {
     public static final BooleanProperty ACTIVATED = BooleanProperty.create("activated");
 
     public AntlineDecoderBlock(Properties properties) {
@@ -88,7 +89,6 @@ public class AntlineDecoderBlock extends AntlineIcon implements AntlineActivated
         world.updateNeighborsAtExceptFromFacing(pos.relative(connectedDirection.getOpposite()), this, connectedDirection);
     }
 
-    @Override
     public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
         return state.getValue(FACE) == AttachFace.FLOOR;
     }

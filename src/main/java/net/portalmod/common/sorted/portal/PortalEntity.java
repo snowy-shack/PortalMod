@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.damagesource.DamageTypes;
 
 import com.mojang.math.Axis;
@@ -96,10 +97,10 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     @Override
     public void tick() {
-        if(this.getY() < -64.0D)
-            this.outOfWorld();
+        if(this.getY() < this.level().getMinBuildHeight() - 64.0D)
+            this.onBelowWorld();
         if(!level().isClientSide && this.isAlive() && (!this.survives() || this.hasMoved()))
-            this.remove();
+            this.discard();
 
         if(level().isClientSide) {
             PortalPhotonParticle.createLivingParticles(this);
@@ -277,7 +278,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         Vec3 teleportedPos = teleportedCenter.clone().sub(positionToCenterVector);
 
-        entity.setPosAndOldPos(teleportedPos.x, teleportedPos.y, teleportedPos.z);
+        ModUtil.setPosAndOldPos(entity, teleportedPos.x, teleportedPos.y, teleportedPos.z);
         entity.setBoundingBox(entity.getBoundingBox()
                 .move(new Vec3(entity.getBoundingBox().getCenter()).negate().to3d())
                 .move(teleportedCenter.to3d()));
@@ -778,7 +779,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
         if(this.level().isClientSide)
             return;
 
-        ((ServerLevel)this.level()).removeEntity(this, false);
+        this.discard();
         this.getOtherPortal().ifPresent(PortalEntity::pushEntities);
     }
 
@@ -921,7 +922,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             boolean isCreative = attacker instanceof Player && ((Player)attacker).isCreative();
 
             if(hitWithWrench || (isCreative && !this.isOpen())) {
-                this.remove();
+                this.discard();
                 return true;
             }
         }
@@ -940,7 +941,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
     public void move(MoverType moverType, net.minecraft.world.phys.Vec3 delta) {
         if(!this.level().isClientSide && !this.removed && delta.lengthSqr() > 0.0D)
-            this.remove();
+            this.discard();
     }
 
     public float rotate(Rotation rotation) {
@@ -998,7 +999,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
+    public ItemStack getPickResult() {
         CompoundTag nbt = new CompoundTag();
         nbt.putUUID("gunUUID", this.gunUUID);
         ItemStack item = new ItemStack(ItemInit.PORTALGUN.get());
@@ -1007,7 +1008,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return EntitySpawnPackets.create(this);
     }
 

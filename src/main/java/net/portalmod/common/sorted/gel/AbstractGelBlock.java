@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.gel;
 
+import net.portalmod.core.interfaces.CreativeTabFiller;
+import net.portalmod.core.interfaces.CustomPushReaction;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.portalmod.common.sorted.gel.container.GelContainer;
@@ -41,7 +43,7 @@ import org.joml.Vector3f;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class AbstractGelBlock extends HalfTransparentBlock {
+public class AbstractGelBlock extends HalfTransparentBlock implements CustomPushReaction, CreativeTabFiller {
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST =  BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
@@ -127,7 +129,7 @@ public class AbstractGelBlock extends HalfTransparentBlock {
             return previousState;
         }
 
-        if (!previousState.getBlock().is(this)) {
+        if (!previousState.is(this)) {
             previousState = this.emptyBlockState;
         }
 
@@ -163,14 +165,13 @@ public class AbstractGelBlock extends HalfTransparentBlock {
     }
     
     @Override
-    public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
-        ItemStack stack = super.getPickBlock(state, target, world, pos, player);
+    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+        ItemStack stack = super.getCloneItemStack(world, pos, state);
         GelContainer.setAmount(stack, 16);
         return stack;
     }
     
-    @Override
-    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
+    public void fillCreativeTab(java.util.List<ItemStack> stacks) {
         ItemStack stack = new ItemStack(this);
         GelContainer.setAmount(stack, 16);
         stacks.add(stack);
@@ -182,7 +183,6 @@ public class AbstractGelBlock extends HalfTransparentBlock {
         return !(item instanceof GelContainer) || item.getItem() == state.getBlock().asItem();
     }
     
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
        return PushReaction.NORMAL;
     }

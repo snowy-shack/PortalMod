@@ -52,11 +52,6 @@ public class Cube extends TestElementEntity {
     }
 
     @Override
-    public void remove() {
-        super.remove();
-    }
-
-    @Override
     public boolean isPushable() {
         return true;
     }

@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.button;
 
+import net.minecraft.util.RandomSource;
 import net.portalmod.common.blocks.QuadBlock;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -70,7 +71,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
     }
     
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         checkPressed(state, level, pos);
     }
     
@@ -193,7 +194,7 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
 
         boolean pressed = blocks.stream().anyMatch(cornerPos -> this.isBeingPressed(level, cornerPos));
 
-        if (pressed) level.getBlockTicks().scheduleTick(pos, this, 10);
+        if (pressed) level.scheduleTick(pos, this, 10);
         
         if (wasPressed != pressed) {
             this.setBlockStateValue(PRESSED, pressed, state, level, pos);

@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.util.RandomSource;
 import net.portalmod.core.init.ParticleInit;
 import net.portalmod.core.init.SoundInit;
 import net.portalmod.core.math.Vec3;
@@ -63,7 +64,7 @@ public class ForestCakeBlock extends CakeBlock {
     }
 
     @Override
-    public void animateTick(BlockState blockState, Level level, BlockPos pos, Random randomSource) {
+    public void animateTick(BlockState blockState, Level level, BlockPos pos, RandomSource randomSource) {
         if (blockState.getValue(BITES) > 0) {
             return;
         }

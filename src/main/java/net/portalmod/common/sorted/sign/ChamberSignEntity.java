@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.sign;
 
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.portalmod.core.network.NetworkDirection;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
@@ -143,7 +144,7 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
+    public ItemStack getPickResult() {
         return new ItemStack(ItemInit.CHAMBER_SIGN.get());
     }
 
@@ -281,7 +282,7 @@ public class ChamberSignEntity extends HangingEntity {
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return PacketInit.INSTANCE.toVanillaPacket(
                 new SSpawnChamberSignPacket(this.getId(), this.getUUID(), this.getPos(), this.direction, this.verticallyAligned),
                 NetworkDirection.PLAY_TO_CLIENT);

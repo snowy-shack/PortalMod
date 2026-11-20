@@ -45,7 +45,7 @@ public class PlayerEntityInjector {
 
 
             if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
-                BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
+                BlockPos blockpos = BlockPos.containing(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
                 float f3 = player.level().getBlockState(blockpos).getSlipperiness(player.level(), blockpos, player);
                 float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
                 Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);
@@ -95,7 +95,7 @@ public class PlayerEntityInjector {
             wasFlying = false;
 
             if(player.isEffectiveAi() || player.isControlledByLocalInstance()) {
-                BlockPos blockpos = new BlockPos(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
+                BlockPos blockpos = BlockPos.containing(player.position().x, player.getBoundingBox().minY - 0.5000001D, player.position().z);
                 float f3 = player.level().getBlockState(blockpos).getSlipperiness(player.level(), blockpos, player);
                 float f4 = player.onGround() ? f3 * 0.91F : 0.91F;
                 Vec3 vector3d5 = player.handleRelativeFrictionAndCalculateMovement(new Vec3((double)player.xxa, (double)player.yya, (double)player.zza), f3);

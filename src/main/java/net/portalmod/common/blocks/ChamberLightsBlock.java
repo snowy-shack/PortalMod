@@ -1,5 +1,6 @@
 package net.portalmod.common.blocks;
 
+import net.minecraft.util.RandomSource;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.portalmod.core.init.SoundInit;
@@ -105,11 +106,11 @@ public class ChamberLightsBlock extends DoubleBlock {
 
         // Gaussian distribution starting at 1 with standard deviation of 10 (to make the chance for a short blink higher)
         double ticks = Math.abs(random.nextGaussian()) * 5 + 1;
-        world.getBlockTicks().scheduleTick(pos, this, (int) ticks);
+        world.scheduleTick(pos, this, (int) ticks);
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel world, BlockPos pos, Random random) {
+    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
         this.blink(state, world, pos);
     }
 
@@ -162,7 +163,7 @@ public class ChamberLightsBlock extends DoubleBlock {
 
     // Copied from RespawnAnchorBlock
     @Environment(EnvType.CLIENT)
-    public void animateTick(BlockState state, Level level, BlockPos pos, Random random) {
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
         if (!state.getValue(POWERED) && random.nextInt(24) == 0) {
             level.playLocalSound( // just .playSound didn't work for me, no matter what I tried
                     (double) pos.getX() + 0.5D,

@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+
 import net.minecraft.client.gui.GuiGraphics;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -53,5 +55,10 @@ public class FaithplateCheckboxButton extends AbstractButton {
 
         graphics.drawString( fontRenderer, this.getMessage(),
                 this.getX() + 24, this.getY() + (this.height - 8) / 2, unavailable ? 0x7e7e7e : 0xFFFFFF);
+    }
+
+    @Override
+    protected void updateWidgetNarration(NarrationElementOutput output) {
+        this.defaultButtonNarrationText(output);
     }
 }

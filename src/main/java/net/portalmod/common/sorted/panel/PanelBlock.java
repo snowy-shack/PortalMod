@@ -55,7 +55,7 @@ public class PanelBlock extends Block implements PortalHelper {
         Player player = context.getPlayer();
 
         // Block is not this one or shift is not down
-        if (!clickedBlock.getBlock().is(this) || player == null || !player.isShiftKeyDown()) {
+        if (!clickedBlock.is(this) || player == null || !player.isShiftKeyDown()) {
             return this.defaultBlockState();
         }
 

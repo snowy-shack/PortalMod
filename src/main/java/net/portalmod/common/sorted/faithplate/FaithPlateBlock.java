@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.portalmod.core.interfaces.CustomPushReaction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.EntityBlock;
@@ -36,7 +37,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class FaithPlateBlock extends DoubleBlock implements EntityBlock {
+public class FaithPlateBlock extends DoubleBlock implements EntityBlock, CustomPushReaction {
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final EnumProperty<Face> FACE = EnumProperty.create("face", Face.class);
     
@@ -154,7 +155,6 @@ public class FaithPlateBlock extends DoubleBlock implements EntityBlock {
         super.onRemove(state, level, pos, newState, b);
     }
 
-    @Override
     public PushReaction getPistonPushReaction(BlockState p_149656_1_) {
         return PushReaction.BLOCK;
     }

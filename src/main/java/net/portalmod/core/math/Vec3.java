@@ -383,7 +383,7 @@ public class Vec3 {
     }
     
     public Vec3i to3i() {
-        return new Vec3i(this.x, this.y, this.z);
+        return new Vec3i(Mth.floor(this.x), Mth.floor(this.y), Mth.floor(this.z));
     }
 
     @Nullable
@@ -392,6 +392,6 @@ public class Vec3 {
     }
 
     public BlockPos toBlockPos() {
-        return new BlockPos(this.x, this.y, this.z);
+        return BlockPos.containing(this.x, this.y, this.z);
     }
 }

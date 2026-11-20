@@ -67,10 +67,10 @@ public class Mat4 {
     }
 
     public Mat4(Quaternionf q) {
-       float f = q.i();
-       float f1 = q.j();
-       float f2 = q.k();
-       float f3 = q.r();
+       float f = q.x();
+       float f1 = q.y();
+       float f2 = q.z();
+       float f3 = q.w();
        float f4 = 2.0F * f * f;
        float f5 = 2.0F * f1 * f1;
        float f6 = 2.0F * f2 * f2;

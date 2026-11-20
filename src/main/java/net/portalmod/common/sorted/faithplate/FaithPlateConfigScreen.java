@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+
 import net.minecraft.client.gui.components.Button;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -200,9 +202,9 @@ public class FaithPlateConfigScreen extends Screen {
     }
     
     @Override
-    public void renderBackground(GuiGraphics graphics, int i) {
+    public void renderBackground(GuiGraphics graphics) {
         PoseStack matrixStack = graphics.pose();
-        super.renderBackground(matrixStack, i);
+        super.renderBackground(graphics);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.setShaderTexture(0, TEXTURE);
@@ -218,11 +220,11 @@ public class FaithPlateConfigScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         PoseStack matrixStack = graphics.pose();
         renderBackground(graphics);
-        panel.render(matrixStack, mouseX, mouseY, partialTicks);
-        selector.render(matrixStack, mouseX, mouseY, partialTicks);
-        done.render(matrixStack, mouseX, mouseY, partialTicks);
-        enable.render(matrixStack, mouseX, mouseY, partialTicks);
-        heightField.render(matrixStack, mouseX, mouseY, partialTicks);
+        panel.render(graphics, mouseX, mouseY, partialTicks);
+        selector.render(graphics, mouseX, mouseY, partialTicks);
+        done.render(graphics, mouseX, mouseY, partialTicks);
+        enable.render(graphics, mouseX, mouseY, partialTicks);
+        heightField.render(graphics, mouseX, mouseY, partialTicks);
         
         Font fontRenderer = Minecraft.getInstance().font;
 
@@ -234,6 +236,11 @@ public class FaithPlateConfigScreen extends Screen {
     }
     
     private static class RenderWidget extends AbstractWidget {
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput output) {
+            this.defaultButtonNarrationText(output);
+        }
+
         private final FaithPlateConfigScreen parent;
         private boolean handleClicked = false;
         private boolean enabled = true;

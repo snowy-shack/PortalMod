@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.world.entity.Entity;
+
 import java.util.function.Supplier;
 
 import net.portalmod.core.util.ClientOnly;
@@ -39,7 +41,7 @@ public class PortalPacket {
             context.get().enqueueWork(() -> {
                 ClientOnly.run(() -> () -> {
                     if(type == Type.REPLACE)
-                        Minecraft.getInstance().level.removeEntity(entityId);
+                        Minecraft.getInstance().level.removeEntity(entityId, Entity.RemovalReason.DISCARDED);
                 });
             });
 

@@ -111,9 +111,9 @@ public class PortalCommand {
             PortalPair pair = entry.getValue();
 
             if(pair.has(PortalEnd.PRIMARY))
-                pair.get(PortalEnd.PRIMARY).remove();
+                pair.get(PortalEnd.PRIMARY).discard();
             if(pair.has(PortalEnd.SECONDARY))
-                pair.get(PortalEnd.SECONDARY).remove();
+                pair.get(PortalEnd.SECONDARY).discard();
         }
 
         source.sendSuccess(getText("close.double.success"), true);
@@ -129,13 +129,13 @@ public class PortalCommand {
 
         if(end == PortalEnd.NONE) {
             if(pair.has(PortalEnd.PRIMARY))
-                pair.get(PortalEnd.PRIMARY).remove();
+                pair.get(PortalEnd.PRIMARY).discard();
             if(pair.has(PortalEnd.SECONDARY))
-                pair.get(PortalEnd.SECONDARY).remove();
+                pair.get(PortalEnd.SECONDARY).discard();
             source.sendSuccess(getText("close.double.success"), true);
         } else {
             if(pair.has(end)) {
-                pair.get(end).remove();
+                pair.get(end).discard();
                 source.sendSuccess(getText("close.single.success"), true);
             } else {
                 throw new SimpleCommandExceptionType(getText("close.single.failed.null")).create();

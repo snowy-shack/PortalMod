@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.platform;
 
+import net.portalmod.core.interfaces.StickyBlock;
 import net.portalmod.common.blocks.CustomPushBehavior;
 import net.portalmod.core.util.ModUtil;
 
@@ -31,7 +32,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 
-public class PlatformBeamBlock extends Block implements SimpleWaterloggedBlock, CustomPushBehavior, BeamBearer {
+public class PlatformBeamBlock extends Block implements SimpleWaterloggedBlock, CustomPushBehavior, BeamBearer, StickyBlock {
 
     public static final VoxelShape SHAPE_X = Block.box(0, 5, 5, 16, 11, 11);
     public static final VoxelShape SHAPE_Y = Block.box(5, 0, 5, 11, 16, 11);
@@ -103,7 +104,7 @@ public class PlatformBeamBlock extends Block implements SimpleWaterloggedBlock, 
     @Override
     public BlockState updateShape(BlockState blockState, Direction direction, BlockState state, LevelAccessor world, BlockPos pos, BlockPos pos2) {
         if (blockState.getValue(WATERLOGGED)) {
-            world.getFluidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
         return blockState;
     }
@@ -113,12 +114,10 @@ public class PlatformBeamBlock extends Block implements SimpleWaterloggedBlock, 
         return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
-    @Override
     public boolean isStickyBlock(BlockState state) {
         return true;
     }
 
-    @Override
     public boolean canStickTo(BlockState state, BlockState other) {
         // For Create compatibility, we only want to stick to other things if they are sticky too, like slime blocks.
         // Setting this to true means we are able to stick to the other block in all directions, which is not what we want.
