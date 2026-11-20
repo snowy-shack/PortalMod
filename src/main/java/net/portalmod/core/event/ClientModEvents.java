@@ -1,6 +1,9 @@
 package net.portalmod.core.event;
 
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -60,10 +63,24 @@ public class ClientModEvents {
             client.getMainRenderTarget().enableStencil();
             ShaderInit.REGISTRY.registerAll();
         });
-        ModelLoadingPlugin.register(PortalModModels::initialize);
+        ModelLoadingPlugin.register(net.portalmod.client.render.PortalModModels::initialize);
+    }
+
+    private static void registerModelLayers() {
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.autoportal.AutoPortalModel.LAYER, net.portalmod.common.sorted.autoportal.AutoPortalModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.portalgun.PortalGunModel.LAYER, net.portalmod.common.sorted.portalgun.PortalGunModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.faithplate.FaithPlatePlateModel.LAYER, net.portalmod.common.sorted.faithplate.FaithPlatePlateModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.cube.CubeModel.LAYER, net.portalmod.common.sorted.cube.CubeModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.turret.TurretModel.LAYER, net.portalmod.common.sorted.turret.TurretModel::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.turret.TurretModelOld.LAYER, net.portalmod.common.sorted.turret.TurretModelOld::createBodyLayer);
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.creer.CreerModel.LAYER, () -> net.portalmod.common.sorted.creer.CreerModel.createBodyLayer(CubeDeformation.NONE));
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.creer.CreerModel.ARMOR_LAYER, () -> net.portalmod.common.sorted.creer.CreerModel.createBodyLayer(new CubeDeformation(2.0F)));
+        EntityModelLayerRegistry.registerModelLayer(net.portalmod.common.sorted.longfallboots.LongFallBootsModel.LAYER, net.portalmod.common.sorted.longfallboots.LongFallBootsModel::createBodyLayer);
     }
 
     private static void clientSetup() {
+        registerModelLayers();
+        net.portalmod.common.sorted.longfallboots.LongFallBootsClient.register();
         ClientSkinManager.getInstance().onClientStartup();
 
         KeyInit.init();
@@ -107,6 +124,9 @@ public class ClientModEvents {
         EntityRendererRegistry.register(EntityInit.TURRET.get(), TurretRenderer::new);
         EntityRendererRegistry.register(EntityInit.CHAMBER_SIGN.get(), ChamberSignRenderer::new);
         ColorProviderRegistry.ITEM.register(new PortalGunItemColor(), ItemInit.PORTALGUN.get());
+        // Portal gun is drawn in code (its item model has parent builtin/entity).
+        net.portalmod.common.sorted.portalgun.PortalGunISTER portalGunRenderer = new net.portalmod.common.sorted.portalgun.PortalGunISTER();
+        BuiltinItemRendererRegistry.INSTANCE.register(ItemInit.PORTALGUN.get(), portalGunRenderer::renderByItem);
 
         registerItemProperty(ItemInit.PORTALGUN.get(), "color",  PortalGun::getColorOverride);
 

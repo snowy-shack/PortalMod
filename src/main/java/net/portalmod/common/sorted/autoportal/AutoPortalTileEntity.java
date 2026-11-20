@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Direction;
@@ -27,7 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 
-public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEntity, IndicatorActivated {
+public class AutoPortalTileEntity extends BlockEntity implements IndicatorActivated {
     public UUID gunUUID;
     public PortalEnd end;
     public Integer primaryColor;
@@ -38,8 +37,8 @@ public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEn
 
     private final ChangeDetector powerChangeDetector = new ChangeDetector();
 
-    public AutoPortalTileEntity(BlockEntityType<?> type) {
-        super(type);
+    public AutoPortalTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     public AutoPortalTileEntity() {
@@ -81,7 +80,6 @@ public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEn
         }
     }
     
-    @Override
     public void tick() {
         if(this.level == null || this.level.isClientSide)
             return;
@@ -188,7 +186,7 @@ public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEn
     }
     
     @Override
-    public CompoundTag save(CompoundTag nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(this.gunUUID != null && this.end != null && this.primaryColor != null && this.secondaryColor != null) {
             nbt.putUUID("gunUUID", this.gunUUID);
             nbt.putString("end", this.end.toString().toLowerCase());
@@ -198,16 +196,16 @@ public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEn
             if(this.lastOpenedUUID != null)
                 nbt.putUUID("lastOpenedPortal", this.lastOpenedUUID);
         }
-        return super.save(nbt);
+        super.saveAdditional(nbt);
     }
     
     @Override
-    public void load(BlockState state, CompoundTag nbt) {
-        super.load(state, nbt);
-        load(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadFields(nbt);
     }
     
-    public void load(CompoundTag nbt) {
+    public void loadFields(CompoundTag nbt) {
         if(!nbt.contains("gunUUID") || !nbt.contains("end"))
             return;
         if(!nbt.contains("primaryColor") || !nbt.contains("secondaryColor"))
@@ -227,10 +225,9 @@ public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEn
     
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
     
-    @Override
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
         load(state, tag);
     }
@@ -239,15 +236,13 @@ public class AutoPortalTileEntity extends BlockEntity implements TickableBlockEn
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), -1, save(new CompoundTag()));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
     
-    @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         this.load(packet.getTag());
     }
     
-    @Override
     public AABB getRenderBoundingBox() {
         return new AABB(this.getBlockPos()).inflate(1);
     }

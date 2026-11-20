@@ -537,7 +537,7 @@ public class PortalRenderer {
         AABB bb = portal.getBoundingBox();
         Matrix4f view = getViewMatrix(camera);
         Matrix4f mvp = projectionMatrix.copy();
-        mvp.multiply(view);
+        mvp.mul(view);
 
         float xMin =  Float.POSITIVE_INFINITY, yMin =  Float.POSITIVE_INFINITY;
         float xMax = Float.NEGATIVE_INFINITY, yMax = Float.NEGATIVE_INFINITY;
@@ -549,7 +549,7 @@ public class PortalRenderer {
             for(double y : ys) {
                 for(double z : zs) {
                     Vector4f corner = new Vector4f((float)x, (float)y, (float)z, 1f);
-                    corner.transform(mvp);
+                    corner.mul(mvp);
                     float w = corner.w();
                     if(w <= 0.01f) return null;
                     float nx = corner.x() / w;
@@ -622,7 +622,7 @@ public class PortalRenderer {
         // Defensive fallback for modded blocks that claim canOcclude=true while having
         // no collider (fluids, decorations). In vanilla this is already covered by
         // canOcclude, but modded content doesn't always follow the rule.
-        if(!state.getMaterial().blocksMotion())
+        if(!state.blocksMotion())
             return false;
         return true;
     }
@@ -868,7 +868,7 @@ public class PortalRenderer {
         Matrix4f viewMatrix = getViewMatrix(camera);
 
         Matrix4f modelView = viewMatrix.copy();
-        modelView.multiply(modelMatrix);
+        modelView.mul(modelMatrix);
 
         {
             GL11.glEnable(GL_STENCIL_TEST);

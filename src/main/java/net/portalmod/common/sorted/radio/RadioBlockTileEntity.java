@@ -1,28 +1,28 @@
 package net.portalmod.common.sorted.radio;
 
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
 import net.portalmod.core.util.ClientOnly;
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.Level;
 
-public class RadioBlockTileEntity extends BlockEntity implements TickableBlockEntity {
+public class RadioBlockTileEntity extends BlockEntity {
 //    private RadioSound sound;
     private int countedTicks = 0;
     private boolean initialized = false;
 
-    public RadioBlockTileEntity() {
-        super(TileEntityTypeInit.RADIO.get());
+    public RadioBlockTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.RADIO.get(), pos, state);
     }
 
     public void setInitialized() {
         initialized = true;
     }
 
-    @Override
     public void tick() {
         if(this.level.isClientSide())
             return;

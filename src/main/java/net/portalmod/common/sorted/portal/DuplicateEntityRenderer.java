@@ -138,11 +138,11 @@ public class DuplicateEntityRenderer {
 
             matrixStack.pushPose();
             matrixStack.translate(-camX, -camY, -camZ);
-            matrixStack.last().pose().multiply(portalToPortalMatrix.to4f());
+            matrixStack.last().pose().mul(portalToPortalMatrix.to4f());
 
             matrixStack.pushPose();
             matrixStack.translate(d0, d1, d2);
-            matrixStack.last().pose().multiply(changeOfBasisMatrix.transpose().to4f());
+            matrixStack.last().pose().mul(changeOfBasisMatrix.transpose().to4f());
             entityPosOverride = new Vec3(entity.xOld, entity.yOld, entity.zOld)
                     .lerp(entity.position(), partialTicks)
                     .transform(portalToPortalMatrix);

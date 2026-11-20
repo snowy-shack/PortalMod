@@ -1,5 +1,7 @@
 package net.portalmod.core.math;
 
+import com.mojang.math.Axis;
+
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -294,12 +296,20 @@ public class Mat4 {
         return this.mul(q);
     }
 
-    public Mat4 rotateRad(Vector3f axis, float angle) {
+    public Mat4 rotateRad(Axis axis, float angle) {
         return this.mul(axis.rotation((float) (angle % 2 * Math.PI)));
     }
 
+    public Mat4 rotateDeg(Axis axis, float angle) {
+        return this.mul(axis.rotationDegrees(angle % 360));
+    }
+
+    public Mat4 rotateRad(Vector3f axis, float angle) {
+        return this.mul(new Quaternionf().rotateAxis((float) (angle % 2 * Math.PI), axis));
+    }
+
     public Mat4 rotateDeg(Vector3f axis, float angle) {
-        return this.mul(new Quaternionf(axis, angle % 360, true));
+        return this.mul(new Quaternionf().rotateAxis((float) Math.toRadians(angle % 360), axis));
     }
 
     public static Mat4 createTranslation(double x, double y, double z) {

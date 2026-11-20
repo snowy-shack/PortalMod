@@ -1,7 +1,9 @@
 package net.portalmod.common.sorted.button;
 
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+
+import net.minecraft.util.RandomSource;
+
 import net.portalmod.core.math.BiHashMap;
 
 import javax.annotation.Nonnull;
@@ -17,7 +19,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 
-public class SuperButtonBakedModel implements IDynamicBakedModel {
+public class SuperButtonBakedModel implements BakedModel {
     private final BiHashMap<Direction, QuadBlockCorner, BakedModel> variants = new BiHashMap<>();
     private final BakedModel base;
     
@@ -28,7 +30,9 @@ public class SuperButtonBakedModel implements IDynamicBakedModel {
     @SuppressWarnings("deprecation")
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand) {
+        if(state == null)
+            return base.getQuads(null, side, rand);
         BakedModel variant = this.variants.get(state.getValue(SuperButtonBlock.FACING), state.getValue(SuperButtonBlock.CORNER));
         if(variant == null)
             return new ArrayList<>();
@@ -63,6 +67,11 @@ public class SuperButtonBakedModel implements IDynamicBakedModel {
     @Override
     public TextureAtlasSprite getParticleIcon() {
         return base.getParticleIcon();
+    }
+
+    @Override
+    public ItemTransforms getTransforms() {
+        return base.getTransforms();
     }
 
     @Override

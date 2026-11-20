@@ -23,4 +23,12 @@ public class ClientModUtil {
     public static Player getLocalPlayer() {
         return Minecraft.getInstance().player;
     }
+
+    /** Builds the context entity renderers need, for renderers created outside the renderer registry. */
+    public static net.minecraft.client.renderer.entity.EntityRendererProvider.Context entityRendererContext() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        return new net.minecraft.client.renderer.entity.EntityRendererProvider.Context(mc.getEntityRenderDispatcher(),
+                mc.getItemRenderer(), mc.getBlockRenderer(), mc.gameRenderer.itemInHandRenderer,
+                mc.getResourceManager(), mc.getEntityModels(), mc.font);
+    }
 }

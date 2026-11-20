@@ -1,5 +1,7 @@
 package net.portalmod.client.render;
 
+import net.minecraft.world.item.ItemDisplayContext;
+
 import com.mojang.math.Axis;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -20,7 +22,7 @@ public class PortalFirstPersonRenderer {
     private static float attackAnim = 0;
     public static boolean swinging = false;
 
-    public static void renderItem(LivingEntity p_228397_1_, ItemStack p_228397_2_, ItemTransforms.TransformType p_228397_3_, boolean p_228397_4_, PoseStack p_228397_5_, MultiBufferSource p_228397_6_, int p_228397_7_) {
+    public static void renderItem(LivingEntity p_228397_1_, ItemStack p_228397_2_, ItemDisplayContext p_228397_3_, boolean p_228397_4_, PoseStack p_228397_5_, MultiBufferSource p_228397_6_, int p_228397_7_) {
         if (!p_228397_2_.isEmpty()) {
             Minecraft.getInstance().getItemRenderer().renderStatic(p_228397_1_, p_228397_2_, p_228397_3_, p_228397_4_, p_228397_5_, p_228397_6_, p_228397_1_.level(), p_228397_7_, OverlayTexture.NO_OVERLAY);
         }
@@ -99,7 +101,7 @@ public class PortalFirstPersonRenderer {
             applyItemArmTransform(transform, handside, equipProgress);
         }
 
-        renderItem(player, stack, flag3 ? ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND : ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND, !flag3, transform, buffers, light);
+        renderItem(player, stack, flag3 ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND : ItemDisplayContext.FIRST_PERSON_LEFT_HAND, !flag3, transform, buffers, light);
 
         transform.popPose();
     }

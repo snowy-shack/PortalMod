@@ -103,7 +103,7 @@ public class PlatformBeamBlock extends Block implements SimpleWaterloggedBlock, 
     @Override
     public BlockState updateShape(BlockState blockState, Direction direction, BlockState state, LevelAccessor world, BlockPos pos, BlockPos pos2) {
         if (blockState.getValue(WATERLOGGED)) {
-            world.getLiquidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
+            world.getFluidTicks().scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
         return blockState;
     }

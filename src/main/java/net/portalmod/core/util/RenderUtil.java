@@ -51,7 +51,7 @@ public class RenderUtil {
         net.minecraft.world.phys.Vec3 cameraPos = camera.getPosition();
         float roll = camera instanceof PortalCamera ? ((PortalCamera)camera).getRoll() : PMState.cameraRoll;
 
-        clipMatrix.last().pose().setIdentity();
+        clipMatrix.last().pose().identity();
         clipMatrix.mulPose(Axis.ZP.rotationDegrees(roll));
         clipMatrix.mulPose(Axis.XP.rotationDegrees(camera.getXRot()));
         clipMatrix.mulPose(Axis.YP.rotationDegrees(camera.getYRot() + 180));

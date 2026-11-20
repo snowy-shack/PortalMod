@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
@@ -34,7 +35,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import net.minecraft.world.level.Level;
 
-public class FaithPlateTER extends BlockEntityRenderer<FaithPlateTileEntity> {
+public class FaithPlateTER implements BlockEntityRenderer<FaithPlateTileEntity> {
     public static final ResourceLocation TEXTURE_BLUE = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate");
     public static final ResourceLocation TEXTURE_ORANGE = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_active");
     public static final ResourceLocation TEXTURE_BLUE_E = new ResourceLocation(PortalMod.MODID, "entity/faithplate/faithplate_emission");
@@ -46,8 +47,7 @@ public class FaithPlateTER extends BlockEntityRenderer<FaithPlateTileEntity> {
     private final FaithPlatePlateModel plateModel;
     public static BlockPos selected;
 
-    public FaithPlateTER(BlockEntityRenderDispatcher terd) {
-        super(terd);
+    public FaithPlateTER(BlockEntityRendererProvider.Context terd) {
         plateModel = new FaithPlatePlateModel();
         MATERIAL_BLUE = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_BLUE);
         MATERIAL_ORANGE = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE_ORANGE);

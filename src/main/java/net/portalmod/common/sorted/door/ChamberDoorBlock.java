@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.door;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import com.mojang.math.Axis;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.core.init.SoundInit;
@@ -41,7 +44,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class ChamberDoorBlock extends MultiBlock {
+public class ChamberDoorBlock extends MultiBlock implements EntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
@@ -274,15 +277,22 @@ public class ChamberDoorBlock extends MultiBlock {
         return 0;
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return isMainBlock(state);
     }
 
     @Nullable
+
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return isMainBlock(state) ? TileEntityTypeInit.CHAMBER_DOOR.get().create() : null;
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return isMainBlock(state) ? TileEntityTypeInit.CHAMBER_DOOR.get().create(pos, state) : null;
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.CHAMBER_DOOR.get() ? (lvl, pos, st, be) -> ((ChamberDoorTileEntity) be).tick() : null;
     }
 
     @Override

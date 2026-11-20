@@ -1,6 +1,5 @@
 package net.portalmod.common.sorted.laser;
 
-import com.mojang.math.Axis;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,10 +55,10 @@ public class LaserEmitterBlock extends Block {
                 matrix.scale(new Vec3(facing.getNormal()).mul(2).add(1));
             
             if(facing.getAxis() == Axis.X)
-                matrix.rotateDeg(Axis.ZP, -90);
+                matrix.rotateDeg(com.mojang.math.Axis.ZP, -90);
             
             if(facing.getAxis() == Axis.Z)
-                matrix.rotateDeg(Axis.XP, 90);
+                matrix.rotateDeg(com.mojang.math.Axis.XP, 90);
             
             matrix.translate(new Vec3(-.5));
             

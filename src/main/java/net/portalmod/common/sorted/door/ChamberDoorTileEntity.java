@@ -12,19 +12,17 @@ import java.util.List;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
-public class ChamberDoorTileEntity extends BlockEntity implements TickableBlockEntity, IndicatorActivated {
+public class ChamberDoorTileEntity extends BlockEntity implements IndicatorActivated {
 
-    public ChamberDoorTileEntity() {
-        super(TileEntityTypeInit.CHAMBER_DOOR.get());
+    public ChamberDoorTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.CHAMBER_DOOR.get(), pos, state);
     }
 
-    @Override
     public void tick() {
         BlockState blockState = this.getBlockState();
         if (!(blockState.getBlock() instanceof ChamberDoorBlock)) {

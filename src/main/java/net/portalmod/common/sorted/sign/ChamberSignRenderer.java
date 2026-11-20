@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.sign;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.common.sorted.faithplate.FaithPlateBlock;
@@ -20,7 +21,7 @@ public class ChamberSignRenderer extends EntityRenderer<ChamberSignEntity> {
 
     public final ChamberSignModel model = new ChamberSignModel();
 
-    public ChamberSignRenderer(EntityRenderDispatcher manager) {
+    public ChamberSignRenderer(EntityRendererProvider.Context manager) {
         super(manager);
     }
 

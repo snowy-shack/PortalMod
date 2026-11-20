@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.cubedropper;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.common.blocks.MultiBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -45,7 +48,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class CubeDropperBlock extends MultiBlock {
+public class CubeDropperBlock extends MultiBlock implements EntityBlock {
 
     public static final EnumProperty<QuadBlockCorner> CORNER = EnumProperty.create("corner", QuadBlockCorner.class);
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
@@ -287,15 +290,22 @@ public class CubeDropperBlock extends MultiBlock {
         builder.add(CORNER, HALF, OPEN);
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return this.isMainBlock(state);
     }
 
     @Nullable
+
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return this.isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create() : null;
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return this.isMainBlock(state) ? TileEntityTypeInit.CUBE_DROPPER.get().create(pos, state) : null;
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.CUBE_DROPPER.get() ? (lvl, pos, st, be) -> ((CubeDropperTileEntity) be).tick() : null;
     }
 
     @Override

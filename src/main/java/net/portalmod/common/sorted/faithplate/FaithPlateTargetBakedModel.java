@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.portalmod.client.render.ModQuadBuilder;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,9 +12,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.portalmod.core.init.TextureInit;
 
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +24,8 @@ import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
-public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
+/** Builds the target quads the faith plate TER draws (not a block model). */
+public class FaithPlateTargetBakedModel {
 //    public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "misc/faithplate_target");
 //    public static final ResourceLocation TEXTURE_FLAT = new ResourceLocation(PortalMod.MODID, "misc/faithplate_target_flat");
 
@@ -36,50 +36,17 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
 //        return textures;
 //    }
 
-    private void putVertex(BakedQuadBuilder builder, Vec3 normal,
+    private void putVertex(ModQuadBuilder builder, Vec3 normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
-
-        ImmutableList<VertexFormatElement> elements = builder.getVertexFormat().getElements().asList();
-        for (int j = 0 ; j < elements.size() ; j++) {
-            VertexFormatElement e = elements.get(j);
-            switch (e.getUsage()) {
-                case POSITION:
-                    builder.put(j, (float) x, (float) y, (float) z, 1.0f);
-                    break;
-                case COLOR:
-                    builder.put(j, r, g, b, 1.0f);
-                    break;
-                case UV:
-                    switch (e.getIndex()) {
-                        case 0:
-                            float iu = sprite.getU(u);
-                            float iv = sprite.getV(v);
-                            builder.put(j, iu, iv);
-                            break;
-                        case 2:
-                            builder.put(j, (short) 0, (short) 0);
-                            break;
-                        default:
-                            builder.put(j);
-                            break;
-                    }
-                    break;
-                case NORMAL:
-                    builder.put(j, (float) normal.x, (float) normal.y, (float) normal.z);
-                    break;
-                default:
-                    builder.put(j);
-                    break;
-            }
-        }
+        builder.vertex(x, y, z, sprite.getU(u), sprite.getV(v), r, g, b, normal);
     }
 
     private BakedQuad createQuad(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, TextureAtlasSprite sprite) {
         Vec3 normal = v3.subtract(v2).cross(v1.subtract(v2)).normalize();
-        int tw = sprite.getWidth();
-        int th = sprite.getHeight();
+        int tw = sprite.contents().width();
+        int th = sprite.contents().height();
 
-        BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
+        ModQuadBuilder builder = new ModQuadBuilder(sprite);
         builder.setQuadOrientation(Direction.getNearest(normal.x, normal.y, normal.z));
         putVertex(builder, normal, v1.x, v1.y, v1.z, 0, 0, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, v2.x, v2.y, v2.z, 0, th, sprite, 1.0f, 1.0f, 1.0f);
@@ -106,51 +73,10 @@ public class FaithPlateTargetBakedModel implements IDynamicBakedModel {
         }
     }
 
-    @Nonnull
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-        return Collections.emptyList();
-    }
-
     public BakedQuad getQuad(Direction side, float offset) {
         List<BakedQuad> quads = new ArrayList<>();
         addQuad(quads, side, Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
                 .apply(TextureInit.FAITHPLATE_TARGET), offset);
         return quads.get(0);
-    }
-
-    @Override
-    public boolean useAmbientOcclusion() {
-        return true;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return true;
-    }
-
-    @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    @Override
-    public boolean usesBlockLight() {
-        return true;
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon() {
-        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(TextureInit.FAITHPLATE_TARGET);
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(TextureInit.FAITHPLATE_TARGET);
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
     }
 }

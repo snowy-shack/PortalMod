@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.autoportal;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.common.blocks.OmnidirectionalQuadBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.button.QuadBlockCorner;
@@ -43,7 +46,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class AutoPortalBlock extends OmnidirectionalQuadBlock {
+public class AutoPortalBlock extends OmnidirectionalQuadBlock implements EntityBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final BiHashMap<String, QuadBlockCorner, VoxelShapeGroup> SHAPES = new BiHashMap<>();
 
@@ -228,15 +231,22 @@ public class AutoPortalBlock extends OmnidirectionalQuadBlock {
         }
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return state.getValue(CORNER) == QuadBlockCorner.DOWN_LEFT;
     }
 
     @Nullable
+
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return TileEntityTypeInit.AUTOPORTAL.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return TileEntityTypeInit.AUTOPORTAL.get().create(pos, state);
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.AUTOPORTAL.get() ? (lvl, pos, st, be) -> ((AutoPortalTileEntity) be).tick() : null;
     }
 
     @Override

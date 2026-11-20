@@ -1,9 +1,24 @@
 package net.portalmod.common.sorted.antline;
 
+import java.util.function.Supplier;
+
+import net.minecraft.util.RandomSource;
+
+import net.minecraft.client.resources.model.BakedModel;
+
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachedBlockView;
+
+import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
+
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+
+import net.portalmod.client.render.ModQuadBuilder;
+
 import com.google.common.collect.ImmutableList;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.portalmod.PortalMod;
 import net.portalmod.core.math.Mat4;
 import net.portalmod.core.math.Vec3;
@@ -28,9 +43,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.BlockAndTintGetter;
 
-public class AntlineBakedModel implements IDynamicBakedModel {
+/**
+ * Antline block model. The quads depend on the block entity's sides, so this uses the Fabric
+ * Rendering API: emitBlockQuads reads the SideMap the block entity provides as render data.
+ */
+public class AntlineBakedModel implements BakedModel, FabricBakedModel {
     /** Used when the block is rendered before the tile entity exists (e.g. chunk build race). */
-    private static final IModelData DEFAULT_MODEL_DATA = new AntlineTileEntity.SideMap().toModelData();
+    /** Used when the block is rendered before the block entity exists (e.g. chunk build race). */
+    private static final AntlineTileEntity.SideMap DEFAULT_SIDES = new AntlineTileEntity.SideMap();
 
 //    public static final ResourceLocation ACTIVE_DOT = new ResourceLocation(PortalMod.MODID, "blocks/antline/active_dot");
 //    public static final ResourceLocation ACTIVE_CORNER = new ResourceLocation(PortalMod.MODID, "blocks/antline/active_corner");
@@ -80,42 +100,9 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         return textures;
     }
 
-    private void putVertex(BakedQuadBuilder builder, net.minecraft.world.phys.Vec3 normal,
+    private void putVertex(ModQuadBuilder builder, net.minecraft.world.phys.Vec3 normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
-
-        ImmutableList<VertexFormatElement> elements = builder.getVertexFormat().getElements().asList();
-        for (int j = 0 ; j < elements.size() ; j++) {
-            VertexFormatElement e = elements.get(j);
-            switch (e.getUsage()) {
-                case POSITION:
-                    builder.put(j, (float) x, (float) y, (float) z, 1.0f);
-                    break;
-                case COLOR:
-                    builder.put(j, r, g, b, 1.0f);
-                    break;
-                case UV:
-                    switch (e.getIndex()) {
-                        case 0:
-                            float iu = sprite.getU(u);
-                            float iv = sprite.getV(v);
-                            builder.put(j, iu, iv);
-                            break;
-                        case 2:
-                            builder.put(j, (short) 0, (short) 0);
-                            break;
-                        default:
-                            builder.put(j);
-                            break;
-                    }
-                    break;
-                case NORMAL:
-                    builder.put(j, (float) normal.x, (float) normal.y, (float) normal.z);
-                    break;
-                default:
-                    builder.put(j);
-                    break;
-            }
-        }
+        builder.vertex(x, y, z, sprite.getU(u), sprite.getV(v), r, g, b, normal);
     }
 
     private BakedQuad createQuad(net.minecraft.world.phys.Vec3 vec1, net.minecraft.world.phys.Vec3 vec2, net.minecraft.world.phys.Vec3 vec3, net.minecraft.world.phys.Vec3 vec4, TextureAtlasSprite sprite) {
@@ -130,10 +117,10 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
         int u0 = 0;
         int v0 = 0;
-        int u1 = sprite.getWidth();
-        int v1 = sprite.getHeight();
+        int u1 = sprite.contents().width();
+        int v1 = sprite.contents().height();
 
-        BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
+        ModQuadBuilder builder = new ModQuadBuilder(sprite);
         builder.setQuadOrientation(Direction.getNearest(normal.x, normal.y, normal.z));
         putVertex(builder, normal, vec1.x, vec1.y, vec1.z, u0, v0, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, vec2.x, vec2.y, vec2.z, u0, v1, sprite, 1.0f, 1.0f, 1.0f);
@@ -197,27 +184,30 @@ public class AntlineBakedModel implements IDynamicBakedModel {
         }
     }
 
-    @Nonnull
     @Override
-    public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
-        BlockEntity te = world.getBlockEntity(pos);
-        if (te instanceof AntlineTileEntity) {
-            return te.getModelData();
-        }
-        return DEFAULT_MODEL_DATA;
+    public boolean isVanillaAdapter() {
+        return false;
     }
 
-    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction sideDir, @Nonnull Random rand, @Nonnull IModelData extraData) {
-        List<BakedQuad> quads = new ArrayList<>();
-
-        if (sideDir != null) return Collections.emptyList();
-
-        AntlineTileEntity.SideMap sideMap = extraData.getData(AntlineTileEntity.SideMap.MODEL_PROPERTY);
-        if (sideMap == null) {
-            return Collections.emptyList();
+    public void emitBlockQuads(BlockAndTintGetter blockView, BlockState state, BlockPos pos, Supplier<RandomSource> randomSupplier, RenderContext context) {
+        Object data = ((RenderAttachedBlockView) blockView).getBlockEntityRenderAttachment(pos);
+        AntlineTileEntity.SideMap sideMap = data instanceof AntlineTileEntity.SideMap map ? map : DEFAULT_SIDES;
+        QuadEmitter emitter = context.getEmitter();
+        for (BakedQuad quad : buildQuads(sideMap)) {
+            emitter.fromVanilla(quad, null, null);
+            emitter.emit();
         }
+    }
+
+    /** Vanilla path (no block entity data available): nothing to draw. */
+    @Override
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction sideDir, RandomSource rand) {
+        return Collections.emptyList();
+    }
+
+    private List<BakedQuad> buildQuads(AntlineTileEntity.SideMap sideMap) {
+        List<BakedQuad> quads = new ArrayList<>();
 
         sideMap.forEach((direction, side) -> {
             if (!side.isEmpty()) {
@@ -261,12 +251,12 @@ public class AntlineBakedModel implements IDynamicBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return null;
+        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(inactive("inactive_dot"));
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(inactive("inactive_dot"));
+    public ItemTransforms getTransforms() {
+        return ItemTransforms.NO_TRANSFORMS;
     }
 
     @Override

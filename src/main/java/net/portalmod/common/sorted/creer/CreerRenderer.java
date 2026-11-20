@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.creer;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -13,10 +14,10 @@ import net.minecraft.ChatFormatting;
 
 public class CreerRenderer extends MobRenderer<Creeper, CreerModel<Creeper>> {
     public static final LazyLoadedValue<CreerRenderer> INSTANCE = new LazyLoadedValue<>(() ->
-        new CreerRenderer(Minecraft.getInstance().getEntityRenderDispatcher()));
+        new CreerRenderer(net.portalmod.core.util.ClientModUtil.entityRendererContext()));
     private static final ResourceLocation CREEPER_LOCATION = new ResourceLocation("textures/entity/creeper/creeper.png");
 
-    private CreerRenderer(EntityRenderDispatcher p_i46186_1_) {
+    private CreerRenderer(EntityRendererProvider.Context p_i46186_1_) {
         super(p_i46186_1_, new CreerModel<>(), 0.5F);
         this.addLayer(new CreerChargeLayer(this));
     }

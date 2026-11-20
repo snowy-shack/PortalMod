@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.trigger;
 
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.portalmod.PortalMod;
 import net.portalmod.common.items.WrenchItem;
 
@@ -17,11 +18,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 
-public class TriggerTER extends BlockEntityRenderer<TriggerTileEntity> {
+public class TriggerTER implements BlockEntityRenderer<TriggerTileEntity> {
     private final TriggerFieldBakedModel triggerFieldBakedModel;
 
-    public TriggerTER(BlockEntityRenderDispatcher terd) {
-        super(terd);
+    public TriggerTER(BlockEntityRendererProvider.Context terd) {
         this.triggerFieldBakedModel = new TriggerFieldBakedModel();
     }
 

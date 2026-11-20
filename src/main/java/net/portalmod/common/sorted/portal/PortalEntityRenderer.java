@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.portalmod.core.math.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -13,7 +14,7 @@ import net.minecraft.network.chat.Component;
 public class PortalEntityRenderer extends EntityRenderer<PortalEntity> {
     public static final float OFFSET = .0001f;
     
-    public PortalEntityRenderer(EntityRenderDispatcher p_i46166_1_) {
+    public PortalEntityRenderer(EntityRendererProvider.Context p_i46166_1_) {
         super(p_i46166_1_);
     }
     

@@ -37,8 +37,8 @@ import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -48,16 +48,11 @@ public class BlockInit {
     
     private BlockInit() {}
 
-    // Material for small things that would use Material.DECORATION. This one is the same but does not let water break it.
-    public static final Material TESTING_ELEMENT = new Material(
-            MaterialColor.COLOR_GRAY,
-            false,
-            false,
-            true,
-            false,
-            false,
-            false,
-            PushReaction.DESTROY);
+    // 1.20 removed Material. This used to be a custom Material like DECORATION that water does not break:
+    // not solid, blocks movement, destroyed by pistons.
+    public static BlockBehaviour.Properties testingElement(MapColor color) {
+        return BlockBehaviour.Properties.of().mapColor(color).forceSolidOff().pushReaction(PushReaction.DESTROY);
+    }
     
     public static final RegistryObject<Block> LUNECAST = registerLunecast("lunecast");
     public static final RegistryObject<Block> BLACKPLATE = registerBlackplate("blackplate");
@@ -133,10 +128,10 @@ public class BlockInit {
 
 
     public static final RegistryObject<Block> RADIO = BLOCKS.register("radio",
-            () -> new RadioBlock(BlockBehaviour.Properties.of(TESTING_ELEMENT).strength(1.0F)));
+            () -> new RadioBlock(testingElement(MapColor.COLOR_GRAY).strength(1.0F)));
     
     public static final RegistryObject<Block> FAITHPLATE = BLOCKS.register("faithplate",
-            () -> new FaithPlateBlock(stoneCopy(MaterialColor.COLOR_BLACK)));
+            () -> new FaithPlateBlock(stoneCopy(MapColor.COLOR_BLACK)));
     
     public static final RegistryObject<Block> WIRE_MESH_BLOCK = BLOCKS.register("wire_mesh_block",
             () -> new WireMeshBlock(BlockBehaviour.Properties.copy(Blocks.CHAIN)));
@@ -148,10 +143,10 @@ public class BlockInit {
             () -> new ForestCakeBlock(BlockBehaviour.Properties.copy(Blocks.CAKE)));
 
     public static final RegistryObject<Block> CHAMBER_DOOR = BLOCKS.register("chamber_door",
-            () -> new ChamberDoorBlock(stoneCopy(MaterialColor.COLOR_BLACK).sound(SoundType.STONE).noOcclusion()));
+            () -> new ChamberDoorBlock(stoneCopy(MapColor.COLOR_BLACK).sound(SoundType.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> CUBE_DROPPER = BLOCKS.register("cube_dropper",
-            () -> new CubeDropperBlock(BlockBehaviour.Properties.of(Material.STONE).noOcclusion()));
+            () -> new CubeDropperBlock(stoneProperties(MapColor.STONE).noOcclusion()));
 
     public static final RegistryObject<Block> PUSH_DOOR = BLOCKS.register("push_door",
             () -> new PushDoorBlock(BlockBehaviour.Properties.copy(Blocks.IRON_DOOR)));
@@ -160,10 +155,10 @@ public class BlockInit {
 //            () -> new PelletLauncherBlock(BlockBehaviour.Properties.of(Material.STONE)));
 
     public static final RegistryObject<Block> STANDING_BUTTON = BLOCKS.register("standing_button",
-            () -> new StandingButtonBlock(stoneCopy(MaterialColor.COLOR_RED).noOcclusion()));
+            () -> new StandingButtonBlock(stoneCopy(MapColor.COLOR_RED).noOcclusion()));
 
     public static final RegistryObject<Block> SUPER_BUTTON = BLOCKS.register("super_button",
-            () -> new SuperButtonBlock(stoneCopy(MaterialColor.COLOR_RED).noOcclusion()));
+            () -> new SuperButtonBlock(stoneCopy(MapColor.COLOR_RED).noOcclusion()));
 
     public static final RegistryObject<Block> CHAMBER_LIGHTS = BLOCKS.register("chamber_lights",
             () -> new ChamberLightsBlock(BlockBehaviour.Properties.copy(Blocks.REDSTONE_LAMP).lightLevel(i -> i.getValue(ChamberLightsBlock.ACTIVE) ? 15 : 0)));
@@ -177,40 +172,41 @@ public class BlockInit {
 
     // Making just Antlines emissive doesn't make sense as we can't make the indicators etc have emissive layers (not in 1.16 at least)
     public static final RegistryObject<Block> ANTLINE = BLOCKS.register("antline",
-            () -> new AntlineBlock(BlockBehaviour.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_LIGHT_BLUE).lightLevel(i -> 2).noCollission().instabreak()));
+            () -> new AntlineBlock(testingElement(MapColor.COLOR_LIGHT_BLUE).lightLevel(i -> 2).noCollission().instabreak()));
     
     public static final RegistryObject<Block> ANTLINE_INDICATOR = BLOCKS.register("antline_indicator",
-            () -> new AntlineIndicatorBlock(BlockBehaviour.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+            () -> new AntlineIndicatorBlock(testingElement(MapColor.COLOR_GRAY).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
 
     public static final RegistryObject<Block> ANTLINE_TIMER = BLOCKS.register("antline_timer",
-            () -> new AntlineTimerBlock(BlockBehaviour.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+            () -> new AntlineTimerBlock(testingElement(MapColor.COLOR_GRAY).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
 
     public static final RegistryObject<Block> ANTLINE_DECODER = BLOCKS.register("antline_decoder",
-            () -> new AntlineDecoderBlock(BlockBehaviour.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+            () -> new AntlineDecoderBlock(testingElement(MapColor.COLOR_GRAY).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
 
     public static final RegistryObject<Block> ANTLINE_ENCODER = BLOCKS.register("antline_encoder",
-            () -> new AntlineEncoderBlock(BlockBehaviour.Properties.of(TESTING_ELEMENT).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
+            () -> new AntlineEncoderBlock(testingElement(MapColor.COLOR_GRAY).noOcclusion().strength(1.0F).lightLevel(i -> 7)/*.hasPostProcess(BlockInit::always).emissiveRendering(BlockInit::always)*/));
 
 
 
     public static final RegistryObject<Block> FIZZLER_EMITTER = BLOCKS.register("fizzler_emitter",
-            () -> new FizzlerEmitterBlock(stoneCopy(MaterialColor.COLOR_BLACK).noOcclusion().lightLevel(blockState -> blockState.getValue(FizzlerEmitterBlock.ACTIVE) ? 10 : 0)));
+            () -> new FizzlerEmitterBlock(stoneCopy(MapColor.COLOR_BLACK).noOcclusion().lightLevel(blockState -> blockState.getValue(FizzlerEmitterBlock.ACTIVE) ? 10 : 0)));
 
     public static final RegistryObject<Block> FIZZLER_FIELD = BLOCKS.register("fizzler_field",
-            () -> new FizzlerFieldBlock(BlockBehaviour.Properties.copy(Blocks.AIR).noOcclusion().strength(-1.0F,3600000.0F).noDrops().lightLevel(blockState -> 10)));
+            () -> new FizzlerFieldBlock(BlockBehaviour.Properties.copy(Blocks.AIR).noOcclusion().strength(-1.0F,3600000.0F).noLootTable().lightLevel(blockState -> 10)));
 
     public static final RegistryObject<LiquidBlock> GOO = BLOCKS.register("goo",
-            () -> new GooBlock(FluidInit.GOO_FLUID.get(), BlockBehaviour.Properties.of(Material.WATER, MaterialColor.PODZOL)));
+            () -> new GooBlock(FluidInit.GOO_FLUID.get(), BlockBehaviour.Properties.of().mapColor(MapColor.PODZOL).replaceable().noCollission()
+                    .strength(100.0F).pushReaction(PushReaction.DESTROY).noLootTable().liquid().sound(SoundType.EMPTY)));
 
 
 
     // GEL
     
     public static final RegistryObject<Block> REPULSION_GEL = BLOCKS.register("repulsion_gel", () -> new RepulsionGelBlock(
-            BlockBehaviour.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_BLUE).sound(SoundTypeInit.GEL).noOcclusion().noCollission().strength(-1)));
+            testingElement(MapColor.COLOR_BLUE).sound(SoundTypeInit.GEL).noOcclusion().noCollission().strength(-1)));
 
     public static final RegistryObject<Block> PROPULSION_GEL = BLOCKS.register("propulsion_gel", () -> new PropulsionGelBlock(
-            BlockBehaviour.Properties.of(TESTING_ELEMENT, MaterialColor.COLOR_ORANGE).sound(SoundTypeInit.GEL).noOcclusion().noCollission().strength(-1)));
+            testingElement(MapColor.COLOR_ORANGE).sound(SoundTypeInit.GEL).noOcclusion().noCollission().strength(-1)));
 
 
 
@@ -253,8 +249,13 @@ public class BlockInit {
         return BLOCKS.register(name + "_stairs", () -> new StairBlock(() -> BLACKPLATE.get().defaultBlockState(), BlockBehaviour.Properties.copy(Blocks.BLACK_CONCRETE)));
     }
 
-    public static BlockBehaviour.Properties stoneCopy(MaterialColor color) {
-        return BlockBehaviour.Properties.of(Material.STONE, color).requiresCorrectToolForDrops().strength(1.5F, 6.0F);
+    /** What Material.STONE used to give: stone sounds/instrument. */
+    public static BlockBehaviour.Properties stoneProperties(MapColor color) {
+        return BlockBehaviour.Properties.of().mapColor(color).instrument(NoteBlockInstrument.BASEDRUM);
+    }
+
+    public static BlockBehaviour.Properties stoneCopy(MapColor color) {
+        return stoneProperties(color).requiresCorrectToolForDrops().strength(1.5F, 6.0F);
     }
 
     public static boolean always(BlockState p_235426_0_, BlockGetter p_235426_1_, BlockPos p_235426_2_) {

@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.fizzler;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import com.mojang.math.Axis;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -37,7 +40,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
+public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler, EntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ROTATED = BooleanProperty.create("rotated");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
@@ -213,16 +216,23 @@ public class FizzlerEmitterBlock extends DoubleBlock implements Fizzler {
         builder.add(FACING, ROTATED, ACTIVE, HALF);
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         // The tile entity exists only on ONE side of the fizzler duo, handling both sides
         return this.isMainBlock(state) && state.getValue(FACING).getAxisDirection() == Direction.AxisDirection.POSITIVE;
     }
 
     @Nullable
+
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return this.hasTileEntity(state) ? TileEntityTypeInit.FIZZLER_EMITTER.get().create() : null;
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return this.hasTileEntity(state) ? TileEntityTypeInit.FIZZLER_EMITTER.get().create(pos, state) : null;
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.FIZZLER_EMITTER.get() ? (lvl, pos, st, be) -> ((FizzlerEmitterTileEntity) be).tick() : null;
     }
 
     @Override

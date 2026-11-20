@@ -1,8 +1,8 @@
 package net.portalmod.common.sorted.antline;
 
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.client.model.data.ModelProperty;
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
+
+import net.minecraft.core.BlockPos;
 import net.portalmod.core.init.BlockInit;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.util.ModUtil;
@@ -30,8 +30,8 @@ public class AntlineTileEntity extends BlockEntity {
         return sideMap;
     }
 
-    public AntlineTileEntity(BlockEntityType<?> type) {
-        super(type);
+    public AntlineTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     public AntlineTileEntity() {
@@ -39,15 +39,16 @@ public class AntlineTileEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(sideMap.isBlank())
             sideMap.makeDefault();
-        return super.save(sideMap.get(nbt));
+        sideMap.get(nbt);
+        super.saveAdditional(nbt);
     }
 
     @Override
-    public void load(BlockState state, CompoundTag nbt) {
-        super.load(state, nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
         sideMap.set(nbt);
     }
 
@@ -72,9 +73,12 @@ public class AntlineTileEntity extends BlockEntity {
 //        this.initialized = true;
 //    }
 //
-    @Override
-    protected void invalidateCaps() { // On removal of entity
-        if (level.isClientSide) return;
+    /**
+     * Drops one item per extra side. Forge called this from invalidateCaps on removal; on Fabric
+     * AntlineBlock#onRemove calls it, because setRemoved() also runs when a chunk unloads.
+     */
+    public void dropExtraSides() {
+        if (level == null || level.isClientSide) return;
 
         SideMap sidemap = this.getSideMap();
         int count = sidemap.getSideCount();
@@ -82,17 +86,16 @@ public class AntlineTileEntity extends BlockEntity {
         for (int i = 0; i < count - 1; i++) {
             AntlineBlock.dropResources(getBlock().defaultBlockState(), level, this.getBlockPos());
         }
-
-        super.invalidateCaps();
     }
 
     private static Block getBlock() {
         return BlockInit.ANTLINE.get();
     }
 
+    /** Data for AntlineBakedModel (Fabric Rendering API render attachment). */
     @Override
-    public IModelData getModelData() {
-        return sideMap.toModelData();
+    public Object getRenderAttachmentData() {
+        return sideMap;
     }
 
     @Override
@@ -134,10 +137,9 @@ public class AntlineTileEntity extends BlockEntity {
 
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
 
-    @Override
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
         load(state, tag);
     }
@@ -147,17 +149,15 @@ public class AntlineTileEntity extends BlockEntity {
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         // TODO sync only needed data
-        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), -1, save(new CompoundTag()));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         // TODO false with only needed data
         this.load(packet.getTag(), true);
     }
 
     public static class SideMap extends HashMap<Direction, Side> {
-        public static final ModelProperty<SideMap> MODEL_PROPERTY = new ModelProperty<>();
 
         public void makeDefault() {
             for(Direction direction : Direction.values())
@@ -206,12 +206,6 @@ public class AntlineTileEntity extends BlockEntity {
 
         public void removeSide(Direction direction) {
             this.put(direction, Side.emptySide(direction));
-        }
-
-        public IModelData toModelData() {
-            ModelDataMap.Builder builder = new ModelDataMap.Builder();
-            builder.withInitial(MODEL_PROPERTY, this);
-            return builder.build();
         }
     }
 

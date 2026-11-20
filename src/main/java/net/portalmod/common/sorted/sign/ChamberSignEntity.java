@@ -248,7 +248,7 @@ public class ChamberSignEntity extends HangingEntity {
 
     public boolean isValidWall(BlockPos pos) {
         BlockState blockstate = this.level().getBlockState(pos);
-        return Block.canSupportCenter(this.level(), pos, this.direction) || blockstate.getMaterial().isSolid() || DiodeBlock.isDiode(blockstate);
+        return Block.canSupportCenter(this.level(), pos, this.direction) || blockstate.isSolid() || DiodeBlock.isDiode(blockstate);
     }
 
     public double offs(int p_190202_1_) {

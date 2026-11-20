@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.trigger;
 
+import net.portalmod.client.render.ModQuadBuilder;
+
 import java.util.*;
 
 import javax.annotation.Nonnull;
@@ -7,9 +9,6 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
@@ -22,7 +21,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-public class TriggerFieldBakedModel implements IDynamicBakedModel {
+/** Builds the textured quads the trigger TER draws (not a block model). */
+public class TriggerFieldBakedModel {
     private final Map<ResourceLocation, Map<Direction, BakedQuad>> bakedQuads;
 
     public TriggerFieldBakedModel() {
@@ -41,50 +41,17 @@ public class TriggerFieldBakedModel implements IDynamicBakedModel {
         }
     }
 
-    private void putVertex(BakedQuadBuilder builder, Vec3 normal,
+    private void putVertex(ModQuadBuilder builder, Vec3 normal,
                            double x, double y, double z, float u, float v, TextureAtlasSprite sprite, float r, float g, float b) {
-
-        ImmutableList<VertexFormatElement> elements = builder.getVertexFormat().getElements().asList();
-        for (int j = 0 ; j < elements.size() ; j++) {
-            VertexFormatElement e = elements.get(j);
-            switch (e.getUsage()) {
-                case POSITION:
-                    builder.put(j, (float) x, (float) y, (float) z, 1.0f);
-                    break;
-                case COLOR:
-                    builder.put(j, r, g, b, 1.0f);
-                    break;
-                case UV:
-                    switch (e.getIndex()) {
-                        case 0:
-                            float iu = sprite.getU(u);
-                            float iv = sprite.getV(v);
-                            builder.put(j, iu, iv);
-                            break;
-                        case 2:
-                            builder.put(j, (short) 0, (short) 0);
-                            break;
-                        default:
-                            builder.put(j);
-                            break;
-                    }
-                    break;
-                case NORMAL:
-                    builder.put(j, (float) normal.x, (float) normal.y, (float) normal.z);
-                    break;
-                default:
-                    builder.put(j);
-                    break;
-            }
-        }
+        builder.vertex(x, y, z, sprite.getU(u), sprite.getV(v), r, g, b, normal);
     }
 
     private BakedQuad createQuad(Vec3 v1, Vec3 v2, Vec3 v3, Vec3 v4, TextureAtlasSprite sprite) {
         Vec3 normal = v3.subtract(v2).cross(v1.subtract(v2)).normalize();
-        int tw = sprite.getWidth();
-        int th = sprite.getHeight();
+        int tw = sprite.contents().width();
+        int th = sprite.contents().height();
 
-        BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
+        ModQuadBuilder builder = new ModQuadBuilder(sprite);
         builder.setQuadOrientation(Direction.getNearest(normal.x, normal.y, normal.z));
         putVertex(builder, normal, v1.x, v1.y, v1.z, 0, 0, sprite, 1.0f, 1.0f, 1.0f);
         putVertex(builder, normal, v2.x, v2.y, v2.z, 0, th, sprite, 1.0f, 1.0f, 1.0f);
@@ -115,48 +82,7 @@ public class TriggerFieldBakedModel implements IDynamicBakedModel {
         return null;
     }
 
-    @Nonnull
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-        return Collections.emptyList();
-    }
-
     public BakedQuad getQuad(Direction side, ResourceLocation texture) {
         return this.bakedQuads.get(texture).get(side);
-    }
-
-    @Override
-    public boolean useAmbientOcclusion() {
-        return true;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return true;
-    }
-
-    @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    @Override
-    public boolean usesBlockLight() {
-        return true;
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleIcon() {
-        return null;
-    }
-
-    @Override
-    public TextureAtlasSprite getParticleTexture(@Nonnull IModelData data) {
-        return null;
-    }
-
-    @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
     }
 }

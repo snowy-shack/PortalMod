@@ -56,7 +56,7 @@ public abstract class GameRendererMixin {
     )
     private void pmGetProjectionMatrix(Camera camera, float partialTicks, boolean b, CallbackInfoReturnable<Matrix4f> info) {
         PoseStack matrixstack = new PoseStack();
-        matrixstack.last().pose().setIdentity();
+        matrixstack.last().pose().identity();
         if(this.zoom != 1.0F) {
             matrixstack.translate(this.zoomX, -this.zoomY, 0.0D);
             matrixstack.scale(this.zoom, this.zoom, 1.0F);

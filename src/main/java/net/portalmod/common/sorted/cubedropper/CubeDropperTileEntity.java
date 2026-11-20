@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.core.BlockPos;
@@ -27,18 +26,17 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 
-public class CubeDropperTileEntity extends BlockEntity implements TickableBlockEntity, IndicatorActivated {
+public class CubeDropperTileEntity extends BlockEntity implements IndicatorActivated {
 
     public List<UUID> entityUUIDs = new ArrayList<>();
     public int openTicks = 0;
     public boolean wasActive = false;
     public CompoundTag entityNBT = null;
 
-    public CubeDropperTileEntity() {
-        super(TileEntityTypeInit.CUBE_DROPPER.get());
+    public CubeDropperTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.CUBE_DROPPER.get(), pos, state);
     }
 
-    @Override
     public void tick() {
         BlockState blockState = this.getBlockState();
         BlockPos pos = this.getBlockPos();
@@ -258,8 +256,8 @@ public class CubeDropperTileEntity extends BlockEntity implements TickableBlockE
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt) {
-        nbt = super.save(nbt);
+    protected void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
         if (!this.entityUUIDs.isEmpty()) {
             nbt.putUUID("UUID1", this.entityUUIDs.get(0));
         }
@@ -272,13 +270,11 @@ public class CubeDropperTileEntity extends BlockEntity implements TickableBlockE
         if (this.entityNBT != null) {
             nbt.put("Entity", this.entityNBT);
         }
-
-        return nbt;
     }
 
     @Override
-    public void load(BlockState blockState, CompoundTag nbt) {
-        super.load(blockState, nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
         this.entityUUIDs.clear();
         if (nbt.hasUUID("UUID1")) {
             this.entityUUIDs.add(nbt.getUUID("UUID1"));

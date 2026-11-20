@@ -372,7 +372,7 @@ public class SkinSelectorScreen extends Screen {
 
         PoseStack combined = new PoseStack();
         combined.scale(1, -1, 1);
-        combined.last().pose().multiply(projection);
+        combined.last().pose().mul(projection);
         combined.translate(0, 0, -2000);
         combined.scale(scale, scale, 1);
         this.drawTexturedRectangle(combined, this.listRegion, ShaderInit.LOADER.get());

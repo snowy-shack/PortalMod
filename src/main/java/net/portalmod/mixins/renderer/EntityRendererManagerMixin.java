@@ -72,7 +72,7 @@ public abstract class EntityRendererManagerMixin {
                 return;
 
             matrixStack = new PoseStack();
-            matrixStack.last().pose().multiply(DuplicateEntityRenderer.entityShadowTransformOverride);
+            matrixStack.last().pose().mul(DuplicateEntityRenderer.entityShadowTransformOverride);
         }
 
         renderShadow(matrixStack, renderTypeBuffer, entity, strength, partialTicks, worldReader, radius);

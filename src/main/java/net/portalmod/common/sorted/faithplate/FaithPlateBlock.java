@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.common.blocks.DoubleBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.TileEntityTypeInit;
@@ -33,7 +36,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class FaithPlateBlock extends DoubleBlock {
+public class FaithPlateBlock extends DoubleBlock implements EntityBlock {
     public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final EnumProperty<Face> FACE = EnumProperty.create("face", Face.class);
     
@@ -96,15 +99,22 @@ public class FaithPlateBlock extends DoubleBlock {
         return this.getMainPosition(state, pos).relative(this.getUpperDirection(state));
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return state.getValue(HALF) == DoubleBlockHalf.UPPER;
     }
     
     @Nullable
+    
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return TileEntityTypeInit.FAITHPLATE.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return TileEntityTypeInit.FAITHPLATE.get().create(pos, state);
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.FAITHPLATE.get() ? (lvl, pos, st, be) -> ((FaithPlateTileEntity) be).tick() : null;
     }
     
     @Override

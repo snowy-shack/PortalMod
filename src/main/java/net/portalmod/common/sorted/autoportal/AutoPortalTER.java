@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.autoportal;
 
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import com.mojang.math.Axis;
 import net.portalmod.PortalMod;
 import net.portalmod.client.render.DynamicTextureVertexBuilder;
@@ -24,13 +25,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import org.joml.Vector3f;
 
-public class AutoPortalTER extends BlockEntityRenderer<AutoPortalTileEntity> {
+public class AutoPortalTER implements BlockEntityRenderer<AutoPortalTileEntity> {
     public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "entity/autoportal");
     public static Material MATERIAL;
     private final AutoPortalModel model;
 
-    public AutoPortalTER(BlockEntityRenderDispatcher terd) {
-        super(terd);
+    public AutoPortalTER(BlockEntityRendererProvider.Context terd) {
         this.model = new AutoPortalModel();
         MATERIAL = new Material(TextureAtlas.LOCATION_BLOCKS, TEXTURE);
     }
@@ -56,7 +56,7 @@ public class AutoPortalTER extends BlockEntityRenderer<AutoPortalTileEntity> {
             matrixStack.translate(up.x, up.y, up.z);
             matrixStack.translate(normal.x, normal.y, normal.z);
             matrixStack.translate(0.5, 0.5, 0.5);
-            matrixStack.last().pose().multiply(matrix.to4f());
+            matrixStack.last().pose().mul(matrix.to4f());
             matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
             matrixStack.translate(0, -1.5, 0);
 

@@ -41,9 +41,9 @@ public class SAntlineUpdatePacket implements AbstractPacket<SAntlineUpdatePacket
                 AntlineTileEntity blockEntity = (AntlineTileEntity) Minecraft.getInstance().level.getBlockEntity(pos);
                 if(blockEntity == null) return;
                 blockEntity.load(nbt, false);
+                // Re-mesh the chunk section so the model picks up the new render data.
                 Minecraft.getInstance().level.sendBlockUpdated(pos, BlockInit.ANTLINE.get().defaultBlockState(),
-                        BlockInit.ANTLINE.get().defaultBlockState(), 0);
-                blockEntity.requestModelDataUpdate();
+                        BlockInit.ANTLINE.get().defaultBlockState(), 8);
             });
         });
 

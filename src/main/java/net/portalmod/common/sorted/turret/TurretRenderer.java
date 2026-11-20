@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.turret;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
 import net.portalmod.common.entities.TestElementEntityRenderer;
@@ -28,7 +29,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
     private static final VertexBuffer LASER_BUFFER = new VertexBuffer(DefaultVertexFormat.POSITION_TEX_COLOR);
     public static TurretState state = TurretState.RESTING;
 
-    public TurretRenderer(EntityRenderDispatcher erm) {
+    public TurretRenderer(EntityRendererProvider.Context erm) {
         super(erm, new TurretModel<>(), 0.5f);
         this.addLayer(new TurretEyeLayer<>(this));
     }
@@ -140,7 +141,7 @@ public class TurretRenderer extends TestElementEntityRenderer<TurretEntity, Turr
 
         matrixStack.pushPose();
         matrixStack.translate(localEyePos.x, localEyePos.y, localEyePos.z);
-        matrixStack.last().pose().multiply(laserMatrix.to4f());
+        matrixStack.last().pose().mul(laserMatrix.to4f());
 
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         bufferBuilder.begin(7, DefaultVertexFormat.POSITION_TEX_COLOR);

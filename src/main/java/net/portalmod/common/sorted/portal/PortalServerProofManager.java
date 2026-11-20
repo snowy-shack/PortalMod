@@ -51,7 +51,7 @@ public class PortalServerProofManager {
 
         public boolean isValid(ServerPlayer player, BlockPos pos, boolean breakBlock) {
             MinecraftServer server = player.getServer();
-            ServerLevel level = player.getLevel();
+            ServerLevel level = player.serverLevel();
 
             if(server == null || server.getTickCount() != this.tick)
                 return false;

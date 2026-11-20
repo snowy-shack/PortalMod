@@ -1,10 +1,11 @@
 package net.portalmod.core.init;
 
+import net.minecraft.world.item.ArmorItem;
+
 import net.portalmod.core.registry.RegistryObject;
 import net.portalmod.core.registry.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.portalmod.PortalMod;
-import net.portalmod.common.blocks.ISTERWrapper;
 import net.portalmod.common.items.BulletsItem;
 import net.portalmod.common.items.ModSpawnEggItem;
 import net.portalmod.common.items.PanelBlockItem;
@@ -15,7 +16,6 @@ import net.portalmod.common.sorted.gel.container.GelContainer;
 import net.portalmod.common.sorted.goo.GooBucketItem;
 import net.portalmod.common.sorted.longfallboots.LongFallBoots;
 import net.portalmod.common.sorted.portalgun.PortalGun;
-import net.portalmod.common.sorted.portalgun.PortalGunISTER;
 import net.portalmod.common.sorted.sign.ChamberSignItem;
 import net.portalmod.core.PortalModTab;
 
@@ -46,10 +46,10 @@ public class ItemInit {
 
     // Fundamental Items
     public static final RegistryObject<Item> PORTALGUN = ITEMS.register("portalgun",
-            () -> new PortalGun(properties().stacksTo(1).fireResistant().setISTER(() -> PortalGunISTER::new)));
+            () -> new PortalGun(properties().stacksTo(1).fireResistant()));
 
     public static final RegistryObject<Item> LONGFALL_BOOTS = ITEMS.register("longfall_boots",
-            () -> new LongFallBoots(ArmorMaterialInit.LONGFALL_BOOTS, EquipmentSlot.FEET, properties().fireResistant()));
+            () -> new LongFallBoots(ArmorMaterialInit.LONGFALL_BOOTS, ArmorItem.Type.BOOTS, properties().fireResistant()));
 
     public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench",
             () -> new WrenchItem(properties().stacksTo(1)));
@@ -88,8 +88,7 @@ public class ItemInit {
     public static final RegistryObject<Item> CHAMBER_SIGN = ITEMS.register("chamber_sign", () -> new ChamberSignItem(properties()));
 
     public static final RegistryObject<Item> CHAMBER_LIGHTS = ITEMS.register("chamber_lights",
-            () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(),
-                    properties().setISTER(() -> ISTERWrapper::new))); // todo remove ister
+            () -> new BlockItem(BlockInit.CHAMBER_LIGHTS.get(), properties()));
 
     public static final RegistryObject<Item> GOO_BUCKET = ITEMS.register("goo_bucket",
             () -> new GooBucketItem(FluidInit.GOO_FLUID.get(), properties().stacksTo(1)));

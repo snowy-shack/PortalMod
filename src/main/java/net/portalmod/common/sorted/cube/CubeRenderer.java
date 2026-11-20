@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.cube;
 
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.common.entities.TestElementEntityRenderer;
 
@@ -8,7 +9,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 
 public abstract class CubeRenderer extends TestElementEntityRenderer<Cube, CubeModel<Cube>> {
-    public CubeRenderer(EntityRenderDispatcher erm) {
+    public CubeRenderer(EntityRendererProvider.Context erm) {
         super(erm, new CubeModel<>(), 0.5f);
     }
     

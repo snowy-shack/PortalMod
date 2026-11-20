@@ -1,6 +1,5 @@
 package net.portalmod.common.sorted.button;
 
-import com.mojang.math.Axis;
 import net.portalmod.common.blocks.QuadBlock;
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.items.WrenchItem;
@@ -98,13 +97,13 @@ public class SuperButtonBlock extends QuadBlock implements AntlineActivator {
                 }
                 
                 if(facing.getAxis() == Axis.X)
-                    matrix.rotateDeg(Axis.ZP, -90)
-                            .rotateDeg(Axis.YP, 90);
+                    matrix.rotateDeg(com.mojang.math.Axis.ZP, -90)
+                            .rotateDeg(com.mojang.math.Axis.YP, 90);
                 
                 if(facing.getAxis() == Axis.Z)
-                    matrix.rotateDeg(Axis.XP, 90);
+                    matrix.rotateDeg(com.mojang.math.Axis.XP, 90);
 
-                matrix.rotateDeg(Axis.YP, 90);
+                matrix.rotateDeg(com.mojang.math.Axis.YP, 90);
                 matrix.translate(new Vec3(-.5));
                 
                 SHAPES.put(facing, corner, shape.clone().transform(matrix));

@@ -14,7 +14,6 @@ import java.util.List;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -23,15 +22,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 
-public class FizzlerEmitterTileEntity extends BlockEntity implements TickableBlockEntity, IndicatorActivated {
+public class FizzlerEmitterTileEntity extends BlockEntity implements IndicatorActivated {
 
     public static final int MAX_DISTANCE = 16;
 
-    public FizzlerEmitterTileEntity() {
-        super(TileEntityTypeInit.FIZZLER_EMITTER.get());
+    public FizzlerEmitterTileEntity(BlockPos pos, BlockState state) {
+        super(TileEntityTypeInit.FIZZLER_EMITTER.get(), pos, state);
     }
 
-    @Override
     public void tick() {
         handleAntlineActivation();
     }
@@ -130,7 +128,7 @@ public class FizzlerEmitterTileEntity extends BlockEntity implements TickableBlo
                     || upper != (state.getValue(FizzlerFieldBlock.HALF) == DoubleBlockHalf.UPPER);
         }
 
-        return !state.getMaterial().isReplaceable();
+        return !state.canBeReplaced();
     }
 
     public boolean isOtherSide(BlockState state, Direction direction, boolean upper) {

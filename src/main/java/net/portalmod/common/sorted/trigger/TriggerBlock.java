@@ -1,5 +1,8 @@
 package net.portalmod.common.sorted.trigger;
 
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.core.init.TileEntityTypeInit;
 import net.portalmod.core.util.ModUtil;
@@ -31,7 +34,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 
-public class TriggerBlock extends Block {
+public class TriggerBlock extends Block implements EntityBlock {
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
     public static final EnumProperty<TriggerType> TYPE = EnumProperty.create("type", TriggerType.class);
     public static final EnumProperty<TriggerState> STATE = EnumProperty.create("state", TriggerState.class);
@@ -114,15 +117,22 @@ public class TriggerBlock extends Block {
         return 0;
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
 
     @Nullable
+
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        return TileEntityTypeInit.TRIGGER.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return TileEntityTypeInit.TRIGGER.get().create(pos, state);
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.TRIGGER.get() ? (lvl, pos, st, be) -> ((TriggerTileEntity) be).tick() : null;
     }
 
     @Override

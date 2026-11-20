@@ -27,7 +27,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Direction;
@@ -39,7 +38,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import org.joml.Vector3f;
 import net.minecraft.world.level.Level;
 
-public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEntity, IndicatorActivated {
+public class FaithPlateTileEntity extends BlockEntity implements IndicatorActivated {
     private boolean enabled = false;
     private boolean indicatorControlled = false;
     private boolean override = false;
@@ -56,15 +55,14 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
             .add(3, 16, 3, 13, 17, 13)
             .build();
 
-    public FaithPlateTileEntity(BlockEntityType<?> type) {
-        super(type);
+    public FaithPlateTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
     
     public FaithPlateTileEntity() {
         this(TileEntityTypeInit.FAITHPLATE.get());
     }
     
-    @Override
     public void tick() {
         if(this.level == null)
             return;
@@ -196,7 +194,7 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
     }
     
     @Override
-    public CompoundTag save(CompoundTag nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(targetPos != null && targetFace != null) {
             CompoundTag target = new CompoundTag();
             target.putDouble("x", targetPos.x());
@@ -208,16 +206,16 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
         }
         
         nbt.putBoolean("enabled", enabled);
-        return super.save(nbt);
+        super.saveAdditional(nbt);
     }
     
     @Override
-    public void load(BlockState state, CompoundTag nbt) {
-        super.load(state, nbt);
-        load(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadFields(nbt);
     }
     
-    public void load(CompoundTag nbt) {
+    public void loadFields(CompoundTag nbt) {
         enabled = false;
         
         if(nbt.contains("enabled"))
@@ -291,10 +289,9 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
     
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
     
-    @Override
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
         load(state, tag);
     }
@@ -303,15 +300,13 @@ public class FaithPlateTileEntity extends BlockEntity implements TickableBlockEn
     
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), -1, save(new CompoundTag()));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
     
-    @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         this.load(packet.getTag());
     }
     
-    @Override
     public AABB getRenderBoundingBox() {
         return new AABB(this.getBlockPos()).inflate(1E30);
     }

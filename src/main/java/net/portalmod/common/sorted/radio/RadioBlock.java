@@ -1,5 +1,9 @@
 package net.portalmod.common.sorted.radio;
 
+import javax.annotation.Nullable;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.state.StateContainer.*;
 import net.portalmod.core.init.TileEntityTypeInit;
 
@@ -27,7 +31,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.Level;
 
-public class RadioBlock extends Block {
+public class RadioBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<RadioState> STATE = EnumProperty.create("state", RadioState.class);
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -43,14 +47,20 @@ public class RadioBlock extends Block {
                 .setValue(POWERED, false));
     }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
     
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter level) {
-        return TileEntityTypeInit.RADIO.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return TileEntityTypeInit.RADIO.get().create(pos, state);
+    }
+
+    // 1.17+: block entities tick through a ticker the block hands out (was TickableBlockEntity).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == TileEntityTypeInit.RADIO.get() ? (lvl, pos, st, be) -> ((RadioBlockTileEntity) be).tick() : null;
     }
     
     @Override

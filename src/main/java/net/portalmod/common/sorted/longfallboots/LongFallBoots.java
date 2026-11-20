@@ -21,23 +21,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
 public class LongFallBoots extends ArmorItem {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/models/armor/longfall_boots.png");
-    
-    public LongFallBoots(ArmorMaterial armorMaterial, EquipmentSlot slotType, Properties properties) {
-        super(armorMaterial, slotType, properties);
-    }
-    
-    @Nullable
-    @Override
-    @Environment(EnvType.CLIENT)
-    public <A extends HumanoidModel<?>> A getArmorModel(LivingEntity entity, ItemStack itemStack, EquipmentSlot armorSlot, A originalModel) {
-        return (A)(new LongFallBootsModel(entity));
-    }
-    
-    @Nullable
-    @Override
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        return TEXTURE.toString();
+    public static final ResourceLocation TEXTURE = new ResourceLocation(PortalMod.MODID, "textures/models/armor/longfall_boots.png");
+
+    // The custom 3D model and texture are drawn by LongFallBootsClient (Fabric ArmorRenderer).
+    public LongFallBoots(ArmorMaterial armorMaterial, ArmorItem.Type type, Properties properties) {
+        super(armorMaterial, type, properties);
     }
 
     @Override

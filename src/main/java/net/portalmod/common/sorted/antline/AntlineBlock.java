@@ -1,5 +1,6 @@
 package net.portalmod.common.sorted.antline;
 
+import net.minecraft.world.level.block.EntityBlock;
 import net.portalmod.core.util.ClientOnly;
 import net.portalmod.core.network.PacketDistributor;
 import net.portalmod.core.init.PacketInit;
@@ -37,7 +38,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 
-public class AntlineBlock extends Block {
+public class AntlineBlock extends Block implements EntityBlock {
 //    public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     /**
@@ -69,15 +70,15 @@ public class AntlineBlock extends Block {
 //        builder.add(ACTIVE);
 //    }
 
-    @Override
     public boolean hasTileEntity(BlockState state) {
         return true;
     }
 
     @Nullable
+
     @Override
-    public BlockEntity createTileEntity(BlockState state, BlockGetter world) {
-        BlockEntity entity = TileEntityTypeInit.ANTLINE.get().create();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        BlockEntity entity = TileEntityTypeInit.ANTLINE.get().create(pos, state);
         return entity;
     }
 
@@ -553,5 +554,12 @@ public class AntlineBlock extends Block {
     @Override
     public boolean propagatesSkylightDown(BlockState p_200123_1_, BlockGetter p_200123_2_, BlockPos p_200123_3_) {
         return true;
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof AntlineTileEntity antline)
+            antline.dropExtraSides();
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 }

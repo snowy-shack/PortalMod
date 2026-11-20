@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.TickableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.Mirror;
@@ -19,7 +18,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 
-public class TriggerTileEntity extends BlockEntity implements TickableBlockEntity {
+public class TriggerTileEntity extends BlockEntity {
     private BlockPos fieldStart;
     private BlockPos fieldEnd;
     private TriggerType type = TriggerType.PLAYER;
@@ -28,15 +27,14 @@ public class TriggerTileEntity extends BlockEntity implements TickableBlockEntit
 
     private Player configuringPlayer;
 
-    public TriggerTileEntity(BlockEntityType<?> type) {
-        super(type);
+    public TriggerTileEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     public TriggerTileEntity() {
         this(TileEntityTypeInit.TRIGGER.get());
     }
     
-    @Override
     public void tick() {
         if(this.level == null)
             return;
@@ -110,7 +108,7 @@ public class TriggerTileEntity extends BlockEntity implements TickableBlockEntit
     }
 
     @Override
-    public CompoundTag save(CompoundTag nbt) {
+    protected void saveAdditional(CompoundTag nbt) {
         if(this.fieldStart != null && this.fieldEnd != null) {
             CompoundTag start = new CompoundTag();
             start.putInt("x", this.fieldStart.getX());
@@ -125,18 +123,18 @@ public class TriggerTileEntity extends BlockEntity implements TickableBlockEntit
             nbt.put("end", end);
         }
 
-        return super.save(nbt);
+        super.saveAdditional(nbt);
     }
     
     @Override
-    public void load(BlockState state, CompoundTag nbt) {
-        super.load(state, nbt);
-        load(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadFields(nbt);
 
         updateTriggerType();
     }
     
-    public void load(CompoundTag nbt) {
+    public void loadFields(CompoundTag nbt) {
         if(nbt.contains("start") && nbt.contains("end")) {
             CompoundTag start = nbt.getCompound("start");
             CompoundTag end = nbt.getCompound("end");
@@ -169,10 +167,9 @@ public class TriggerTileEntity extends BlockEntity implements TickableBlockEntit
     
     @Override
     public CompoundTag getUpdateTag() {
-        return this.save(new CompoundTag());
+        return this.saveWithoutMetadata();
     }
     
-    @Override
     public void handleUpdateTag(BlockState state, CompoundTag tag) {
         load(state, tag);
     }
@@ -181,15 +178,13 @@ public class TriggerTileEntity extends BlockEntity implements TickableBlockEntit
     
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
-        return new ClientboundBlockEntityDataPacket(this.getBlockPos(), -1, save(new CompoundTag()));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
     
-    @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         this.load(packet.getTag());
     }
     
-    @Override
     public AABB getRenderBoundingBox() {
         return new AABB(this.getBlockPos()).inflate(1E30);
     }

@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.minecraft.world.item.ItemDisplayContext;
+
 import com.mojang.math.Axis;
 import net.portalmod.client.animation.PortalGunAnimatedTexture;
 import net.portalmod.common.sorted.portalgun.skins.ClientSkinManager;
@@ -14,7 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemDisplayContext;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -23,13 +25,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import org.joml.Vector3f;
 
-public class PortalGunISTER extends BlockEntityWithoutLevelRenderer {
+/** Draws the portal gun item (registered with Fabric's BuiltinItemRendererRegistry). */
+public class PortalGunISTER {
     public static UUID renderingPortalGunOwner;
 
     public PortalGunISTER() {}
     
-    @Override
-    public void renderByItem(ItemStack itemStack, TransformType transformType, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int packedLight, int packedOverlay) {
+    public void renderByItem(ItemStack itemStack, ItemDisplayContext transformType, PoseStack matrixStack, MultiBufferSource renderTypeBuffer, int packedLight, int packedOverlay) {
         matrixStack.pushPose();
         
         switch(transformType) {
@@ -80,7 +82,7 @@ public class PortalGunISTER extends BlockEntityWithoutLevelRenderer {
         
         boolean animate = true;
         
-        if (transformType == TransformType.FIRST_PERSON_RIGHT_HAND || transformType == TransformType.FIRST_PERSON_LEFT_HAND) {
+        if (transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
 //            if (InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_G)) {
 //                PORTALGUN_MODEL.startAnimation(itemStack, "shoot");
 //                AnimationInit.RECOIL_X.start();
