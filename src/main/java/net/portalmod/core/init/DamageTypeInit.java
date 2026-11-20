@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.portalmod.PortalMod;
 
@@ -15,10 +16,26 @@ import net.portalmod.PortalMod;
 public class DamageTypeInit {
     private DamageTypeInit() {}
 
-    public static final ResourceKey<DamageType> GOO =
-            ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(PortalMod.MODID, "goo"));
+    public static final ResourceKey<DamageType> GOO = key("goo");
+    public static final ResourceKey<DamageType> FIZZLE = key("fizzle");
+    public static final ResourceKey<DamageType> CUBE = key("cube");
+    public static final ResourceKey<DamageType> TURRET = key("turret");
+    public static final ResourceKey<DamageType> FAITHPLATE_WALL = key("faithplate_wall");
+
+    private static ResourceKey<DamageType> key(String name) {
+        return ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(PortalMod.MODID, name));
+    }
 
     public static DamageSource goo(Level level) {
-        return level.damageSources().source(GOO);
+        return source(level, GOO);
+    }
+
+    public static DamageSource source(Level level, ResourceKey<DamageType> type) {
+        return level.damageSources().source(type);
+    }
+
+    /** A damage source caused by an entity (was EntityDamageSource). */
+    public static DamageSource source(Level level, ResourceKey<DamageType> type, Entity attacker) {
+        return level.damageSources().source(type, attacker);
     }
 }

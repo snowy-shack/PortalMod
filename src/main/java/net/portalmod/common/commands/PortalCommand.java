@@ -1,5 +1,7 @@
 package net.portalmod.common.commands;
 
+import net.minecraft.network.chat.MutableComponent;
+
 import net.minecraft.network.chat.Component;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -143,7 +145,7 @@ public class PortalCommand {
         return 1;
     }
 
-    private static TranslatableComponent getText(String key) {
+    private static MutableComponent getText(String key) {
         return Component.translatable("commands." + PortalMod.MODID + ".portal." + key);
     }
 

@@ -1,5 +1,7 @@
 package net.portalmod.common.triggers;
 
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+
 import com.google.gson.JsonObject;
 import net.portalmod.PortalMod;
 
@@ -21,7 +23,7 @@ public class CodeBoundTrigger extends SimpleCriterionTrigger<CodeBoundTrigger.In
         return id;
     }
 
-    protected CodeBoundTrigger.Instance createInstance(JsonObject json, EntityPredicate.Composite entity, DeserializationContext condition) {
+    protected CodeBoundTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate entity, DeserializationContext condition) {
         return new CodeBoundTrigger.Instance(this.id, entity);
     }
 
@@ -30,7 +32,7 @@ public class CodeBoundTrigger extends SimpleCriterionTrigger<CodeBoundTrigger.In
     }
 
     public static class Instance extends AbstractCriterionTriggerInstance {
-        public Instance(ResourceLocation id, EntityPredicate.Composite player) {
+        public Instance(ResourceLocation id, ContextAwarePredicate player) {
             super(id, player);
         }
     }

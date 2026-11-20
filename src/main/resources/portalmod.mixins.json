@@ -11,10 +11,8 @@
         "accessors.AbstractMinecartAccessor",
         "accessors.BooleanValueAccessor",
         "accessors.ChunkManagerAccessor",
-        "accessors.ChunkManagerAccessor2",
         "accessors.EntityAccessor",
         "accessors.LivingEntityAccessor",
-        "accessors.ServerLevelAccessor",
         "entity.AbstractMinecartMixin",
         "entity.EntityMixin",
         "entity.EntityTypeMixin",
@@ -81,7 +79,8 @@
         "hooks.client.MinecraftHooksMixin",
         "hooks.client.MouseHandlerHooksMixin",
         "hooks.client.PlayerRendererHooksMixin",
-        "hooks.client.ScreenEffectRendererHooksMixin"
+        "hooks.client.ScreenEffectRendererHooksMixin",
+        "accessors.LogoRendererAccessor"
     ],
     "minVersion": "0.8",
     "injectors": {

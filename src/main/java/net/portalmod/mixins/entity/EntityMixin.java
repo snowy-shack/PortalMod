@@ -1,5 +1,7 @@
 package net.portalmod.mixins.entity;
 
+import java.util.ArrayList;
+
 import net.portalmod.common.entities.Fizzleable;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.sorted.cube.Cube;
@@ -39,8 +41,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.tags.Tag;
-import net.minecraft.util.RewindableStream;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -62,7 +63,7 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
 
     @Shadow public abstract boolean isInWater();
 
-    @Shadow public abstract boolean updateFluidHeightAndDoFluidPushing(Tag<Fluid> p_210500_1_, double p_210500_2_);
+    @Shadow public abstract boolean updateFluidHeightAndDoFluidPushing(TagKey<Fluid> p_210500_1_, double p_210500_2_);
 
     private int lastUsedPortal = -1;
 
@@ -257,22 +258,23 @@ public abstract class EntityMixin implements ITeleportable, ITeleportable2, IDis
                     ordinal = 0
             )
     )
-    private RewindableStream<VoxelShape> pmAddAdditionalCollisions(RewindableStream<VoxelShape> reuseablestream, net.minecraft.world.phys.Vec3 vector) {
+    // 1.17+ passes entity collisions as a List instead of a RewindableStream.
+    private List<VoxelShape> pmAddAdditionalCollisions(List<VoxelShape> entityCollisions, net.minecraft.world.phys.Vec3 vector) {
         Entity thiss = (Entity)(Object)this;
         AABB axisalignedbb = thiss.getBoundingBox();
-        
-        Stream<VoxelShape> stream2 = Stream.empty();
+        List<VoxelShape> shapes = new ArrayList<>(entityCollisions);
+
         if(axisalignedbb.expandTowards(vector).getSize() >= 1.0E-7D) {
             AABB aabb = axisalignedbb.expandTowards(vector).inflate(1.0E-7D);
-            stream2 = thiss.level().getEntities(thiss, aabb, entity ->
+            thiss.level().getEntities(thiss, aabb, entity ->
                     entity instanceof Cube &&
                     !entity.isPassenger() &&
                     axisalignedbb.minY > entity.getBoundingBox().maxY - 0.001
-            ).stream().map(Entity::getBoundingBox).map(Shapes::create);
+            ).forEach(entity -> shapes.add(Shapes.create(entity.getBoundingBox())));
         }
 
-        return new RewindableStream<>(Stream.concat(Stream.concat(reuseablestream.getStream(), stream2),
-                Stream.of(PortalEntity.getCollisionShape(thiss))));
+        shapes.add(PortalEntity.getCollisionShape(thiss));
+        return shapes;
     }
 
     @Redirect(

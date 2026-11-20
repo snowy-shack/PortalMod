@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
 
@@ -35,7 +37,8 @@ public class FaithplateCheckboxButton extends AbstractButton {
         this.unavailable = unavailable;
     }
 
-    public void renderButton(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         Minecraft minecraft = Minecraft.getInstance();
         RenderSystem.setShaderTexture(0, TEXTURE);
         RenderSystem.enableDepthTest();
@@ -45,10 +48,10 @@ public class FaithplateCheckboxButton extends AbstractButton {
         RenderSystem.defaultBlendFunc();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        blit(matrixStack, this.getX(), this.getY(), this.unavailable ? 20.0F : 0.0F,
+        graphics.blit(TEXTURE, this.getX(), this.getY(), this.unavailable ? 20.0F : 0.0F,
                 this.ticked ? 20.0F : 0.0F, 20, this.height, 64, 64);
 
-        drawString(matrixStack, fontRenderer, this.getMessage(),
+        graphics.drawString( fontRenderer, this.getMessage(),
                 this.getX() + 24, this.getY() + (this.height - 8) / 2, unavailable ? 0x7e7e7e : 0xFFFFFF);
     }
 }

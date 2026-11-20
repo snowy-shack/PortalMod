@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 import net.minecraft.network.chat.Component;
 import com.mojang.math.Axis;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -57,7 +59,8 @@ public class SkinPreviewWidget extends AbstractWidget {
         this.yRotMomentum = 0;
     }
 
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         partialTicks = Minecraft.getInstance().getFrameTime();
         MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
         Colour lastPortalColor = new Colour(64, 59, 75, 255);

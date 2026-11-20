@@ -4,7 +4,7 @@ import javax.annotation.Nullable;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.state.StateContainer.*;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.portalmod.core.init.TileEntityTypeInit;
 
 import net.minecraft.world.level.block.Block;
@@ -64,7 +64,7 @@ public class RadioBlock extends Block implements EntityBlock {
     }
     
     @Override
-    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, STATE, POWERED);
     }
     

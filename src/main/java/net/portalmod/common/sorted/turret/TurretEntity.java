@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.turret;
 
+import net.portalmod.core.init.DamageTypeInit;
+
 import net.minecraft.network.chat.Component;
 import com.mojang.datafixers.util.Pair;
 import net.portalmod.common.entities.TestElementEntity;
@@ -34,7 +36,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.AABB;
@@ -79,7 +80,7 @@ public class TurretEntity extends TestElementEntity {
     public Vec3 turretToTarget = Vec3.ZERO;
 
     public static DamageSource damageSource(LivingEntity entity) {
-        return new EntityDamageSource("turret", entity);
+        return DamageTypeInit.source(entity.level(), DamageTypeInit.TURRET, entity);
     }
     public TurretEntity(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);

@@ -19,6 +19,6 @@ public abstract class OptionsScreenMixin extends Screen {
     
     @Inject(at = @At(value = "TAIL"), method = "init()V")
     private void pmInit(CallbackInfo info) {
-        this.addButton(PortalModOptionsScreen.getAccessButton(this));
+        this.addRenderableWidget(PortalModOptionsScreen.getAccessButton(this));
     }
 }

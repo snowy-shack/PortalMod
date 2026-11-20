@@ -1,8 +1,11 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.portalmod.core.util.MatrixUtil;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.portalmod.PortalMod;
 import net.portalmod.core.config.PortalModConfigManager;
 import net.portalmod.core.init.ShaderInit;
@@ -148,13 +151,13 @@ public class ColorPickerWidget extends AbstractWidget {
     private void setupProjection(PoseStack matrixStack) {
         Window mainWindow = Minecraft.getInstance().getWindow();
         matrixStack.scale(1, -1, 1);
-        matrixStack.last().pose().multiply(Matrix4f.orthographic(
+        matrixStack.last().pose().multiply(MatrixUtil.orthographic(
                 (float)(mainWindow.getWidth() / mainWindow.getGuiScale()),
                 (float)(mainWindow.getHeight() / mainWindow.getGuiScale()),
                 1000,
-                ForgeHooksClient.getGuiFarPlane()
+                MatrixUtil.GUI_FAR_PLANE
         ));
-        matrixStack.translate(0, 0, 1000 - ForgeHooksClient.getGuiFarPlane());
+        matrixStack.translate(0, 0, MatrixUtil.GUI_Z_OFFSET);
     }
 
     private void initQuad(PositionTextureVertexRenderer quad, Rectangle rect) {
@@ -188,12 +191,13 @@ public class ColorPickerWidget extends AbstractWidget {
         this.initQuad(huePickerCursorColorQuad, this.getHuePickerCursorColorRegion());
     }
 
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
         matrixStack.pushPose();
         matrixStack.translate(0, this.computeAnimation(), 0);
 
         RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(matrixStack, this.getX(), this.getY(), COLOR_PICKER_U, COLOR_PICKER_V, this.width, this.height, 512, 512);
+        graphics.blit(TEXTURE, this.getX(), this.getY(), COLOR_PICKER_U, COLOR_PICKER_V, this.width, this.height, 512, 512);
 
         this.setShadersModelViewMatrix(matrixStack);
         this.renderSVPicker(matrixStack);

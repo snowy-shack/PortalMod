@@ -1,7 +1,9 @@
 package net.portalmod.client.screens;
 
-import net.minecraftforge.fml.client.gui.GuiUtils;
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.network.chat.MutableComponent;
+
 import net.portalmod.PortalMod;
 import net.portalmod.client.screens.widgets.ToggleButton;
 import net.portalmod.core.config.PortalModConfigManager;
@@ -12,6 +14,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -21,7 +24,7 @@ public class PortalModOptionsScreen extends Screen {
 
     private final Screen lastScreen;
     private ToggleButton CROSSHAIR_BUTTON;
-    private Slider RECURSION_SLIDER;
+    private RecursionSlider RECURSION_SLIDER;
     private ToggleButton RENDER_SELF_BUTTON;
     private ToggleButton HIGHLIGHTS_BUTTON;
     private ToggleButton TOOLTIPS_BUTTON;
@@ -36,9 +39,7 @@ public class PortalModOptionsScreen extends Screen {
     }
     
     public static Button getAccessButton(Screen screen) {
-        return new Button(screen.width / 2 - 75, screen.height / 6 + 144 - 6, 150, 20,
-                Component.translatable("options." + PortalMod.MODID + ".button"),
-                ($1) -> Minecraft.getInstance().setScreen(new PortalModOptionsScreen(screen)));
+        return Button.builder(Component.translatable("options." + PortalMod.MODID + ".button"), ($1) -> Minecraft.getInstance().setScreen(new PortalModOptionsScreen(screen))).bounds(screen.width / 2 - 75, screen.height / 6 + 144 - 6, 150, 20).build();
     }
     
     @Override
@@ -62,22 +63,22 @@ public class PortalModOptionsScreen extends Screen {
         SEPARATE_GUN_BUTTON = this.createToggleButton(x, y += stepY, "separate_gun", PortalModConfigManager.SEPARATE_GUN.get());
         SKIN_PAGE_BUTTON = this.createSkinPageButton(x, y + stepY);
 
-        this.addButton(CROSSHAIR_BUTTON);
-        this.addButton(RECURSION_SLIDER);
-        this.addButton(RENDER_SELF_BUTTON);
-        this.addButton(HIGHLIGHTS_BUTTON);
-        this.addButton(TOOLTIPS_BUTTON);
-        this.addButton(MENU_BUTTON);
-        this.addButton(FUNNELING_BUTTON);
-        this.addButton(SEPARATE_GUN_BUTTON);
-        this.addButton(SKIN_PAGE_BUTTON);
+        this.addRenderableWidget(CROSSHAIR_BUTTON);
+        this.addRenderableWidget(RECURSION_SLIDER);
+        this.addRenderableWidget(RENDER_SELF_BUTTON);
+        this.addRenderableWidget(HIGHLIGHTS_BUTTON);
+        this.addRenderableWidget(TOOLTIPS_BUTTON);
+        this.addRenderableWidget(MENU_BUTTON);
+        this.addRenderableWidget(FUNNELING_BUTTON);
+        this.addRenderableWidget(SEPARATE_GUN_BUTTON);
+        this.addRenderableWidget(SKIN_PAGE_BUTTON);
 
-        this.addButton(new Button(this.width / 2 - 100, this.height / 6 + 168, 200, 20, CommonComponents.GUI_DONE, (p_213056_1_) -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (p_213056_1_) -> {
             close(true);
-        }));
+        }).bounds(this.width / 2 - 100, this.height / 6 + 168, 200, 20).build());
     }
 
-    private TranslatableComponent getText(String id) {
+    private MutableComponent getText(String id) {
         return Component.translatable("options." + PortalMod.MODID + "." + id);
     }
 
@@ -92,15 +93,14 @@ public class PortalModOptionsScreen extends Screen {
 
     private RecursionSlider createRecursionSlider(int x, int y) {
         return new RecursionSlider(x, y, BUTTON_WIDTH, BUTTON_HEIGHT,
-                this.getText("recursion").append(": "), Component.empty(),
-                0, 9, PortalModConfigManager.RECURSION.get(), false, true, $1 -> {});
+                this.getText("recursion").append(": "), PortalModConfigManager.RECURSION.get());
     }
 
     private Button createSkinPageButton(int x, int y) {
-        return new Button(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, this.getText("skins"), b -> {
+        return Button.builder(this.getText("skins"), b -> {
             this.save();
             Minecraft.getInstance().setScreen(SkinSelectorScreen.getInstance(this));
-        });
+        }).bounds(x, y, BUTTON_WIDTH, BUTTON_HEIGHT).build();
     }
     
     @Override
@@ -110,10 +110,11 @@ public class PortalModOptionsScreen extends Screen {
     }
     
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        renderDirtBackground(0);
-        drawCenteredString(matrixStack, this.font, this.title, this.width / 2, 20, 16777215);
-        super.render(matrixStack, mouseX, mouseY, partialTicks);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
+        renderDirtBackground(graphics);
+        graphics.drawCenteredString( this.font, this.title, this.width / 2, 20, 16777215);
+        super.render(graphics, mouseX, mouseY, partialTicks);
     }
     
     @Override
@@ -134,7 +135,7 @@ public class PortalModOptionsScreen extends Screen {
 
     private void save() {
         PortalModConfigManager.CROSSHAIR.set(CROSSHAIR_BUTTON.getValue());
-        PortalModConfigManager.RECURSION.set((int)Math.round(RECURSION_SLIDER.getValue()));
+        PortalModConfigManager.RECURSION.set(RECURSION_SLIDER.getIntValue());
         PortalModConfigManager.RENDER_SELF.set(RENDER_SELF_BUTTON.getValue());
         PortalModConfigManager.HIGHLIGHTS.set(HIGHLIGHTS_BUTTON.getValue());
         PortalModConfigManager.TOOLTIPS.set(TOOLTIPS_BUTTON.getValue());
@@ -143,36 +144,31 @@ public class PortalModOptionsScreen extends Screen {
         PortalModConfigManager.SEPARATE_GUN.set(SEPARATE_GUN_BUTTON.getValue());
     }
 
-    private static class RecursionSlider extends Slider {
-        public RecursionSlider(int x, int y, int width, int height, Component prefix, Component suf, double minVal, double maxVal, double currentVal, boolean showDec, boolean drawStr, IPressable handler) {
-            super(x, y, width, height, prefix, suf, minVal, maxVal, currentVal, showDec, drawStr, handler);
+    /** Whole-number slider from 0 to 9 (Forge's Slider widget is gone; this uses vanilla's AbstractSliderButton). */
+    private static class RecursionSlider extends AbstractSliderButton {
+        private static final int MIN = 0;
+        private static final int MAX = 9;
+        private final Component prefix;
+
+        public RecursionSlider(int x, int y, int width, int height, Component prefix, int currentVal) {
+            super(x, y, width, height, Component.empty(), (double) (currentVal - MIN) / (MAX - MIN));
+            this.prefix = prefix;
+            this.updateMessage();
+        }
+
+        public int getIntValue() {
+            return MIN + (int) Math.round(this.value * (MAX - MIN));
         }
 
         @Override
-        protected void renderBg(PoseStack matrixStack, Minecraft minecraft, int x, int y) {
-            if(this.visible) {
-                if(this.dragging) {
-                    this.sliderValue = (x - (this.x + 4)) / (float)(this.width - 8);
-                    updateSlider();
-                }
-
-                GuiUtils.drawContinuousTexturedBox(
-                        matrixStack,WIDGETS_LOCATION,
-                        this.x + (int)(this.sliderValue * (float)(this.width - 8)), this.y,
-                        0, 66 + (this.isHovered() ? 20 : 0),
-                        8, this.height,
-                        200, 20,
-                        2, 3, 2, 2,
-                        this.getBlitOffset()
-                );
-            }
+        protected void updateMessage() {
+            this.setMessage(prefix.copy().append(String.valueOf(getIntValue())));
         }
 
         @Override
-        public void updateSlider() {
-            super.updateSlider();
-            int range = ((int)this.maxValue - (int)this.minValue);
-            this.sliderValue = (double)Math.round(this.sliderValue * range) / range;
+        protected void applyValue() {
+            // Snap to whole steps.
+            this.value = (double) (getIntValue() - MIN) / (MAX - MIN);
         }
     }
 }

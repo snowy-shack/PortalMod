@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portal;
 
+import net.minecraft.world.damagesource.DamageTypes;
+
 import com.mojang.math.Axis;
 import com.google.common.collect.Lists;
 import net.portalmod.core.network.IEntityAdditionalSpawnData;
@@ -53,7 +55,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.core.Direction;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -915,7 +916,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
 
         Entity attacker = source.getEntity();
 
-        if(source instanceof EntityDamageSource && attacker instanceof LivingEntity) {
+        if(source.getEntity() != null && attacker instanceof LivingEntity) {
             boolean hitWithWrench = WrenchItem.hitWithWrench((LivingEntity)attacker);
             boolean isCreative = attacker instanceof Player && ((Player)attacker).isCreative();
 
@@ -925,7 +926,7 @@ public class PortalEntity extends Entity implements IEntityAdditionalSpawnData {
             }
         }
 
-        return source == DamageSource.OUT_OF_WORLD && super.hurt(source, amount);
+        return source.is(DamageTypes.FELL_OUT_OF_WORLD) && super.hurt(source, amount);
     }
 
     public Direction getDirection() {

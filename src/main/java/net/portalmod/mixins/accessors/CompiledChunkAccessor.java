@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 @Mixin(ChunkRenderDispatcher.CompiledChunk.class)
 public interface CompiledChunkAccessor {
     @Accessor(value = "transparencyState")
-    BufferBuilder.State pmGetTransparencyState();
+    BufferBuilder.SortState pmGetTransparencyState();
 
     @Accessor(value = "hasBlocks")
     Set<RenderType> pmGetHasBlocks();

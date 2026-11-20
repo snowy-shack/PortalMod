@@ -1,5 +1,11 @@
 package net.portalmod.common.entities;
 
+import net.portalmod.common.items.ModSpawnEggItem;
+
+import net.minecraft.world.entity.item.ItemEntity;
+
+import net.minecraft.world.damagesource.DamageTypes;
+
 import com.mojang.math.Axis;
 import net.portalmod.common.items.WrenchItem;
 import net.portalmod.common.particles.FizzleFlakeParticle;
@@ -38,7 +44,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
@@ -180,7 +185,7 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
      */
     public void fizzleKill() {
         if (!this.isFromDropper() && !this.getType().is(EntityTagInit.FIZZLER_NO_ITEM_DROPS) && !this.level().isClientSide) {
-            this.dropAllDeathLoot(new DamageSource("fizzle"));
+            this.dropAllDeathLoot(DamageTypeInit.source(this.level(), DamageTypeInit.FIZZLE));
         }
         this.remove();
     }
@@ -544,8 +549,8 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
         }
 
         boolean shouldSwing = true;
-        boolean holdingWrench = source instanceof EntityDamageSource && source.getEntity() instanceof LivingEntity && WrenchItem.hitWithWrench((LivingEntity) source.getEntity());
-        boolean outOfWorld = source == DamageSource.OUT_OF_WORLD;
+        boolean holdingWrench = source.getEntity() instanceof LivingEntity && WrenchItem.hitWithWrench((LivingEntity) source.getEntity());
+        boolean outOfWorld = source.is(DamageTypes.FELL_OUT_OF_WORLD);
         boolean inGoo = source.is(DamageTypeInit.GOO) && this.getVehicle() == null;
         boolean isCreative = source.isCreativePlayer();
 
@@ -666,5 +671,16 @@ public abstract class TestElementEntity extends LivingEntity implements Fizzleab
 
     public int getHurtDir() {
         return this.entityData.get(DATA_ID_HURTDIR);
+    }
+
+    /**
+     * Spawn eggs dropped by a named test element keep its name.
+     * (Forge did this in a LivingDropsEvent handler in CommonEvents.)
+     */
+    @Override
+    public ItemEntity spawnAtLocation(ItemStack stack, float yOffset) {
+        if (stack.getItem() instanceof ModSpawnEggItem && this.hasCustomName())
+            stack.setHoverName(this.getCustomName());
+        return super.spawnAtLocation(stack, yOffset);
     }
 }

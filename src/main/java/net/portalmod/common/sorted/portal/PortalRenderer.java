@@ -793,7 +793,7 @@ public class PortalRenderer {
 
     private void blitFBOtoFBO(RenderTarget src, RenderTarget dest) {
         ShaderInit.ACTUAL_BLIT.get().bind()
-                .setMatrix("projection", Matrix4f.createScaleMatrix(1, 1, 1))
+                .setMatrix("projection", new Matrix4f().scaling(1, 1, 1))
                 .setInt("texture", 0);
 
         RenderSystem.disableBlend();

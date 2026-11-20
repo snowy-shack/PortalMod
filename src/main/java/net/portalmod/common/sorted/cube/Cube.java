@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.cube;
 
+import net.portalmod.core.init.DamageTypeInit;
+
 import net.portalmod.common.entities.TestElementEntity;
 import net.portalmod.common.sorted.button.SuperButtonBlock;
 import net.portalmod.core.init.BlockInit;
@@ -22,7 +24,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.sounds.SoundSource;
@@ -43,7 +44,7 @@ public class Cube extends TestElementEntity {
     }
     
     public static DamageSource cube(LivingEntity entity) {
-        return new EntityDamageSource("cube", entity);
+        return DamageTypeInit.source(entity.level(), DamageTypeInit.CUBE, entity);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

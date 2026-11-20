@@ -3,6 +3,7 @@ package net.portalmod.core.injectors;
 import java.util.List;
 
 import net.portalmod.PortalMod;
+import net.portalmod.mixins.accessors.LogoRendererAccessor;
 import net.portalmod.mixins.accessors.MainMenuScreenAccessor;
 import net.portalmod.mixins.accessors.MinecraftAccessor;
 import net.portalmod.mixins.accessors.SplashesAccessor;
@@ -25,7 +26,7 @@ public class MainMenuInjector {
     
     public static TitleScreen getInjectedMenu(boolean custom, boolean fadeIn) {
         if(prevEdition == null)
-            prevEdition = MainMenuScreenAccessor.pmGetEdition();
+            prevEdition = LogoRendererAccessor.pmGetEdition();
         if(prevCubeMap == null)
             prevCubeMap = MainMenuScreenAccessor.pmGetCubeMap();
         if(prevSplashes == null)
@@ -38,7 +39,7 @@ public class MainMenuInjector {
 
         if(!needsUpdate) return new TitleScreen(false);
 
-        MainMenuScreenAccessor.pmSetEdition(custom ? EDITION : prevEdition);
+        LogoRendererAccessor.pmSetEdition(custom ? EDITION : prevEdition);
         SplashesAccessor.pmSetLocation(custom ? SPLASHES : prevSplashes);
 
         try {

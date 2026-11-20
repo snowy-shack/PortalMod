@@ -1,7 +1,10 @@
 package net.portalmod.common.sorted.faithplate;
 
+import net.minecraft.client.gui.components.Button;
+
+import net.minecraft.client.gui.GuiGraphics;
+
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraftforge.fml.client.gui.widget.ExtendedButton;
 import net.portalmod.PortalMod;
 import net.portalmod.core.init.PacketInit;
 import net.portalmod.core.init.ShaderInit;
@@ -48,8 +51,8 @@ public class FaithPlateConfigScreen extends Screen {
     public static final int MAX_HEIGHT = 100;
 
     private RenderWidget panel;
-    private ExtendedButton selector;
-    private ExtendedButton done;
+    private Button selector;
+    private Button done;
     private NumberInputField heightField;
     private FaithplateCheckboxButton enable;
 
@@ -76,15 +79,15 @@ public class FaithPlateConfigScreen extends Screen {
         int buttonWidth = 216 / 2 - 1;
 
         panel = addWidget(new RenderWidget(this, getX() + 10, getY() + 22, 210, 121, Component.literal("Render Panel")));
-        selector = addButton(new ExtendedButton(getX() + 7, getY() + 150, buttonWidth, 20, Component.translatable("container.faithplate.select"), button -> {
+        selector = addRenderableWidget(Button.builder(Component.translatable("container.faithplate.select"), button -> {
             FaithPlateTER.selected = selected;
             this.onClose();
-        }));
-        done = addButton(new ExtendedButton(getX() + 9 + buttonWidth, getY() + 150, buttonWidth, 20, Component.translatable("gui.done"), button ->
+        }).bounds(getX() + 7, getY() + 150, buttonWidth, 20).build());
+        done = addRenderableWidget(Button.builder(Component.translatable("gui.done"), button ->
                 this.onClose()
-        ));
+        ).bounds(getX() + 9 + buttonWidth, getY() + 150, buttonWidth, 20).build());
 
-        enable = addButton(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, Component.translatable("container.faithplate.enabled"), be.isEnabled()));
+        enable = addRenderableWidget(new FaithplateCheckboxButton(getX() + 230, getY() + 25 + verticalOffset, 20, 20, Component.translatable("container.faithplate.enabled"), be.isEnabled()));
         enable.setUnavailable(be.isIndicatorControlled());
 
         heightField = addWidget(new NumberInputField(this, font, getX() + 230, getY() + 70 + verticalOffset, 85, 20, Component.literal("Height")));
@@ -197,22 +200,24 @@ public class FaithPlateConfigScreen extends Screen {
     }
     
     @Override
-    public void renderBackground(PoseStack matrixStack, int i) {
+    public void renderBackground(GuiGraphics graphics, int i) {
+        PoseStack matrixStack = graphics.pose();
         super.renderBackground(matrixStack, i);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
         glEnable(GL_BLEND);
-        blit(matrixStack, getX(), getY(), 0, 0, 330, 179, 512, 512);
+        graphics.blit(TEXTURE, getX(), getY(), 0, 0, 330, 179, 512, 512);
         glDisable(GL_BLEND);
     }
 
     int verticalOffset = 75;
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(matrixStack);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
+        renderBackground(graphics);
         panel.render(matrixStack, mouseX, mouseY, partialTicks);
         selector.render(matrixStack, mouseX, mouseY, partialTicks);
         done.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -221,11 +226,11 @@ public class FaithPlateConfigScreen extends Screen {
         
         Font fontRenderer = Minecraft.getInstance().font;
 
-        fontRenderer.draw(matrixStack, Component.translatable("container.faithplate"), getX() + 11, getY() + 8, 0xFFFFFF);
-        drawString(matrixStack, fontRenderer, Component.translatable("container.faithplate.height"), getX() + 230, getY() + 53 + verticalOffset, 16777215 | 0xFF << 24);
+        graphics.drawString(fontRenderer, Component.translatable("container.faithplate"), (int) (getX() + 11), (int) (getY() + 8), 0xFFFFFF, false);
+        graphics.drawString( fontRenderer, Component.translatable("container.faithplate.height"), getX() + 230, getY() + 53 + verticalOffset, 16777215 | 0xFF << 24);
 
         if (!panel.enabled)
-            drawCenteredString(matrixStack, fontRenderer, Component.translatable("container.faithplate.noTarget"), (width - 100) / 2, (getY() + panel.getY() + panel.getHeight()) / 2, 0xFFFF5555);
+            graphics.drawCenteredString( fontRenderer, Component.translatable("container.faithplate.noTarget"), (width - 100) / 2, (getY() + panel.getY() + panel.getHeight()) / 2, 0xFFFF5555);
     }
     
     private static class RenderWidget extends AbstractWidget {
@@ -267,7 +272,8 @@ public class FaithPlateConfigScreen extends Screen {
 
         // Hours wasted here: 6
         @Override
-        public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
             if (!this.enabled) return;
 
             double a = 0;

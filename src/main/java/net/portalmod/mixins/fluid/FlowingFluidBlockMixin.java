@@ -17,7 +17,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
@@ -69,7 +69,7 @@ public abstract class FlowingFluidBlockMixin extends Block implements BucketPick
     }
 
     @Unique
-    public boolean portalMod$handleFluidInteraction(Tag<Fluid> fluid1, Block flowingBlock, Block sourceBlock, Level world, BlockPos pos) {
+    public boolean portalMod$handleFluidInteraction(TagKey<Fluid> fluid1, Block flowingBlock, Block sourceBlock, Level world, BlockPos pos) {
         // Check both the type of fluid and whether it's not just a waterlogged block
         if (world.getFluidState(pos).is(fluid1) && world.getBlockState(pos).getBlock() instanceof LiquidBlock) {
             world.setBlockAndUpdate(pos, net.minecraftforge.event.ForgeEventFactory.fireFluidPlaceBlockEvent(world, pos, pos, (world.getFluidState(pos).isSource() ? sourceBlock : flowingBlock).defaultBlockState()));

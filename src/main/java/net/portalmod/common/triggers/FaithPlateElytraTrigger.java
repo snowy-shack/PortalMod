@@ -1,5 +1,7 @@
 package net.portalmod.common.triggers;
 
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
+
 import com.google.gson.JsonObject;
 import net.portalmod.PortalMod;
 
@@ -17,7 +19,7 @@ public class FaithPlateElytraTrigger extends SimpleCriterionTrigger<FaithPlateEl
         return ID;
     }
 
-    protected FaithPlateElytraTrigger.Instance createInstance(JsonObject json, EntityPredicate.Composite entity, DeserializationContext condition) {
+    protected FaithPlateElytraTrigger.Instance createInstance(JsonObject json, ContextAwarePredicate entity, DeserializationContext condition) {
         return new FaithPlateElytraTrigger.Instance(entity);
     }
 
@@ -26,7 +28,7 @@ public class FaithPlateElytraTrigger extends SimpleCriterionTrigger<FaithPlateEl
     }
 
     public static class Instance extends AbstractCriterionTriggerInstance {
-        public Instance(EntityPredicate.Composite player) {
+        public Instance(ContextAwarePredicate player) {
             super(FaithPlateElytraTrigger.ID, player);
         }
     }

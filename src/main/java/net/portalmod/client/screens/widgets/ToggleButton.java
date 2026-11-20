@@ -1,30 +1,29 @@
 package net.portalmod.client.screens.widgets;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.util.Mth;
-import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
 
+/** An on/off button. Its label shows the current value. */
 public class ToggleButton extends Button {
     private boolean value;
 
-    public ToggleButton(int x, int y, int width, int height, Component text, IPressable pressable, boolean value) {
-        super(x, y, width, height, text, ($1) -> {});
-        this.value = value;
+    public ToggleButton(int x, int y, int width, int height, Component text, OnPress pressable, boolean value) {
+        this(x, y, width, height, text, pressable, value, null);
     }
 
-    public ToggleButton(int x, int y, int width, int height, Component text, IPressable pressable, boolean value, ITooltip tooltip) {
-        super(x, y, width, height, text, ($1) -> {}, tooltip);
+    public ToggleButton(int x, int y, int width, int height, Component text, OnPress pressable, boolean value, @Nullable Tooltip tooltip) {
+        super(x, y, width, height, text, ($1) -> {}, DEFAULT_NARRATION);
         this.value = value;
+        if (tooltip != null)
+            this.setTooltip(tooltip);
     }
 
     @Override
-    public void onClick(double p_230982_1_, double p_230982_3_) {
-        super.onClick(p_230982_1_, p_230982_3_);
+    public void onClick(double mouseX, double mouseY) {
+        super.onClick(mouseX, mouseY);
         value = !value;
     }
 

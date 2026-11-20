@@ -1,6 +1,5 @@
 package net.portalmod.core.injectors;
 
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

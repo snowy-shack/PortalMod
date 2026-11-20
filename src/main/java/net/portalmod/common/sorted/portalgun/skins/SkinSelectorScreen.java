@@ -1,5 +1,9 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.portalmod.core.util.MatrixUtil;
+
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
 import java.awt.*;
@@ -180,7 +184,7 @@ public class SkinSelectorScreen extends Screen {
             } catch (URISyntaxException ignored) { }
         });
 
-        this.addButton(this.infoButton);
+        this.addRenderableWidget(this.infoButton);
     }
 
     private void initRefreshButton() {
@@ -202,7 +206,7 @@ public class SkinSelectorScreen extends Screen {
         });
         this.refreshButton.active = System.currentTimeMillis() - this.lastRefresh >= REFRESH_TIMEOUT;
 
-        this.addButton(this.refreshButton);
+        this.addRenderableWidget(this.refreshButton);
     }
 
     private void initApplyButton() {
@@ -211,15 +215,15 @@ public class SkinSelectorScreen extends Screen {
         int y = this.getY() + HEIGHT + 1;
         MutableComponent text = Component.translatable("options." + PortalMod.MODID + ".skins.apply");
 
-        this.applyButton = new Button(x, y, APPLY_BUTTON_WIDTH, height, text, button -> {
+        this.applyButton = Button.builder(text, button -> {
             ClientSkinManager.getInstance().onSkinSelected(
                     this.selectedSkin.getSkin().skin_id,
                     this.colorPickerWidget.getTint().getRGBValue()
             );
             this.close(false);
-        });
+        }).bounds(x, y, APPLY_BUTTON_WIDTH, height).build();
 
-        this.addButton(this.applyButton);
+        this.addRenderableWidget(this.applyButton);
     }
 
     private int getX() {
@@ -252,16 +256,18 @@ public class SkinSelectorScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(PoseStack matrixStack, int i) {
+    public void renderBackground(GuiGraphics graphics, int i) {
+        PoseStack matrixStack = graphics.pose();
         super.renderBackground(matrixStack, i);
 
         RenderSystem.setShaderTexture(0, TEXTURE);
-        blit(matrixStack, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
+        graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 0, WIDTH, HEIGHT, 512, 512);
     }
 
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrixStack);
-        this.font.draw(matrixStack, this.title, (float)this.getX() + 8, (float)this.getY() + 6, 4210752);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
+        this.renderBackground(graphics);
+        graphics.drawString(this.font, this.title, (int) ((float)this.getX() + 8), (int) ((float)this.getY() + 6), 4210752, false);
 
         if(!this.isLoading()) {
             this.skinPreviewWidget.render(matrixStack, mouseX, mouseY, partialTicks);
@@ -324,7 +330,8 @@ public class SkinSelectorScreen extends Screen {
         matrixStack.popPose();
     }
 
-    private void renderScrollbar(PoseStack matrixStack) {
+    private void renderScrollbar(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
         if(this.getListHeight() <= this.listRegion.height)
             return;
 
@@ -357,11 +364,11 @@ public class SkinSelectorScreen extends Screen {
         Window mainWindow = Minecraft.getInstance().getWindow();
         float scale = (float)mainWindow.getGuiScale();
 
-        Matrix4f projection = Matrix4f.orthographic(
+        Matrix4f projection = MatrixUtil.orthographic(
                 mainWindow.getWidth(),
                 mainWindow.getHeight(),
                 1000f,
-                net.minecraftforge.client.ForgeHooksClient.getGuiFarPlane()
+                MatrixUtil.GUI_FAR_PLANE
         );
 
         RenderSystem.enableBlend();

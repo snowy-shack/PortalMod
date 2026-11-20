@@ -138,7 +138,7 @@ public class DebugRenderer {
 
         debugVG.bind();
         DefaultVertexFormat.POSITION_COLOR.setupBufferState(0L);
-        debugVG.draw(Matrix4f.createScaleMatrix(1, 1, 1), GL11.GL_LINES);
+        debugVG.draw(new Matrix4f().scaling(1, 1, 1), GL11.GL_LINES);
         DefaultVertexFormat.POSITION_COLOR.clearBufferState();
         VertexBuffer.unbind();
     }

@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun;
 
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+
 import net.portalmod.core.init.RecipeInit;
 
 import net.minecraft.world.inventory.CraftingContainer;
@@ -11,8 +13,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 public class PortalGunDuplicateRecipe extends CustomRecipe {
-    public PortalGunDuplicateRecipe(ResourceLocation resourceLocation) {
-        super(resourceLocation);
+    public PortalGunDuplicateRecipe(ResourceLocation resourceLocation, CraftingBookCategory category) {
+        super(resourceLocation, category);
     }
 
     @Override

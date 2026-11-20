@@ -1,5 +1,7 @@
 package net.portalmod.common.sorted.portalgun.skins;
 
+import net.minecraft.client.gui.GuiGraphics;
+
 import net.minecraft.network.chat.Component;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.portalmod.PortalMod;
@@ -37,23 +39,25 @@ public class SkinEntryWidget extends AbstractWidget {
         }
     }
 
-    protected void renderBackground(PoseStack matrixStack) {
+    protected void renderBackground(GuiGraphics graphics) {
+        PoseStack matrixStack = graphics.pose();
         if(this.selected) {
             RenderSystem.setShaderColor(1, 1, 1, 1);
             RenderSystem.setShaderTexture(0, TEXTURE);
-            blit(matrixStack, this.getX(), this.getY(), 0, 176, this.width, this.height, 512, 512);
+            graphics.blit(TEXTURE, this.getX(), this.getY(), 0, 176, this.width, this.height, 512, 512);
         }
     }
 
     @Override
-    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(matrixStack);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+        PoseStack matrixStack = graphics.pose();
+        this.renderBackground(graphics);
         Font font = Minecraft.getInstance().font;
 
         String credit = (this.skin.artist != null) ? "- by " + this.skin.artist : "";
 
-        drawString(matrixStack, font, "§l" + this.skin.name + " §r" + credit, this.getX() + 7, this.getY() + 7, 16777215);
-        drawString(matrixStack, font, this.skin.description, this.getX() + 7, this.getY() + 7 + 10, 16777215);
+        graphics.drawString( font, "§l" + this.skin.name + " §r" + credit, this.getX() + 7, this.getY() + 7, 16777215);
+        graphics.drawString( font, this.skin.description, this.getX() + 7, this.getY() + 7 + 10, 16777215);
     }
 
     @Override
